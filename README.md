@@ -1,8 +1,12 @@
-create a new repository on the command line
-echo "# -" >> README.md
-git init
-git add README.md
-git commit -m "first commit"
-git branch -M main
-git remote add origin https://github.com/3218870799/-Note.git
-git push -u origin main
+# 说明
+
+> > 本项目是个人学习的笔记，包含一些工具的安装与使用，基础的知识点的整理。
+> >
+> > 由于记录时本人使用markdown时图片之类太多保存不便，故使用Word进行整理记录。
+> >
+> > 主要目的是对于一些基础的东西便于查看与后续问题更
+
+
+
+# 目录
+
