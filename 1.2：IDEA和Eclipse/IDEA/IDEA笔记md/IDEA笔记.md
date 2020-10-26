@@ -821,6 +821,12 @@ IntelliJ IDEA对版本控制的支持是以插件化的方式来实现的。旗�
 
 ## 1：使用SVN
 
+1.1：调出SVN工具窗口
+
+![image-20201026085827355](IDEA笔记.assets/image-20201026085827355.png)
+
+
+
 
 
 
@@ -1131,4 +1137,18 @@ VPN，一般都可以得到解决。
 | CodeGlance               | 在编辑代码最右侧，显示一块代码小地图                                                 | <https://plugins.jetbrains.com/plugin/7275?pr=idea> [](https://plugins.jetbrains.com/plugin/7275?pr=idea) |
 | Eclipse Code  Formatter  | 使用 Eclipse 的代码格式化风格，在一个团队中如果公司有规定格式化风格，这个可以使用。  | <https://plugins.jetbrains.com/plugin/6546?pr=idea> [](https://plugins.jetbrains.com/plugin/6546?pr=idea) |
 | GsonFormat               | 把 JSON 字符串直接实例化成类                                                         | <https://plugins.jetbrains.com/plugin/7654?pr=idea> [](https://plugins.jetbrains.com/plugin/7654?pr=idea) |
+
+热部署插件jrebel
+
+
+
+
+
+
+
+ctrl+shift +F9
+
+控制台高亮插件
+
+
 
