@@ -924,21 +924,25 @@ pull：更新到本地
 
 1.1 常用断点调试快捷键
 
-![media/653509677bd51fdbe6c4fd09790f8f16.jpg](media/653509677bd51fdbe6c4fd09790f8f16.jpg)  step over 进入下一步，如果当前行断点是一个方法，则不进入当前方法体内
+![media/653509677bd51fdbe6c4fd09790f8f16.jpg](media/653509677bd51fdbe6c4fd09790f8f16.jpg)  step over 进入下一步，如果当前行断点是一个方法，则不进入当前方法体内 F8 eclipse是F6
 
- ![media/7aa0291064086010345ba58af0841d47.jpg](media/7aa0291064086010345ba58af0841d47.jpg)  step into 进入下一步，如果当前行断点是一个方法，则进入当前方法体内
+ ![media/7aa0291064086010345ba58af0841d47.jpg](media/7aa0291064086010345ba58af0841d47.jpg)  step into 进入下一步，如果当前行断点是一个方法，则进入当前方法体内 F7 eclipse是F5
 
  ![media/c8837c3b64f37c00621cd9626f92a32f.jpg](media/c8837c3b64f37c00621cd9626f92a32f.jpg)  force step into 进入下一步，如果当前行断点是一个方法，则进入当前方法体内  
 
 ![media/62f59380f1cec1a88c0044f2bcb3135c.jpg](media/62f59380f1cec1a88c0044f2bcb3135c.jpg)  step out 跳出  
 
-![media/048a649a63245446271858822999b723.jpg](media/048a649a63245446271858822999b723.jpg)  resume program 恢复程序运行，但如果该断点下面代码还有断点则停在下一个断点上  
+![media/048a649a63245446271858822999b723.jpg](media/048a649a63245446271858822999b723.jpg)  resume program 恢复程序运行，但如果该断点下面代码还有断点则停在下一个断点上   F9
 
 ![media/658dd92377d4ac9d39c8401a5909fc85.jpg](media/658dd92377d4ac9d39c8401a5909fc85.jpg)  stop 停止 
 
  ![media/f68ca9efb4d9772f37e8fa47dc442938.jpg](media/f68ca9efb4d9772f37e8fa47dc442938.jpg)  mute breakpoints 点中，使得所有的断点失效  
 
 ![media/9eb5a8484bcb2f18744eaea73eb9a2f2.jpg](media/9eb5a8484bcb2f18744eaea73eb9a2f2.jpg)  view breakpoints 查看所有断点  
+
+Atl +F9 运行到光标处
+
+Alt + F8 ：debugger时选中查看值
 
 
 对于常用的 Debug 的快捷键，需要大家熟练掌握。
@@ -1193,6 +1197,12 @@ ctrl+shift +F9
 ![image-20201026213258638](IDEA笔记.assets/image-20201026213258638.png)
 
 ![image-20201026213445664](IDEA笔记.assets/image-20201026213445664.png)
+
+
+
+生成get与set方法
+
+Alt +  inset，选择生成get与set方法
 
 
 
