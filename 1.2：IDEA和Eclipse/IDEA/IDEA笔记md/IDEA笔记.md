@@ -1198,9 +1198,45 @@ VPN，一般都可以得到解决。
 
 ## 5：热部署插件jrebel
 
+安装
+
+![image-20201027155040685](IDEA笔记.assets/image-20201027155040685.png)
+
+
+
+提示Enable jrebel点击使用
+
+![image-20201027171310294](IDEA笔记.assets/image-20201027171310294.png)
+
 激活：
 
-https://blog.csdn.net/qy_0626/article/details/107490498?utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~all~sobaiduend~default-1-107490498.nonecase&utm_term=2020%20idea%20jrebel%E6%BF%80%E6%B4%BB&spm=1000.2123.3001.4430
+1、点此链接生成guid： https://www.guidgen.com/ 复制生成的guid
+
+2：选择第一个选项 Team URL
+
+ 在第一个空白地址中填写：
+
+https://jrebel.qekang.com/+生成的guid
+
+第二个选项则填写你自己的邮箱即可
+
+然后选择同意接受协议等等
+
+
+
+3：然后继续点击右侧的 JRebel setup guide
+
+4：设置自动编译
+
+![image-20201027220307562](IDEA笔记.assets/image-20201027220307562.png)
+
+
+
+5：设置运行时编译
+
+
+
+6：修改后手动更新ctrl+shift +F9
 
 
 
