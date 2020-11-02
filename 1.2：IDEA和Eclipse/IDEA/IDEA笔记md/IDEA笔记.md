@@ -1206,7 +1206,7 @@ VPN，一般都可以得到解决。
 
 提示Enable jrebel点击使用
 
-![image-20201027171310294](IDEA笔记.assets/image-20201027171310294.png)
+<img src="IDEA笔记.assets/image-20201027171310294.png" alt="image-20201027171310294" style="zoom:50%;" />
 
 激活：
 
@@ -1240,14 +1240,6 @@ https://jrebel.qekang.com/+生成的guid
 
 
 
-
-
-
-
-![image-20201026221705907](IDEA笔记.assets/image-20201026221705907.png)
-
-
-
 以后就不要再使用debug启动了，使用Jrebel debug启动即可。
 
 ![image-20201029161430028](IDEA笔记.assets/image-20201029161430028.png)
@@ -1255,6 +1247,38 @@ https://jrebel.qekang.com/+生成的guid
 每次修改需要部署时，手动启动
 
 ctrl+shift +F9
+
+
+
+## 6：MybatisCodeHelper
+
+下载：蓝奏云("https://borber.lanzous.com/b0cq9t1jc") 密码:6llf
+
+然后直接拖拽进IDEA，重启IDEA
+
+按照一下方法激活即可
+
+<img src="IDEA笔记.assets/image-20201102160859495.png" alt="image-20201102160859495" style="zoom:50%;" />
+
+![image-20201026221705907](IDEA笔记.assets/image-20201026221705907.png)
+
+
+
+使用：
+
+1：根据实体类生成建表语句
+
+<img src="IDEA笔记.assets/1645656-20200317091412421-690271322.png" alt="img" style="zoom:50%;" />
+
+2：根据表生成bean，mapper.xml
+
+连接数据库，打开DataBase窗口，选择要生成的代码对应的表，右键
+
+<img src="IDEA笔记.assets/1645656-20200317085555545-1809723491.png" alt="img" style="zoom:50%;" />
+
+3：点击小鸟可实现Dao与mapper.xml文件的跳转
+
+
 
 
 
