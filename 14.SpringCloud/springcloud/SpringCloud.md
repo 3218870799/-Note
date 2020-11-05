@@ -809,11 +809,13 @@ eureka:
 
 
 
-### 4,修改服务主机名和ip在eureka的web上显示
+### 1.6：修改服务主机名和ip在eureka的web上显示
 
 比如修改pay模块
 
-#### 1,修改配置文件:
+1,修改配置文件:
+
+添加实例
 
 ![](.\图片\Eureka的20.png)
 
@@ -821,13 +823,13 @@ eureka:
 
 
 
-## 2：eureka服务发现:
+### 1.7：服务发现Discovery
 
 ![](.\图片\Eureka的21.png)
 
 以pay模块为例
 
-#### 1,首先添加一个注解,在controller中
+**1,首先添加一个注解,在controller中**
 
 ![](.\图片\Eureka的22.png)
 
@@ -835,7 +837,7 @@ eureka:
 
 
 
-#### 2,在主启动类上添加一个注解
+**2,在主启动类上添加一个注解**
 
 ![](.\图片\Eureka的24.png)
 
@@ -845,7 +847,7 @@ eureka:
 
 
 
-### 6,Eureka自我保护:
+### 1.8：Eureka自我保护:
 
 ![](.\图片\Eureka的26.png)
 
@@ -865,11 +867,11 @@ eureka:
 
 ![](.\图片\Eureka的30.png)
 
-​			**设置接受心跳时间间隔**
+**设置接受心跳时间间隔**
 
 
 
-**客户端(比如pay模块):**
+客户端(比如pay模块):
 
 ![](.\图片\Eureka的31.png)
 
@@ -877,7 +879,7 @@ eureka:
 
 
 
-**此时启动erueka和pay.此时如果直接关闭了pay,那么erueka会直接删除其注册信息**
+此时启动erueka和pay.此时如果直接关闭了pay,那么erueka会直接删除其注册信息
 
 
 
@@ -887,33 +889,33 @@ eureka:
 
 
 
-## 7,Zookeeper服务注册与发现:
+## 2：Zookeeper
 
-### 1,启动zk,到linux上
+### 2.1：启动zk,到linux上
 
 
 
-### 2,创建新的pay模块,
+### 2.2：创建新的pay模块,
 
 单独用于注册到zk中  
 
 名字 : cloud_pay_8003
 
-#### 1,pom依赖
+1,pom依赖
 
-#### 2,配置文件
+2,配置文件
 
 ![](.\图片\zookeeper的3.png)
 
-#### 3,主启动类
+3,主启动类
 
 ![](.\图片\zookeeper的1.png)
 
-#### 4,controller
+4,controller
 
 ![](.\图片\zookeeper的2.png)
 
-#### 5,然后就可以启动
+5,然后就可以启动
 
 **此时启动,会报错,因为jar包与我们的zk版本不匹配**
 
@@ -941,33 +943,33 @@ eureka:
 
 
 
-### 3,创建order消费模块注册到zk
+### 2.3：创建order消费模块注册到zk
 
-#### 1,创建项目
+创建项目
 
 名字: cloud_order_zk_80
 
-#### 2,pom
+2,pom
 
-#### 3,配置文件
+3,配置文件
 
 ![](.\图片\zookeeper的5.png)
 
-#### 4主启动类:
+4主启动类:
 
 ![](.\图片\zookeeper的1.png)
 
-#### 5,RestTemolate
+5,RestTemolate
 
 ![注意,这里使用RestTemolate,要先注册它](.\图片\zookeeper的6.png)
 
-#### 6,controller
+6,controller
 
 ![](.\图片\zookeeper的7.png)
 
 **然后启动即可注册到zk**
 
-#### 8,集群版zk注册:
+8,集群版zk注册:
 
 只需要修改配置文件:
 
@@ -977,27 +979,7 @@ eureka:
 
 connect-string: 1.2.3.4,2.3.4.5
 
-#### 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## 8,Consul:
+## 3：Consul
 
 ![](.\图片\consul的1.png)
 
@@ -1079,7 +1061,7 @@ cloud-consul-order-80
 
 
 
-## 9,三个注册中心的异同:
+## 4：三个注册中心的异同:
 
 ![](.\图片\consul的9.png)
 
@@ -1093,7 +1075,7 @@ cloud-consul-order-80
 
 
 
-# 3,服务调用
+# 第五章：服务调用
 
 
 
