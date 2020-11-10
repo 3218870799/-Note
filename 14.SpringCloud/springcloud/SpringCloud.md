@@ -899,7 +899,7 @@ eureka:
 
 单独用于注册到zk中  
 
-名字 : cloud_pay_8003
+名字 : cloud-provider1_pay_8004
 
 1,pom依赖
 
