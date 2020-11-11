@@ -1272,7 +1272,7 @@ ctrl+shift +F9
 
 1：根据实体类生成建表语句
 
-<img src="IDEA笔记.assets/1645656-20200317091412421-690271322.png" alt="img" style="zoom:50%;" />
+<img src="IDEA笔记.assets/1645656-20200317 091412421-690271322.png" alt="img" style="zoom:50%;" />
 
 2：根据表生成bean，mapper.xml
 
