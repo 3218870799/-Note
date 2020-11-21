@@ -1063,9 +1063,44 @@ If（num==0）{}
 
 # 五：多线程：
 
-## 1：线程实现方式
+并行：多个cpu实例或者多台机器同时执行一段处理逻辑，是真正的同时。 
+并发：通过cpu调度算法，让用户看上去同时执行，实际上从cpu操作层面不是真正的同时。
 
-继承Thread类，重写run方法（其实Thread类本身也实现了Runnable接口）
+## 1：方法（机制）
+
+synchronized, wait, notify 是任何对象都具有的同步工具。
+
+wait/notify必须存在于synchronized块中。并且，这三个关键字针对的是同一个监视器（某对象的监视器）。
+
+volatile 
+多线程的内存模型：main memory（主存）、working memory（线程栈），在处理数据时，线程会把值从主存load到本地栈，完成操作后再save回去(volatile关键词的作用：每次针对该变量的操作都激发一次load and save)。 
+
+
+
+## 2：线程实现方式
+
+2.1：继承Thread类，重写run方法（其实Thread类本身也实现了Runnable接口）
+
+方法
+
+```java
+//当前线程可转让cpu控制权，让别的就绪状态线程运行（切换）
+public static Thread.yield() 
+//暂停一段时间
+public static Thread.sleep()  
+//在一个线程中调用other.join(),将等待other执行完后才继续本线程。　　　　
+public join()
+//后两个函数皆可以被打断
+public interrupte()
+```
+
+
+
+
+
+
+
+
 
 实现Runnable接口，重写run方法
 
