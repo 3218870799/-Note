@@ -1765,6 +1765,118 @@ Lambda表达式的标准格式为：
 
 大括号内的语法与传统方法体要求基本一致。
 
+![image-20201122134603482](media/image-20201122134603482.png)
+
+### 1.1：Lambda语法糖
+
+匿名函数，由编译器推断并帮你
+
+解决了什么？？
+
+例一：
+
+```java
+TreeSet<Integer> set = new TreeSet<>(new Comparator<Integer>() {
+    @Override
+    public int compare(Integer o1, Integer o2) {
+        return Integer.compare(o1,o2);
+    }
+});
+```
+
+去掉多余的一模一样的架子
+
+```java
+ TreeSet<Integer> set = new TreeSet<>((x,y)->Integer.compare(x,y));
+```
+
+例二：自定义
+
+
+
+### 1.2：六大语法
+
+->lambda操作符，左侧是lambda表达式的参数列表，右侧是所需执行的功能，依赖于函数式接口，lambda表达式即对接口的实现
+
+函数式接口：
+
+使用注解@FunctionalInterface，该接口只有一个方法
+
+语法1：无参无返回值
+
+```java
+		//语法一：无参无返回值
+		Runnable runnable = new Runnable() {
+			@Override
+			public void run() {
+				System.out.println("输出某些东西");
+			}
+		};
+		//简化实现
+		Runnable runnable1 = ()->System.out.println("输出某些东西");
+		
+```
+
+语法二：有一个参数，无返回值
+
+```java
+//语法二：有一个参数，无返回值
+		Consumer<String> com = new Consumer<String>() {
+			@Override
+			public void accept(String s) {
+				System.out.println(s);
+			}
+		};
+		//简化实现
+		//如果只有一个参数，(x)也可以直接写成x
+		Consumer<String> com1 = (x)->{System.out.println(x);};
+		com1.accept("有一个参数，无返回值,输出参数");
+		
+```
+
+语法三：多个参数，有返回值，多条执行语句
+
+```java
+//语法三：多个参数，有返回值，多条执行语句
+		Comparator<Integer> com2 = (x,y)->{
+			System.out.println("执行某些操作");
+			return Integer.compare(x,y);
+		};
+		//如果只有一条语句，return 和大括号都可以省略
+		Comparator<Integer> com3 = (x,y)->Integer.compare(x,y);
+		//语法六：参数指定类型
+		//语法三依然可以执行，是因为JVM的上下文推断
+		Comparator<Integer> com4 = (Integer x ,Integer y)->Integer.compare(x,y);
+```
+
+
+
+### 1.3：四大内置函数
+
+![image-20201122142257998](media/image-20201122142257998.png)
+
+ 
+
+ 
+
+### 1.4：Stream
+
+Stream是Java8中处理集合的关键抽象概念，他可以指定你希望对集合进行的操作，可以执行非常复杂的查找，过滤和映射数据等操作。
+
+![image-20201122162048510](media/image-20201122162048510.png)
+
+
+
+
+
+
+
+接口的抽象方法的形参表，返回类型需要和调用的类方法的形参表，返回类型保持一致
+
+
+
+
+
 ## 2：反射
 
 允许程序在执行期借助于反射API取得任何类的内部信息，并能直接操作任意对象的内部属性及方法。
