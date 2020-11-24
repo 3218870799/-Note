@@ -44,8 +44,7 @@
 >   对象和 sql 的动态参数进行映射生成最终执行的 sql 语句，最后由 mybatis
 >   框架执行 sql 并将结果映射为 java 对象并返回。
 
-| Spring 框架：  Spring 框架为了解决软件开发的复杂性而创建的。Spring 使用的是基本的 JavaBean 来完成以前非常复杂的企业级开发。Spring 解决了业务对象，功能模块之间的耦合，不仅在 javase,web 中使用，大部分 Java 应用都可以从 Spring 中受益。  Spring 是一个轻量级控制反转(IoC)和面向切面(AOP)的容器。  |
-|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+Spring 框架：  Spring 框架为了解决软件开发的复杂性而创建的。Spring 使用的是基本的 JavaBean 来完成以前非常复杂的企业级开发。Spring 解决了业务对象，功能模块之间的耦合，不仅在 javase,web 中使用，大部分 Java 应用都可以从 Spring 中受益。  Spring 是一个轻量级控制反转(IoC)和面向切面(AOP)的容器。
 
 
 ## 1.2 框架是什么 
@@ -67,69 +66,59 @@
 
 ## 1.3 JDBC 编程
 
-### 1.3JDBC编程
+### 1.3.1 ：JDBC编程
 
-**public void** findStudent() { Connection conn = **null**;
+```java
+public void findStudent() {     
+    Connection conn = null; 
+    Statement stmt = null;     
+    ResultSet rs = null;     
+    try { 
+        //注册mysql驱动 
+        Class.forName("com.mysql.jdbc.Driver"); 
+        //连接数据的基本信息 url ，username，password 
+        String url = "jdbc:mysql://localhost:3306/springdb"; 
+        String username = "root"; 
+        String password = "123456"; 
+        //创建连接对象 
+        conn = DriverManager.getConnection(url, username, password); 
+        //保存查询结果 
+        List<Student> stuList = new ArrayList<>();         
+        //创建Statement, 用来执行sql语句         
+        stmt = conn.createStatement(); 
+        //执行查询，创建记录集， 
+        rs = stmt.executeQuery("select * from student");         
+        while (rs.next()) { 
+            Student stu = new Student();             
+            stu.setId(rs.getInt("id"));             
+            stu.setName(rs.getString("name"));             
+            stu.setAge(rs.getInt("age")); 
+            //从数据库取出数据转为Student对象，封装到List集合 
+            stuList.add(stu); 
+        } 
+    } catch (Exception e) { 
+        e.printStackTrace();     
+    } finally {         
+        try {             
+            //关闭资源             
+            if (rs != null) ; 
+            {                 
+                rs.close();
+            }             
+            if (stmt != null) {                 
+                stmt.close(); 
+            }             
+            if (conn != null) {                 
+                conn.close(); 
+            } 
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        } 
+    } 
+} 
+```
 
-Statement stmt = **null**; ResultSet rs = **null**; **try** {
-
-//注册mysql驱动
-
-Class.*forName*(**"com.mysql.jdbc.Driver"**);
-
-//连接数据的基本信息 url ，username，password
-
-String url = **"jdbc:mysql://localhost:3306/springdb"**;
-
-String username = **"root"**;
-
-String password = **"123456"**;
-
-//创建连接对象
-
-conn = DriverManager.*getConnection*(url, username, password);
-
-//保存查询结果
-
-List\<Student\> stuList = **new** ArrayList\<\>(); //创建Statement,
-用来执行sql语句 stmt = conn.createStatement();
-
-//执行查询，创建记录集，
-
-rs = stmt.executeQuery(**"select** *\** **from student"**); **while**
-(rs.next()) {
-
-Student stu = **new** Student(); stu.setId(rs.getInt(**"id"**));
-stu.setName(rs.getString(**"name"**)); stu.setAge(rs.getInt(**"age"**));
-
-//从数据库取出数据转为Student对象，封装到List集合
-
-stuList.add(stu);
-
-}
-
-} **catch** (Exception e) {
-
-e.printStackTrace(); } **finally** { **try** { //关闭资源 **if** (rs !=
-**null**) ;
-
-{ rs.close(); } **if** (stmt != **null**) { stmt.close();
-
-} **if** (conn != **null**) { conn.close();
-
-}
-
-} **catch** (Exception e) {
-
-e.printStackTrace();
-
-}
-
-}
-
-}
-
-### 1.3.2缺陷 
+### 1.3.2：缺陷 
 
 1.  代码比较多，开发效率低
 
@@ -163,21 +152,21 @@ e.printStackTrace();
 MyBatis 可以完成：
 
 1.  注册数据库的驱动，例如 Class.forName(“com.mysql.jdbc.Driver”))
-
 2.  创建 JDBC 中必须使用的 Connection ， Statement， ResultSet 对象
-
 3.  从 xml 中获取 sql，并执行 sql 语句，把 ResultSet 结果转换 java 对象
 
-List\<Student\> list = new ArrayLsit\<\>();
+```java
+List<Student> list = new ArrayLsit<>(); 
+ResultSet rs = state.executeQuery(“select * from student”);   
+while(rs.next){ 
+    Student student = new Student();       
+    student.setName(rs.getString(“name”));       
+    student.setAge(rs.getInt(“age”));       
+    list.add(student); 
+} 
+```
 
-ResultSet rs = state.executeQuery(“select \* from student”); while(rs.next){
-
-Student student = new Student(); student.setName(rs.getString(“name”));
-student.setAge(rs.getInt(“age”)); list.add(student);
-
->   }
-
->   4.关闭资源
+4.关闭资源
 
 >   ResultSet.close() , Statement.close() , Conenection.close()
 
@@ -235,182 +224,129 @@ PRIMARY KEY (\`id\`)
 
 （4）添加Maven依赖
 
-\<dependencies\>
+```xml
+<dependencies> 
+    <dependency> 
+      <groupId>junit</groupId> 
+      <artifactId>junit</artifactId> 
+      <version>4.11</version> 
+      <scope>test</scope> 
+</dependency> 
+<dependency> 
+      <groupId>org.mybatis</groupId> 
+      <artifactId>mybatis</artifactId> 
+      <version>3.5.1</version> 
+</dependency> 
+<dependency> 
+      <groupId>mysql</groupId> 
+      <artifactId>mysql-connector-java</artifactId> 
+    <version>5.1.9</version> 
+    </dependency> 
+</dependencies> 
 
-\<dependency\>
-
-\<groupId\>junit\</groupId\>
-
-\<artifactId\>junit\</artifactId\>
-
-\<version\>4.11\</version\>
-
-\<scope\>test\</scope\>
-
->   \</dependency\>
-
-\<dependency\>
-
-\<groupId\>org.mybatis\</groupId\>
-
-\<artifactId\>mybatis\</artifactId\>
-
-\<version\>3.5.1\</version\>
-
->   \</dependency\>
-
-\<dependency\>
-
-\<groupId\>mysql\</groupId\>
-
-\<artifactId\>mysql-connector-java\</artifactId\>
-
-\<version\>5.1.9\</version\>
-
-\</dependency\>
-
-\</dependencies\>
+```
 
 **（**5**） 加入** maven **插件**
 
-\<build\>
+```xml
+ <build> 
+    <resources> 
+      <resource> 
+        <directory>src/main/java</directory><!--所在的目录--> 
+        <includes><!--包括目录下的.properties,.xml 文件都会扫描到--> 
+          <include>**/*.properties</include> 
+          <include>**/*.xml</include> 
+        </includes> 
+        <filtering>false</filtering>       
+      </resource> 
+   </resources> 
+    <plugins> 
+      <plugin> 
+        <artifactId>maven-compiler-plugin</artifactId> 
+        <version>3.1</version> 
+        <configuration> 
+          <source>1.8</source> 
+          <target>1.8</target> 
+        </configuration> 
+      </plugin> 
+    </plugins> 
+</build> 
 
-\<resources\>
-
-\<resource\>
-
-\<directory\>src/main/java\</directory\>\<!--所在的目录--\>
-
-\<includes\>\<!--包括目录下的.properties,.xml 文件都会扫描到--\>
-
-\<include\>\*\*/\*.properties\</include\>
-
-\<include\>\*\*/\*.xml\</include\>
-
-\</includes\>
-
-\<filtering\>false\</filtering\> \</resource\>
-
->   \</resources\>
-
-\<plugins\>
-
-\<plugin\>
-
-\<artifactId\>maven-compiler-plugin\</artifactId\>
-
-\<version\>3.1\</version\>
-
-\<configuration\>
-
-\<source\>1.8\</source\>
-
-\<target\>1.8\</target\>
-
-\</configuration\>
-
-\</plugin\>
-
-\</plugins\>
-
-\</build\>
+```
 
 **（**6**） 编写** Student **实体类**
 
 创建包 com.bjpowernode.domain, 包中创建 Student 类
 
-**package** com.bjpowernode.domain;
+```java
+package com.bjpowernode.domain; 
+/** 
+*	<p>Description: 实体类 </p> 
+*	<p>Company: http://www.bjpowernode.com 
+ */
+ public class Student { 
+    //属性名和列名一样 
+     private Integer id;     
+     private String name;    
+     private String email;     
+     private Integer age; 
+    // set ,get , toString 
+} 
+```
 
-**/\*\***
 
--   **\<p\>Description:** 实体类 **\</p\>**
-
--   **\<p\>Company: http://www.bjpowernode.com**
-
-**\*/**
-
-**public class** Student {
-
-**//**属性名和列名一样
-
-**private** Integer **id**;
-
-**private** String **name**;
-
-**private** String **email**;
-
-**private** Integer **age**;
-
-**// set ,get , toString**
-
-}
 
 **（**7**） 编写** Dao **接口** StudentDao
 
 创建 com.bjpowernode.dao 包，创建 StudentDao 接口
 
-**package** com.bjpowernode.dao;
-
-**import** com.bjpowernode.domain.Student;
-
-**import** java.util.List;
-
-/\*\*
-
-**\* \<p\>Description: Dao**接口 **\</p\>**
-
-**\* \<p\>Company: http://www.bjpowernode.com**
-
-**\*/**
-
-**public interface** StudentDao {
-
-**/\***查询所有数据**\*/**
-
-List\<Student\> selectStudents();
-
+```java
+package com.bjpowernode.dao;
+import com.bjpowernode.domain.Student; 
+import java.util.List; 
+/**
+ * <p>Description: Dao接口 </p> 
+ * <p>Company: http://www.bjpowernode.com 
+ */ 
+public interface StudentDao { 
+    /*查询所有数据*/ 
+	List<Student> selectStudents();
 }
+
+```
+
+
 
 **（**8**） 编写** Dao **接口** Mapper **映射文件** StudentDao.xml
 
 要求：
 
 1.  在 dao 包中创建文件 StudentDao.xml
-
 2.  要 StudentDao.xml 文件名称和接口 StudentDao 一样，区分大小写的一样。
 
-*\<?*xml version="1.0" encoding="UTF-8" *?\>*
+```xml
+ <?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper 
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"         
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<!-- 
+     namespace：必须有值，自定义的唯一字符串                 
+		推荐使用：dao接口的全限定名称 
+--> 
+<mapper namespace="com.bjpowernode.dao.StudentDao"> 
+    <!-- 
+       <select>: 查询数据， 标签中必须是select语句               
+			id:  sql语句的自定义名称，推荐使用dao接口中方法名称，                    
+			使用名称表示要执行的sql语句      
+			resultType: 查询语句的返回结果数据类型，使用全限定类名  
+    --> 
+    <select id="selectStudents" resultType="com.bjpowernode.domain.Student"> 
+        <!--要执行的sql语句-->         
+        select id,name,email,age from student 
+    </select> 
+</mapper> 
 
-\<!DOCTYPE mapper
-
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd"*\>*
-
-*\<!--*
-
-*namespace*：必须有值，自定义的唯一字符串 推荐使用：*dao*接口的全限定名称
-
-*--\>*
-
-\<mapper namespace="com.bjpowernode.dao.StudentDao"\>
-
-*\<!--*
-
-*\<select\>:* 查询数据， 标签中必须是*select*语句 *id:
-sql*语句的自定义名称，推荐使用*dao*接口中方法名称，
-使用名称表示要执行的*sql*语句 *resultType:*
-查询语句的返回结果数据类型，使用全限定类名
-
-*--\>*
-
-\<select id="selectStudents" resultType="com.bjpowernode.domain.Student"\>
-
-*\<!--*要执行的*sql*语句*--\>* select id,name,email,age from student
-
-\</select\>
-
-\</mapper\>
+```
 
 （**9**） 创建 **MyBatis** 主配置文件
 
@@ -419,53 +355,38 @@ sql*语句的自定义名称，推荐使用*dao*接口中方法名称，
 
 说明：主配置文件名称是自定义的，内容如下：
 
-*\<?*xml version="1.0" encoding="UTF-8" *?\>*
+```xml
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE configuration 
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"         "http://mybatis.org/dtd/mybatis-3-config.dtd"> 
+ 
+    <!--配置mybatis环境--> 
+    <environments default="mysql"> 
+        <!--id:数据源的名称--> 
+        <environment id="mysql"> 
+            <!--配置事务类型：使用JDBC事务（使用Connection的提交和回滚）--> 
+            <transactionManager type="JDBC"/> 
+            <!--数据源dataSource：创建数据库Connection对象                 
+				type: POOLED 使用数据库的连接池 
+            --> 
+            <dataSource type="POOLED"> 
+                <!--连接数据库的四个要素--> 
+                <property name="driver" value="com.mysql.jdbc.Driver"/>                
+                <property name="url" value="jdbc:mysql://localhost:3306/ssm"/>                 
+                <property name="username" value="root"/>                 
+                <property name="password" value="123456"/> 
+            </dataSource> 
+        </environment> 
+    </environments> 
+    <mappers> 
+        <!--告诉mybatis要执行的sql语句的位置--> 
+        <mapper resource="com/bjpowernode/dao/StudentDao.xml"/> 
+</mappers> 
+<configuration> 
 
-\<!DOCTYPE configuration
+```
 
-PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-config.dtd"*\>*
 
-*\<!--*配置*mybatis*环境*--\>*
-
-\<environments default="mysql"\>
-
-*\<!--id:*数据源的名称*--\>*
-
-\<environment id="mysql"\>
-
-*\<!--*配置事务类型：使用*JDBC*事务（使用*Connection*的提交和回滚）*--\>*
-
-\<transactionManager type="JDBC"/\>
-
-*\<!--*数据源*dataSource*：创建数据库*Connection*对象 *type: POOLED*
-使用数据库的连接池
-
-*--\>*
-
-\<dataSource type="POOLED"\>
-
-*\<!--*连接数据库的四个要素*--\>*
-
-\<property name="driver" value="com.mysql.jdbc.Driver"/\> \<property name="url"
-value="jdbc:mysql://localhost:3306/ssm"/\> \<property name="username"
-value="root"/\> \<property name="password" value="123456"/\>
-
-\</dataSource\>
-
-\</environment\>
-
-\</environments\>
-
-\<mappers\>
-
-*\<!--*告诉*mybatis*要执行的*sql*语句的位置*--\>*
-
-\<mapper resource="com/bjpowernode/dao/StudentDao.xml"/\>
-
-\</mappers\>
-
-\<configuration\>
 
 支持中文的 url
 
@@ -473,30 +394,28 @@ value="root"/\> \<property name="password" value="123456"/\>
 
 **（**10**） 创建测试类** MyBatisTest
 
-src/test/java/com/bjpowernode/ 创建 MyBatisTest.java 文件 **/\***
+src/test/java/com/bjpowernode/ 创建 MyBatisTest.java 文件 
 
-InputStream in = Resources.*getResourceAsStream*(config);
+```java
+@Test
+public void testStart() throws IOException{
+    //1.mybatis主配置文件
+    String config = "mybatis-config.xml";
+    //2:读取配置文件
+    InputStream in = Resources.getResourceAsStream(config); 
+    //3.创建SqlSessionFactory对象,目的是获取SqlSession 
+    SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(in); 
+    //4.获取SqlSession,SqlSession能执行sql语句 
+    SqlSession session = factory.openSession(); 
+    //5.执行SqlSession的selectList() 
+    List<Student> studentList =      session.selectList("com.bjpowernode.dao.StudentDao.selectStudents"); 
+    //6.循环输出查询结果 
+    studentList.forEach( student -> System.out.println(student)); 
+    //7.关闭SqlSession，释放资源     session.close(); 
+ 
+} 
 
-**//3.**创建**SqlSessionFactory**对象,目的是获取SqlSession
-
-SqlSessionFactory factory = **new** SqlSessionFactoryBuilder().build(in);
-
-**//4.**获取**SqlSession,SqlSession**能执行**sql**语句
-
-SqlSession session = factory.openSession();
-
-**//5.**执行**SqlSession**的**selectList()**
-
-List\<Student\> studentList =
-session.selectList(**"com.bjpowernode.dao.StudentDao.selectStudents"**);
-
-**//6.**循环输出查询结果
-
-studentList.forEach( student -\> System.**out**.println(student));
-
-**//7.**关闭**SqlSession**，释放资源 session.close();
-
-}
+```
 
 List\<Student\> studentList =
 session.selectList("com.bjpowernode.dao.StudentDao.selectStudents");
@@ -514,11 +433,13 @@ ResultSet rs = ps.executeQuery();
 
 mybatis.xml 文件加入日志配置，可以在控制台输出执行的 sql 语句和参数
 
-\<**settings**\>
+```xml
+<settings> 
+    <setting name="logImpl" value="STDOUT_LOGGING" /> 
+</settings> 
+```
 
-\<**setting name="logImpl" value="STDOUT_LOGGING"** /\>
 
-\</**settings**\>
 
 ## 2.2 **基本的** CURD 
 
@@ -530,7 +451,11 @@ insert ,update ,delete
 
 （1） StudentDao 接口中增加方法
 
+```java
 **int** insert Student(Student student);
+```
+
+
 
 **（**2**）** StudentDao.xml **加入** sql **语句**
 
@@ -689,21 +614,15 @@ SqlSession , SqlSessionFactory 等
 
 （1） Resources 类
 
-Resources
-类，顾名思义就是资源，用于读取资源文件。其有很多方法通过加载并解析资源文件，返回不同类型的
-IO 流对象。
+Resources类，顾名思义就是资源，用于读取资源文件。其有很多方法通过加载并解析资源文件，返回不同类型的IO 流对象。
 
 **（**2**）** SqlSessionFactoryBuilder **类**
 
-SqlSessionFactory 的创建，需要使用 SqlSessionFactoryBuilder 对象的 build()
-方法。由于 SqlSessionFactoryBuilder
-对象在创建完工厂对象后，就完成了其历史使命，即可被销毁。所以，一般会将该
-SqlSessionFactoryBuilder 对象创建为一个方法内的局部对象，方法结束，对象销毁。
+SqlSessionFactory 的创建，需要使用 SqlSessionFactoryBuilder 对象的 build()方法。由于 SqlSessionFactoryBuilder对象在创建完工厂对象后，就完成了其历史使命，即可被销毁。所以，一般会将该SqlSessionFactoryBuilder 对象创建为一个方法内的局部对象，方法结束，对象销毁。
 
 **（**3**）** SqlSessionFactory **接口**
 
-SqlSessionFactory
-接口对象是一个重量级对象（系统开销大的对象），是线程安全的，所以一个应用只需要一个该对象即可。创建
+SqlSessionFactory接口对象是一个重量级对象（系统开销大的对象），是线程安全的，所以一个应用只需要一个该对象即可。创建
 SqlSession 需要使用 SqlSessionFactory 接口的的 openSession()方法。
 
 openSession(true)：创建一个有自动提交功能的 SqlSession
@@ -714,13 +633,9 @@ openSession()：同 openSession(false)
 
 **（**4**）** SqlSession **接口**
 
-SqlSession 接口对象用于执行持久化操作。一个 SqlSession
-对应着一次数据库会话，一次会话以 SqlSession 对象的创建开始，以 SqlSession
-对象的关闭结束。
+SqlSession 接口对象用于执行持久化操作。一个 SqlSession对应着一次数据库会话，一次会话以 SqlSession 对象的创建开始，以 SqlSession对象的关闭结束。
 
-SqlSession 接口对象是线程不安全的，所以每次数据库会话结束前，需要马上调用其
-close()方法，将其关闭。再次需要会话，再次创建。 SqlSession
-在方法内部创建，使用完毕后关闭。
+SqlSession 接口对象是线程不安全的，所以每次数据库会话结束前，需要马上调用其close()方法，将其关闭。再次需要会话，再次创建。 SqlSession在方法内部创建，使用完毕后关闭。
 
 ### 2.3.2 创建工具类 
 
@@ -2185,8 +2100,6 @@ mapper 映射文件名称相同，且在同一个目录中。
 
 # 第7章 扩展 
 
-◼ **PageHelper**
-
 ## 7.1 PageHelper 
 
 ###  7.1.1 Mybatis 通用分页插件 
@@ -2217,24 +2130,24 @@ PageHelper支持多种数据库
 
 （1） maven 坐标
 
-\<**dependency**\>
+```xml
+<dependency> 
+  <groupId>com.github.pagehelper</groupId> 
+  <artifactId>pagehelper</artifactId>   
+  <version>5.1.10</version> 
+</dependency> 
 
-\<**groupId**\>com.github.pagehelper\</**groupId**\>
-
-\<**artifactId**\>pagehelper\</**artifactId**\>
-\<**version**\>5.1.10\</**version**\>
-
-\</**dependency**\>
+```
 
 （2） 加入 plugin 配置
 
 在**\<environments\>**之前加入
 
-\<**plugins**\>
-
-\<**plugin interceptor="com.github.pagehelper.PageInterceptor"** /\>
-
-\</**plugins**\>
+```xml
+<plugins> 
+    <plugin interceptor="com.github.pagehelper.PageInterceptor" /> 
+</plugins> 
+```
 
 （3）PageHelper 对象
 
@@ -2242,22 +2155,26 @@ PageHelper支持多种数据库
 
 除了PageHelper.startPage方法外，还提供了类似用法的 PageHelper.offsetPage 方法。
 
-在你需要进行分页的 MyBatis 查询方法前调用 PageHelper.startPage
-静态方法即可，紧跟在这个方法后的第一个MyBatis 查询方法会被进行分页。
+在你需要进行分页的 MyBatis 查询方法前调用PageHelper.startPage静态方法即可，紧跟在这个方法后的第一个MyBatis 查询方法会被进行分页。
 
-\@Test
+```java
+ @Test 
+public void testSelect() throws IOException { 
+    //获取第1页，3条内容
+    PageHelper.stratPage(1,3);
+    List<Student> studentList = studentDao.selectStudents();     
+    studentList.forEach( stu -> System.out.println(stu)); 
+} 
 
-**public void** testSelect() **throws** IOException {
+```
 
-**//获取第1页，3条内容**
+当ResultMap去重遇到PageHelper的时候不支持
 
-**PageHelper.stratPage(1,3);**
+在CFPS项目中
 
-List\<Student\> studentList = **studentDao**.selectStudents();
 
-studentList.forEach( stu -\> System.**out**.println(stu));
 
-}
+
 
 # 第八章：Mybatis连接池与事务深入
 
@@ -2415,7 +2332,7 @@ select="com.agesun.attendance.privilege.provider.mapper.PersonMapper.selectByOrg
 \</resultMap\>
 
 在mybatis配置文件 **mybatis-configuration.xml**中，配置懒加载  
-  
+
 \<!-- 开启懒加载配置 --\>
 
 \<settings\>
