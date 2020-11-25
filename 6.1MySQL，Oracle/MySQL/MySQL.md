@@ -1519,8 +1519,7 @@ mysql\> select \* from table_constraints where table_name = 't_student';
 
 每个表应该具有主键，主键可以标识记录的唯一性，主键分为单一主键和复合（联合）主键，单一主键是由一个字段构成的，复合（联合）主键是由多个字段构成的
 
-| drop table if exists t_student;  create table t_student()  student_id int(10) primary key,/\*列级约束\*/  student_name varchar(20) not null,  sex char(2) default 'm',  birthday date,   email varchar(30) ,  classes_id int(3)  ) insert into t_student(student_id, student_name , sex, birthday, email, classes_id)  values (1001,'zhangsan','m', '1988-01-01', 'qqq\@163.com', 10) |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+drop table if exists t_student;  create table t_student()  student_id int(10) primary key,/\*列级约束\*/  student_name varchar(20) not null,  sex char(2) default 'm',  birthday date,   email varchar(30) ,  classes_id int(3)  ) insert into t_student(student_id, student_name , sex, birthday, email, classes_id)  values (1001,'zhangsan','m', '1988-01-01', 'qqq\@163.com', 10) 
 
 
 向以上表中加入学号为1001的两条记录，出现如下错误，因为加入了主键约束
@@ -2251,7 +2250,6 @@ select kcdz form t_mall_sku where id in( 3,4,5,6,8 )  **group by kcdz
 
 如经常根据sal进行查询，并且遇到了性能瓶颈，首先查看程序是否存算法问题，再考虑对sal建立索引，建立索引如下：
 
-
 1、create unique index 索引名 on 表名(列名);
 
 create unique index u_ename on emp(ename);  
@@ -2280,8 +2278,8 @@ explain select sal from emp where sal \> 1500;
 
 ![](media/aa6ee6d7d6d4be73a68fc141deaf7a36.png)
 
-如下图：假如我们要查找sal大于1500的所有行，那么可以扫描索引，索引时排序的，结果得出7行，我们知道不会再有匹配的记录，可以退出了。  
-如果查找一个值，它在索引表中某个中间点以前不会出现，那么也有找到其第一个匹配索引项的定位算法，而不用进行表的顺序扫描（如二分查找法）。  
+如下图：假如我们要查找sal大于1500的所有行，那么可以扫描索引，索引时排序的，结果得出7行，我们知道不会再有匹配的记录，可以退出了。 
+如果查找一个值，它在索引表中某个中间点以前不会出现，那么也有找到其第一个匹配索引项的定位算法，而不用进行表的顺序扫描（如二分查找法）。 
 这样，可以快速定位到第一个匹配的值，以节省大量搜索时间。数据库利用了各种各样的快速定位索引值的技术，通常这些技术都属于DBA的工作。
 
 ##### 16.2.4、删除索引
