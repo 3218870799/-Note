@@ -711,24 +711,28 @@ session.close();
 
 （**1**） 创建 **Dao** 接口实现类
 
-**public class** StudentDaoImpl **implements** StudentDao
+```java
+public class StudentDaoImpl implemnets StudentDao{
+    
+}
+```
 
 （**2**） 实现接口中 **select** 方法
 
-**public** List\<Student\> selectStudents() {
-
-SqlSession session = MyBatisUtil.*getSqlSession*();
-
-List\<Student\> studentList = session.selectList(
-
-**"com.bjpowernode.dao.StudentDao.selectStudents"**); session.close();
-**return** studentList;
-
+```java
+public List<Student> selectStudent(){
+    SqlSession session = MybatisUtil.getSqlSession();
+    List<Student> studentList = session.selectList("com.node.dao.StudentDao.selectStudents");
+    session.close();
+    return studentList;
 }
+```
 
 测试查询操作:
 
-MyBatisTest类中创建StudentDaoImpl对象 **public class** MyBatisTest {
+MyBatisTest类中创建StudentDaoImpl对
+
+**public class** MyBatisTest {
 
 StudentDao **studentDao** = **new** StudentDaoImpl();
 
@@ -824,72 +828,50 @@ Mapper 动态代理方式无需程序员实现 Dao 接口。接口是由 MyBatis
 
 ![](media/4c01e1b456634756d109182f34eb4bd3.jpg)
 
-只需调用 SqlSession 的
-getMapper()方法，即可获取指定接口的实现类对象。该方法的参数为指定 Dao
+只需调用 SqlSession 的getMapper()方法，即可获取指定接口的实现类对象。该方法的参数为指定 Dao接口类的 class 值。
 
-接口类的 class 值。
-
+```java
 SqlSession session = *factory*.openSession();
 
 StudentDao dao = session.getMapper(StudentDao.**class**);
+```
 
 使用工具类:
 
-StudentDao **studentDao** =
-
-MyBatisUtil.*getSqlSession*().getMapper(StudentDao.**class**);
+```java
+StudentDao **studentDao** = MyBatisUtil.*getSqlSession*().getMapper(StudentDao.**class**);
+```
 
 （**3**） 使用 **Dao** 代理对象方法执行 **sql** 语句
 
 select 方法:
 
-\@Test
-
-**public void** testSelect() **throws** IOException {
-
-**final** List\<Student\> studentList = **studentDao**.selectStudents();
-
-studentList.forEach( stu -\> System.**out**.println(stu));
-
+```java
+@Test
+public void testSelect() throws IOException{
+    final List<Student> studentList = studentDao.selectStudents();
+    studentList.foreach(stu->System.out.println(stu));
 }
-
-student.setAge(26);
-
-**int** nums = **studentDao**.insertStudent(student);
-
-System.**out**.println(**"**使用**Dao**添加数据**:"**+nums);
-
-}
+```
 
 update 方法
 
-\@Test
-
-**public void** testUpdate() **throws** IOException {
-
->   Student student = **new** Student();
-
->   student.setId(1006);
-
->   student.setAge(28);
-
->   **int** nums = **studentDao**.updateStudent(student);
-
->   System.**out**.println(**"**使用**Dao**修改数据**:"**+nums);
-
+```java
+@Test
+public void testUpdate() throws IOException{
+    Student student = new Student();
+    student.setId(10086);
+    student.setAge(28);
+    int nums = studentDao.updateStudent(student);
+    System.out.println(nums);
 }
+```
 
 delete 方法
 
-\@Test
-
-**public void** testDelete() **throws** IOException {
-
->   **int** nums = **studentDao**.deleteStudent(1006);
-
->   System.**out**.println(**"**使用**Dao**修改数据**:"**+nums);
-
-}
+```java
+StudentDao.delectStudent(1006);
+```
 
 ### 3.1.2 原理 
 
@@ -909,142 +891,104 @@ MapperProxy 类定义:
 
 ### 3.2.1 parameterType 
 
-parameterType: 接口中方法参数的类型，
-类型的完全限定名或别名。这个属性是可选的，因为 MyBatis
-可以推断出具体传入语句的参数，默认值为未设置（unset）。接口中方法的参数从 java
-代码传入到 mapper 文件的 sql 语句。
+parameterType: 接口中方法参数的类型，类型的完全限定名或别名。这个属性是可选的，因为 MyBatis可以推断出具体传入语句的参数，默认值为未设置（unset）。
 
-int 或 java.lang.Integer hashmap 或 java.util.HashMap list 或
-java.util.ArrayList
-
-student 或 com.bjpowernode.domain.Student 更多看课件资源中的有关别名的文件或者
-mybatis-3.5.1.pdf 的 15 页。
+接口中方法的参数从 java代码传入到 mapper 文件的 sql 语句。
 
 \<select\>,\<insert\>,\<update\>,\<delete\>都可以使用 parameterType 指定类型。
 
 例如：
 
-\<**delete id="deleteStudent" parameterType="int"**\>
-
-\<**delete id="deleteStudent" parameterType="java.lang.Integer"**\>
-
-delete from student where id=\#{studentId}
-
-\</**delete**\>
+```xml
+<delect id="delectById" parameterType="int"></delect>
+<delect id="delectById" parameterType="java.lang.Integer"></delect>
+```
 
 ###  3.2.2 MyBatis 传递参数 
 
->   从 java 代码中把参数传递到 mapper.xml 文件。
+从 java 代码中把参数传递到 mapper.xml 文件。
 
-### 3.2.3 一个简单参数 
+####  一个简单参数 
 
-Dao 接口中方法的参数只有一个简单类型（java 基本类型和 String），占位符 **\#{**
-任意字符 **}**，和方法的参数名无关。
-
-接口方法：
+Dao 接口中方法的参数只有一个简单类型（java 基本类型和 String），占位符 **\#{**任意字符 **}**，和方法的参数名无关。
 
 mapper 文件：
 
-\<**select id="selectById" resultType="com.bjpowernode.domain.Student"**\>
-
-select id,name,email,age from student where id=\#{studentId}
-
-\</**select**\>
+```xml
+<select id="selectById" resultType="com.xqc.domain.Student">
+	select * from student where id = #{studentId}
+</select>
+```
 
 \#{studentId} , studentId是自定义的变量名称，和方法参数名无关。
 
-测试方法：
+#### 多个参数-使用@Param 
 
-\@Test **public void** testSelectById(){
-
-**//**一个参数
-
-Student student = **studentDao**.selectById(1005);
-
-System.**out**.println(**"**查询**id**是**1005**的学生：**"**+student);
-
-}
-
-### 3.2.4 多个参数-使用\@Param 
-
-当 Dao 接口方法多个参数，需要通过名称使用参数。
-在方法形参前面加入\@Param(“自定义参数名”)，
+当 Dao 接口方法多个参数，需要通过名称使用参数。在方法形参前面加入@Param(“自定义参数名”)，
 
 mapper 文件使用\#{自定义参数名}。
 
 例如
 
-List\<Student\> selectMultiParam(\@Param(**"personName"**) String name,
-\@Param(**"personAge"**) **int** age);
+```java
+List<Student> selectMultiParam(@Param("Name")String name,@Param("Age")int age);
+```
 
 mapper 文件：
 
-\<**select id="selectMultiParam" resultType="com.bjpowernode.domain.Student"**\>
-
-select id,name,email,age from student where name=\#{personName} or age
-=\#{personAge}
-
-\</**select**\>
+```xml
+<select id="selectMultiParam" resultType="com.xqc.domain.Student">
+	select id,name.email,age from student where name= #{Name} or age= #{Age}
+</select>
+```
 
 测试方法：
 
-\@Test
+#### 多个参数-使用对象 
 
-**public void** testSelectMultiParam(){
-
-List\<Student\> stuList = **studentDao**.selectMultiParam(**"**李力**"**,20);
-
-stuList.forEach( stu -\> System.**out**.println(stu));
-
-}
-
-### 3.2.5 多个参数-使用对象 
-
-使用 java 对象传递参数， java 的属性值就是 sql 需要的参数值。
-每一个属性就是一个参数。
+使用 java 对象传递参数， java 的属性值就是 sql 需要的参数值。每一个属性就是一个参数。
 
 语法格式： \#{ property,javaType=java 中数据类型名,jdbcType=数据类型名称 }
-javaType, jdbcType 的类型 MyBatis 可以检测出来，一般不需要设置。常用格式 \#{
-property } mybatis-3.5.1.pdf 第 43 页 4.1.5.4 小节：
+
+javaType, jdbcType 的类型 MyBatis 可以检测出来，一般不需要设置。
+
+常用格式 \#{property } 
 
 ![](media/195f0d28cc0995737980dea48aa54307.jpg)
 
 创建保存参数值的对象 QueryParam
 
-**package** com.bjpowernode.vo;
-
-**public class** QueryParam {
-
-**private** String **queryName**;
-
-**private int queryAge**;
-
-**//set** ，**get** 方法
-
+```java
+package com.xqc.vo;
+public class QueryParam{
+    private String queryName;
+    private int queryAge;
+    //get和set
 }
+```
 
 接口方法：
 
-List\<Student\> selectMultiObject(QueryParam queryParam);
+```java
+List<Student> selectMultiObject(QueryParam queryParam);
+```
 
 mapper 文件：
 
-\<**select id="selectMultiObject"
-resultType="com.bjpowernode.domain.Student"**\>
+```xml
+<select id="selectMultiObject" resutlType="com.xqc.domain.Student">
+	select id,name,email,age from student where name = #{queryName} or age = #{queryAge}
+</select>
+```
 
-select id,name,email,age from student where name=\#{queryName} or age
-=\#{queryAge}
+或者
 
-\</**select**\>
-
-\<**select id="selectMultiObject"
-resultType="com.bjpowernode.domain.Student"**\>
-
-select id,name,email,age from student where
-name=\#{queryName,javaType=string,jdbcType=VARCHAR} or age
-=\#{queryAge,javaType=int,jdbcType=INTEGER}
-
-\</**select**\>
+```xml
+<select id="selectMultiObject" resutlType="com.xqc.domain.Student">
+	select id,name,email,age from student where name =#{queryName,javaType=string,jdbcType=VARCHAR} 
+    or age = #{queryAge,javaType=int,jdbcType=INTEGER}
+</select>
+```
 
 ？？？？？下面这种可以吗？
 
@@ -1058,59 +1002,29 @@ age =\#{ queryParam .queryAge}
 
 \</**select**\>
 
-测试方法：
+#### 多个参数-按位置 
 
-\@Test
+参数位置从 0 开始， 引用参数语法 **\#{ arg** 位置 **}** ， 第一个参数是\#{arg0}，第二个是\#{arg1} 
 
-**public void** selectMultiObject(){
-
-QueryParam qp = **new** QueryParam();
-
-qp.setQueryName(**"**李力**"**);
-
-qp.setQueryAge(20);
-
-List\<Student\> stuList = **studentDao**.selectMultiObject(qp);
-
-stuList.forEach( stu -\> System.**out**.println(stu));
-
-}
-
-### 3.2.6 多个参数-按位置 
-
-参数位置从 0 开始， 引用参数语法 **\#{ arg** 位置 **}** ， 第一个参数是\#{arg0},
-第二个是\#{arg1} 注意：mybatis-3.3 版本和之前的版本使用\#{0},\#{1}方式， 从
-mybatis3.4 开始使用\#{arg0}方式。
+注意：mybatis-3.3 版本和之前的版本使用\#{0},\#{1}方式， 从mybatis3.4 开始使用\#{arg0}方式。
 
 接口方法：
 
-List\<Student\> selectByNameAndAge(String name,**int** age);
+```java
+List<Student> selectByNameAndAge(String name,**int** age);
+```
 
 mapper 文件
 
-\<**select id="selectByNameAndAge"
-resultType="com.bjpowernode.domain.Student"**\>
+```xml
+<select id="selectByNameAndAge" resutlType="com.xqc.domain.Student">
+	select * from student where name = #{arg0} or age = #{arg1}
+</select>
+```
 
-select id,name,email,age from student where name=\#{arg0} or age =\#{arg1}
+#### 多个参数-使用 Map 
 
-\</**select**\>
-
-\@Test
-
-**public void** testSelectByNameAndAge(){
-
-**//**按位置参数
-
-List\<Student\> stuList = **studentDao**.selectByNameAndAge(**"**李力**"**,20);
-
-stuList.forEach( stu -\> System.**out**.println(stu));
-
-}
-
-### 3.2.7 多个参数-使用 Map 
-
-Map 集合可以存储多个值，使用 Map向 mapper 文件一次传入多个参数。Map 集合使用
-String的 key， Object 类型的值存储参数。 mapper 文件使用 \# { key } 引用参数值。
+Map 集合可以存储多个值，使用 Map向 mapper 文件一次传入多个参数。Map 集合使用String的 key， Object 类型的值存储参数。 mapper 文件使用 \# { key } 引用参数值。
 
 >   例如：
 
@@ -1163,7 +1077,7 @@ select id,name,email,age from student where id=\#{studentId}
 
 转为 MyBatis 的执行是：
 
-String sql=” select id,name,email,age from student where id=?”;
+String sql=” select id,nasme,email,age from student where id=?”;
 
 PreparedStatement ps = conn.prepareStatement(sql);
 
@@ -1573,8 +1487,7 @@ SQL 语句。此时，可使用动态 SQL 来解决这样的问题
 
 ## 4.2 \<if\> 
 
-对于该标签的执行，当 test 的值为 true 时，会将其包含的 SQL 片断拼接到其所在的
-SQL 语句中。
+对于该标签的执行，当 test 的值为 true 时，会将其包含的 SQL 片断拼接到其所在的SQL 语句中。
 
 语法：\<if test=”条件”\> sql 语句的部分 \</if\>
 
@@ -1584,29 +1497,27 @@ List\<Student\> selectStudentIf (Student student);
 
 mapper 文件：
 
-\<select id="selectStudentIf" resultType="com.bjpowernode.domain.Student"\>
+```xml
+<select id="selectStudentIf" resultType="com.node.domain.Student">
+	select id,name,email,age from student where 1=1
+    <if test="name!=null and name!=''">
+        and name=#{name}
+    </if>
+    <if test="age>0">
+    	and age &gt;#{age}
+    </if>
+</select>
+```
 
->   select id,name,email,age from student where 1=1
+测试:
 
->   \<if test="name != null and name !='' "\>
-
->   and name = \#{name}
-
->   \</**if**\>
-
->   \<**if test="age \> 0 "**\>
-
->   and age **\&gt;** \#{age}
-
->   \</**if**\>
-
-\</**select**\>
-
-List\<Student\> studentList = **studentDao**.selectStudentIf(param);
+```java
+List<Student> studentList = studentDao.selectStudentIf(param);
 
 studentList.forEach( stu -\> System.**out**.println(stu));
+```
 
-}
+
 
 Mybatis映射几种：
 
