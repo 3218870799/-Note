@@ -135,6 +135,12 @@ default
 
 priavte 本类可见
 
+## 2：数据类型
+
+八种基本数据类型
+
+![image-20201125195254176](media/image-20201125195254176.png)
+
 ## 面试题
 
 1：跨平台原理
@@ -1093,14 +1099,6 @@ public join()
 //后两个函数皆可以被打断
 public interrupte()
 ```
-
-
-
-
-
-
-
-
 
 实现Runnable接口，重写run方法
 
