@@ -15,3 +15,75 @@
 
 # 目录
 
+
+
+0.0：数据结构与算法:baby:
+
+​			以Java描述的常用数据结构与基本算法的操作，常见刷题笔记
+
+0.1：计算机网络
+
+0.2：操作系统
+
+
+
+1.1：版本控制工具:baby_bottle:
+
+​			git与Github的使用，SVN的使用，工具小乌龟
+
+1.2：开发工具:baby_chick:
+
+​		主要针对Java开发的工具使用技巧
+
+
+
+2.0.0：正则表达式:baby_symbol:
+
+2.0：Java语言基础:balloon:
+
+​		java的基础知识，源码探索以及对新版本的实验研究
+
+2.1：前端的基础知识
+
+2.2：JavaWeb开发
+
+2.3：服务器Tomact 与Nginx
+
+
+
+3：JVM:beer:
+
+4：Maven与Gradle
+
+
+
+6：关系型数据库:dancer:
+
+​		MYSQL
+
+​		Oracle
+
+7：非关系型数据库:balance_scale:
+
+​		Redis
+
+​		Ehcahce
+
+​		Mongdb
+
+
+
+​		
+
+
+
+
+
+​		
+
+
+
+
+
+
+
