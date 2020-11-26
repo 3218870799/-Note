@@ -1064,6 +1064,28 @@ stuList.forEach( stu -\> System.**out**.println(stu));
 
 ###  3.2.8 \#和\$ 
 
+\#将传入的数据都当成一个字符串，会对自动传入的数据加一个双引号。
+
+如：where username = #{username} 会解析成
+
+where username = "111"
+
+$将传入的数据直接显示生成在sql中。
+
+如：where username=${username}会解析成
+
+where username = 111
+
+
+
+#方式可以很大程度防止sql注入
+
+$这样的参数会直接参与sql编译,从而不能避免注入攻击
+
+
+
+
+
 **\#**：占位符，告诉 mybatis 使用实际的参数值代替。并使用 PrepareStatement
 对象执行 sql 语句,
 
@@ -2019,22 +2041,6 @@ mapper 映射文件名称相同，且在同一个目录中。
 
 PageHelper支持多种数据库
 
-1.  Oracle
-
-2.  Mysql
-
-3.  MariaDB
-
-4.  SQLite
-
-5.  Hsqldb
-
-6.  PostgreSQL
-
-7.  DB2
-
-8.  SqlServer(2005,2008)
-
 ### **7.1.2 基于 PageHelper 分页：** 
 
 实现步骤
@@ -2062,9 +2068,7 @@ PageHelper支持多种数据库
 
 （3）PageHelper 对象
 
-查询语句之前调用PageHelper.startPage 静态方法。
-
-除了PageHelper.startPage方法外，还提供了类似用法的 PageHelper.offsetPage 方法。
+查询语句之前调用PageHelper.startPage 静态方法。除了PageHelper.startPage方法外，还提供了类似用法的 PageHelper.offsetPage 方法。
 
 在你需要进行分页的 MyBatis 查询方法前调用PageHelper.startPage静态方法即可，紧跟在这个方法后的第一个MyBatis 查询方法会被进行分页。
 
@@ -2081,7 +2085,23 @@ public void testSelect() throws IOException {
 
 当ResultMap去重遇到PageHelper的时候不支持
 
-在CFPS项目中
+其分页原理是物理分页，即在执行sql语句前进行过滤
+
+对于oracle，是在外层套一个
+
+```sql
+select * from{
+	……
+}where rownum <=20
+```
+
+对于mysql，在外层套一个
+
+```sql
+select... from ...where...limit  x, y
+```
+
+
 
 
 
@@ -4019,3 +4039,10 @@ List\<Account\> accounts = accountDao.findAll();
 //mybatis基于注解方式实现配置二级缓存
 
 **Public interface** IuserDao {}
+
+
+
+
+
+sql注入
+
