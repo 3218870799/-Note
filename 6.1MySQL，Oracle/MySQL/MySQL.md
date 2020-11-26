@@ -1226,7 +1226,9 @@ select \* from tablename limit 2,4
 
 ## 13、表
 
-### 13.1、创建表
+### 13.1、表操作
+
+13.1.1创建表
 
 - 语法格式
 
@@ -1291,10 +1293,18 @@ insert into t_student(student_id,student_name,sex,birthday,email,class_id) value
 
 ![](media/69758fcf2995eecf6d606bb350881aeb.png)
 
+13.1.2：截断表
+
+删除表数据，保留表结构，数据无法恢复
+
+```sql
+truncate table 表名
+```
 
 
 
-### 13.2、增加/删除/修改表结构
+
+### 13.2、表结构
 
 采用alter table来增加/删除/修改表结构，不影响表中的数据
 
@@ -1335,6 +1345,10 @@ alter table t_student drop contact_tel;
 
 
 ![](media/67822ec53d80d817a8379f5278647ce7.png)
+
+
+
+
 
 ### 13.3、添加、修改和删除
 
@@ -2353,19 +2367,87 @@ mysql\> ALTER TABLE EMP DROP INDEX test_index; 删除后就不再使用索引了
 
 ### 18.1、新建用户
 
-| CREATE USER username IDENTIFIED BY 'password'; 说明:username——你将创建的用户名, password——该用户的登陆密码,密码可以为空,如果为空则该用户可以不需要密码登陆服务器. 例如： create user p361 identified by '123'; --可以登录但是只可以看见一个库 information_schema |
-|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+(1)
+
+```sql
+CREATE USER username IDENTIFIED BY 'password';
+//修改用户密码
+alter USER username identified by 'newpassword'
+```
+
+说明:
+
+username——你将创建的用户名, 
+
+password——该用户的登陆密码,密码可以为空,如果为空则该用户可以不需要密码登陆服务器. 
+
+例如： create user p361 identified by '123'; 
+
+(2)可以登录但是只可以看见一个库 information_schema 
+
+ 命令详解 
+
+```sql
+grant all privileges on dbname.tbname to 'username'@'login ip' identified by 'password' with grant option;
+```
+
+dbname=\*表示所有[数据库](http://www.2cto.com/database/) 
+
+tbname=\*表示所有表 
+
+login ip=%表示任何ip 
+
+password为空，表示不需要密码即可登录 
+
+with grant option; 表示该用户还可以授权给其他用户 
+
+细粒度授权 首先以root用户进入mysql，然后键入命令：
+
+grant select,insert,update,delete on \*.\* to p361 \@localhost Identified by "123"; 
+
+ 如果希望该用户能够在任何机器上登陆mysql，则将localhost改为 "%" 。 
+
+粗粒度授权 我们测试用户一般使用该命令授权， 
+
+GRANT ALL PRIVILEGES ON \*.\* TO 'p361'\@'%' Identified by "123"; 
+
+ 注意:用以上命令授权的用户不能给其它用户授权,如果想让该用户可以授权,用以下命令:
+
+ GRANT ALL PRIVILEGES ON \*.\* TO 'p361'\@'%' Identified by "123" WITH GRANT OPTION; 
+
+privileges包括：  alter：修改数据库的表  create：创建新的数据库或表  delete：删除表数据  drop：删除数据库/表  index：创建/删除索引  insert：添加表数据  select：查询表数据  update：更新表数据  all：允许任何操作  usage：只允许登录 
+
+### 18.2：授权
+
+```sql
+//授予某一项权利
+grant create view to 用户名
+
+//撤销角色/权限
+revoke 角色|权限 from 用户名
+
+//查看自身有哪些角色
+select * from user_role_privs;
+
+//查看自身的角色和权限
+select * from role_sys_privs;
+
+//修改用户处于锁定（非锁定）状态，锁定状态是不能登录的
+alter user 用户名 account lock|unlock;
+```
 
 
-### 18.2、授权
-
-| 命令详解 mysql\> grant all privileges on dbname.tbname to 'username'\@'login ip' identified by 'password' with grant option; dbname=\*表示所有[数据库](http://www.2cto.com/database/) tbname=\*表示所有表 login ip=%表示任何ip password为空，表示不需要密码即可登录 with grant option; 表示该用户还可以授权给其他用户 细粒度授权 首先以root用户进入mysql，然后键入命令：grant select,insert,update,delete on \*.\* to p361 \@localhost Identified by "123";  如果希望该用户能够在任何机器上登陆mysql，则将localhost改为 "%" 。 粗粒度授权 我们测试用户一般使用该命令授权， GRANT ALL PRIVILEGES ON \*.\* TO 'p361'\@'%' Identified by "123";  注意:用以上命令授权的用户不能给其它用户授权,如果想让该用户可以授权,用以下命令: GRANT ALL PRIVILEGES ON \*.\* TO 'p361'\@'%' Identified by "123" WITH GRANT OPTION;  privileges包括：  alter：修改数据库的表  create：创建新的数据库或表  delete：删除表数据  drop：删除数据库/表  index：创建/删除索引  insert：添加表数据  select：查询表数据  update：更新表数据  all：允许任何操作  usage：只允许登录 |
 
 
 ### 18.3、回收权限
 
-| 命令详解 revoke privileges on dbname[.tbname] from username; revoke all privileges on \*.\* from p361; use mysql select \* from user 进入 mysql库中 修改密码; update user set password = password('qwe') where user = 'p646'; 刷新权限; flush privileges |
-|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+命令详解 
+
+revoke privileges on dbname[.tbname] from username; revoke all privileges on \*.\* from p361; use mysql select \* from user 
+
+进入 mysql库中 修改密码; update user set password = password('qwe') where user = 'p646'; 
+
+刷新权限; flush privileges
 
 
 ### 18.4、导出导入
@@ -2374,8 +2456,9 @@ mysql\> ALTER TABLE EMP DROP INDEX test_index; 删除后就不再使用索引了
 
 ##### 18.4.1.1、导出整个数据库 
 
-在windows的dos命令窗口中执行：mysqldump bjpowernode\>D:\\bjpowernode.sql -uroot
--p123
+在windows的dos命令窗口中执行：
+
+mysqldump bjpowernode\>D:\\bjpowernode.sql -uroot  -p123
 
 ##### 18.4.1.2、导出指定库下的指定表 
 
@@ -2534,6 +2617,118 @@ lock table 表名字1 read(write)，表名字2 read(write)，其它
 
 偏向innodb,开销大，支持事务
 
+# 22：MySQL配置参数
+
+**基本配置：**
+
+**datadir**：指定mysql的数据目录位置，用于存放mysql数据库文件、日志文件等。
+
+　　配置示例：datadir=D:/wamp/mysqldata/Data
+
+**default-character-set**：mysql服务器默认字符集设置。
+
+　　配置示例：default-character-set=utf8
+
+**skip-grant-tables**：当忘记mysql用户密码的时候，可以在mysql配置文件中配置该参数，跳过权限表验证，不需要密码即可登录mysql。
+
+ 
+
+**日志相关：**
+
+**log-error**：指定错误日志文件名称，用于记录当mysqld启动和停止时，以及服务器在运行过程中发生任何严重错误时的相关信息。
+
+　　配置示例：log-error="WJT-PC.err"（默认在mysql数据目录下）
+
+**log-bin**：指定二进制日志文件名称，用于记录对数据造成更改的所有查询语句。
+
+　　配置示例：log-bin="WJT-PC-bin.log"（默认在mysql数据目录下）
+
+**binlog-do-db**：指定将更新记录到二进制日志的数据库，其他所有没有显式指定的数据库更新将被忽略，不记录在日志中。
+
+　　配置示例：binlog-do-db=db_name
+
+**binlog-ignore-db**：指定不将更新记录到二进制日志的数据库，其他没有显式忽略的数据库都将进行记录。
+
+　　配置示例：binlog-ignore-db=db_name如果想记录或忽略多个数据库，可以对上面两个选项分别使用多次。
+
+**sync-binlog**：指定多少次写日志后同步磁盘。
+
+　　配置示例：sync-binlog=N
+
+**general-log**：是否开启查询日志记录。
+
+　　配置示例：general-log=1
+
+**general_log_file**：指定查询日志文件名，用于记录所有的查询语句。
+
+　　配置示例：general_log_file="WJT-PC.log"（默认在mysql数据目录下）
+
+**slow-query-log**：是否开启慢查询日志记录。
+
+　　配置示例：slow-query-log=1
+
+**slow_query_log_file**：指定慢查询日志文件名称，用于记录消耗时间较长的查询语句。
+
+　　配置示例：slow_query_log_file="WJT-PC-slow.log"（默认在mysql数据目录下）
+
+**long_query_time**：设置慢查询的时间，超过这个时间的查询语句才记录日志。
+
+　　配置示例：long_query_time=10（单位：秒）
+
+**log-slow-admin-statements**：是否将慢管理语句（例如OPTIMIZE TABLE、ANALYZE TABLE和ALTER TABLE）写入慢查询日志。
+
+ 
+
+**存储引擎相关：**
+
+**default-table-type**：设置mysql的默认存储引擎。
+
+**innodb_data_home_dir**：InnoDB引擎的共享表空间数据文件根目录。若没有设置，则使用mysql的datadir目录作为缺省目录。
+
+**innodb_data_file_path**：单独指定共享表空间数据文件的路径与大小。数据文件的完整路径由innodb_data_home_dir与这里配置的值组合起来，文件大小以MB单位指定。
+
+　　配置示例：innodb_data_home_dir=innodb_data_file_path=ibdata1:12M;/data/mysql/mysql3306/data1/ibdata2:12M:autoextend
+
+　　如果想为innodb表空间指定不同目录下的文件，必须指定 innodb_data_home_dir =。这个例子中会在datadir下建立ibdata1，在/data/MySQL/mysql3306/data1/目录下创建ibdata2。
+
+**innodb_file_per_table**：是否开启独立表空间，若开启，InnoDB将使用独立的.idb文件创建新表而不是在共享表空间中创建。
+
+　　配置示例：innodb_file_per_table=1
+
+**innodb_autoinc_lock_mode**：配置在向有着auto_increment列的表插入数据时，相关锁的行为。该参数有3个取值：
+
+　　0：tradition传统，所有的insert语 句开始的时候得到一个表级的auto_inc锁，在语句结束的时候才能释放 这个锁，影响了并发的插入。
+
+　　1：consecutive连续，mysql可以一次生成 几个连续的auto_inc的值，auto_inc不需要一直保持到语句结束，只要 语句得到了相应的值后就可以提前释放锁（这也是mysql的默认模式）。
+
+　　2：interleaved交错，这个模式下已经没有了auto_inc锁，所以性能是最好的，但是对于同一个语句来说它得到的auto_inc的值可能不是连续的。
+
+　　配置示例：innodb_autoinc_lock_mode=1
+
+**low_priority_updates**：在myisam引擎锁使用中，默认情况下写请求优先于读请求，可以通过将该参数设置为1来使myisam引擎给予读请求优先权限， 所有的insert、update、delete和lock table write语句将等待直到受影响的表没有挂起的select或lock table read。
+
+　　配置示例：low_priority_updates=0（默认配置）
+
+**max_write_lock_count**：当一个myisam表的写锁定达到这个值后，mysql就暂时 将写请求优先级降低，给部分读请求获得锁的机会。
+
+**innodb_lock_wait_timeout**：InnoDB锁等待超时参数，若事务在该时间内没有获 得需要的锁，则发生回滚。
+
+　　配置示例：innodb_lock_wait_timeout=50（默认50秒）
+
+**max_heap_table_size**：设置memory表的最大空间大小，该变量可以用来计算 memory表的max_rows值。在已有memory表上设置该参数是没有效果 的，除非重建表。
+
+ 
+
+**查询相关：**
+
+**max_sort_length**：配置对blob或text类型的列进行排序时使用的字节数（只对配置的前max_sort_length个字节进行排序，其他的被忽略）
+
+**max_length_for_sort**：mysql有两种排序算法，两次传输排序和单次传输排序。当查询需要所有列的总长度不超过max_length_for_sort时，mysql使用 单次传输排序，否则使用两次传输排序。
+
+**optimizer_search_depth**：在关联查询中，当需要关联的表数量超过optimizer_search_depth的时候，优化器会使用“贪婪”搜索的方式查找“最优”的关联顺序。
+
+
+
 ## 21：问题
 
 ### 1：修改mysql的root密码
@@ -2595,6 +2790,24 @@ mysql CPU使用已达到接近400%（因为是四核，所以会有超过100%的
 优化：
 
 首先是缩减查询范围
+
+
+
+### 怎么防止sql注入？
+
+使用预编译语句的支持
+
+一条语句可能会反复执行，或许每次执行只有个别语句不同。
+
+使用占位符替代，一次编译，多次运行。
+
+mysql使用PrepareStatement
+
+
+
+
+
+
 
 
 
