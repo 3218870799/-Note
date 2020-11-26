@@ -270,7 +270,7 @@ gc，STW的时 间更长
 
 ### 3：Mixed Collection
 
-### 4:fullGC
+### 4：fullGC
 
 SerialGC
 
@@ -295,6 +295,26 @@ G1
 新生代内存不足发生的垃圾收集 - minor gc
 
 老年代内存不足
+
+## （5）CMS(并发标记清除)垃圾收集器
+
+以获取最短回收停顿时间
+
+“Concurrent”并发是指垃圾收集的线程和用户执行的线程是可以同时执行的。
+
+CMS是基于“标记-清除”算法实现的，整个过程分为4个步骤：
+1、初始标记（CMS initial mark）。
+2、并发标记（CMS concurrent mark）。
+3、重新标记（CMS remark）。
+4、并发清除（CMS concurrent sweep）。
+
+缺点：
+1、CMS收集器对CPU资源非常敏感。
+2、CMS收集器无法处理浮动垃圾（Floating Garbage，就是指在之前判断该对象不是垃圾，由于用户线程同时也是在运行过程中的，所以会导致判断不准确的， 可能在判断完成之后在清除之前这个对像已经变成了垃圾对象，所以有可能本该此垃圾被回收但是没有被回收，只能等待下一次GC再将该对象回收，所以这种对像就是浮动垃圾）可能出现“Concurrent Mode Failure”失败而导致另一次Full GC的产生
+
+https://www.cnblogs.com/webor2006/p/11055468.html
+
+
 
 # 三：类加载与字节码技术
 
@@ -458,7 +478,7 @@ B）来了，会告知（线程A）有并发访问，线程 A
 
 ![](media/9a9752bb3da05ec18ffe585082378d16.png)
 
-  
+
 如何检查？
 
 由于是发生在堆内存中，不可见，需要借助MAT，LeakCanary等工具检测
