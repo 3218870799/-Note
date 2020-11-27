@@ -870,8 +870,23 @@ null会被忽略
 
 select count(\*),sum(sal),avg(sal),max(sal),min(sal) from emp; 
 
-
 ![](media/e04ba22c4181bae1917796cb78638b3c.png)
+
+### 7.7：其他常用函数
+
+1：CAST函数
+
+CAST函数语法规则是：Cast(字段名 as 转换的类型 )
+
+其中类型可以为：CHAR[(N)] 字符型，DATE 日期型，DATETIME 日期和时间型，DECIMAL float型，SIGNED int，TIME 时间型
+
+```sql
+--查询字段精度和小数位数
+SELECT CAST('12.5' AS decimal(9,2))
+--精度与小数位数分别为9 与2。精度是总的数字位数，包括小数点左边和右边位数的总和。而小数位数是小数点右边的位数。这表示本例能够支持的最大的整数值是9999999，而最小的小数是0.01。
+```
+
+
 
 ## 8、分组查询
 
