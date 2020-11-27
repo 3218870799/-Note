@@ -1113,40 +1113,20 @@ Other command line arguments：-encoding UTF-8 -charset UTF-8
 
 ## **2.** 缓存和索引的清理
 
-IntelliJ IDEA
-首次加载项目的时候，都会创建索引，而创建索引的时间跟项目的文件多少成正比。在
-IntelliJ IDEA
-创建索引过程中即使你编辑了代码也是编译不了、运行不起来的，所以还是安安静静等
-IntelliJ IDEA 创建索引完成。
+即eclipse中clean项目
 
-IntelliJ IDEA
-的缓存和索引主要是用来加快文件查询，从而加快各种查找、代码提示等操作的速度，所以
-IntelliJ IDEA 的索引的重要性再强调一次也不为过。但是，IntelliJ IDEA
-的索引和缓存并不是一直会良好地支持 IntelliJ IDEA 的，某些特殊条件下，IntelliJ
-IDEA 的缓存和索引文件也是会损坏的，比如：断电、蓝屏引起的强制关机，当你重新打开
-IntelliJ IDEA，很可能 IntelliJ IDEA
-会报各种莫名其妙错误，甚至项目打不开，IntelliJ IDEA
-主题还原成默认状态。即使没有断电、蓝屏，也会有莫名奇怪的问题的时候，也很有可能是
-IntelliJ IDEA
+IntelliJ IDEA首次加载项目的时候，都会创建索引，而创建索引的时间跟项目的文件多少成正比。在IntelliJ IDEA创建索引过程中即使你编辑了代码也是编译不了，运行不起来的，所以还是安安静静等IntelliJ IDEA 创建索引完成。
+
+IntelliJ IDEA的缓存和索引主要是用来加快文件查询，从而加快各种查找、代码提示等操作的速度，所以IntelliJ IDEA 的索引的重要性再强调一次也不为过。但是，IntelliJ IDEA的索引和缓存并不是一直会良好地支持 IntelliJ IDEA 的，某些特殊条件下，IntelliJIDEA 的缓存和索引文件也是会损坏的，比如：断电、蓝屏引起的强制关机，当你重新打开IntelliJ IDEA，很可能 IntelliJ IDEA会报各种莫名其妙错误，甚至项目打不开，IntelliJ IDEA主题还原成默认状态。即使没有断电、蓝屏，也会有莫名奇怪的问题的时候，也很有可能是IntelliJ IDEA
 缓存和索引出现了问题，这种情况还不少。遇到此类问题也不用过多担心。我们可以清理缓存和索引。如下：
 
 ![](media/49fbf43bd6510502d011694778480ddf.jpg)
 
--   一般建议点击 Invalidate and Restart，这样会比较干净。
+一般建议点击 Invalidate and Restart，这样会比较干净。
 
--   上图警告：清除索引和缓存会使得 IntelliJ IDEA 的 Local History
-    丢失。所以如果你项目没有加入到版本控制，而你又需要你项目文件的历史更改记录，那你最好备份下你的
-    LocalHistory 目 录 。 目 录 地 址 在 ： C:\\Users\\ 当 前 登 录 的 系 统 用
-    户 名
+上图警告：清除索引和缓存会使得 IntelliJ IDEA 的 Local History丢失。所以如果你项目没有加入到版本控制，而你又需要你项目文件的历史更改记录，那你最好备份下你的LocalHistory 目 录 。 目 录 地 址 在 ： C:\\Users\\ 当 前 登 录 的 系 统 用户 名\.IntelliJIdea14\\system\\LocalHistory建议使用硬盘的全文搜索，这样效率更高。
 
-    \\.IntelliJIdea14\\system\\LocalHistory
-    建议使用硬盘的全文搜索，这样效率更高。
-
--   通过上面方式清除缓存、索引本质也就是去删除 C 盘下的 system
-    目录下的对应的文件而已，所以如果你不用上述方法也可以删除整个 system。当
-    IntelliJ IDEA 再次启动项目的
-
-    时候会重新创建新的 system 目录以及对应项目缓存和索引。
+通过上面方式清除缓存、索引本质也就是去删除 C 盘下的 system目录下的对应的文件而已，所以如果你不用上述方法也可以删除整个 system。当IntelliJ IDEA 再次启动项目的时候会重新创建新的 system 目录以及对应项目缓存和索引。
 
 ## **3.**取消更新
 
@@ -1156,8 +1136,7 @@ IntelliJ IDEA
 
 ## **4.**插件的使用
 
-在 IntelliJ IDEA 的安装讲解中我们其实已经知道，IntelliJ IDEA
-本身很多功能也都是通过插件的方式来实现的。
+在 IntelliJ IDEA 的安装讲解中我们其实已经知道，IntelliJ IDEA本身很多功能也都是通过插件的方式来实现的。
 
 官网插件库：https://plugins.jetbrains.com/
 
