@@ -1851,15 +1851,237 @@ Stream是Java8中处理集合的关键抽象概念，他可以指定你希望对
 
 ![image-20201122162048510](media/image-20201122162048510.png)
 
-
-
-
-
-
-
 接口的抽象方法的形参表，返回类型需要和调用的类方法的形参表，返回类型保持一致
 
+<img src="media/image-20201128165317600.png" alt="image-20201128165317600" style="zoom:50%;" />
 
+Stream API代替for循环
+
+例：
+
+```java
+List<String> nameStrs = Arrays.asList("Monkey","Lion","Giraffe","Lemur");
+List<String> list = nameStrs.stream()
+    						.filter(s->s.startsWith("L"))//过滤以L开头的
+    						.map(String::toUpperCase)//map即对每个数据进行处理：调用String类的toUpperCase方法
+    						.sorted()//排序
+    						.collect(toList());//转换为list
+
+//数组转换成流
+String[] nameStrs1 = {"Monkey","Lion","Giraffe","Lemur"};
+
+Stream.of(nameStrs1).filter(s->s.startsWith("L")).map(String::toUpperCase);
+
+//Set
+Set<String> set = new HashSet<>(nameStrs);
+set.stream().filter(……)
+
+//文件
+	Stream<String> stringStream = Files.lines(Paths.get("file.txt"));
+	
+    
+```
+
+Stream的Filter与谓词逻辑
+
+谓词逻辑：比如sql语句中WHERE 和AND 限定了主语employee是什么，那么WHERE和AND语句所代表的逻辑就是谓词逻辑。
+
+```java
+//创建Employee类，并创建10个对象
+List<Employee> employees = Arrays.asList(e1,e2,e3,e4,e5,e6,e7,e8);
+List<Employee> employeeList = employees.stream()
+    									.filter(e->e.getAge()>70 && e.getGender = 'M')
+    									.collect(Collectors.toList());
+```
+
+
+
+Stream的map转换数据
+
+```java
+//类型转换
+Stream.of("Monkey", "Lion", "Giraffe", "Lemur")
+        .mapToInt(String::length)
+        .forEach(System.out::println);
+```
+
+多步骤操作
+
+```java
+List<Employee> maped = employees.stream()
+            .map(e -> {
+                e.setAge(e.getAge() + 1);
+                e.setGender(e.getGender().equals("M")?"male":"female");
+                return e;
+            }).collect(Collectors.toList());
+//peek和map一样
+List<Employee> maped = employees.stream()
+    .peek(e -> {
+        e.setAge(e.getAge() + 1);
+        e.setGender(e.getGender().equals("M")?"male":"female");
+    }).collect(Collectors.toList());
+```
+
+flatmap()处理多维数组
+
+![image-20201128195809722](media/image-20201128195809722.png)
+
+有状态操作
+
+```java
+//取前两个
+List<String> limitN = Stream.of("Monkey", "Lion", "Giraffe", "Lemur")
+        .limit(2)
+        .collect(Collectors.toList());
+//跳过前两个
+List<String> skipN = Stream.of("Monkey", "Lion", "Giraffe", "Lemur")
+        .skip(2)
+        .collect(Collectors.toList());
+//去重
+List<String> uniqueAnimals = Stream.of("Monkey", "Lion", "Giraffe", "Lemur", "Lion")
+        .distinct()
+        .collect(Collectors.toList());
+```
+
+并行不要用有状态操作
+
+![image-20201128200526595](media/image-20201128200526595.png)
+
+并行操作
+
+```java
+Stream.of("Monkey", "Lion", "Giraffe", "Lemur", "Lion")
+        .parallel()
+        .forEach(System.out::println);
+```
+
+
+
+对于stream性能方面
+
+1：测试性能的方法
+
+使用  junitperf
+
+int的是for循环效率更高，否则更高
+
+
+
+函数式接口Comparator
+
+ Stream查找匹配规则
+
+集合元素归约
+
+`Stream.reduce`用来实现集合元素的归约。reduce函数有三个参数：
+
+- *Identity标识*：一个元素，它是归约操作的初始值，如果流为空，则为默认结果。
+- *Accumulator累加器*：具有两个参数的函数：归约运算的部分结果和流的下一个元素。
+- *Combiner合并器（可选）*：当归约并行化时，或当累加器参数的类型与累加器实现的类型不匹配时，用于合并归约操作的部分结果的函数
+
+Integer类型归约
+
+reduce初始值为0，累加器可以是[lambda](http://www.zimug.com/tag/lambda)表达式，也可以是方法引用。
+
+```java
+List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6);
+int result = numbers
+        .stream()
+        .reduce(0, (subtotal, element) -> subtotal + element);
+System.out.println(result);  //21
+
+int result = numbers
+        .stream()
+        .reduce(0, Integer::sum);
+System.out.println(result); //21
+```
+
+String类型归约
+
+不仅可以归约Integer类型，只要累加器参数类型能够匹配，可以对任何类型的集合进行归约计算。
+
+```java
+List<String> letters = Arrays.asList("a", "b", "c", "d", "e");
+String result = letters
+        .stream()
+        .reduce("", (partialString, element) -> partialString + element);
+System.out.println(result);  //abcde
+
+String result = letters
+        .stream()
+        .reduce("", String::concat);
+System.out.println(result);  //ancde
+```
+
+对象归约
+
+```java
+List<Employee> employees = Arrays.asList(e1, e2, e3, e4, e5, e6, e7, e8, e9, e10);
+
+Integer total = employees.stream().map(Employee::getAge).reduce(0,Integer::sum);
+System.out.println(total); //346
+```
+
+并行流
+
+```java
+Integer total2 = employees
+        .parallelStream()
+        .map(Employee::getAge)
+        .reduce(0,Integer::sum,Integer::sum);  //注意这里reduce方法有三个参数
+
+System.out.println(total); //346
+```
+
+
+
+终端操作
+
+```java
+//打印
+Stream.of("Monkey", "Lion", "Giraffe", "Lemur", "Lion")
+        .parallel()
+        .forEach(System.out::println);
+Stream.of("Monkey", "Lion", "Giraffe", "Lemur", "Lion")
+        .parallel()
+        .forEachOrdered(System.out::println);
+//收集
+.collect(Collectors.toSet());
+.collect(Collectors.toList());
+.collect(Collectors.toCollection(LinkedList::new));
+.toArray(String[]::new);
+.collect(Collectors.toMap(
+       Function.identity(),   //元素输入就是输出，作为key
+       s -> (int) s.chars().distinct().count()// 输入元素的不同的字母个数，作为value
+));
+// 最终toMap的结果是: {Monkey=6, Lion=4, Lemur=5, Giraffe=6} 
+.collect(Collectors.groupingBy(
+       s -> s.charAt(0) ,  //根据元素首字母分组，相同的在一组
+       // counting()        // 加上这一行代码可以实现分组统计
+));
+
+// 最终groupingByList内的元素: {G=[Giraffe], L=[Lion, Lemur, Lion], M=[Monkey]}
+//如果加上counting() ，结果是:  {G=1, L=3, M=1}
+boolean containsTwo = IntStream.of(1, 2, 3).anyMatch(i -> i == 2);
+// 判断管道中是否包含2，结果是: true
+
+long nrOfAnimals = Stream.of(
+    "Monkey", "Lion", "Giraffe", "Lemur"
+).count();
+// 管道中元素数据总计结果nrOfAnimals: 4
+
+int sum = IntStream.of(1, 2, 3).sum();
+// 管道中元素数据累加结果sum: 6
+
+OptionalDouble average = IntStream.of(1, 2, 3).average();
+//管道中元素数据平均值average: OptionalDouble[2.0]
+
+int max = IntStream.of(1, 2, 3).max().orElse(0);
+//管道中元素数据最大值max: 3
+
+IntSummaryStatistics statistics = IntStream.of(1, 2, 3).summaryStatistics();
+// 全面的统计结果statistics: IntSummaryStatistics{count=3, sum=6, min=1, average=2.000000, max=3}
+```
 
 
 
