@@ -1,4 +1,4 @@
-1、数据库概述及数据准备
+# 第一章、数据库概述
 
 ### 1.1、SQL概述 
 
@@ -236,7 +236,7 @@ Name不变。按“Next”继续。
 | LOSAL        | 最低薪水 | INT  |
 | HISAL        | 最高薪水 | INT  |
 
-## 2、常用命令
+# 第二部分、常用命令
 
 ### 2.1、查看msyql版本
 
@@ -329,6 +329,445 @@ show create table \<table name\>;
 ![](media/53442eaf3571a44c2b721511fc00331f.png)
 
 ![](media/ebaffd4b2188e8531e078d5d01a45300.png)
+
+## 3、表
+
+### 3.1：数据类型
+
+MySQL支持多种类型，大致可以分为三类：数值、日期/时间和字符串(字符)类型。
+
+数值类型：
+
+| 类型           | 大小                                     | 范围（有符号）                    | 范围（无符号）     | 用途     |
+| -------------- | ---------------------------------------- | --------------------------------- | ------------------ | -------- |
+| tinyint        | 1 byte                                   | (-128,127)                        | (0,255)            | 小整数值 |
+| smallint       | 2 byte                                   | （-32 768,32 767）                | （0,65535）        | 大整数值 |
+| mediumint      | 3 byte                                   | （-8 388 608,8 388 606）          | (0，4 294 967 295) | 大整数值 |
+| int 或 integer | 4 byte                                   | （- 2 147 484 648,2 147 483 647） | （0,4 294 967 2950 | 大整数值 |
+| bigint         | 8 byte                                   |                                   |                    |          |
+| Float          | 4 byte                                   |                                   |                    |          |
+| double         | 8 byte                                   |                                   |                    |          |
+| decimal        | 对DECIMAL(M,D) ，如果M>D，为M+2否则为D+2 |                                   |                    |          |
+
+注意：int(5) 和int(10)的区别
+
+并不是最大长度的意思，而是在存储时以0填充的位数，当然存的超过长度也是可以的，比如int(5)也可以存入12345678的
+
+
+
+日期和时间类型
+
+| 类型      | 大小（byte） | 范围                                                         | 格式                | 用途                     |
+| --------- | ------------ | ------------------------------------------------------------ | ------------------- | ------------------------ |
+| DATE      | 3            | 1000-01-01/9999-12-31                                        | YYYY-MM-DD          | 日期值                   |
+| TIME      | 3            | '-838:59:59'/'838:59:59'                                     | HH:MM:SS            | 时间值或持续时间         |
+| YEAR      | 1            | 1901/2155                                                    | YYYY                | 年份值                   |
+| DATETIME  | 8            | 1000-01-01 00:00:00/9999-12-31 23:59:59                      | YYYY-MM-DD HH:MM:SS | 混合日期和时间值         |
+| TIMESTAMP | 4            | 1970-01-01 00:00:00/2038结束时间是第 **2147483647** 秒，北京时间 **2038-1-19 11:14:07**，格林尼治时间 2038年1月19日 凌晨 03:14:07 | YYYYMMDD HHMMSS     | 混合日期和时间值，时间戳 |
+
+字符串类型
+
+| 类型       | 大小                  | 用途                            |
+| ---------- | --------------------- | ------------------------------- |
+| CHAR       | 0-255 bytes           | 定长字符串                      |
+| VARCHAR    | 0-65535 bytes         | 变长字符串                      |
+| TINYBLOB   | 0-255 bytes           | 不超过 255 个字符的二进制字符串 |
+| TINYTEXT   | 0-255 bytes           | 短文本字符串                    |
+| BLOB       | 0-65 535 bytes        | 二进制形式的长文本数据          |
+| TEXT       | 0-65 535 bytes        | 长文本数据                      |
+| MEDIUMBLOB | 0-16 777 215 bytes    | 二进制形式的中等长度文本数据    |
+| MEDIUMTEXT | 0-16 777 215 bytes    | 中等长度文本数据                |
+| LONGBLOB   | 0-4 294 967 295 bytes | 二进制形式的极大文本数据        |
+| LONGTEXT   | 0-4 294 967 295 bytes | 极大文本数据                    |
+
+### 3.1、表操作
+
+13.1.1创建表
+
+- 语法格式
+
+  ```sql
+  create table tableName(
+     columnName dataType(length),
+     ………………..
+     columnName dataType(length)
+  );
+  set character_set_results='gbk';
+  
+  show variables like '%char%';
+  ```
+
+  
+
+  创建表的时候，表中有字段，每一个字段有： 
+
+   \* 字段名  
+
+  \* 字段数据类型 
+
+   \* 字段长度限制  
+
+  \* 字段约束 
+
+| 类型                         | 描述                                             |
+| ---------------------------- | ------------------------------------------------ |
+| Char(长度)                   | 定长字符串，存储空间大小固定，适合作为主键或外键 |
+| Varchar(长度)                | 变长字符串，存储空间等于实际数据空间             |
+| double(有效数字位数，小数位) | 数值型                                           |
+| Float(有效数字位数，小数位)  | 数值型                                           |
+| Int( 长度)                   | 整型                                             |
+| bigint(长度)                 | 长整型                                           |
+| Date                         | 日期型 年月日                                    |
+| DateTime                     | 日期型 年月日 时分秒 毫秒                        |
+| time                         | 日期型 时分秒                                    |
+| BLOB                         | Binary Large OBject（二进制大对象）              |
+| CLOB                         | Character Large OBject（字符大对象）             |
+| 其它…………………                  |                                                  |
+
+-   建立学生信息表，字段包括：学号、姓名、性别、出生日期、email、班级标识
+
+```sql
+create table t_student(
+    student_id int(10),
+    student_name varchar(20),
+    sex char(2),
+    birthday date,
+    email varchar(30),
+    class_id int(3)
+)
+```
+
+
+![](media/5af13b68247b85e75ea7a5a2a3b06038.png)
+
+-   向t_student表中加入数据,（必须使用客户端软件，我们的cmd默认是GBK编码,数据中设置的编码是UTF-8）
+
+```sql
+insert into t_student(student_id,student_name,sex,birthday,email,class_id) values(1001,'zhangsan','m','1998-01-01','qqq@163.com',10)
+```
+
+
+![](media/69758fcf2995eecf6d606bb350881aeb.png)
+
+13.1.2：截断表
+
+删除表数据，保留表结构，数据无法恢复
+
+```sql
+truncate table 表名
+```
+
+
+
+
+### 13.2、表结构
+
+采用alter table来增加/删除/修改表结构，不影响表中的数据
+
+#### 13.2.1、添加字段
+
+如：需求发生改变，需要向t_student中加入联系电话字段，字段名称为：contatct_tel
+类型为varchar(40)
+
+```sql
+alter table t_student add contact_tel varchar(40);
+```
+
+
+![](media/5b0f32eb2cd8660ff953546f4c1e138c.png)
+
+#### 13.2.2、修改字段
+
+如：student_name无法满足需求，长度需要更改为100
+
+```sql
+ alter table t_student modify student_name varchar(100) ; 
+```
+
+
+
+
+![](media/5a24fb15a0ef2fed312f7190ad1ba343.png)
+
+如sex字段名称感觉不好，想用gender那么就需要更爱列的名称
+
+![](media/86ac6b13b3ee20ab9b5deb88b7a2d819.png)
+
+#### 13.2.3、删除字段
+
+如：删除联系电话字段
+
+alter table t_student drop contact_tel; 
+
+
+![](media/67822ec53d80d817a8379f5278647ce7.png)
+
+
+
+
+
+### 13.3、添加、修改和删除
+
+#### 13.3.1、insert
+
+添加、修改和删出都属于DML，主要包含的语句：insert、update、delete
+
+-   Insert语法格式
+
+| Insert into 表名(字段，。。。。) values(值,………..) |
+
+
+-   省略字段的插入
+
+insert into emp values(9999,'zhangsan','MANAGER', null, null,3000, 500, 10); 
+
+
+![](media/e8ecf132afa9ecc33482db5d96a60487.png)
+
+![](media/39262954ca829f5f572974a88ef45fb0.png)
+
+不建议使用此种方式，因为当数据库表中的字段位置发生改变的时候会影响到insert语句
+
+-   指定字段的插入(建议使用此种方式)
+
+insert into emp (empno,ename,job,mgr,hiredate,sal,comm,deptno) values(9999,'zhangsan','MANAGER', null, null,3000, 500, 10); 
+
+
+![](media/816b82082f9a6607e3a108f44e992559.png)
+
+出现了主键重复的错误，主键表示了记录的唯一性，不能重复
+
+![](media/d31682265490ca6a2eda058c8eb91736.png)
+
+如何插入日期：
+
+第一种方法，插入的日期格式和显示的日期格式一致
+
+insert into emp(empno, ename, job, mgr, hiredate, sal, comm, deptno) values(9997,'zhangsan','MANAGER', null, '1981-06-12',3000, 500, 10); 
+
+
+![](media/168248caab3337e3c3725a11ba397802.png)
+
+第二种方法，采用str_to_date
+
+insert into emp(empno, ename, job, mgr, hiredate, sal, comm, deptno) valu es(9996,'zhangsan','MANAGER',null,str_to_date('1981-06-12','%Y-%m-%d'),3000, 500, 10);
+
+
+![](media/d492ebd28129cf4c2426a080e81599a7.png)
+
+第三种方法，添加系统日期（now()）
+
+insert into emp(empno, ename, job, mgr, hiredate, sal, comm, deptno) values(9995,'zhangsan','MANAGER',null,now() ,3000, 500, 10); 
+
+
+![](media/9ba5bfb7dbd0a39362ab48319d7fdfed.png)
+
+![](media/4b57e3648eb707d24274dd08d4a206dc.png)
+
+-   表复制
+
+| create table emp_bak as select empno,ename,sal from emp; 
+
+
+![](media/844a74e05eba178dde38bc4d4c63a57e.png)
+
+![](media/489e99545a32cb5faec3af545b6d9a84.png)
+
+以上方式，会自动创建表，将符合查询条件的数据自动复制到创建的表中
+
+-   如何将查询的数据直接放到已经存在的表中，可以使用条件
+
+| insert into emp_bak select \* from emp where sal=3000; 
+
+
+![](media/61e7740c576a27a71b62ecdea97376b1.png)
+
+#### 13.3.2、update
+
+可以修改数据，可以根据条件修改数据
+
+-   语法格式：
+
+| update 表名 set 字段名称1=需要修改的值1, 字段名称2=需要修改的值2 where ……. 
+
+
+-   将job为manager的员工的工资上涨10%
+
+| update emp set sal=sal+sal\*0.1 where job='MANAGER'; 
+
+
+#### 13.3.3、delete
+
+可以删除数据，可以根据条件删除数据
+
+-   语法格式：
+
+| Delete from表名 where 。。。。。 
+
+
+-   删除津贴为500的员工
+
+| delete from emp where comm=500;
+
+
+-   删除津贴为null的员工
+
+| delete from emp where comm is null;
+
+
+### 13.4、创建表加入约束
+
+-   常见的约束
+
+    1.  非空约束，not null
+
+    2.  唯一约束，unique
+
+    3.  主键约束，primary key
+
+    4.  外键约束，foreign key
+
+    5.  自定义检查约束，check（不建议使用）(在mysql中现在还不支持)
+
+#### 13.4.1、非空约束，not null
+
+非空约束，针对某个字段设置其值不为空，如：学生的姓名不能为空
+
+```sql
+create table t_student(
+	student_id  	int(10),
+    student_name 	varchar(20) not null,
+}
+```
+
+
+![](media/98e444cc066084020a58713aa75499de.png)
+
+以上错误为加入的学生姓名为空。
+
+
+
+#### 13.4.2、唯一约束，unique
+
+唯一性约束，它可以使某个字段的值不能重复，如：email不能重复：
+
+```sql
+create table t_student(
+	student_id  	int(10),
+    student_name 	varchar(20) not null,
+    email		varchar(30)  unique,
+}
+```
+
+
+
+
+![](media/86730bae75a34597dc4f5f387bc14136.png)
+
+以上插入了重复的email，所以出现了“违反唯一约束错误”，所以unique起作用了
+
+同样可以为唯一约束起个约束名
+
+-   我们可以查看一下约束
+
+mysql\> use information_schema;
+
+mysql\> select \* from table_constraints where table_name = 't_student';
+
+![](media/4d4057b127a92ea0f6efe1fb4672768b.png)
+
+关于约束名称可以到table_constraints中查询
+
+以上约束的名称我们也可以自定义。
+
+
+
+| drop table if exists t_student;  create table t_student(  student_id int(10),  student_name varchar(20) not null,  sex char(2) default 'm',  birthday date,   email varchar(30) ,  classes_id int(3) , constraint email_unique unique(email)/\*表级约束\*/ ) 
+
+
+#### 13.4.3、主键约束，primary key
+
+每个表应该具有主键，主键可以标识记录的唯一性，主键分为单一主键和复合（联合）主键，单一主键是由一个字段构成的，复合（联合）主键是由多个字段构成的
+
+drop table if exists t_student;  create table t_student()  student_id int(10) primary key,/\*列级约束\*/  student_name varchar(20) not null,  sex char(2) default 'm',  birthday date,   email varchar(30) ,  classes_id int(3)  ) insert into t_student(student_id, student_name , sex, birthday, email, classes_id)  values (1001,'zhangsan','m', '1988-01-01', 'qqq\@163.com', 10) 
+
+
+向以上表中加入学号为1001的两条记录，出现如下错误，因为加入了主键约束
+
+![](media/c2fcba5fddd336f1fecdab94bc724917.png)
+
+我们也可以通过表级约束为约束起个名称：
+
+| drop table if exists t_student;  create table t_student(  student_id int(10),  student_name varchar(20) not null,  sex char(2) default 'm',  birthday date,   email varchar(30) ,  classes_id int(3),  CONSTRAINT p_id PRIMARY key (student_id) ) insert into t_student(student_id, student_name , sex, birthday, email, classes_id)  values (1001,'zhangsan','m', '1988-01-01', 'qqq\@163.com', 10) |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+
+
+#### 13.4.4、外键约束，foreign key
+
+外键主要是维护表之间的关系的，主要是为了保证参照完整性，如果表中的某个字段为外键字段，那么该字段的值必须来源于参照的表的主键，如：emp中的deptno值必须来源于dept表中的deptno字段值。
+
+建立学生和班级表之间的连接
+
+首先建立班级表t_classes
+
+| drop table if exists t_classes; create table t_classes(  classes_id int(3),  classes_name varchar(40),  constraint pk_classes_id primary key(classes_id) ) |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+
+
+在t_student中加入外键约束
+
+| drop table if exists t_student; create table t_student(  student_id int(10),  student_name varchar(20),  sex char(2),  birthday date,  email varchar(30),  classes_id int(3),  constraint student_id_pk primary key(student_id), constraint fk_classes_id foreign key(classes_id) references t_classes(classes_id)  ) |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+
+
+向t_student中加入数据
+
+| insert into t_student(student_id, student_name, sex, birthday, email, classes_id) values(1001, 'zhangsan', 'm', '1988-01-01', 'qqq\@163.com', 10) |
+|---------------------------------------------------------------------------------------------------------------------------------------------------|
+
+
+![](media/fae6477d97a065ef670706d3cccefbca.png)
+
+出现错误，因为在班级表中不存在班级编号为10班级，外键约束起到了作用
+
+存在外键的表就是子表，参照的表就是父表，所以存在一个父子关系，也就是主从关系，主表就是班级表，从表就是学生表
+
+![](media/9bad9a2ca20a695dc84025a411359b10.png)
+
+以上成功的插入了学生信息，当时classes_id没有值，这样会影响参照完整性，所以我们建议将外键字段设置为非空
+
+| drop table if exists t_student; create table t_student(  student_id int(10),  student_name varchar(20),  sex char(2),  birthday date,  email varchar(30),  classes_id int (3) not null,  constraint student_id_pk primary key(student_id),  constraint fk_classes_id foreign key(classes_id) references t_classes(classes_id)  ) insert into t_student(student_id, student_name, sex, birthday, email, cla sses_id) values(1001, 'zhangsan', 'm', '1988-01-01', 'qqq\@163.com', null); |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+
+
+再次插入班级编号为null的数据
+
+![](media/2ec98612d068eda8202dd007278ee9e4.png)
+
+添加数据到班级表，添加数据到学生表，删除班级数据，将会出现如下错误：
+
+| insert into t_classes (classes_id,classes_name) values (10,'366'); insert into t_student( student_id, student_name, sex, birthday, email, classes_id ) values( 1001, 'zhangsan', 'm', '1988-01-01', 'qqq\@163.com', 10 ) mysql\> update t_classes set classes_id = 20 where classes_name = '366'; [media/4a9d08a6e20422892104c933f2cb3882.png](media/4a9d08a6e20422892104c933f2cb3882.png) 因为子表（t_student）存在一个外键classes_id，它参照了父表（t_classes）中的主键，所以先删除子表中的引用记录，再修改父表中的数据。 我们也可以采取以下措施 级联更新。 mysql\> delete from t_classes where classes_id = 10; [media/1963d5bf9dc207fc9e77347a49724fd2.png](media/1963d5bf9dc207fc9e77347a49724fd2.png) 因为子表（t_student）存在一个外键classes_id，它参照了父表（t_classes）中的主键，所以先删除父表，那么将会影响子表的参照完整性，所以正确的做法是，先删除子表中的数据，再删除父表中的数据，采用drop table也不行，必须先drop子表，再drop父表 我们也可以采取以下措施 级联删除。 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+
+
+#### 13.4.5、级联更新与级联删除
+
+##### 13.4.5.1、on update cascade;
+
+| mysql对有些约束的修改比较麻烦，所以我们可以先删除，再添加 alter table t_student drop foreign key fk_classes_id; alter table t_student add constraint fk_classes_id_1 foreign key(classes_id) references t_classes(classes_id) on update cascade; [media/4eb19ace853232f9b78f76b6d2e543c8.png](media/4eb19ace853232f9b78f76b6d2e543c8.png) 我们只修改了父表中的数据，但是子表中的数据也会跟着变动。 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+
+
+##### 13.4.5.2、on delete cascade; 
+
+| mysql对有些约束的修改时不支持的，所以我们可以先删除，再添加 alter table t_student drop foreign key fk_classes_id; alter table t_student add constraint fk_classes_id_1 foreign key(classes_id) references t_classes(classes_id) on delete cascade; delete from t_classes where classes_id = 20; [media/fd8f6edb5f27c7a65e9e7ca090332804.png](media/fd8f6edb5f27c7a65e9e7ca090332804.png) 我们只删除了父表中的数据，但是子表也会中的数据也会删除。 |
+|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+
+
+### 13.5、t_student和t_classes完整示例
+
+| drop table if exists t_classes; create table t_classes(  classes_id int (3),  classes_name varchar(30) not null,  constraint pk_classes_id primary key(classes_id)  ) drop table if exists t_student; create table t_student(  student_id int(10),  student_name varchar(50) not null,  sex char(2) not null,  birthday date not null,  email varchar(30) unique,  classes_id int (3) not null,  constraint pk_student_id primary key(student_id),  constraint fk_classes_id foreign key(classes_id) references t_classes(classes_id)  ) |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 ## 4、简单的查询
 
@@ -874,6 +1313,8 @@ select count(\*),sum(sal),avg(sal),max(sal),min(sal) from emp;
 
 ### 7.7：其他常用函数
 
+https://www.runoob.com/mysql/mysql-functions.html
+
 1：CAST函数
 
 CAST函数语法规则是：Cast(字段名 as 转换的类型 )
@@ -884,6 +1325,41 @@ CAST函数语法规则是：Cast(字段名 as 转换的类型 )
 --查询字段精度和小数位数
 SELECT CAST('12.5' AS decimal(9,2))
 --精度与小数位数分别为9 与2。精度是总的数字位数，包括小数点左边和右边位数的总和。而小数位数是小数点右边的位数。这表示本例能够支持的最大的整数值是9999999，而最小的小数是0.01。
+```
+
+2：concat函数
+
+concat(str1, str2,...) 返回结果为连接参数产生的字符串，如果有任何一个参数为null，则返回值为null。
+
+```sql
+select concat(id,',',name) as info from table1
+```
+
+3：concat_ws()函数
+
+concat_ws(separator, str1, str2, ...)
+
+说明：第一个参数指定分隔符。需要注意的是分隔符不能为null，如果为null，则返回结果为null。
+
+```sql
+select concat_ws(',',id ,name) as info from t1;
+```
+
+查询结果为
+
+```xml
+info
+10002,zhang
+```
+
+
+
+4：round()函数
+
+返回离x最近的整数
+
+```sql
+select round(1.23456)   --1
 ```
 
 
@@ -1629,7 +2105,7 @@ drop table if exists t_student;  create table t_student()  student_id int(10) pr
 |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 
-## 14、存储引擎
+## 第四部分、存储引擎
 
 ### 14.1、存储引擎的使用
 
@@ -2483,6 +2959,35 @@ mysqldump bjpowernode\>D:\\bjpowernode.sql -uroot  -p123
 #### 18.4.2、导入
 
 登录MYSQL数据库管理系统之后执行：source D:\\ bjpowernode.sql
+
+
+
+# 19：服务器级常用sql语句
+
+```sql
+--查看表空间
+select concat(round(sum(index_length)/(1024*1024),2),'MB') AS 'MB' ,'Index Data Size' as TABLESPACE from information_schema.TABLE where table_schema='alp'
+
+select 
+	a.tablespace_name "表空间名"，
+	total "表空间大小",
+	free "表空间剩余大小",
+	(total - free) "表空间使用大小",
+	total/(1024*1024*1024) "表空间大小(G)",
+	free/(1024*1024*1024) "表空间剩余大小(G)",
+	(total - free)/(1024*1024*1024) "表空间使用大小(G)",
+	round((total - free)/total,4) * 100 "使用率%",
+	from (select tablespace_name,sum(bytes) free
+         from dba_free_space
+         group by tablespace_name) a,
+         (select tablespace_name,sum(bytes) total
+         from dba_data_files
+          group by tablespace_name) b
+```
+
+
+
+
 
 ## 19、数据库设计的三范式
 
