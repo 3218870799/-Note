@@ -32,9 +32,7 @@ dao层：hibernate，mybatis ， jdbcTemplate --\> spring-data
 
 ## 1.2 Spring 优点？ 
 
-Spring 是一个框架，是一个半成品的软件。有 20
-个模块组成。它是一个容器管理对象，容器是装东西的，Spring
-容器不装文本，数字。装的是对象。Spring 是存储对象的容器。
+Spring 是一个框架，是一个半成品的软件。有 20个模块组成。它是一个容器管理对象，容器是装东西的，Spring容器不装文本，数字。装的是对象。Spring 是存储对象的容器。
 
 -   （方便解耦，简化开发 （高内聚低耦合）
 
@@ -71,12 +69,8 @@ Spring 是一个框架，是一个半成品的软件。有 20
 
 **beans、core、context、expression**
 
-Spring 由 20 多个模块组成，它们可以分为数据访问/集成（Data
-Access/Integration）、
-
-Web、面向切面编程（AOP, Aspects）、提供
-JVM的代理（Instrumentation）、消息发送（Messaging）、核心容器（Core
-Container）和测试（Test）。
+Spring 由 20 多个模块组成，它们可以分为数据访问/集成（DataAccess/Integration）、Web、面向切面编程（AOP, Aspects）、提供
+JVM的代理（Instrumentation）、消息发送（Messaging）、核心容器（CoreContainer）和测试（Test）。
 
 ## 1.4：事件
 
@@ -98,8 +92,7 @@ Spring 提供了以下5种标准的事件：
 
 # 第2章 IoC 控制反转 
 
-控制反转（IoC，Inversion of
-Control），是一个概念，是一种思想。指将传统上由程序代码直接操控的对象调用权交给容器，通过容器来实现对象的装配和管理。**控制反转就是对对象控制权的转移**，从程序代码本身反转到了外部容器。通过容器实现对象的创建，属性赋值，依赖的管理。
+控制反转（IoC，Inversion of  Control），是一个概念，是一种思想。指将传统上由程序代码直接操控的对象调用权交给容器，通过容器来实现对象的装配和管理。**控制反转就是对对象控制权的转移**，从程序代码本身反转到了外部容器。通过容器实现对象的创建，属性赋值，依赖的管理。
 
 IoC
 是一个概念，是一种思想，其实现方式多种多样。当前比较流行的实现方式是依赖注入。应用广泛。
@@ -120,13 +113,13 @@ Spring
 
 >   **Spring** 框架使用依赖注入（**DI**）实现 **IoC**。
 
-Spring 容器是一个超级大工厂，负责创建、管理所有的 Java 对象，这些 Java
-对象被称为 Bean。Spring 容器管理着容器中 Bean 之间的依赖关系，Spring
-使用“依赖注入”的方式来管理 Bean 之间的依赖关系。使用 IoC 实现对象之间的解耦和。
+Spring 容器是一个超级大工厂，负责创建、管理所有的 Java 对象，这些 Java对象被称为 Bean。Spring 容器管理着容器中 Bean 之间的依赖关系，Spring使用“依赖注入”的方式来管理 Bean 之间的依赖关系。使用 IoC 实现对象之间的解耦和。
 
 ## 2.1 开发工具准备 
 
-开发工具：idea2017 以上依赖管理：maven3 以上 jdk:1.8 上
+开发工具：idea2017 以上
+
+依赖管理：maven3 以上 jdk:1.8 上
 
 需要设置 maven 本机仓库：
 
@@ -160,7 +153,7 @@ spring-framework-3.2.0.RELEASE\\schema\\beans
 
 ![](media/1ca3b805e4561093c16fe97dca503de7.jpg)
 
-### 2.2.2 引入 maven 依赖 pom.xml 
+### 2.2.2 引入 maven 依赖 pom.xml
 
 \<dependency\>
 
@@ -174,9 +167,9 @@ spring-framework-3.2.0.RELEASE\\schema\\beans
 
 插件
 
->   \<build\>
+<build\>
 
->   \<plugins\>
+<plugins\>
 
 \<plugin\>
 
@@ -192,7 +185,7 @@ spring-framework-3.2.0.RELEASE\\schema\\beans
 
 \</configuration\> \</plugin\> \</plugins\>
 
->   \</build\>
+</build\>
 
 >   **核心开发包说明：**
 
@@ -223,26 +216,26 @@ spring-framework-3.2.0.RELEASE\\schema\\beans
 
 ### 2.2.3 定义接口与实体类 
 
+```java
 **public interface** SomeService { **void** doSome();
 
-}
+  }
 
-**public class** SomeServiceImpl **implements** SomeService { **public**
-SomeServiceImpl() { **super**();
+**public class** SomeServiceImpl **implements** SomeService { 
+    **public**SomeServiceImpl() { 
+        **super**();
+		System.**out**.println("SomeServiceImpl无参数构造方法");
+	}
 
-System.**out**.println("SomeServiceImpl无参数构造方法");
-
-}
-
-\@Override
+@Override
 
 **public void** doSome() {
-
-System.**out**.println("====业务方法doSome()===");
-
+		System.**out**.println("====业务方法doSome()===");
+  }
 }
+```
 
-}
+
 
 ### 2.2.4 创建 Spring 配置文件 
 
@@ -254,10 +247,11 @@ System.**out**.println("====业务方法doSome()===");
 
 ![](media/9677ad5ce1d8144018e9ba096baf06f0.jpg)
 
->   \<bean /\>：用于定义一个实例对象。一个实例对应一个 bean 元素。 id：该属性是
->   Bean实例的唯一标识，程序通过 id 属性访问 Bean，Bean 与 Bean
->   间的依赖关系也是通过 id 属性关联的。 class：指定该 Bean
->   所属的类，注意这里只能是类，不能是接口。
+<bean /\>：用于定义一个实例对象。一个实例对应一个 bean 元素。 
+
+id：该属性是Bean实例的唯一标识，程序通过 id 属性访问 Bean，Bean 与 Bean间的依赖关系也是通过 id 属性关联的。 
+
+class：指定该 Bean所属的类，注意这里只能是类，不能是接口。
 
 ### 2.2.5 定义测试类 
 
@@ -866,8 +860,7 @@ Step3**：项目** aop_leadin3
 
 ## 3.2 AOP 简介 
 
-AOP（Aspect Orient
-Programming），面向切面编程。面向切面编程是从动态角度考虑程序运行过程。
+AOP（Aspect OrientProgramming），面向切面编程。面向切面编程是从动态角度考虑程序运行过程。
 
 AOP 底层，就是采用动态代理模式实现的。采用了两种代理：JDK 的动态代理，与 CGLIB
 的动态代理。
