@@ -1847,6 +1847,8 @@ TreeSet<Integer> set = new TreeSet<>(new Comparator<Integer>() {
 
 ### 1.4：Stream
 
+字母哥的博客：你可能真的不懂java
+
 Stream是Java8中处理集合的关键抽象概念，他可以指定你希望对集合进行的操作，可以执行非常复杂的查找，过滤和映射数据等操作。
 
 ![image-20201122162048510](media/image-20201122162048510.png)
@@ -1855,7 +1857,7 @@ Stream是Java8中处理集合的关键抽象概念，他可以指定你希望对
 
 <img src="media/image-20201128165317600.png" alt="image-20201128165317600" style="zoom:50%;" />
 
-Stream API代替for循环
+#### Stream API代替for循环
 
 例：
 
@@ -1878,11 +1880,34 @@ set.stream().filter(……)
 
 //文件
 	Stream<String> stringStream = Files.lines(Paths.get("file.txt"));
-	
     
 ```
 
-Stream的Filter与谓词逻辑
+遍历二维数组
+
+```java
+        Arrays.stream(result2).forEach(arr->{
+            Arrays.stream(arr).filter(i->i!=0).forEach( i ->System.out.print(i));
+            System.out.println();
+        });
+```
+
+问题？？
+
+对于如下两个for循环，怎么改造？效率低了吗？
+
+```java
+        for (int j = 0; j < n; j++) {
+            result[j][0] = 1;
+        }
+        for (int i = 1; i < n; i++) {
+            for (int j = 1; j < n; j++) {
+                result[i][j] =  result[i-1][j-1] + result[i-1][j];
+            }
+        }
+```
+
+#### Stream的Filter与谓词逻辑
 
 谓词逻辑：比如sql语句中WHERE 和AND 限定了主语employee是什么，那么WHERE和AND语句所代表的逻辑就是谓词逻辑。
 
@@ -1896,7 +1921,7 @@ List<Employee> employeeList = employees.stream()
 
 
 
-Stream的map转换数据
+#### Stream的map转换数据
 
 ```java
 //类型转换
@@ -1922,7 +1947,7 @@ List<Employee> maped = employees.stream()
     }).collect(Collectors.toList());
 ```
 
-flatmap()处理多维数组
+#### flatmap()处理多维数组
 
 ![image-20201128195809722](media/image-20201128195809722.png)
 
@@ -1947,7 +1972,7 @@ List<String> uniqueAnimals = Stream.of("Monkey", "Lion", "Giraffe", "Lemur", "Li
 
 ![image-20201128200526595](media/image-20201128200526595.png)
 
-并行操作
+#### 并行操作
 
 ```java
 Stream.of("Monkey", "Lion", "Giraffe", "Lemur", "Lion")
@@ -1957,7 +1982,7 @@ Stream.of("Monkey", "Lion", "Giraffe", "Lemur", "Lion")
 
 
 
-对于stream性能方面
+#### 对于stream性能方面
 
 1：测试性能的方法
 
@@ -1971,7 +1996,7 @@ int的是for循环效率更高，否则更高
 
  Stream查找匹配规则
 
-集合元素归约
+#### 集合元素归约
 
 `Stream.reduce`用来实现集合元素的归约。reduce函数有三个参数：
 
@@ -2035,7 +2060,9 @@ System.out.println(total); //346
 
 
 
-终端操作
+#### 终端操作
+
+调用完终端操作就不能再用了，流已经关闭了
 
 ```java
 //打印
@@ -2193,6 +2220,8 @@ TYPE_PARAMETER,USE。
 
 # Java9
 
+从此以后六个月迭代一次，小步快跑，快速迭代。 
+
 官方提供的新特性列表：
 
 https://docs.oracle.com/javase/9/whatsnew/toc.htm\#JSNEW-GUID-C23AFD78-C777-460B-8ACE-58BE5EA681F6
@@ -2205,29 +2234,348 @@ http://openjdk.java.net/projects/jdk9/
 
 https://docs.oracle.com/javase/9/
 
+## 1：下载安装
+
+与以前版本不冲突，安装jdk并安装jre
+
+配置环境变量
+
 ## 1：目录结构的改变
 
 ![](media/ffb2eb22dcae8ef40c6853761a415c89.png)
 
 ![](media/25724d7ababb496a843fcce7ca30814b.png)
 
-## 2：模块化
+不包含jre目录了
+
+## 2：模块系统
+
+最大变化之一引入模块系统（Jigsaw项目）—>
+
+运行环境的碰撞与臃肿，需要加载rt.jar
+
+减少内存消耗
+
+对外暴露
+
+java9demo模块
+
+![image-20201201163540677](media/image-20201201163540677.png)
+
+在引入模块
+
+![image-20201201163633858](media/image-20201201163633858.png)
+
+
 
 ## 3：REPL工具：jShell命令
 
 ![](media/dc5707368d6100dee1c96a3864bba584.png)
 
-## 4：接口的私有方法
+REPL（read-evaluate-print-loop）交互式编程环境
 
-接口中放啊的访问权限修饰符可以声明为private的了，
+bin目录下jshell.exe
 
-## 5：钻石操作符的使用升级
+配好环境变量后
+
+cmd输入jshell
+
+输出：
+
+定义变量
+
+定义方法：
+
+如果定义一个已经存在的方法则直接修改原本的方法
+
+```jshell
+/edit add
+```
+
+可以直接修改add方法
+
+tab键补全
+
+从外部文件加载源代码
+
+/open 文件路径
+
+
+
+受检异常
+
+编译前异常，比如IOExcetption
+
+jshell直接隐藏处理了
+
+## 4：多版本兼容jar包
+
+向后兼容
+
+![image-20201201170736924](media/image-20201201170736924.png)
+
+## 5：接口的私有方法
+
+接口中放啊的访问权限修饰符可以声明为private的了
+
+![image-20201201171630033](media/image-20201201171630033.png)
+
+```java
+//声明私有方法
+
+```
+
+
+
+抽象类和接口的异同
+
+1：声明的方式
+
+2：内部结构
+
+3：共同点
+
+不能实例化，以多态的方式使用
+
+4：不同点
+
+单继承，多实现
+
+## 6：钻石操作符的使用升级
+
+即泛型
+
+```java
+//JDK7
+Set<String> set = new HashSet<String>();
+//JDK8可以进行类型推断
+Set<String> set = new HashSet<>();
+//JDK9中能够与匿名实现类共同使用钻石操作符
+Set<String> set = new HashSet<>(){};
+```
+
+
 
 匿名实现类与钻石操作符共同使用在8中会报错，Java9可以
 
 ![](media/5f91f2fd5339c8beb04f85fb0d816069.png)
 
-6：try语句优化
+## 7：try语句优化
+
+流资源的关闭
+
+JDK7以前
+
+```java
+InputStreamReader reader = null;
+try{
+    reader = new InputStreamReader(System.in);
+    //读取数据的过程
+    reader.read();
+}catch(IOException e){
+    e.printStackTrace();
+}finally{
+    //资源的关闭操作
+    if(reader!=null){
+        try{
+            reader.close();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+JDK8在try中声明的资源会自动关闭，不用显示处理资源的关闭，必须在资源对象实例化必须放在try（）中
+
+```java
+try(InputStreamReader reader = new InputStreamReader(System.in)){
+    reader.read();
+}catch(IOException e){
+    e.printStackTrace();
+}
+```
+
+JDK9支持在外部声明资源文件,此时的reader是final的，不可再被赋值。而且可以传多个，然后用；分开
+
+```java
+InputStreamReader reader = new InputStreamReader(System.in);
+OutputStreamReader writer = new OutputStreamWriter(System.in);
+try(reader;writer){
+    reader.read();
+}catch(IOException e){
+    e.printStackTrace();
+}
+```
+
+## 8：下划线
+
+String _是不允许的，是一个特殊的关键字
+
+## API层面
+
+## 9：String
+
+JDK8以前String以前是char[]存储的，每个是两个字节
+
+JDK9使用byte[]数组，并使用encodeFlag标记编码类型，防止中文等两个字节存储
+
+UTF-16存储都是两个字节
+
+StringBuilder和StringBuffer也是做了同样的改变。
+
+问题：String，StringBuilder和StringBuffer？
+
+## 10：集合
+
+创建只读集合，不可改变的集合
+
+```java
+//调用Collection中方法，将list变成只读的
+List<String> newList = Collections.unmodifiablelist(list);
+//遍历JDK8
+newList.forEach(System.out::println);
+```
+
+//对只读Map的创建
+
+```java
+//匿名子类和泛型可以一起使用
+Map<Object,Object> map = COllections.unmodifiableMap(new HashMap<>(){
+    {
+        put("1",1);
+        put("2",2);
+        put("3",3);
+    }
+})
+ //遍历
+map.forEach((k,v)->System.out.println(k + ":" + v));
+```
+
+//JDK9中提供了更加方便的只读集合方法
+
+```java
+//创建只读list
+List<Integer> list = List.of(1,2,3);
+list.forEach(System.out::println);
+//创建只读Set
+Set<Integer> set = Set.of(2,3,4);
+//创建只读Map法一
+Map<String,Integer> map = Map.of("1",1,"2",2,"3",3);
+//创建只读Map法二
+Map<String,Integer> map = Map.ofEntries(Map.entry("1",1),Map.entry("2",2));
+```
+
+## 11：增强的StreamAPI
+
+JDK9中针对Stream中添加了四个方法
+
+1：takeWhile()：一直取直到满足条件就不取了，不同于filter
+
+```java
+List<Integer> list = Arrays.asList(1,2,3,4,5,6,7,8);
+Stream<Integer> stream = list.stream();
+stream.takeWhile(x-x<5).forEach(System.out::println);
+//此时输出为：1,2,3,4
+```
+
+2：dropWhile()：与takeWhile正好相反
+
+```java
+List<Integer> list = Arrays.asList(1,2,3,4,5,6,7,8);
+Stream<Integer> stream = list.stream();
+stream.dropWhile(x-x<5).forEach(System.out::println);
+//此时输出为：5,6,7,8
+```
+
+3：ofNullable
+
+Java8中Stream不能完全为null，否则会报空指针异常。而Java9中可以使用ofNullable方法创建一个单元素
+
+```java
+//Stream其中一种实例化方法of
+
+Stream<Integer> stream = Stream.of(1,2,3，null);
+//此时没有问题
+stream.forEach(System.out::println);
+
+//如果单元素且为null就会报空指针异常
+Stream<Object> stream = Stream.of(null);
+
+//JDK9中可以创建
+Stream<String> stream = Stream.ofNullAble("Tom");
+System.out.println(stream.count());//输出1
+Stream<String> stream = Stream.ofNullAble(null);
+System.out.println(stream.count());//输出0
+```
+
+4：iterator()的重载
+
+Stream的实例化方法：
+
+通过集合的stream()
+
+通过数组工具类Arrays
+
+Stream中静态方法of
+
+iterator()/gen
+
+```java
+//JDK8中
+Stream.iterator(0,x->x+1).limit(10).forEach(System.out::println);
+//输出0 1 2 3 4 5 6 7 8 9
+//JDK9中对其进行重载，添加一个判定条件
+Stream.iterate(0,x->x<10,x->x+1).forEach(System.out::println);
+```
+
+
+
+## 12：optional的变化
+
+可以转换成stream
+
+```java
+Optional<List<String>> optional = Optional.ofNullable(list);
+
+Stream<String> stream = optional.stream().flatMap(x->x.stream());
+stream.forEach(System.out::println);
+```
+
+## 13：高分辨率图像API
+
+## 14：全新的HTTP客户端API
+
+2015年推出HTTP2
+
+HTTP1.1和HTTP2的主要区别在哪里？
+
+区别在如何在客户端和服务器之间构件和传输数据
+
+Http1依赖于请求响应周期，Http2允许服务器push数据，它可以发送比客户端请求更多的数据，这使得他可以优先处理并发送对于首先加载网页至关重要的数据
+
+```java
+//JDK9中可以使用HttpClient替换原有的HttpURLConnection
+HttpClient client = HttpClient.newHttpClient();
+HttpRequest req = HttpRequest.newBuilder(URL.create("http://www.baidu.com")).GET().build();
+HttpResponse<String> response = null;
+response = client.send(req,HttpResponse.BodyHandler.asString());
+System.out.println(response.statusCode());
+System.out.println(response.version.name());
+System.out.println(response.body());
+```
+
+## 15：Deprecated的API
+
+抛弃了几个不常用的API，主要是Applet API
+
+## 16：智能Java编译工具
+
+sjavac 慢慢代替javac
+
+## 17：统一的JVM日志系统
+
+G1作为了默认垃圾回收器
 
 # Java10
 
