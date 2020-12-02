@@ -359,6 +359,14 @@ IntelliJ IDEA 没有类似 Eclipse 的工作空间的概念（Workspaces），�
 
 ![](media/a7575dfc0cad7376f39cec8c7289b5cf.jpg)
 
+## 4：对项目的相关操作
+
+4.1：切换JDK版本
+
+File——>Project Structure——> SDK
+
+
+
 # 五、常用配置 
 
 IntelliJ IDEA有很多人性化的设置我们必须单独拿出来讲解，也因为这些个性化的设置让那些 IntelliJIDEA 死忠粉更加死心塌地使用它和分享它。
@@ -370,6 +378,29 @@ IntelliJ IDEA有很多人性化的设置我们必须单独拿出来讲解，也�
 目录结构如下：
 
 ![](media/8002ef583e46c1a65dd6301411e3902a.jpg)
+
+## 1：常用配置手记
+
+### 1.1：xml文件的颜色，空格时显示混乱
+
+![img](media/1188299-20180816180739872-777946646.png)
+
+
+
+![img](media/1188299-20180816181146118-262535586.png)
+
+
+
+### 1.2：错误提示不及时
+
+1.开启了节省电源的问题
+file》power save mode点一下把前边的勾去掉
+2.有缓存问题
+file》invalidateCaches/Restart
+
+![img](media/20200521192235430.png)
+
+
 
 ## 1.Appearance & Behavior 
 
