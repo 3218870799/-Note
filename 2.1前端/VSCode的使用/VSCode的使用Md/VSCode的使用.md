@@ -28,14 +28,6 @@ ctrl + shift +P
 
 
 
-
-
-
-
-
-
-
-
 3：全局搜索
 
 ![image-20201026134511640](VSCode的使用.assets/image-20201026134511640.png)
@@ -46,6 +38,22 @@ ctrl + shift +P
 
 5：快捷键
 
+\1. 折叠所有区域代码的快捷键：ctrl+k, ctrl+0;
+
+​          先按下ctrl和K，再按下ctrl和0; (注意这个是零，不是欧)
+
+\2. 展开所有折叠区域代码的快捷键：ctrl +k, ctrl+J;
+
+​          先按下ctrl和K，再按下ctrl和J 
+
+\3. 自动格式化代码的快捷键：ctrl+k, ctrl+f;
+
+​          先按下ctrl和K，再按下ctrl和f;
+
+
+
+
+
 编辑相关：
 
 新建文件:   Ctrl+N
@@ -54,7 +62,7 @@ ctrl + shift +P
 
 代码行向左或向右缩进:   Ctrl+[ 、 Ctrl+]
 
-代码格式化:   Shift+Alt+F
+**代码格式化:   Shift+Alt+F**
 
 向上或向下移动一行:   Alt+Up 或 Alt+Down
 
@@ -73,4 +81,8 @@ ctrl + shift +P
 快捷键设置：
 
 文件——首选项——键盘快捷方式
+
+
+
+
 
