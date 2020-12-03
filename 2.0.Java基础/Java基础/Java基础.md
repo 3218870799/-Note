@@ -141,6 +141,22 @@ priavte 本类可见
 
 ![image-20201125195254176](media/image-20201125195254176.png)
 
+
+
+数据类型转换：
+
+Long转成Integer：
+
+```java
+LongNum.inValue();
+```
+
+
+
+
+
+
+
 ## 面试题
 
 1：跨平台原理
@@ -1735,7 +1751,7 @@ IO是面向流的，NIO是面向缓冲区的
 
 # 八：JDBC
 
-# 八：特性：
+# Java8
 
 ## 1：Lambda表达式
 
@@ -1745,11 +1761,11 @@ Lambda表达式的标准格式为：
 
 格式说明：
 
-小括号内的语法与传统方法参数列表一致：无参数则留空；多个参数则用逗号分隔。
+小括号内的语法与传统方法参数列表一致：无参数则留空；多个参数则用逗号分隔。对应于抽象方法的参数
 
 \-\> 是新引入的语法格式，代表指向动作。
 
-大括号内的语法与传统方法体要求基本一致。
+大括号内的语法与传统方法体要求基本一致。相当于对抽象方法的实现，函数式接口，只有一个抽象方法。
 
 ![image-20201122134603482](media/image-20201122134603482.png)
 
@@ -1780,6 +1796,8 @@ TreeSet<Integer> set = new TreeSet<>(new Comparator<Integer>() {
 
 
 
+
+
 ### 1.2：六大语法
 
 ->lambda操作符，左侧是lambda表达式的参数列表，右侧是所需执行的功能，依赖于函数式接口，lambda表达式即对接口的实现
@@ -1788,7 +1806,7 @@ TreeSet<Integer> set = new TreeSet<>(new Comparator<Integer>() {
 
 使用注解@FunctionalInterface，该接口只有一个方法
 
-语法1：无参无返回值
+**语法1：无参无返回值**
 
 ```java
 		//语法一：无参无返回值
@@ -1800,10 +1818,11 @@ TreeSet<Integer> set = new TreeSet<>(new Comparator<Integer>() {
 		};
 		//简化实现
 		Runnable runnable1 = ()->System.out.println("输出某些东西");
-		
 ```
 
-语法二：有一个参数，无返回值
+注意：匿名内部类使用外部的变量必须为final，无法改变，即使没有声明，也是final的
+
+**语法二：有一个参数，无返回值**
 
 ```java
 //语法二：有一个参数，无返回值
@@ -1820,7 +1839,7 @@ TreeSet<Integer> set = new TreeSet<>(new Comparator<Integer>() {
 		
 ```
 
-语法三：多个参数，有返回值，多条执行语句
+**语法三：多个参数，有返回值，多条执行语句**
 
 ```java
 //语法三：多个参数，有返回值，多条执行语句
@@ -1843,9 +1862,96 @@ TreeSet<Integer> set = new TreeSet<>(new Comparator<Integer>() {
 
  
 
- 
+### 1.4：方法引用和构造器引用
 
-### 1.4：Stream
+若lambda体中的内容由方法已经实现了，我们可以使用方法引用
+
+语法一
+
+对象::实例方法名
+
+抽象方法的参数类型与参数引用的参数类型一致
+
+```java
+//以前
+Employee emp = new Employee();
+Supplier<String> sup = ()->emp.getName();
+String str = sup.get();//供给型接口的get（）方法
+System.out.println(str);
+
+//现在:由于对象emp有实现
+Supplier<Integer> sup2 = emp::getAge;
+```
+
+语法二
+
+类：：静态方法名
+
+```java
+Comparator<Integer> com = (x,y)->Integer.compare(x,y);
+
+Comparator<Integer> com = Integer::compare;
+```
+
+语法三
+
+类：：实例方法名
+
+当抽象方法第一个参数为实例方法的调用者，第二个参数为实例方法的参数
+
+```java
+//以前
+BiPredicate<String,String> bp = (x,y)->x.equals(y);
+
+//now
+BigPrediacate<String,String> bp = String::equals;
+```
+
+
+
+构造器引用
+
+需要调用的构造器参数列表与函数式的构造列表保持一致。
+
+ClassName：：new
+
+```java
+//供给型
+Supplier<Employee> sup = ()->new Employee();
+//构造器引用方式,自动匹配无参构造器
+Supplier<Employee> sup = Employee::new;
+Employee emp = sup.get();
+```
+
+法二
+
+```java
+//函数形
+Function<Integer,Employee> fun = (x)->new Employee(x);
+//构造器引用，自动匹配有参构造器
+Function<Integer,Employee> fun = Employee::new;
+Employee emp = sup.apply(101);
+```
+
+数组引用
+
+Type[]::new
+
+```java
+//函数型
+Function<Integer,String[]> fun = (x)->new String[x];
+String[] str = fun.apply(10);
+System.out.println(str.length);
+
+//数组引用
+Function<Integer,String[]> fun = String[]::new;
+String[] str = fun.apply(20);
+System.out.println(str.length);
+```
+
+
+
+## 2：Stream
 
 字母哥的博客：你可能真的不懂java
 
@@ -2110,7 +2216,150 @@ IntSummaryStatistics statistics = IntStream.of(1, 2, 3).summaryStatistics();
 // 全面的统计结果statistics: IntSummaryStatistics{count=3, sum=6, min=1, average=2.000000, max=3}
 ```
 
+## 3：空指针异常optional
 
+![image-20201202224837452](media/image-20201202224837452.png)
+
+
+
+![image-20201202224845588](media/image-20201202224845588.png)
+
+## 4：接口中的默认方法和静态方法
+
+接口中以前只能有全局静态常量和抽象方法
+
+现在可以拥有默认方法
+
+```java
+public interface MyFun{
+    default String getName(){
+        return "1234";
+    }
+}
+```
+
+这样就会出现冲突
+
+接口默认方法的“类优先”原则，优先继承
+
+![image-20201202225923189](media/image-20201202225923189.png)
+
+
+
+静态方法
+
+```java
+public interface MyFun{
+    default String getName(){
+        return "1234";
+    }
+    public static void show(){
+        System.out.println("静态方法");
+    }
+}
+```
+
+## 5：全新日期与时间
+
+不可变的，线程安全，都在java.time包下
+
+距离1970年的毫秒数
+
+5.1
+
+日期：LocalDate  : 时间：LocalTime  :日期时间：LocalDateTime
+
+三个类的方法大体一样，以最全的LocalDateTime为例
+
+```java
+//获取当前系统时间
+LocalDateTime ldt = LocalDateTime.now();
+System.out.println(ldt);
+//输出：2020-12-02T09:11:37.247
+```
+
+构造时间
+
+```java
+LocalDateTime ldt = LocalDateTime.of(2020,12,01,13,22,33);
+System.out.println(ldt);
+//输出：2020-12-01T13:22:33
+```
+
+加时间，减时间
+
+```java
+// 在该日期时间基础上增加或减少一定时间，
+// 参数1：时间量，可以是负数，参数2:时间单位
+LocalDateTime plus = parse.plus(1L, ChronoUnit.HOURS); // 2019-10-17T17:54:50.941
+// LocalDateTime plus(TemporalAmount amountToAdd)：在该时间基础上增加一定时间
+LocalDateTime plus1 = parse.plus(Period.ofDays(1)); // 2019-10-18T16:54:50.941
+LocalDateTime plus2 = parse.plusDays(1L); // 2019-10-18T16:54:50.941
+		// LocalDateTime    plusDays(long days)：增加指定天数
+        // LocalDateTime	plusHours(long hours)：增加指定小时数
+        // LocalDateTime	plusMinutes(long minutes)：增加指定分钟数
+        // LocalDateTime	plusMonths(long months)：增加指定月份数
+        // LocalDateTime	plusNanos(long nanos)：增加指定毫秒数
+        // LocalDateTime	plusSeconds(long seconds):增加指定秒数
+        // LocalDateTime	plusWeeks(long weeks):增加指定周数
+        // LocalDateTime	plusYears(long years):增加指定年数
+```
+
+//获取拆分
+
+```java
+ldt.getYear();
+ldt.getMonthValue();
+ldt.getDayOfMonth();
+ldt.getHour();
+ldt.getMinute();
+ldt.getSencond();
+```
+
+5.2：Instant时间戳
+
+以unix元年：1970年1月1日到某个时间之间的毫秒值
+
+```java
+Instant ins = Instant.now();//默认获取的不是系统时间，而是格林威治时区时间
+System.out.println(ins);
+//偏移量,偏移8个时区
+OffsetDateTime odt = ins.atOffset(ZoneOffset.ofHours(8));
+System.out.println(odt);
+//输出：2020-12-01T13:22:33+8:00
+//获取毫秒时间
+System.out.println(ins.toEpochMilli());   
+```
+
+
+
+
+
+
+
+## 3：HashMap的实现
+
+当碰撞达到一定的设置值（默认碰撞长度为8，总长度大于64）时，会将链表转换成红黑树
+
+红黑树，除了插入其他操作都比链表快，扩容时元素位置变到
+
+ConcurrentHashMap同样也变了
+
+以前使用锁分段机制，现在使用CAS算法
+
+
+
+## 4：JVM结构的变化
+
+元空间——OOM发生的几率就低了
+
+## 
+
+
+
+
+
+## 
 
 ## 2：反射
 
@@ -2579,7 +2828,99 @@ G1作为了默认垃圾回收器
 
 # Java10
 
-局部变量类型推断
+## 1：局部变量类型推断
+
+var ：JDK10中提供的保留类型
+
+只针对局部变量
+
+var 是保留类型不是关键字，意味着我们还可以用var 来定义变量名和方法名
+
+```java
+public static void main(String[] args){
+    var i =10;
+    var str = "abc";
+    var list = new ArrayList<>();
+    list.add("test");
+    
+    var set = new HashSet<>();
+    
+    var user = new User();  
+}
+```
+
+注意：不允许赋值为null
+
+```java
+var aa = null;//错误
+```
+
+
+
+## 2：垃圾收集器的优化
+
+Java9的改变
+
+新生代：ParNew
+
+老年代：Paraller Old
+
+JDK10：G1（Grabage -First）收集器：全收集器，既可以收集新生代又可以收集老年代。
+
+分析工具
+
+![image-20201203163004298](media/image-20201203163004298.png)
+
+## 3：新增的API功能
+
+### 3.1：copyOf()方法
+
+在List，Set和Map下新增了copyOf方法
+
+拷贝后的集合不可修改
+
+且是根据其迭代顺序拷贝的
+
+### 3.2：Java.io.ByteArrayOutStream::toString(Charset)
+
+对toString进行重载，可以指定编码，默认使用UTF-8
+
+```java
+String str = "中文测试";
+//将str以GBK编码转换成Byte转换成流
+ByteArrayInputStream bis = new ByteArrayInputStream(str.getByte("GBK"));
+
+ByteArrayOutStream bos = new ByteArrayOutStream();
+
+int c =0;
+while((c=bis.read())!=-1){
+    bos.write(c);
+}
+System.out.println(bos.toString());
+System.out.println(bos.toString("GBK"));
+```
+
+
+
+### 3.3：PrintStream和PrintWrite新增构造方法
+
+![image-20201203175519351](media/image-20201203175519351.png)
+
+### 3.4：Reader::transferTo
+
+
+
+### 3.5：Scanner和Formatter新增构造方法
+
+
+
+
+
+
+
+
+
+
 
 # Java11
 
