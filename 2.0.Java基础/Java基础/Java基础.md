@@ -1751,6 +1751,116 @@ IO是面向流的，NIO是面向缓冲区的
 
 # 八：JDBC
 
+# 特性
+
+## 2：反射
+
+允许程序在执行期借助于反射API取得任何类的内部信息，并能直接操作任意对象的内部属性及方法。
+
+加载完类后，在堆内存的方法区就产生一个Class类型的对象（一个类只有一个class对象）
+
+![](media/b6fff231446e38a2ad9db2130735db5a.png)
+
+### 1：Class实例
+
+在Object类中定义了方法
+
+Public final Class getClass（）
+
+返回一个Class类，它是Java反射的源头
+
+Class的常用方法
+
+![](media/834d3b522f315b15109e96970ac52f5a.png)
+
+### 2：类的加载与ClassLoader
+
+当程序主动使用某个类时，如果该类还未被加载到内存中，则系统会通过如下三个步骤对该类进行初始化
+
+![](media/d8d47867eefe91b807080f360125b5d2.png)
+
+类加载器的作用：
+
+类加载的作用：将class文件字节码内容加载到内存中，并将这些静态数据转换成方法区的运行时数据结构，然后在堆中生成一个代表这个类的java.lang.Class对象，作为方法区中类数据的访问入口。
+
+类缓存：标准的JavaSE类加载器可以按要求查找类，但一旦某个类被加载到类加载器中，它将维持加载（缓存）一段时间。不过JVM垃圾回收机制可以回收这些Class对象。
+
+在运行状态中，对于任意一个类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；这种动态获取的信息以及动态调用对象的方法的功能称为
+Java 语言的反射机制。
+
+反射机制：
+
+1：代理模式的原理：使用一个代理将对象包装起来，然后用该代理对象取代原始对象，任何对原始对象的调用都要通过代理，代理对象决定是否以及何时将方法转移到原始对象
+
+2：静态代理：
+
+2.1举例：实现Runnable接口的方法创建多线程
+
+Class MyThread implements Runnable{};//想当与被代理类
+
+Class Thread implements Runnable{}//相当于代理类
+
+Main（）{
+
+Mythread t = new MyThread();
+
+Thread thread = new Thread(t);
+
+Thread.start();//启动线程，调用线程的run();
+
+}
+
+## 3：枚举
+
+枚举类对象的属性不允许被改动，应该使用private
+final修饰，且应在构造器中为其赋值。私有化构造器，保证不能在类外部创建对象
+
+方法
+
+![](media/5de93b4622394f69cbcf34af5cfbf292.png)
+
+## 4：注解
+
+在代码中嵌入注解，再通过反射拿到
+
+在编译时进行格式检查(JDK内置的三个基本注解)
+
+\@Override: 限定重写父类方法, 该注解只能用于方法
+
+\@Deprecated: 用于表示所修饰的元素(类, 方法等)已过时。通常是因为
+所修饰的结构危险或存在更好的选择
+
+\@SuppressWarnings: 抑制编译器警告
+
+自定义注解
+
+利用反射获取注解信息
+
+当一个 Annotation Annotation Annotation Annotation 类型被定义为运行时 Annotation
+Annotation Annotation Annotation 后，该注解 才是 运行时 可见 , 当 class class
+文件被载入时保存在 class class 文件中的 Annotation Annotation Annotation
+Annotation 才会被虚拟 机读取
+
+程序可以 调用 AnnotatedElement AnnotatedElementAnnotatedElement
+AnnotatedElement 对象 的如下方法来访问 Annotation Annotation Annotation
+Annotation 信
+
+JDK1.8 JDK1.8 JDK1.8 之后，关于元注解 \@Target\@Target\@Target\@Target
+\@Target\@Target的参数类型 ElementType ElementTypeElementType ElementType
+ElementTypeElementTypeElementType枚举值多了两个：
+
+TYPE_PARAMETER,USE。
+
+## 5：泛型
+
+把集合中的内容限定为一个特定的数据类型
+
+**如果Foo 是Bar 的一个子类型(子类或者子接口)，而G 是某种**
+
+**泛型声明，那么G\<Foo\>是G\<Bar\>的子类型并不成立!!**
+
+
+
 # Java8
 
 ## 1：Lambda表达式
@@ -1963,6 +2073,167 @@ Stream是Java8中处理集合的关键抽象概念，他可以指定你希望对
 
 <img src="media/image-20201128165317600.png" alt="image-20201128165317600" style="zoom:50%;" />
 
+![image-20201128195809722](media/image-20201128195809722.png)
+
+### 2.1：获取流
+
+1：可以通过Collection系列集合提供的stream()或者parallelStream()
+
+```java
+List<String> list = new ArrayList<>();
+Stream<String> stream1 = list.stream();
+```
+
+2：通过Arrays中静态方法stream()获取数组流
+
+```java
+Employee[] emps = new Employee[10];
+Stream<Employee> stream2 = Arrays.stream(emps);
+```
+
+3：通过Stream类的静态方法of()
+
+```java
+Stream<String> stream = Stream.of("aa","bb","cc");
+```
+
+4：创建无限流
+
+```java
+//迭代
+Stream<Integer> stream = Stream.iterate(0,(x)->x+2);
+Stream.limit(10).forEach(System.out::println);
+//生成
+Stream.generate(()->Math.random())
+
+```
+
+
+
+### 2.2：中间操作
+
+中间操作不会执行任何操作其实，只有终止操作时才会一次性执行全部内容，成为惰性求值
+
+#### 2.2.1：筛选与切片
+
+Filter与谓词逻辑
+
+谓词逻辑：比如sql语句中WHERE 和AND 限定了主语employee是什么，那么WHERE和AND语句所代表的逻辑就是谓词逻辑。
+
+```java
+//创建Employee类，并创建10个对象
+List<Employee> employees = Arrays.asList(e1,e2,e3,e4,e5,e6,e7,e8);
+List<Employee> employeeList = employees.stream()
+    									.filter(e->e.getAge()>70 && e.getGender = 'M')
+    									.collect(Collectors.toList());
+```
+
+limit(n);截断流，使元素不超过给定数量
+
+```java
+employee.stream()
+    	.filter((e)->{
+            System.out.println("!!");
+            return e.getSalary()>5000;
+        })
+    	.limit(2)
+    	.forEach(System.out::println);
+//发现只执行两次，主要满足2个条件就就此截断
+```
+
+skip(n);跳过元素，返回一个扔掉前n个元素的流
+
+
+
+distinct—筛选，通过流生成元素的hashCode()和equals()去除重复元素
+
+#### 2.2.2：映射
+
+map—接收lambda，将元素转换成其他形式或提取信息，接收一个函数作为参数，该函数会被应用到每个元素上。
+
+
+
+map转换数据
+
+```java
+//类型转换
+Stream.of("Monkey", "Lion", "Giraffe", "Lemur")
+        .mapToInt(String::length)
+        .forEach(System.out::println);
+```
+
+多步骤操作
+
+```java
+List<Employee> maped = employees.stream()
+            .map(e -> {
+                e.setAge(e.getAge() + 1);
+                e.setGender(e.getGender().equals("M")?"male":"female");
+                return e;
+            }).collect(Collectors.toList());
+//peek和map一样
+List<Employee> maped = employees.stream()
+    .peek(e -> {
+        e.setAge(e.getAge() + 1);
+        e.setGender(e.getGender().equals("M")?"male":"female");
+    }).collect(Collectors.toList());
+```
+
+
+
+flatmap()处理多维数组
+
+flatMap()接收一个函数作为参数，将流中的每个值都换成另一个流，然后把所有的流连接成一个流
+
+```java
+//取出每个字符
+public static Stream<Character> filterCharacter(String str){
+    List<Character> list = new ArrayList<>();
+    for(Character ch:str.toCharArray()){
+        list.add(ch);
+    }
+    return list.stream();
+}
+public static main(String[] args){
+    Stream<Stream<Character>> stream = list.stream().map(this::filterCharacter);
+    stream.forEach((sm)->{
+        sm.forEach(System.out::println);
+    });
+}
+```
+
+使用flatMap
+
+```java
+Stream<Character> sm = list.stream()   						.flatMap(this::filterCharacter);
+
+```
+
+
+
+#### 2.2.3：排序
+
+sorted()——自然排序（Comparable）
+
+sorted（Comparator com）——定制排序
+
+```java
+list.stream()
+    .sorted()
+    .forEach(System.out::println);
+
+emp.stream()
+    .sorted((e1,e2)->{
+        if(e1.getAge().equals(e2.getAge())){
+            return e1.getName().comparaTo(e2.getName());
+        }else{
+            return e1.getAge.compareTO(e2.getAge());
+        }
+    }).forEach(System.out::println);
+```
+
+
+
 #### Stream API代替for循环
 
 例：
@@ -2013,49 +2284,11 @@ set.stream().filter(……)
         }
 ```
 
-#### Stream的Filter与谓词逻辑
-
-谓词逻辑：比如sql语句中WHERE 和AND 限定了主语employee是什么，那么WHERE和AND语句所代表的逻辑就是谓词逻辑。
-
-```java
-//创建Employee类，并创建10个对象
-List<Employee> employees = Arrays.asList(e1,e2,e3,e4,e5,e6,e7,e8);
-List<Employee> employeeList = employees.stream()
-    									.filter(e->e.getAge()>70 && e.getGender = 'M')
-    									.collect(Collectors.toList());
-```
 
 
+#### 
 
-#### Stream的map转换数据
 
-```java
-//类型转换
-Stream.of("Monkey", "Lion", "Giraffe", "Lemur")
-        .mapToInt(String::length)
-        .forEach(System.out::println);
-```
-
-多步骤操作
-
-```java
-List<Employee> maped = employees.stream()
-            .map(e -> {
-                e.setAge(e.getAge() + 1);
-                e.setGender(e.getGender().equals("M")?"male":"female");
-                return e;
-            }).collect(Collectors.toList());
-//peek和map一样
-List<Employee> maped = employees.stream()
-    .peek(e -> {
-        e.setAge(e.getAge() + 1);
-        e.setGender(e.getGender().equals("M")?"male":"female");
-    }).collect(Collectors.toList());
-```
-
-#### flatmap()处理多维数组
-
-![image-20201128195809722](media/image-20201128195809722.png)
 
 有状态操作
 
@@ -2088,23 +2321,60 @@ Stream.of("Monkey", "Lion", "Giraffe", "Lemur", "Lion")
 
 
 
-#### 对于stream性能方面
-
-1：测试性能的方法
-
-使用  junitperf
-
-int的是for循环效率更高，否则更高
 
 
+### 2.3：终端操作
 
-函数式接口Comparator
+#### 2.3.1：查找与匹配
 
- Stream查找匹配规则
+allMatch()——检查是否匹配所有元素，返回boolean
 
-#### 集合元素归约
+```java
+//是否所有元素的状态都是BUSY
+boolean b = emplist.stream()
+    .allMatch((e)->e.getStatus().equals(Status.BUSY));
+```
 
-`Stream.reduce`用来实现集合元素的归约。reduce函数有三个参数：
+anyMatch——检查是否至少匹配一个元素
+
+```java
+//是否存在状态为BUSY的元素
+boolean b = emplist.stream()
+    		.anyMatch((e)->e.getStatus().equals(Status.BUSY));
+```
+
+noneMatch——检查是否没有匹配所有元素
+
+```java
+//是否没有状态为BUSY的元素
+boolean b = emplist.stream()
+    		.noneMatch((e)->e.getStatus().equals(Status.BUSY));
+```
+
+findFirst——返回第一个元素
+
+```java
+//工资最高的
+Optional<Employee> op = emplist.stream()
+    	.sorted((e1,e2)->Double.compare(e1.getSalary(),e2.getSalary()))
+    .findFirst();
+```
+
+findAny——返回当前流中任意元素
+
+count——返回流中元素总个数
+
+max——返回流中最大值
+
+min——返回流中最小值
+
+
+
+#### 2.3.2：归约
+
+`Stream.reduce`可以将流中元素反复结合起来，得到一个值。
+
+用来实现集合元素的归约。reduce函数有三个参数：
 
 - *Identity标识*：一个元素，它是归约操作的初始值，如果流为空，则为默认结果。
 - *Accumulator累加器*：具有两个参数的函数：归约运算的部分结果和流的下一个元素。
@@ -2153,22 +2423,13 @@ Integer total = employees.stream().map(Employee::getAge).reduce(0,Integer::sum);
 System.out.println(total); //346
 ```
 
-并行流
-
-```java
-Integer total2 = employees
-        .parallelStream()
-        .map(Employee::getAge)
-        .reduce(0,Integer::sum,Integer::sum);  //注意这里reduce方法有三个参数
-
-System.out.println(total); //346
-```
-
-
-
-#### 终端操作
+#### 2.3.3：收集
 
 调用完终端操作就不能再用了，流已经关闭了
+
+collect——将流转换为其他形式，接收一个Collector接口的实现，用于给Stream中元素汇总的方法。
+
+![image-20201203224703080](media/image-20201203224703080.png)![image-20201203224831656](media/image-20201203224831656.png)
 
 ```java
 //打印
@@ -2215,6 +2476,37 @@ int max = IntStream.of(1, 2, 3).max().orElse(0);
 IntSummaryStatistics statistics = IntStream.of(1, 2, 3).summaryStatistics();
 // 全面的统计结果statistics: IntSummaryStatistics{count=3, sum=6, min=1, average=2.000000, max=3}
 ```
+
+### 2.4：并行流
+
+#### 对于stream性能方面
+
+1：测试性能的方法
+
+使用  junitperf
+
+int的是for循环效率更高，否则更高
+
+
+
+函数式接口Comparator
+
+ Stream查找匹配规则
+
+并行流
+
+```java
+Integer total2 = employees
+        .parallelStream()
+        .map(Employee::getAge)
+        .reduce(0,Integer::sum,Integer::sum);  //注意这里reduce方法有三个参数
+
+System.out.println(total); //346
+```
+
+
+
+
 
 ## 3：空指针异常optional
 
@@ -2333,7 +2625,7 @@ System.out.println(ins.toEpochMilli());
 
 
 
-
+## 6：重复注解和类型注解
 
 
 
@@ -2361,111 +2653,7 @@ ConcurrentHashMap同样也变了
 
 ## 
 
-## 2：反射
 
-允许程序在执行期借助于反射API取得任何类的内部信息，并能直接操作任意对象的内部属性及方法。
-
-加载完类后，在堆内存的方法区就产生一个Class类型的对象（一个类只有一个class对象）
-
-![](media/b6fff231446e38a2ad9db2130735db5a.png)
-
-### 1：Class实例
-
-在Object类中定义了方法
-
-Public final Class getClass（）
-
-返回一个Class类，它是Java反射的源头
-
-Class的常用方法
-
-![](media/834d3b522f315b15109e96970ac52f5a.png)
-
-### 2：类的加载与ClassLoader
-
-当程序主动使用某个类时，如果该类还未被加载到内存中，则系统会通过如下三个步骤对该类进行初始化
-
-![](media/d8d47867eefe91b807080f360125b5d2.png)
-
-类加载器的作用：
-
-类加载的作用：将class文件字节码内容加载到内存中，并将这些静态数据转换成方法区的运行时数据结构，然后在堆中生成一个代表这个类的java.lang.Class对象，作为方法区中类数据的访问入口。
-
-类缓存：标准的JavaSE类加载器可以按要求查找类，但一旦某个类被加载到类加载器中，它将维持加载（缓存）一段时间。不过JVM垃圾回收机制可以回收这些Class对象。
-
-在运行状态中，对于任意一个类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；这种动态获取的信息以及动态调用对象的方法的功能称为
-Java 语言的反射机制。
-
-反射机制：
-
-1：代理模式的原理：使用一个代理将对象包装起来，然后用该代理对象取代原始对象，任何对原始对象的调用都要通过代理，代理对象决定是否以及何时将方法转移到原始对象
-
-2：静态代理：
-
-2.1举例：实现Runnable接口的方法创建多线程
-
-Class MyThread implements Runnable{};//想当与被代理类
-
-Class Thread implements Runnable{}//相当于代理类
-
-Main（）{
-
-Mythread t = new MyThread();
-
-Thread thread = new Thread(t);
-
-Thread.start();//启动线程，调用线程的run();
-
-}
-
-## 3：枚举
-
-枚举类对象的属性不允许被改动，应该使用private
-final修饰，且应在构造器中为其赋值。私有化构造器，保证不能在类外部创建对象
-
-方法
-
-![](media/5de93b4622394f69cbcf34af5cfbf292.png)
-
-## 4：注解
-
-在代码中嵌入注解，再通过反射拿到
-
-在编译时进行格式检查(JDK内置的三个基本注解)
-
-\@Override: 限定重写父类方法, 该注解只能用于方法
-
-\@Deprecated: 用于表示所修饰的元素(类, 方法等)已过时。通常是因为
-所修饰的结构危险或存在更好的选择
-
-\@SuppressWarnings: 抑制编译器警告
-
-自定义注解
-
-利用反射获取注解信息
-
-当一个 Annotation Annotation Annotation Annotation 类型被定义为运行时 Annotation
-Annotation Annotation Annotation 后，该注解 才是 运行时 可见 , 当 class class
-文件被载入时保存在 class class 文件中的 Annotation Annotation Annotation
-Annotation 才会被虚拟 机读取
-
-程序可以 调用 AnnotatedElement AnnotatedElementAnnotatedElement
-AnnotatedElement 对象 的如下方法来访问 Annotation Annotation Annotation
-Annotation 信
-
-JDK1.8 JDK1.8 JDK1.8 之后，关于元注解 \@Target\@Target\@Target\@Target
-\@Target\@Target的参数类型 ElementType ElementTypeElementType ElementType
-ElementTypeElementTypeElementType枚举值多了两个：
-
-TYPE_PARAMETER,USE。
-
-## 5：泛型
-
-把集合中的内容限定为一个特定的数据类型
-
-**如果Foo 是Bar 的一个子类型(子类或者子接口)，而G 是某种**
-
-**泛型声明，那么G\<Foo\>是G\<Bar\>的子类型并不成立!!**
 
 # Java9
 
@@ -2914,15 +3102,9 @@ System.out.println(bos.toString("GBK"));
 
 
 
-
-
-
-
-
-
-
-
 # Java11
+
+长期支持的版本
 
 ## 1：新增字符串处理方法
 
