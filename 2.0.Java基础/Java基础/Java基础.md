@@ -151,7 +151,9 @@ Long转成Integer：
 LongNum.inValue();
 ```
 
+## 3：重载与重写
 
+重载只是指参数不同，返回类型不同参数相同会报错，重复定义
 
 
 
@@ -3104,7 +3106,7 @@ System.out.println(bos.toString("GBK"));
 
 # Java11
 
-长期支持的版本
+长期支持的版本 
 
 ## 1：新增字符串处理方法
 
@@ -3112,9 +3114,27 @@ System.out.println(bos.toString("GBK"));
 
 ## 2：全新HTTP客户端API
 
+
+
+## 3：Epsilon垃圾收集器
+
+开发一个处理内存分配但不实现任何实际内存回收的机制的GC
+
+
+
 ## 3：全新垃圾收集器ZGC
 
-ZGC是一个并发，基于region，压缩型的垃圾收集器，只有root扫描阶段会STW，因此GC停顿时间不会随着堆的增长和存活对象的增长而变长。
+可伸缩的，低延迟的！！初始只支持64位，支持TB级的，
+
+热对象置于DRAM
+
+冷对象置于NVMe闪存
+
+ZGC是一个并发，基于region，压缩型的垃圾收集器，只有root扫描阶段会STW（所有线程暂停），因此GC停顿时间不会随着堆的增长和存活对象的增长而变长。
+
+用法：-XX：+UnlockExperimentalVMOptions -XX:+UseZGC
+
+在Window中暂时没有提供
 
 由oracle开发，承诺在数TB的堆上具有非常低的暂停时间，多层堆（即热对象置于DRAM和冷对象置于NVMe闪存），压缩堆
 
@@ -3137,6 +3157,138 @@ finalizable， remap， mark0和mark1。
 
 读屏障是每当应用程序线程从堆加载引用时运行的代码片段（即访问对象上的非原生字段non-primitive
 field）：
+
+# Java12
+
+2019年3月20日
+
+## 1：Switch表达式
+
+缺点：
+
+忘了break都会执行，
+
+在各个case中定义的局部变量名不可重复
+
+新的switch表达式
+
+可以返回值
+
+```java
+switch(fruit){
+        //不再写break，直接跳
+        case PEAR->System.out.println("1");
+        //多个一样的可以放在一起
+        case APPLE,GRAPE,MANGO->System.out.println("2");
+        default->new IllegalStateException("No Such Fruit");
+}
+```
+
+## 2：shenandoah GC低停顿时间的GC
+
+省得我
+
+与堆大小无关，吞吐量有限的原则
+
+
+
+新生代内存空间较小，所以暂停的时间可以接受，但是一旦老年代出现FullGC，线程暂停的时间就会更久
+
+工作原理：
+
+其内存结构与 G1 非常相似，都是将内存划分为类似棋盘的region。整体流程与 G1 也是比较相似的，最大的区别在于实现了并发的 疏散(Evacuation) 环节，引入的 BrooksForwarding Pointer 技术使得 GC 在移动对象时，对象引用仍然可以访问。
+
+Shenandoah GC 工作周期如下所示：
+
+![image-20201205193344731](media/image-20201205193344731.png)
+
+上图对应工作周期如下：
+1. Init Mark 启动并发标记 阶段
+2. 并发标记遍历堆阶段
+3. 并发标记完成阶段
+4. 并发整理回收无活动区域阶段
+5. 并发 Evacuation 整理内存区域阶段
+6. Init Update Refs 更新引用初始化 阶段
+7. 并发更新引用阶段
+8. Final Update Refs 完成引用更新阶段
+9. 并发回收无引用区域阶段
+
+推荐几个配置或调试 Shenandoah 的 JVM 参数:
+
+```xml
+-XX:+AlwaysPreTouch：使用所有可用的内存分页，减少系统运行停顿，为避免运行时性能损失。
+-Xmx == -Xmsv：设置初始堆大小与最大值一致，可以减轻伸缩堆大小带来的压力，与 AlwaysPreTouch 参数配
+合使用，在启动时提交所有内存，避免在最终使用中出现系统停顿。
+-XX:+ UseTransparentHugePages：能够大大提高大堆的性能，同时建议在 Linux 上使用时将
+/sys/kernel/mm/transparent_hugepage/enabled 和
+/sys/kernel/mm/transparent_hugepage/defragv 设置为：madvise，同时与 AlwaysPreTouch 一起使
+用时，init 和 shutdownv 速度会更快，因为它将使用更大的页面进行预处理。
+-XX:+UseNUMA：虽然 Shenandoah 尚未明确支持 NUMA（Non-Uniform Memory Access），但最好启用此功
+能以在多插槽主机上启用 NUMA 交错。与 AlwaysPreTouch 相结合，它提供了比默认配置更好的性能。
+-XX:+DisableExplicitGC：忽略代码中的 System.gc() 调用。当用户在代码中调用 System.gc() 时会强制
+Shenandoah 执行 STW Full GC ，应禁用它以防止执行此操作，另外还可以使用 -
+XX:+ExplicitGCInvokesConcurrent，在 调用 System.gc() 时执行 CMS GC 而不是 Full GC，建议在有
+System.gc() 调用的情况下使用。
+不过目前 Shenandoah 垃圾回收器还被标记为实验项目，如果要使用Shenandoah GC需要编译时--with-jvmfeatures
+选项带有shenandoahgc，然后启动时使用参数
+-XX:+UnlockExperimentalVMOptions -XX:+UseShenandoahGC
+```
+
+## 3：常量API
+
+## 4：微基准测试套件
+
+JMH，即Java Microbenchmark Harness，是专门用于代码微基准测试的工具套件。何谓Micro Benchmark呢？简
+单的来说就是基于方法层面的基准测试，精度可以达到微秒级。当你定位到热点方法，希望进一步优化方法性能的时
+候，就可以使用JMH对优化的结果进行量化的分析。
+ JMH比较典型的应用场景：
+想准确的知道某个方法需要执行多长时间，以及执行时间和输入之间的相关性；
+对比接口不同实现在给定条件下的吞吐量；
+查看多少百分比的请求在多长时间内完成；
+
+JMH的使用
+要使用JMH，首先需要准备好Maven环境，JMH的源代码以及官方提供的Sample就是使用Maven进行项目管理的，
+github上也有使用gradle的例子可自行搜索参考。使用mvn命令行创建一个JMH工程：
+如果要在现有Maven项目中使用JMH
+
+```cmd
+mvn archetype:generate \
+        -DinteractiveMode=false \
+        -DarchetypeGroupId=org.openjdk.jmh \
+        -DarchetypeArtifactId=jmh-java-benchmark-archetype \
+        -DgroupId=co.speedar.infra \
+        -DartifactId=jmh-test \
+        -Dversion=1.0
+```
+
+
+
+只需要把生成出来的两个依赖以及shade插件拷贝到项目的pom中即可：
+
+## 5：只保留一个 AArch64 实现
+
+Java 12 中将删除由 Oracle 提供的 arm64端口相关的所有源码，即删除目录 open/src/hotspot/cpu/arm 中关于
+64-bit 的这套实现，只保留其中有关 32-bit ARM端口的实现，余下目录的 open/src/hotspot/cpu/aarch64 代码
+部分就成了 AArch64 的默认实现。这将使开发贡献者将他们的精力集中在单个 64 位 ARM 实现上，并消除维护两套实现所需的重复工作。
+
+## 6：默认生成类数据共享(CDS)归档文件
+
+## 7：可中断的 G1 Mixed GC
+
+G1垃圾收集器设计的主要目标之一是满足用户设置的预期的 JVM 停顿时间
+
+G1 收集器必须完成收集集合的所有区域中的所有活动对象之后才能停止；但是如果收集器选择过大
+的 GC 回收集，此时的STW时间会过长超出目标pause time。
+
+将 GC 回收集拆分为必需和可选部分时，垃圾收集过程优先处理必需部分。同时，需要为可选 GC 回收集部分维
+护一些其他数据，这会产生轻微的 CPU 开销，但小于 1 ％的变化，同时在 G1 回收器处理 GC 回收集期间，本
+机内存使用率也可能会增加，使用上述情况只适用于包含可选 GC 回收部分的 GC 混合回收集合。
+在 G1 垃圾回收器完成收集需要必需回收的部分之后，如果还有时间的话，便开始收集可选的部分。但是粗粒度
+的处理，可选部分的处理粒度取决于剩余的时间，一次只能处理可选部分的一个子集区域。在完成可选收集部
+分的收集后，G1 垃圾回收器可以根据剩余时间决定是否停止收集。如果在处理完必需处理的部分后，剩余时间
+不足，总时间花销接近预期时间，G1 垃圾回收器也可以中止可选部分的回收以达到满足预期停顿时间的目标。
+
+## 8：增强G1，自动返回未用堆内存给操作系统
 
 # 面试题：
 
