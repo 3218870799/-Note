@@ -28,7 +28,7 @@
 | 2.2   | JavaWeb开发               |                                                        |
 | 2.3   | 服务器Tomact 与Nginx      |                                                        |
 | 3     | JVM:beer:                 |                                                        |
-| 4     | Maven与Gradle             |                                                        |
+| 4     | 项目管理工具              | Maven，Gradle，Nexus使用                               |
 | 6     | 关系型数据库:dancer:      | MYSQL与Oracle                                          |
 | 7     | 非关系型数据库            | Redis，Ehcahce，Mongdb                                 |
 | 8     | SpringMVC                 |                                                        |

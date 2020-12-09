@@ -449,7 +449,6 @@ module中添加插件：
             </plugin>
         </plugins>
     </build>
-
 ```
 
 开启自动编译的选项
@@ -598,9 +597,7 @@ Eureka用于**==服务注册==**,目前官网**已经停止更新**
 
 
 
- ![](.\图片\Eureka的4.png)
-
-
+ <img src=".\图片\Eureka的4.png" style="zoom:50%;" />
 
 ### 1.1：**单机版eureka:**
 

@@ -1659,8 +1659,7 @@ serializable ：串行化。都解决，单事务。
 
 ## 5.1 Spring 的事务管理 
 
-Spring事务的本质其实就是数据库对事务的支持，没有数据库的事务支持，spring是无法提供事务功能的。真正的数据库层的事务提交和回滚是通过binlog或者redo
-log实现的。
+Spring事务的本质其实就是数据库对事务的支持，没有数据库的事务支持，spring是无法提供事务功能的。真正的数据库层的事务提交和回滚是通过binlog或者redolog实现的。
 
 分类：
 
@@ -1668,8 +1667,7 @@ log实现的。
 
 ②声明式事务管理建立在AOP之上的。其本质是通过AOP功能，对方法前后进行拦截，将事务处理的功能编织到拦截的方法中，也就是在目标方法开始之前加入一个事务，在执行完目标方法之后根据执行情况提交或者回滚事务。
 
-事务原本是数据库中的概念，在 Dao 层。但一般情况下，需要将事务提升到业务层，即
-Service 层。这样做是为了能够使用事务的特性来管理具体的业务。
+事务原本是数据库中的概念，在 Dao 层。但一般情况下，需要将事务提升到业务层，即Service 层。这样做是为了能够使用事务的特性来管理具体的业务。
 
 >   在 Spring 中通常可以通过以下两种方式来实现对事务的管理：
 
@@ -1682,7 +1680,7 @@ Service 层。这样做是为了能够使用事务的特性来管理具体的业
 >   Spring 的事务管理，主要用到两个事务相关的接口。 **三个顶级接口**
 
 -   PlatformTransactionManager
-    平台事务管理器，spring要管理事务，必须使用事务管理器
+    平台事务管理器，spring管理事务，必须使用事务管理器
 
 进行事务配置时，必须**配置事务管理器**。
 
@@ -1696,8 +1694,7 @@ Service 层。这样做是为了能够使用事务的特性来管理具体的业
 
 ### （1） PlatformTransactionManager (重点) 
 
-事务管理器是 PlatformTransactionManager
-接口对象。其主要用于完成事务的提交、回滚，及获取事务的状态信息。
+事务管理器是 PlatformTransactionManager接口对象。其主要用于完成事务的提交、回滚，及获取事务的状态信息。
 
 ![](media/c1d4e5b8053192cc3669438b87800d1d.jpg)
 
@@ -1711,8 +1708,7 @@ Service 层。这样做是为了能够使用事务的特性来管理具体的业
 
 #### B**、** Spring **的回滚方式**(**理解**) 
 
-Spring 事务的默认回滚方式是：发生运行时异常和 error
-时回滚，发生受查(编译)异常时提交。不过，对于受查异常，程序员也可以手工设置其回滚方式。
+Spring 事务的默认回滚方式是：发生运行时异常和 error时回滚，发生受查(编译)异常时提交。不过，对于受查异常，程序员也可以手工设置其回滚方式。
 
 #### **C**、 回顾错误与异常**(**理解**)** 
 
@@ -1721,34 +1717,26 @@ Spring 事务的默认回滚方式是：发生运行时异常和 error
 Throwable 类是 Java 语言中所有错误或异常的超类。只有当对象是此类(或其子类之一)
 的实例时，才能通过 Java 虚拟机或者 Java 的 throw 语句抛出。
 
->   Error 是程序在运行过程中出现的无法处理的错误，比如
->   OutOfMemoryError、ThreadDeath、NoSuchMethodError
->   等。当这些错误发生时，程序是无法处理（捕获或抛出）的，JVM 一般会终止线程。
+>   Error 是程序在运行过程中出现的无法处理的错误，比如OutOfMemoryError、ThreadDeath、NoSuchMethodError等。当这些错误发生时，程序是无法处理（捕获或抛出）的，JVM 一般会终止线程。
 
->   程序在编译和运行时出现的另一类错误称之为异常，它是 JVM
->   通知程序员的一种方式。
+>   程序在编译和运行时出现的另一类错误称之为异常，它是 JVM通知程序员的一种方式。
 
 通过这种方式，让程序员知道已经或可能出现错误，要求程序员对其进行处理。
 
 >   异常分为运行时异常与受查异常。
 
-运行时异常，是 RuntimeException 类或其子类，即只有在运行时才出现的异常。如，
-NullPointerException、ArrayIndexOutOfBoundsException、IllegalArgumentException
-等均属于运行时异常。这些异常由 JVM
-抛出，在编译时不要求必须处理（捕获或抛出）。但，只要代码编写足够仔细，程序足够健壮，运行时异常是可以避免的。
+运行时异常，是 RuntimeException 类或其子类，即只有在运行时才出现的异常。如，NullPointerException，ArrayIndexOutOfBoundsException、IllegalArgumentException等均属于运行时异常。这些异常由 JVM抛出，在编译时不要求必须处理（捕获或抛出）。但，只要代码编写足够仔细，程序足够健壮，运行时异常是可以避免的。
 
 受查异常，也叫编译时异常，即在代码编写时要求必须捕获或抛出的异常，若不处理，则无法通过编译。如
 SQLException，ClassNotFoundException，IOException 等都属于受查异常。
 
 RuntimeException 及其子类以外的异常，均属于受查异常。当然，用户自定义的
-Exception
-的子类，即用户自定义的异常也属受查异常。程序员在定义异常时，只要未明确声明定义的为
+Exception的子类，即用户自定义的异常也属受查异常。程序员在定义异常时，只要未明确声明定义的为
 RuntimeException 的子类，那么定义的就是受查异常。
 
 ### （2） TransactionDefinition事务定义接口 
 
-事务定义接口 TransactionDefinition
-中定义了事务描述相关的三类常量：事务隔离级别、事务传播行为、事务默认超时时限，及对它们的操作。
+事务定义接口 TransactionDefinition中定义了事务描述相关的三类常量：事务隔离级别、事务传播行为、事务默认超时时限，及对它们的操作。
 
 ![](media/64f6b72a64f5a5cb483acf8bf340cc8c.jpg)
 

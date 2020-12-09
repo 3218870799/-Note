@@ -1778,6 +1778,12 @@ AND author_name like \#{author.name}
 
 在CDATA内部的所有内容都会被解析器忽略。
 
+
+
+## 4.9：Begin And
+
+
+
 # 第5章 MyBatis 配置文件 
 
 ## 5.1 主配置文件 
