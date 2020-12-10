@@ -162,7 +162,7 @@ priavte 本类可见
 
 ## 2：数据类型
 
-1）八种基本数据类型
+**1）八种基本数据类型**
 
 ![image-20201125195254176](media/image-20201125195254176.png)
 
@@ -176,7 +176,7 @@ priavte 本类可见
 
 
 
-3）数据类型转换：
+**3）数据类型转换：**
 
 自动转换：将取值范围小的类型自动提升为取值范围大的类型 。
 
@@ -201,7 +201,40 @@ LongNum.inValue();
 
 
 
+4）**包装类**
+
+基本类型与引用类型，使用基本类型在于效率，然而很多情况，会创建对象使用，因为对象可以做更多的功能，如果想要我们的基本类型像对象一样操作，就可以使用基本类型对应的包装类
+
+
+
+| 基本类型 | 对应的包装类（位于java.lang包中） |
+| -------- | --------------------------------- |
+| byte     | Byte                              |
+| short    | Short                             |
+| int      | **Integer**                       |
+| long     | Long                              |
+| float    | Float                             |
+| double   | Double                            |
+| char     | **Character**                     |
+| boolean  | Boolean                           |
+
+* **装箱**：从基本类型转换为对应的包装类对象。
+
+* **拆箱**：从包装类对象转换为对应的基本类型。
+
+除了Character类之外，其他所有包装类都具有parseXxx静态方法可以将字符串参数转换为对应的基本类型：
+
+- `public static byte parseByte(String s)`：将字符串参数转换为对应的byte基本类型。
+- `public static short parseShort(String s)`：将字符串参数转换为对应的short基本类型。
+- `public static int parseInt(String s)`：将字符串参数转换为对应的int基本类型。
+- `public static long parseLong(String s)`：将字符串参数转换为对应的long基本类型。
+- `public static float parseFloat(String s)`：将字符串参数转换为对应的float基本类型。
+- `public static double parseDouble(String s)`：将字符串参数转换为对应的double基本类型。
+- `public static boolean parseBoolean(String s)`：将字符串参数转换为对应的boolean基本类型。
+
 ### 2.3：==与equals
+
+
 
 ## 3：流程控制
 
@@ -285,6 +318,36 @@ FlyAble f = new FlyAble(){
 
 ### 5.1：构造方法
 
+### 5.2：可变参数方法
+
+在**JDK1.5**之后，如果我们定义一个方法需要接受多个参数，并且多个参数类型一致，我们可以对其简化成如下格式：
+
+```
+修饰符 返回值类型 方法名(参数类型... 形参名){  }
+```
+
+其实这个书写完全等价与
+
+```
+修饰符 返回值类型 方法名(参数类型[] 形参名){  }
+```
+
+只是后面这种定义，在调用时必须传递数组，而前者可以直接传递数据即可。
+
+```java
+    int sum2 = getSum(6, 7, 2, 12, 2121);
+	//可变参数写法
+    public static int getSum(int... arr) {
+        int sum = 0;
+        for (int a : arr) {
+            sum += a;
+        }
+        return sum;
+    }
+```
+
+
+
 ## 面试题
 
 1：跨平台原理
@@ -321,11 +384,22 @@ public static String toString(int[] a) ：返回指定数组内容的字符串�
 
 
 
-## 1：Object类
+## 2：Object类
 
-equals方法
+Java语言中的根类，即所有类的父类。它中描述的所有方法子类都可以使用。在对象实例化的时候，最终找的父类就是Object。
 
-toString()方法
+* `public String toString()`：返回该对象的字符串表示。
+* `public boolean equals(Object obj)`：指示其他某个对象是否与此对象“相等”。
+
+这里的“相同”有默认和自定义两种方式。
+
+默认地址比较
+
+如果没有覆盖重写equals方法，那么Object类中默认进行`==`运算符的对象地址比较，只要不是同一个对象，结果必然为false。
+
+对象内容比较
+
+如果希望进行对象的内容比较，即所有或指定的部分成员变量相同就判定两个对象相同，则可以覆盖重写equals方法。
 
 ### 1：Scanner类
 
@@ -463,10 +537,15 @@ stringBuffer. reverse()字符串反转
 
 ### 5：StringBuilder类
 
-\- \`public StringBuilder
-append(...)\`：添加任意类型数据的字符串形式，并返回当前对象自身。
+构造
 
-\- \`public String toString()\`：将当前StringBuilder对象转换为String对象。
+- `public StringBuilder()`：构造一个空的StringBuilder容器。
+- `public StringBuilder(String str)`：构造一个StringBuilder容器，并将字符串添加进去。
+
+方法
+
+- `public StringBuilder append(...)`：添加任意类型数据的字符串形式，并返回当前对象自身。
+- `public String toString()`：将当前StringBuilder对象转换为String对象。
 
 
 
@@ -484,14 +563,20 @@ public static double floor(double a) ：返回小于等于参数最大的整数�
 public static long round(double a) ：返回最接近参数的 long。(相当于四舍五入方法)
 ```
 
-### 7：Object类
 
-\* \`public String toString()\`：返回该对象的字符串表示。一般要重写
-
-\* \`public boolean equals(Object
-obj)\`：指示其他某个对象是否与此对象“相等”。一般也要重写
 
 ### 8：Date类
+
+构造
+
+```java
+        // 创建日期对象，把当前的时间
+        System.out.println(new Date()); // Tue Jan 16 14:37:35 CST 2018
+        // 创建日期对象，把当前的毫秒值转成日期对象
+        System.out.println(new Date(0L)); // Thu Jan 01 08:00:00 CST 1970
+```
+
+
 
 \* \`public long getTime()\` 把日期对象转换成对应的时间毫秒值。
 
@@ -503,28 +588,136 @@ DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 String str = df.format(date);
 
+
+
+### 9：DateFormat类
+
+`java.text.DateFormat` 是日期/时间格式化子类的抽象类，我们通过这个类可以帮我们完成日期和文本之间的转换,也就是可以在Date对象与String对象之间进行来回转换。
+
+* **格式化**：按照指定的格式，从Date对象转换为String对象。
+* **解析**：按照指定的格式，从String对象转换为Date对象。
+
+构造
+
+```java
+        // 对应的日期格式如：2018-01-16 15:06:38
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+```
+
+
+
+常用的格式规则为：
+
+| 标识字母（区分大小写） | 含义 |
+| ---------------------- | ---- |
+| y                      | 年   |
+| M                      | 月   |
+| d                      | 日   |
+| H                      | 时   |
+| m                      | 分   |
+| s                      | 秒   |
+
+方法：
+
+- `public String format(Date date)`：将Date对象格式化为字符串。
+
+```java
+        Date date = new Date();
+        // 创建日期格式化对象,在获取格式化对象时可以指定风格
+        DateFormat df = new SimpleDateFormat("yyyy年MM月dd日");
+        String str = df.format(date);
+        System.out.println(str); // 2008年1月23日
+```
+
+- `public Date parse(String source)`：将字符串解析为Date对象。
+
+```java
+        DateFormat df = new SimpleDateFormat("yyyy年MM月dd日");
+        String str = "2018年12月11日";
+        Date date = df.parse(str);
+        System.out.println(date); // Tue Dec 11 00:00:00 CST 2018
+```
+
+
+
 ### 9：Calendar类
 
-\* \`public static Calendar getInstance()\`：使用默认时区和语言环境获得一个日历
+构造
 
-Calendar cal = Calendar.getInstance();
+`public static Calendar getInstance()`：使用默认时区和语言环境获得一个日历
 
-\- \`public int get(int field)\`：返回给定日历字段的值。
+```java
+Calendar cal = Calender.getInstance();
+```
 
-\- \`public void set(int field, int value)\`：将给定的日历字段设置为给定值。
+方法：
 
-\- \`public abstract void add(int field, int
-amount)\`：根据日历的规则，为给定的日历字段添加或减去指定的时间量。
+- `public int get(int field)`：返回给定日历字段的值。
 
-\- \`public Date
-getTime()\`：返回一个表示此Calendar时间值（从历元到现在的毫秒偏移量）的Date对象。
+- `public void set(int field, int value)`：将给定的日历字段设置为给定值。
+
+- `public abstract void add(int field, int amount)`：根据日历的规则，为给定的日历字段添加或减去指定的时间量。
+
+- `public Date getTime()`：返回一个表示此Calendar时间值（从历元到现在的毫秒偏移量）的Date对象。
+
+  Calendar类中提供很多成员常量，代表给定的日历字段：
+
+  | 字段值       | 含义                                  |
+  | ------------ | ------------------------------------- |
+  | YEAR         | 年                                    |
+  | MONTH        | 月（从0开始，可以+1使用）             |
+  | DAY_OF_MONTH | 月中的天（几号）                      |
+  | HOUR         | 时（12小时制）                        |
+  | HOUR_OF_DAY  | 时（24小时制）                        |
+  | MINUTE       | 分                                    |
+  | SECOND       | 秒                                    |
+  | DAY_OF_WEEK  | 周中的天（周几，周日为1，可以-1使用） |
+
+```java
+  // 创建Calendar对象
+        Calendar cal = Calendar.getInstance();
+        // 设置年 
+        int year = cal.get(Calendar.YEAR);
+        // 设置月
+        int month = cal.get(Calendar.MONTH) + 1;
+        // 设置日
+        int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
+// 使用add方法
+        cal.add(Calendar.DAY_OF_MONTH, 2); // 加2天
+        cal.add(Calendar.YEAR, -3); // 减3年
+
+```
+
+
 
 ### 10：System类
 
-\- \`public static long currentTimeMillis()\`：返回以毫秒为单位的当前时间。
+方法
 
-\- \`public static void arraycopy(Object src, int srcPos, Object dest, int
-destPos, int length)\`：将数组中指定的数据拷贝到另一个数组中。
+- `public static long currentTimeMillis()`：返回以毫秒为单位的当前时间。
+
+获取当前系统时间与1970年01月01日00:00点之间的毫秒差值
+
+```java
+//获取当前时间毫秒值
+System.out.println(System.currentTimeMillis(); 
+```
+
+
+
+- `public static void arraycopy(Object src, int srcPos, Object dest, int destPos, int length)`：将数组中指定的数据拷贝到另一个数组中。
+
+System.arraycopy方法具有5个参数，含义分别为：
+
+| 参数序号 | 参数名称 | 参数类型 | 参数含义             |
+| -------- | -------- | -------- | -------------------- |
+| 1        | src      | Object   | 源数组               |
+| 2        | srcPos   | int      | 源数组索引起始位置   |
+| 3        | dest     | Object   | 目标数组             |
+| 4        | destPos  | int      | 目标数组索引起始位置 |
+| 5        | length   | int      | 复制元素个数         |
+
+
 
 #### 1：接口与抽象类
 
@@ -565,11 +758,22 @@ Equals方法用来比较对象时，若没有对equals进行重写，其都是�
 
 3：基本数据类型与自动拆箱
 
-#### 4: Comparable接口和Comparator接口
+## 11： Comparable接口和Comparator接口
 
 Comparable接口只包含compareTo()方法
 
 Comparator接口包含compare（Object ，Object ）方法和equals（）方法
+
+* ` public int compare(Object o1, Object o2)`：比较其两个参数的顺序。
+
+  > 两个对象比较的结果有三种：大于，等于，小于。
+  >
+  > 如果要按照升序排序，
+  > 则o1 小于o2，返回（负数），相等返回0，01大于02返回（正数）
+  > 如果要按照降序排序
+  > 则o1 小于o2，返回（正数），相等返回0，01大于02返回（负数）
+
+
 
 compareTo方法被称为它的自然比较方法。
 
@@ -652,55 +856,93 @@ List.toArray(); Arrays.asList(array);
 
 # 三：集合
 
+![img](media/1174906-20180906205331943-217494251.png)
+
 Vector、Hashtable、Stack 都是线程安全的，而像 HashMap 则是非线程安全的
 
 ![](media/aee52db590b93b037e2b7505e4c2d785.png)
 
 Java. util. concurrent 并发包的出现，ConcurrentHashMap安全了
 
-## 0：Collections
+## 3.0：Collection
 
-Collection是集合类的上级接口，继承于他的接口主要有Set 和List.，Map并不是Collections是针对集合类的一个帮助类，他提供一系列静态方法实现对各种集合的搜索、排序、线程安全化等操作
+Collection是集合类的上级接口，继承于他的接口主要有Set 和List.，Map并不是Collection是针对集合类的一个帮助类，他提供一系列静态方法实现对各种集合的搜索、排序、线程安全化等操作
 
-1：Collection
+方法
 
-public static \<T\> boolean addAll(Collection\<T\> c, T... elements)
-:往集合中添加一些元素。
+* `public boolean add(E e)`：  把给定的对象添加到当前集合中 。
+* `public void clear()` :清空集合中所有的元素。
+* `public boolean remove(E e)`: 把给定的对象在当前集合中删除。
+* `public boolean contains(E e)`: 判断当前集合中是否包含给定的对象。
+* `public boolean isEmpty()`: 判断当前集合是否为空。
+* `public int size()`: 返回集合中元素的个数。
+* `public Object[] toArray()`: 把集合中的元素，存储到数组中。
 
-public static void shuffle(List\<?\> list) 打乱顺序 :打乱集合顺序。
 
-public static \<T\> void sort(List\<T\> list) :将集合中元素按照默认规则排序。
 
-public static \<T\> void sort(List\<T\> list，Comparator\<? super T\> )
-:将集合中元素按照指定规则排
+## 3.1：Collections
 
-序。
+是集合工具类，用来对集合进行操作
 
-2：Iterator接口
+方法
+
+- `public static <T> boolean addAll(Collection<T> c, T... elements)  `:往集合中添加一些元素。
+- `public static void shuffle(List<?> list) 打乱顺序`:打乱集合顺序。
+- `public static <T> void sort(List<T> list)`:将集合中元素按照默认规则排序。
+- `public static <T> void sort(List<T> list，Comparator<? super T> )`:将集合中元素按照指定规则排序。
+
+例
+
+```java
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        //原来写法
+        //list.add(12);
+        //list.add(14);
+        //list.add(15);
+        //list.add(1000);
+        //采用工具类 完成 往集合中添加元素  
+        Collections.addAll(list, 5, 222, 1，2);
+        System.out.println(list);
+        //排序方法 
+        Collections.sort(list);
+        System.out.println(list);
+
+```
+
+
+
+## 3.2：Iterator迭代器
 
 Iterator（迭代器）是一个接口，它的作用就是遍历容器的所有元素。  
+
+构造
+
+```java
 Iterator iter = list.iterator(); // 注意iterator，首字母小写
+```
 
-Iterator的三个主要方法
+方法
 
-1.1 Boolean hasNext();
+* `public E next()`:返回迭代的下一个元素。
+* `public boolean hasNext()`:判断 iterator内是否存在下1个元素，如果存在，返回true，否则返回false。（注意，这时上面的那个指针位置不变）
+* `void remove()`删除 iterator 内指针的前1个元素，前提是至少执行过1次next();(这个方法不建议使用，建议使用容器本身的romove 方法)
 
-判断 iterator
-内是否存在下1个元素，如果存在，返回true，否则返回false。（注意，这时上面的那个指针位置不变）
+例
 
-1.2 Object next();
+```java
+        //遍历
+        //使用迭代器 遍历   每个集合对象都有自己的迭代器
+        Iterator<String> it = coll.iterator();
+        //  泛型指的是 迭代出 元素的数据类型
+        while(it.hasNext()){ //判断是否有迭代元素
+            String s = it.next();//获取迭代出的元素
+            System.out.println(s);
+        }
+```
 
-返回 iterator 内下1个元素，同时上面的指针向后移动一位。
 
-故，如果不断地循环执行next()方法，就可以遍历容器内所有的元素了。
 
-1.3 void remove();
-
-删除 iterator 内指针的前1个元素，前提是至少执行过1次next();
-
-(这个方法不建议使用，建议使用容器本身的romove 方法)
-
-## 1：List接口
+## 3.3：List接口
 
 List是元素有序并且可以重复的集合，被称为序列
 
@@ -712,7 +954,16 @@ JDK1.8
 ArrayList像懒汉式，一开始创建个长度为0的数组，当添加第一个元素时再创建一个始容量10
 的数组
 
+方法
+
+- `public void add(int index, E element)`: 将指定的元素，添加到该集合中的指定位置上。
+- `public E get(int index)`:返回集合中指定位置的元素。
+- `public E remove(int index)`: 移除列表中指定位置的元素, 返回的是被移除的元素。
+- `public E set(int index, E element)`:用指定元素替换集合中指定位置的元素,返回值的更新前的元素。
+
 ### ArrayList
+
+元素增删慢，查找快，
 
 动态数组，
 
@@ -752,29 +1003,37 @@ Vector
 
 加：
 
-## 2：Set接口及其实现类
+## 3.4：Set接口及其实现类
 
 集合Set是Collection的子接口，Set不允许其数据元素重复出现，也就是说在Set中每一个数据元素都是唯一的。
 
-虽然集合号称存储的是 Java 对象，但实际上并不会真正将 Java 对象放入 Set
-集合中，只是在 Set 集合中保留这些对象的引用而言。也就是说：Java
-集合实际上是多个引用变量所组成的集合，这些引用变量指向实际的 Java 对象。
+虽然集合号称存储的是 Java 对象，但实际上并不会真正将 Java 对象放入 Set集合中，只是在 Set 集合中保留这些对象的引用而言。也就是说：Java集合实际上是多个引用变量所组成的集合，这些引用变量指向实际的 Java 对象。
 
 ### HashSet（常用）
 
 基本上都是直接调用底层 **HashMap** 的相关方法来完成，
 
 所谓的Hash算法就是把任意长度的输入（又叫做预映射），通过散列算法，变换成固定长度的输出，该输出就是散列值。
-
-HashSet
 不允许重复的值。当我们使用HashSet存储自定义类时，需要在自定义类中重写equals和hashCode方法，主要原因是集合内不允许有重复的数据元素，在集合校验元素的有效性时（数据元素不可重复），需要调用equals和hashCode验证。
 
 HashSet不能保证元素的排列顺序，HashSet不是线程安全的，集合元素可以是null
+
+在**JDK1.8**之前，哈希表底层采用数组+链表实现，即使用链表处理冲突，同一hash值的链表都存储在一个链表里。但是当位于一个桶中的元素较多，即hash值相等的元素较多时，通过key值依次查找的效率较低。而JDK1.8中，哈希表存储采用数组+链表+红黑树实现，当链表长度超过阈值（8）时，将链表转换为红黑树，这样大大减少了查找时间。
+
+简单的来说，哈希表是由数组+链表+红黑树（JDK1.8增加了红黑树部分）实现的
+
+![哈希流程图](media/哈希流程图.png)
 
 ### LinkedHashSet
 
 根据元素的 hashCode值来决定元素的存储位置， 但它同时使用双向链表
 维护元素的次序，这使得看起来是以 插入 顺序保存,不允许重复
+
+
+
+
+
+
 
 ### TreeSet
 
@@ -807,7 +1066,7 @@ Object remove(): 获取队列头部的元素，并删除该元素。
 
 PriorityQueue实现类
 
-## 5：Map 
+## 5：Map
 
 Key-value型，不允许重复，同一对象所对应的类
 
@@ -848,6 +1107,23 @@ Java7的实现容易会出现死锁，它是线程不安全的
 不再是链表，用的是红黑树（二叉平衡树），re的时候保持顺序
 
 Resize效率很低
+
+
+
+**Entry对象**
+
+`Map`中存放的是两种对象，一种称为**key**(键)，一种称为**value**(值)，它们在在`Map`中是一一对应关系，这一对对象又称做`Map`中的一个`Entry(项)`。`Entry`将键值对的对应关系封装成了对象。即键值对对象，这样我们在遍历`Map`集合时，就可以从每一个键值对（`Entry`）对象中获取对应的键与对应的值。
+
+方法
+
+* `public K getKey()`：获取Entry对象中的键。
+* `public V getValue()`：获取Entry对象中的值。
+
+在Map集合中也提供了获取所有Entry对象的方法：
+
+* `public Set<Map.Entry<K,V>> entrySet()`: 获取到Map集合中所有的键值对对象的集合(Set集合)。
+
+
 
 ### 1：HashMap与TreeMap的区别
 
@@ -1129,33 +1405,31 @@ CopyOnWriteArraySet基于CopyOnWriteArrayList实现，其唯一的不同是在ad
 
 ## 1：概述
 
+异常体系
+
+![异常体系](media/异常体系-1607604130815.png)
+
+
+
+
+
 1：Exception和Error有什么区别？
 
 Exception和Error都是Throwable的子类。Exception用于用户程序可以捕获的异常情况。Error定义了不期望被用户程序捕获的异常。
 
-2：throw和throws有什么区别？
+分类
 
-Throw用于方法内部，Throws用于方法声明上
+![异常的分类](media/异常的分类.png)
 
-Throw后跟异常对象，Throws后跟异常类型
+* 
 
-Throw后只能跟一个异常对象，Throws后可以一次声明多种异常类型
 
-1：在项目中不要捕获Java类库中继承自RuntimeException的运行时异常，ndexOutOfBoundsException
-/ NullPointerException，这类异常由程序员预检查违法来规避，保证程序健壮性。
-
-2：对大段代码进行 try-catch，这是不负责任的表现。 catch
-时请分清稳定代码和非稳定代码，稳定代码指的是无论如何不会出错的代码。对于非稳定代码的
-catch 尽可能进行区分异常类型，再做对应的异常处理。
-
-3：有 try 块放到了事务代码中， catch
-异常后，如果需要回滚事务，一定要注意手动回滚事务。
 
 异常事件可分为两类：
 
-**Error**：Java虚拟机无法解决的严重问题。如：JVM系统内部错误、资源耗尽等严重情况。比如：StackOverflowError和OOM。一般不编写针对性的代码进行处理。
+**Error**：Java虚拟机无法解决的严重问题。如：JVM系统内部错误、资源耗尽等严重情况。比如：StackOverflowError和OOM。一般不编写针对性的代码进行处理。
 
-**Exception:**其它因编程错误或偶然的外在因素导致的一般性问题，可以使用针对性的代码进行处理。例如：
+**Exception:**其它因编程错误或偶然的外在因素导致的一般性问题，可以使用针对性的代码进行处理。例如：
 
 空指针访问
 
@@ -1165,7 +1439,8 @@ catch 尽可能进行区分异常类型，再做对应的异常处理。
 
 数组角标越界
 
-分为编译时异常和运行时异常
+* **编译时期异常**:checked异常。在编译时期,就会检查,如果没有处理异常,则编译失败。(如日期格式化异常)
+* **运行时期异常**:runtime异常。在运行时期,检查异常.在编译时期,运行异常不会编译器检测(不报错)。(如数学异常)
 
 ## 2：常见异常
 
@@ -1188,6 +1463,34 @@ catch 尽可能进行区分异常类型，再做对应的异常处理。
 -   SocketException Socket 异常
 
 ## 3：处理异常
+
+**1）抛出异常throw**
+
+
+
+**2）声明异常throws**
+
+throw和throws有什么区别？
+
+Throw用于方法内部，Throws用于方法声明上
+
+Throw后跟异常对象，Throws后跟异常类型
+
+Throw后只能跟一个异常对象，Throws后可以一次声明多种异常类型
+
+
+
+**3）捕获异常try…catch**
+
+1：在项目中不要捕获Java类库中继承自RuntimeException的运行时异常，ndexOutOfBoundsException
+/ NullPointerException，这类异常由程序员预检查违法来规避，保证程序健壮性。
+
+2：对大段代码进行 try-catch，这是不负责任的表现。 catch
+时请分清稳定代码和非稳定代码，稳定代码指的是无论如何不会出错的代码。对于非稳定代码的
+catch 尽可能进行区分异常类型，再做对应的异常处理。
+
+3：有 try 块放到了事务代码中， catch
+异常后，如果需要回滚事务，一定要注意手动回滚事务。
 
 程序检测
 
@@ -1224,14 +1527,55 @@ If（num==0）{}
 
 ## 4：用户自定义异常类
 
-约定：
+定义异常类
+
+```java
+// 业务逻辑异常
+public class RegisterException extends Exception {
+    /**
+     * 空参构造
+     */
+    public RegisterException() {
+    }
+
+    /**
+     *
+     * @param message 表示异常提示
+     */
+    public RegisterException(String message) {
+        super(message);
+    }
+}
+```
+
+使用
+
+```java
+public static boolean checkUsername(String uname) throws LoginException{
+        for (String name : names) {
+            if(name.equals(uname)){//如果名字在这里面 就抛出登陆异常
+                throw new RegisterException("亲"+name+"已经被注册了！");
+            }
+        }
+        return true;
+    }
+}
+```
+
+
 
 # 五：多线程：
 
 并行：多个cpu实例或者多台机器同时执行一段处理逻辑，是真正的同时。 
 并发：通过cpu调度算法，让用户看上去同时执行，实际上从cpu操作层面不是真正的同时。
 
-## 1：方法（机制）
+## 5.1：原理/方法机制
+
+多线程执行时，在栈内存中，其实每一个执行线程都有一片自己所属的栈内存空间。进行方法的压栈和弹栈。
+
+当执行线程的任务结束了，线程自动在栈内存中释放了。但是当所有的执行线程都结束了，那么进程就结束了。
+
+
 
 synchronized, wait, notify 是任何对象都具有的同步工具。
 
@@ -1240,11 +1584,36 @@ wait/notify必须存在于synchronized块中。并且，这三个关键字针对
 volatile 
 多线程的内存模型：main memory（主存）、working memory（线程栈），在处理数据时，线程会把值从主存load到本地栈，完成操作后再save回去(volatile关键词的作用：每次针对该变量的操作都激发一次load and save)。 
 
+## 5.2：线程状态
+
+当线程被创建并启动以后，它既不是一启动就进入了执行状态，也不是一直处于执行状态。在线程的生命周期中，枚举中给出了六种线程状态：
+
+![image-20201210211927230](media/image-20201210211927230.png)
 
 
-## 2：线程实现方式
 
-2.1：继承Thread类，重写run方法（其实Thread类本身也实现了Runnable接口）
+## 5.2：Thread类
+
+构造
+
+- public Thread() :分配一个新的线程对象。
+- public Thread(String name) :分配一个指定名字的新的线程对象。
+- public Thread(Runnable target) :分配一个带有指定目标新的线程对象。
+- public Thread(Runnable target,String name) :分配一个带有指定目标新的线程对象并指定名字。
+
+常用方法：
+
+- public String getName() :获取当前线程名称。
+- public void start() :导致此线程开始执行; Java虚拟机调用此线程的run方法。
+- public void run() :此线程要执行的任务在此处定义代码。
+- public static void sleep(long millis) :使当前正在执行的线程以指定的毫秒数暂停（暂时停止执行）。
+- public static Thread currentThread() :返回对当前正在执行的线程对象的引用。
+
+
+
+## 5.3：线程实现方式
+
+**继承Thread类，重写run方法（其实Thread类本身也实现了Runnable接口）**
 
 方法
 
@@ -1259,11 +1628,16 @@ public join()
 public interrupte()
 ```
 
-实现Runnable接口，重写run方法
+**实现Runnable接口，重写run方法**
 
-实现Callable接口，重写call方法（有返回值）
+**实现Callable接口，重写call方法（有返回值）**
 
-使用线程池（有返回值）：
+**使用线程池（有返回值）**
+
+上所有的多线程代码都是通过运行Thread的start()方法来运行的。因此，不管是继承Thread类还是实现
+Runnable接口来实现多线程，最终还是通过Thread的对象的API来控制线程的
+
+
 
 1：继承Thread类实现线程，扩展性不强，因为Java类只能继承一个
 
@@ -1311,7 +1685,7 @@ Yield（）：线程让步，暂停当前正在执行的线程，把机会让给
 
 Join（）：
 
-## 2：线程池
+## 5.6：线程池
 
 原理：
 
@@ -1474,7 +1848,37 @@ FIFO
 
 共享内存
 
-### 4.2锁相关
+## 5.5：线程安全
+
+### 线程同步
+
+当我们使用多个线程访问同一资源的时候，且多个线程中对资源有写的操作，就容易出现线程安全问题。
+
+Java中提供了同步机制(synchronized)来解决
+
+1. 同步代码块。
+2. 同步方法。
+3. 锁机制。
+
+### 同步代码块
+
+```java
+synchronized(同步锁){
+	需要同步操作的代码
+}
+```
+
+### 同步方法
+
+同步方法:使用synchronized修饰的方法,就叫做同步方法,保证A线程执行该方法的时候,其他线程只能在方法外等着。
+
+```java
+public synchronized void method(){
+	可能会产生线程安全问题的代码
+}
+```
+
+### 锁相关
 
 Lock能完成synchronized所实现的所有功能。
 
@@ -1539,46 +1943,34 @@ Word中存储的是指向重量级锁的指针，此时等待锁的线程都会�
 
 ## 1：File类
 
-File能新建，删除，重命名文件和目录，但不能访问文件内容本身。使用输入/输出流对内容操作。
+`java.io.File` 类是文件和目录路径名的抽象表示，主要用于文件和目录的创建、查找和删除等操作。
 
-创建：
+构造
 
-public File(String pathname)
-：通过将给定的路径名字符串转换为抽象路径名来创建新的 File实例。
+* `public File(String pathname) ` ：通过将给定的**路径名字符串**转换为抽象路径名来创建新的 File实例。  
+* `public File(String parent, String child) ` ：从**父路径名字符串和子路径名字符串**创建新的 File实例。
+* `public File(File parent, String child)` ：从**父抽象路径名和子路径名字符串**创建新的 File实例。
 
-public File(String parent, String child)
-：从父路径名字符串和子路径名字符串创建新的 File实例。
+获取
 
-public File(File parent, String child) ：从父抽象路径名和子路径名字符串创建新的
-File实例。获取
+* `public String getAbsolutePath() ` ：返回此File的绝对路径名字符串。
+* ` public String getPath() ` ：将此File转换为路径名字符串。 
+* `public String getName()`  ：返回由此File表示的文件或目录的名称。  
+* `public long length()`  ：返回由此File表示的文件的长度。 
 
-public String getAbsolutePath() ：返回此File的绝对路径名字符串。
+判断
 
-public String getPath() ：将此File转换为路径名字符串。
-
-public String getName() ：返回由此File表示的文件或目录的名称。
-
-public long length() ：返回由此File表示的文件的长度。判断功能的方法
-
-public boolean exists() ：此File表示的文件或目录是否实际存在。
-
-public boolean isDirectory() ：此File表示的是否为目录。
-
-public boolean isFile() ：此File表示的是否为文件。
+- `public boolean exists()` ：此File表示的文件或目录是否实际存在。
+- `public boolean isDirectory()` ：此File表示的是否为目录。
+- `public boolean isFile()` ：此File表示的是否为文件。
 
 创建删除功能的方法
 
-public boolean createNewFile()
-：当且仅当具有该名称的文件尚不存在时，创建一个新的空文件。
-
-public boolean delete() ：删除由此File表示的文件或目录。
-
-public boolean mkdir() ：创建由此File表示的目录。
-
-public boolean mkdirs()
-：创建由此File表示的目录，包括任何必需但不存在的父目录。重命名
-
-public Boolean renameTo(File dest)把文件 重命名为指定的路
+- `public boolean createNewFile()` ：当且仅当具有该名称的文件尚不存在时，创建一个新的空文件。 
+- `public boolean delete()` ：删除由此File表示的文件或目录。  
+- `public boolean mkdir()` ：创建由此File表示的目录。
+- `public boolean mkdirs()` ：创建由此File表示的目录，包括任何必需但不存在的父目录。
+- public Boolean renameTo(File dest)把文件 重命名为指定的路
 
 ## 2：IO流原理及流的分类
 
@@ -1906,6 +2298,46 @@ IO是面向流的，NIO是面向缓冲区的
 
 # 七：网络编程
 
+## 1：TCP通信
+
+### Socket类
+
+该类实现客户端套接字，套接字指的是两台设备之间通讯的端点。
+
+构造
+
+`public Socket(String host, int port)` :创建套接字对象并将其连接到指定主机上的指定端口号。如果指定的host是null ，则相当于指定地址为回送地址。  
+
+方法
+
+* `public InputStream getInputStream()` ： 返回此套接字的输入流。
+  * 如果此Scoket具有相关联的通道，则生成的InputStream 的所有操作也关联该通道。
+  * 关闭生成的InputStream也将关闭相关的Socket。
+* `public OutputStream getOutputStream()` ： 返回此套接字的输出流。
+  * 如果此Scoket具有相关联的通道，则生成的OutputStream 的所有操作也关联该通道。
+  * 关闭生成的OutputStream也将关闭相关的Socket。
+* `public void close()` ：关闭此套接字。
+  * 一旦一个socket被关闭，它不可再使用。
+  * 关闭此socket也将关闭相关的InputStream和OutputStream 。 
+* `public void shutdownOutput()` ： 禁用此套接字的输出流。   
+  * 任何先前写出的数据将被发送，随后终止输出流。 
+
+### ServerSocker类
+
+这个类实现了服务器套接字，该对象等待通过网络的请求。
+
+构造
+
+`public ServerSocket(int port)` ：使用该构造方法在创建ServerSocket对象时，就可以将其绑定到一个指定的端口号上，参数port就是端口号。
+
+方法
+
+`public Socket accept()` ：侦听并接受连接，返回一个新的Socket对象，用于和客户端实现通信。该方法会一直阻塞直到建立连接。 
+
+
+
+
+
 # 八：JDBC
 
 # 特性
@@ -2010,11 +2442,42 @@ TYPE_PARAMETER,USE。
 
 ## 5：泛型
 
+1.5以后
+
 把集合中的内容限定为一个特定的数据类型
 
 **如果Foo 是Bar 的一个子类型(子类或者子接口)，而G 是某种**
 
 **泛型声明，那么G\<Foo\>是G\<Bar\>的子类型并不成立!!**
+
+
+
+### 5.2：泛型通配符
+
+当使用泛型类或者接口时，传递的数据中，泛型类型不确定，可以通过通配符<?>表示。但是一旦使用泛型的通配符后，只能使用Object类中的共性方法，集合中元素自身方法无法使用。
+
+### 5.3：受限泛型
+
+之前设置泛型的时候，实际上是可以任意设置的，只要是类就可以设置。但是在JAVA的泛型中可以指定一个泛型的**上限**和**下限**。
+
+**泛型的上限**：
+
+* **格式**： `类型名称 <? extends 类 > 对象名称`
+* **意义**： `只能接收该类型及其子类`
+
+**泛型的下限**：
+
+- **格式**： `类型名称 <? super 类 > 对象名称`
+- **意义**： `只能接收该类型及其父类型`
+
+```java
+// 泛型的上限：此时的泛型?，必须是Number类型或者Number类型的子类
+public static void getElement1(Collection<? extends Number> coll){}
+// 泛型的下限：此时的泛型?，必须是Number类型或者Number类型的父类
+public static void getElement2(Collection<? super Number> coll){}
+```
+
+
 
 
 
