@@ -1682,6 +1682,25 @@ select \* from emp where job='MANAGER' union select \* from emp where job='SALES
 
 在Oracle中更严格，不但要求个数相同，而且还要求类型对应相同。
 
+
+
+union 与union all的区别：
+
+union all只是合并查询结果，并不会进行去重和排序操作，在没有去重的前提下，使用union all的执行效率要比union高
+
+一、区别1：取结果的交集
+
+1、union: 对两个结果集进zhi行并集操作dao, 不包括重复行,相当于zhuandistinct, 同时进行默认规shu则的排序;
+
+2、union all: 对两个结果集进行并集操作, 包括重复行, 即所有的结果全部显示, 不管是不是重复;
+
+二、区别2：获取结果后的操作
+1、union: 会对获取的结果进行排序操作
+
+2、union all: 不会对获取的结果进行排序操作
+
+
+
 ## 12、limit 的使用
 
 mysql提供了limit ，主要用于提取前几条或者中间某几行数据
