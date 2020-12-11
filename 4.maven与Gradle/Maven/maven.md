@@ -439,8 +439,19 @@ Maven世界拥有大量构建，我们需要找一个用来唯一标识一个构
 
 依赖声明主要包含如下元素：
 
-| \<dependencies\>  \<dependency\>  \<groupId\>junit\</groupId\>  \<artifactId\>junit\</artifactId\>  \<version\>4.10\</version\>  \<scope\>test\</scope\>  \</dependency\>   \</dependencies\> |
-|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+```xml
+<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.10</version>
+			<scope>test</scope>
+		</dependency>		
+	</dependencies>
+
+```
+
+
 
 
 ### 依赖范围
@@ -529,8 +540,14 @@ Maven-second中依赖log4j-1.2.9和log4j-1.2.14
 
 ### 排除依赖
 
-| \<exclusions\>  \<exclusion\>  \<groupId\>cn.itcast.maven\</groupId\>  \<artifactId\>maven-first\</artifactId\>  \</exclusion\> \</exclusions\> |
-|-------------------------------------------------------------------------------------------------------------------------------------------------|
+```xml
+<exclusions>
+	<exclusion>
+		<groupId>cn.itcast.maven</groupId>
+		<artifactId>maven-first</artifactId>
+	</exclusion>
+</exclusions>
+```
 
 
 排除依赖包中所包含的依赖关系，**不需要添加版本号**。
@@ -562,9 +579,7 @@ mvn clean install site 运行所有这三套生命周期。
 
 #### clean：清理项目
 
-每套生命周期都由一组阶段(Phase)组成，我们平时在命令行输入的命令总会对应于一个特定的阶段。比如，运行mvn
-clean
-，这个的clean是Clean生命周期的一个阶段。有Clean生命周期，也有clean阶段。Clean生命周期一共包含了三个阶段：
+每套生命周期都由一组阶段(Phase)组成，我们平时在命令行输入的命令总会对应于一个特定的阶段。比如，运行mvn  clean，这个的clean是Clean生命周期的一个阶段。有Clean生命周期，也有clean阶段。Clean生命周期一共包含了三个阶段：
 
 pre-clean 执行一些需要在clean之前完成的工作
 
@@ -572,11 +587,7 @@ clean 移除所有上一次构建生成的文件
 
 post-clean 执行一些需要在clean之后立刻完成的工作
 
-mvn clean
-中的clean就是上面的clean，在一个生命周期中，运行某个阶段的时候，它之前的所有阶段都会被运行，也就是说，mvn
-clean 等同于 mvn pre-clean clean ，如果我们运行 mvn post-clean ，那么
-pre-clean，clean
-都会被运行。这是Maven很重要的一个规则，可以大大简化命令行的输入。
+mvn clean中的clean就是上面的clean，在一个生命周期中，运行某个阶段的时候，它之前的所有阶段都会被运行，也就是说，mvn clean 等同于 mvn pre-clean clean ，如果我们运行 mvn post-clean ，那么pre-clean，clean都会被运行。这是Maven很重要的一个规则，可以大大简化命令行的输入。
 
 #### default：构建项目
 
@@ -652,8 +663,20 @@ Maven的核心仅仅定义了抽象的生命周期，具体的任务都是交由
 
 ### Maven编译插件
 
-| \<plugin\>  \<groupId\>org.apache.maven.plugins\</groupId\>  \<artifactId\>maven-compiler-plugin\</artifactId\>  \<configuration\>  \<source\>1.7\</source\>  \<target\>1.7\</target\>  \<encoding\>UTF-8\</encoding\>  \</configuration\> \</plugin\> |
-|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+```xml
+<plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-compiler-plugin</artifactId>
+	<configuration>
+		<source>1.7</source>
+		<target>1.7</target>
+		<encoding>UTF-8</encoding>
+	</configuration>
+</plugin>
+
+```
+
+
 
 
 ![](media/6403d981a2f84b129414eb6db99714d6.png)
@@ -682,8 +705,25 @@ Maven的核心仅仅定义了抽象的生命周期，具体的任务都是交由
 
 Web.xml内容如下：
 
-| \<?xml version=*"1.0"* encoding=*"UTF-8"*?\> \<web-app xmlns:xsi=*"http://www.w3.org/2001/XMLSchema-instance"*  xmlns=*"http://java.sun.com/xml/ns/javaee"* xmlns:web=*"http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"*  xsi:schemaLocation=*"http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"*  id=*"WebApp_ID"* version=*"2.5"*\>  \<welcome-file-list\>  \<welcome-file\>index.html\</welcome-file\>  \<welcome-file\>index.htm\</welcome-file\>  \<welcome-file\>index.jsp\</welcome-file\>  \<welcome-file\>default.html\</welcome-file\>  \<welcome-file\>default.htm\</welcome-file\>  \<welcome-file\>default.jsp\</welcome-file\>  \</welcome-file-list\> \</web-app\> |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	id="WebApp_ID" version="2.5">
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>default.html</welcome-file>
+		<welcome-file>default.htm</welcome-file>
+		<welcome-file>default.jsp</welcome-file>
+	</welcome-file-list>
+</web-app>
+
+```
+
+
 
 
 第五步：在webapp下创建index.jsp
@@ -694,8 +734,17 @@ tomcat:run 运行tomcat6（默认）
 
 tomcat7:run 运行tomcat7（推荐，但是需要添加插件）
 
-| \<plugin\>  \<!-- 配置插件 --\>  \<groupId\>org.apache.tomcat.maven\</groupId\>  \<artifactId\>tomcat7-maven-plugin\</artifactId\>  \<configuration\>  \<port\>8080\</port\>  \<path\>/\</path\>  \</configuration\> \</plugin\> |
-|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+```xml
+<plugin>
+	<!-- 配置插件 -->
+	<groupId>org.apache.tomcat.maven</groupId>
+	<artifactId>tomcat7-maven-plugin</artifactId>
+	<configuration>
+		<port>8080</port>
+		<path>/</path>
+	</configuration>
+</plugin>
+```
 
 
 ![](media/f0d5715523866f0de0c0d6ca30ac4c9b.png)
@@ -943,3 +992,10 @@ Tomcat7:run
 #### 第三步：执行maven的deploy命令
 
 ![](media/e9b8d389bcdad712a18e48ac7fb5bc47.png)
+
+# 问题
+
+问题1：有mvn包没有从编辑器下载下来，需要手动下载安装到本地
+
+  mvn install:install-file         -DgroupId=com.alipay         -DartifactId=trade-sdk         -Dversion=1.0.0         -Dpackaging=jar         -Dfile=alipay-trade-sdk-1.0.0.jar
+

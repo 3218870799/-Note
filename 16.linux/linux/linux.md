@@ -1164,7 +1164,7 @@ Swap：用于临时内存，当系统真实内存不够用的时候可以临时�
 
 语法：**#wc -lwc** **需要统计的文件路径**
 
-​     **-l****：表示lines****，行数**
+​     **-l****：表示lines**，行数**
 
 ​     -w：表示words，单词数  依照空格来判断单词数量
 
@@ -1238,7 +1238,7 @@ Swap：用于临时内存，当系统真实内存不够用的时候可以临时�
 
 ## 10、管道（重要）
 
-**管道符：|**
+**管道符：**
 
 作用：管道一般可以用于“**过滤**”，“特殊”，“扩展处理”。
 
@@ -1248,7 +1248,7 @@ Swap：用于临时内存，当系统真实内存不够用的时候可以临时�
 
 **①过滤**案例（**100%****使用**）：需要通过管道查询出根目录下包含“y”字母的文档名称。
 
-\#ls / | grep y
+\#ls | grep y
 
 针对上面这个命令说明：
 
@@ -1270,7 +1270,7 @@ Swap：用于临时内存，当系统真实内存不够用的时候可以临时�
 
 ③扩展处理：请使用学过的命令，来统计某个目录下的文档的总个数？
 
-**答：#ls / | wc -l**
+**答：#ls  | wc -l**
 
  
 
@@ -1506,8 +1506,6 @@ P：表示将结果按照CPU使用率从高到低进行降序排列；
 
 **语法：#service** **服务名 start/stop/restart**
 
- 
-
 例如：需要启动本机安装的Apache（网站服务器软件），其服务名httpd
 
 \#service httpd start
@@ -1534,7 +1532,7 @@ P：表示将结果按照CPU使用率从高到低进行降序排列；
 
 与kill命令作用相似但是比kill更加好用的杀死进程的命令：killall
 
-语法：**#killall** **进程名称**
+语法：**#kill all** **进程名称**
 
 ![img](linux.assets/clip_image190.png)
 
@@ -4821,39 +4819,11 @@ echo "两数之和为 : $val"
 
 ![img](linux.assets/clip_image503.png)
 
-# 三、作业
-
-1、尝试写一个shell的简易计算器功能，实现加减乘除。
-
-2、作业：使用-e文件测试运算符，改写“1.4接收用户输入”的案例，在创建文件的时候需要先判断是否存在，如果存在则提示用户并且不执行创建操作，如果不存在则创建。
-
-3、尝试创建一个shell脚本，该脚本要求可以类似于“touch”指令一样，能够使用“touch 文件路径”的形式进行创建文件操作，并且要求创建好的文件权限默认为755。 
-
  
 
 # MySQL基础 
 
-# 一、关于数据库
-
-## 1、什么是数据库
-
-![img](linux.assets/clip_image504.png)
-
- 
-
-如果一个项目是**动态**（内容会变化的，网页后缀.jsp、.php、.shtml等）内容的话，则数据库是必不可少的一个环节。
-
-## 2、MySQL简介
-
-MySQL是一个关系型**数据库管理系统**，由瑞典MySQL AB 公司开发，2008年被Sun公司收购，目前属于 Oracle 旗下产品。MySQL 是**最流行的数据库管理系统之一**，在 WEB 应用方面，MySQL是**最好的** RDBMS (Relational Database Management System，关系数据库管理系统) 应用软件。其和php是黄金搭档**（****LAMP/LNMP****）**。
-
-## 3、常见的其他数据库软件
-
-目前市场上还有：Oracle（重量级的数据库）、MS SQL Server（微软）、Access（微软）、PostgreSQL、DB2、Mariadb（MySQL分支，完全兼容MySQL）。
-
- 
-
-# 二、MySQL的安装与初始化
+# 一、MySQL的安装与初始化
 
 操作之前先确保计算机时间准确。
 
@@ -5107,216 +5077,11 @@ mysql > exit
 
 ![img](linux.assets/clip_image534.jpg)
 
-# 三、MySQL的基本操作（难点）
 
-## 1、名词介绍
 
-以Excel文件举例：
+## 3、备份与还原（重点）
 
-**数据库**：可以看作是整个excel文件。
-
-**数据表**：可以看作是一个excel文件中的工作表。
-
-行（**记录**）：可以看作是一个工作表中的一行
-
-列（**字段**）：可以看作是一个工作表总的一列
-
-## 2、库操作（重点）
-
-以下命令在MySQL终端命令行中执行（大小写均可）：
-
-SHOW DATABASES;                显示当前MySQL中全部的数据库
-
-CREATE DATABASE 库名;              创建数据库
-
-DROP DATABASE 库名;               删除数据库
-
-USE 库名;                    切换数据库
-
- 
-
-Show databases效果
-
- 
-
-![img](linux.assets/clip_image535.png)
-
- 
-
-创建数据库：创建yunwei数据库
-
-![img](linux.assets/clip_image536.png)
-
- 
-
-删除数据库：删除yunwei数据库
-
-![img](linux.assets/clip_image537.png)
-
- 
-
-切换数据库：切换到test数据库
-
-![img](linux.assets/clip_image538.png)
-
- 
-
-## 3、表操作
-
-SHOW TABLES;               显示**当前**数据库中所有的表名（必须先use数据库） 
-
-**CREATE TABLE** **表名称**            **在当前数据库下创建数据表**
-
-**(**
-
-**列名称****1** **数据类型** **[NOT NULL AUTO_INCREMENT],**
-
-**列名称****2** **数据类型****,**
-
-**列名称****3** **数据类型****,**
-
-**....,**
-
-**PRIMARY KEY(****主键字段名****)**
-
-**);**
-
-常见的数据类型：int（整型）、char（定长字符）、varchar（不定长字符）。
-
-主键一般就是序号所在的那一列（主键不能重复）。
-
-DESC 表名;                   描述一个数据表（查看表结构）
-
-DROP TABLE [IF EXISTS] 表名;          删除一个数据表
-
- 
-
-案例：使用上述的语法
-
-查看所有的数据表
-
-![img](linux.assets/clip_image539.png)
-
- 
-
-创建数据表（去test库中创建）
-
-要求：表名xg，要求有字段如下：
-
-​     Id字段，11位整型，不为空，自增，主键
-
-​     Username字段，varchar类型，20长度
-
-​     Password字段，char类型，32长度
-
-SQL（standard query language）语句：
-
-Create table xg(
-
-​     Id int(11) not null auto_increment,
-
-Username varchar(20),
-
-Password char(32),
-
-Primary key(id)
-
-);
-
- 
-
-![img](linux.assets/clip_image540.png)
-
- 
-
-查看表结构：
-
-![img](linux.assets/clip_image542.jpg)
-
- 
-
-删除数据表：
-
-![img](linux.assets/clip_image543.png)
-
-## 4、记录/字段操作（重点）
-
-### 4.1、增加记录
-
-```
-语法1：INSERT INTO 表名称 VALUES (值1, 值2,....);
-语法2：INSERT INTO 表名称 (列1, 列2,...) VALUES (值1, 值2,....);
-```
-
- 
-
-案例：往数据表xg表中新增一个记录username为zhangsan，password为123456（加密结果E10ADC3949BA59ABBE56E057F20F883E）
-
-Sql语句：
-
-insert into xg (username,password) values (‘zhangsan’,’E10ADC3949BA59ABBE56E057F20F883E’)
-
-![img](linux.assets/clip_image545.jpg)
-
- 
-
-要求前面的列名与值要一一对应。
-
-### 4.2、更新记录
-
-语法：**UPDATE** 表名称 SET 列名称1 = 新值1,列名称2 = 新值2… **WHERE** **列名称** **=** **某值**;
-
-案例：使用更新语句更新**id****大于等于2**的记录，将其密码改为：25F9E794323B453885F5181F1B624D0B
-
-SQL语句：
-
-Update xg set password = ‘25F9E794323B453885F5181F1B624D0B’ where id >= 2;
-
-![img](linux.assets/clip_image547.jpg)
-
- 
-
-**以后在执行影响行数的sql****操作的时候一定需要注意条件是否写错或者漏写。**
-
-### 4.3、查询记录
-
-**SELECT** 列名称1,列名称2… FROM 表名称 WHERE 条件;
-
-SELECT * FROM 表名称 WHERE 条件;
-
-案例：查询刚才新增的记录
-
-只查询用户名和密码，并且是id=2的：
-
-Select username,password from xg where id = 2;
-
-![img](linux.assets/clip_image549.jpg)
-
- 
-
-查询全部：
-
-Select * from xg;
-
-![img](linux.assets/clip_image551.jpg)
-
- 
-
-### 4.4、删除记录
-
-**DELETE** FROM 表名称 **WHERE** **列名称** **=** **值**;
-
- 
-
-案例：删除id为2的记录
-
-Delete from xg where id = 2;
-
-![img](linux.assets/clip_image552.png)
-
-## 5、备份与还原（重点）
-
-### 5.1、备份（导出）
+### 3.1、备份（导出）
 
 全量备份（数据+结构）：#mysqldump -uroot -p123456 -A > 备份文件路径
 
@@ -5350,7 +5115,7 @@ Delete from xg where id = 2;
 
 ![img](linux.assets/clip_image559.jpg)
 
-### 5.2、还原（导入）
+### 3.2、还原（导入）
 
 还原部分分**（****1****）****mysql****命令行****source****方法** 和 （2）系统命令行方法
 
@@ -5412,7 +5177,7 @@ mysql> source 备份文件路径
 
  
 
-# 四、扩展
+# 二，扩展
 
 ## 1、mysql的远程管理工具
 
@@ -5421,8 +5186,6 @@ mysql> source 备份文件路径
 B/S：B是指浏览器，S是指服务器。例如：百度搜索应用就属于BS架构软件。
 
 C/S：C是指客户端，S是指服务器。例如：QQ、电脑端微信等应用程序都是CS架构。
-
- 
 
 在BS中，mysql有个典型的管理工具：PMA（phpMyAdmin）
 
@@ -5465,16 +5228,6 @@ d. 刷新权限表或者重启mysql
 e. navicat登录成功
 
 ![img](linux.assets/clip_image574.png)
-
- 
-
- 
-
-# 五、作业
-
-1、导入sql文件（mobile.sql）到test数据库，并使用该数据表进行数据的增删改查练习。
-
-2、请编写一个简单的shell脚本，文件名为autoBakup.sh，并写出计划任务指令，能够实现每天0点整自动备份整个MySQL数据库。
 
  
 
@@ -5603,16 +5356,6 @@ Nginx：是一款比较流行的web服务器软件，类似于Apache。
 \#rm -rf 软件的安装目录
 
 **注意：卸载一个编译安装的软件的时候必须先停止。**
-
- 
-
- 
-
- 
-
- 
-
- 
 
  
 
@@ -5823,6 +5566,8 @@ f. 首页
 ![img](linux.assets/clip_image651.jpg)
 
  
+
+# CFPS项目维护
 
  
 

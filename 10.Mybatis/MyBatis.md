@@ -622,8 +622,11 @@ SqlSessionFactory 的创建，需要使用 SqlSessionFactoryBuilder 对象的 bu
 
 **（**3**）** SqlSessionFactory **接口**
 
-SqlSessionFactory接口对象是一个重量级对象（系统开销大的对象），是线程安全的，所以一个应用只需要一个该对象即可。创建
-SqlSession 需要使用 SqlSessionFactory 接口的的 openSession()方法。
+SqlSessionFactory接口对象是一个重量级对象（系统开销大的对象），是线程安全的，所以一个应用只需要一个该对象即可。创建SqlSession 需要使用 SqlSessionFactory 接口的openSession()方法。
+
+SqlSessionFactory是MyBatis的关键对象,它是个单个数据库映射关系经过编译后的内存镜像.SqlSessionFactory对象的实例可以通过SqlSessionFactoryBuilder对象类获得,SqlSessionFactoryBuilder则可以从XML配置文件或一个预先定制的Configuration的实例构建出SqlSessionFactory的实例.每一个MyBatis的应用程序都以一个SqlSessionFactory对象的实例为核心.同时SqlSessionFactory也是线程安全的,SqlSessionFactory一旦被创建,应该在应用执行期间都存在.在应用运行期间不要重复创建多次,建议使用单例模式.SqlSessionFactory是创建SqlSession的工厂.
+
+
 
 openSession(true)：创建一个有自动提交功能的 SqlSession
 
@@ -631,11 +634,25 @@ openSession(false)：创建一个非自动提交功能的 SqlSession，需手动
 
 openSession()：同 openSession(false)
 
+mybatis框架主要是围绕着SqlSessionFactory进行的，创建过程大概如下：
+
+```xml
+(1)、定义一个Configuration对象，其中包含数据源、事务、mapper文件资源以及影响数据库行为属性设置settings
+
+(2)、通过配置对象，则可以创建一个SqlSessionFactoryBuilder对象
+
+(3)、通过 SqlSessionFactoryBuilder 获得SqlSessionFactory 的实例。
+
+(4)、SqlSessionFactory 的实例可以获得操作数据的SqlSession实例，通过这个实例对数据库进行操
+```
+
+
+
 **（**4**）** SqlSession **接口**
 
 SqlSession 接口对象用于执行持久化操作。一个 SqlSession对应着一次数据库会话，一次会话以 SqlSession 对象的创建开始，以 SqlSession对象的关闭结束。
 
-SqlSession 接口对象是线程不安全的，所以每次数据库会话结束前，需要马上调用其close()方法，将其关闭。再次需要会话，再次创建。 SqlSession在方法内部创建，使用完毕后关闭。
+SqlSession的实例不能被共享，SqlSession 接口对象是线程不安全的，所以每次数据库会话结束前，需要马上调用其close()方法，将其关闭。再次需要会话，再次创建。 SqlSession在方法内部创建，.使用完SqlSeesion之后关闭Session很重要,应该确保使用finally块来关闭它.
 
 ### 2.3.2 创建工具类 
 
@@ -1777,6 +1794,12 @@ AND author_name like \#{author.name}
 ## 4.8\<![CDATA[ ]]\> 
 
 在CDATA内部的所有内容都会被解析器忽略。
+
+
+
+## 4.9：Begin And
+
+
 
 # 第5章 MyBatis 配置文件 
 
@@ -4045,4 +4068,10 @@ List\<Account\> accounts = accountDao.findAll();
 
 
 sql注入
+
+
+
+# 第十三章
+
+
 

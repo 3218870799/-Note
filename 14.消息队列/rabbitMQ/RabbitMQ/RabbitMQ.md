@@ -983,23 +983,7 @@ basicNack()：可以一次拒绝N条消息，客户端可以设置basicNack方�
 
 创建模块02-rabbitmq-springboot-send
 
-   
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
 配置模块02-rabbitmq-springboot-send的application.properties文件添加对RabbitMQ的集成
-
- 
 
   #配置RabbitMQ链接信息   #配置RabbitMQ服务器的IP地址   spring.rabbitmq.host=192.168.222.128   #配置RabbitMQ服务器的端口   spring.rabbitmq.port=5672   #配置RabbitMQ服务器的访问账号   spring.rabbitmq.username=root   #配置RabbitMQ服务器的访问密码   spring.rabbitmq.password=root     
 
