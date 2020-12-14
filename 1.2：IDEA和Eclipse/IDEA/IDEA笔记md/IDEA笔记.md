@@ -1284,7 +1284,76 @@ ctrl+shift +F9
 
 
 
+## 7：IDEA类和方法注释模板设置
+
+https://blog.csdn.net/xiaoliulang0324/article/details/79030752
+
+1：类的注释
+
+File-->settings-->Editor-->File and Code Templates-->Files
+
+我们选择Class文件（当然你要设置接口的还也可以选择Interface文件）
+
+${NAME}：设置类名，与下面的${NAME}一样才能获取到创建的类名
+
+TODO：代办事项的标记，一般生成类或方法都需要添加描述
+
+${USER}、${DATE}、${TIME}：设置创建类的用户、创建的日期和时间，这些事IDEA内置的方法，还有一些其他的方法在绿色框标注的位置，比如你想添加项目名则可以使用${PROJECT_NAME}
+
+![image-20201214201133675](media/image-20201214201133675.png)
 
 
 
+2：设置方法注释模板
 
+File-->Settings-->Editor-->Live Templates
+
+点击右侧新建组，命名为userDefine
+
+![image-20201214201707264](media/image-20201214201707264.png)
+
+然后新建Live Template
+
+命名为*
+
+添加描述add comments for methods
+
+修改生成注释的快捷键为Enter
+
+设置模板
+
+```xml
+*
+* Author xqc
+* Date $time$ $date$
+* Param $param$
+* Throws 
+* Return $return$
+**/
+```
+
+
+
+设置模板应用场景
+
+点击模板页面最下方的警告，来设置将模板应用于那些场景，一般选择EveryWhere-->Java即可
+
+（如果曾经修改过，则显示为change而不是define）
+
+![img](media/20180111103636249)
+
+![img](media/20180111103825818)
+
+设置参数的获取方式
+
+选择右侧的Edit variables按钮
+
+PS:第五步和第六步顺序不可颠倒，否则第六步将获取不到方法
+
+![img](media/20180111102925939)
+
+选择每个参数对应的获取方法（在下拉选择框中选择即可），网上有很多教程说获取param时使用脚本的方式，我试过使用脚本
+
+的方式不仅麻烦而且只能在方法内部使用注释时才能获取到参数
+
+![img](media/20180111103058459)
