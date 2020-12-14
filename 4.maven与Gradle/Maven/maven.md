@@ -71,27 +71,23 @@ mvn install 就可以自动执行编译，测试，打包等构建过程
 
 官方网站：<http://maven.apache.org>
 
-本课程使用的maven的版本为3.0.5
-
-Maven是使用java开发，需要安装jdk1.6以上，推荐使用1.7
-
 ## Maven的安装
 
-第一步：安装jdk，要求1.6或以上版本。
+第一步：安装jdk
 
 第二步：把maven解压缩，解压目录最好不要有中文。
 
-![](media/9127dee36ab99c48481437a911fea682.png)
+D:\Maven\install\apache-maven-3.5.4
 
 第三步：配置环境变量MAVEN_HOME
 
-![](media/ce594250e389634e558ccbcb77e1a1b8.png)
+![image-20201214164746895](media/image-20201214164746895.png)
 
 第四步：配置环境变量PATH，将%MAVEN_HOME%\\bin加入Path中，在Windows中一定要注意要用分号；与其他值隔开。
 
 第五步：验证是否安装成功，打开cmd窗口，输入mvn –v
 
-![](media/38d8f326302c03714ac9c542d012f2b2.png)
+![image-20201214164838970](media/image-20201214164838970.png)
 
 ## Maven的配置
 
