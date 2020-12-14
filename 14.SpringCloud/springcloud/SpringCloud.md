@@ -850,15 +850,18 @@ eureka:
 
 ![](.\图片\Eureka的26.png)
 
-![](.\图片\Eureka的27.png)
+概述
+保护模式主要用于一组客户端与Euraka Server之间存在网络分区场景下的保护，一旦进入保护模式：**Eureka Server 将会尝试保护其服务注册表中的信息，不再删除服务注册表中的数据，也就是不会注销任何微服务**
 
 ![](.\图片\Eureka的25.png)
 
+为什么会产生Eureka的自我保护机制？
 
+为了防止EurekaClient可以正常运行，但是与EurekaServer网络不通情况下，EurekaServer不会立即将EurekaClient服务剔除
 
-![](.\图片\Eureka的28.png)
+什么是自我保护模式？
 
-
+默认情况下，如果EurekaServer在一定时间内没有收到某个微服务实例的心跳，EurekaServer将会注销该实例（默认90秒）。但是当网络分区故障发生（延时，卡顿，拥挤）时，微服务与EurekaServer之间无法正常通信，以上行为可能变得危险了——因为微服务本身其实是健康的，此时不应该注销这个微服务，EUreka通过自我保护来解决这个问题——当EurekaServer节点在短时间内丢失过多客户端时（可能发生了网络分区故障）那么这个节点就会进入自我保护模式。
 
 **eureka服务端配置:**
 
@@ -867,8 +870,6 @@ eureka:
 ![](.\图片\Eureka的30.png)
 
 **设置接受心跳时间间隔**
-
-
 
 客户端(比如pay模块):
 
@@ -2470,7 +2471,109 @@ GlobalFilter,全局过滤器:
 
 ​					这些springconfig做不到,需要使用springcloud Bus消息总线
 
+## 3：配置中心内容加密
 
+从配置获取的配置默认是明文的，有些像数据源这样的配置需要加密的话，需要对配置中心进行加密处理。
+
+下面使用对称性加密来加密配置，需要配置一个密钥，当然也可以使用RSA非对称性加密，但对称加密比较方便也够用了，这里就以对称加密来配置即可。
+
+1、安装JCE
+
+JDK下的JCR默认是有长度限制的，需要替换没有长度限制的JCE版本。
+
+> http://www.oracle.com/technetwork/java/javase/downloads/jce-7-download-432124.html
+
+把下载包里面的两个jar文件复制替换到JAVA_HOME/jre/lib/security目录下。
+
+2、添加加密KEY
+
+配置中心配置文件中加入加密密钥。
+
+```
+encrypt:   key: 0e010e17-2529-4581-b907-c8edcfd6be09
+```
+
+3、查看加密功能状态
+
+```
+http://192.168.1.237:7100/encrypt/status
+```
+
+功能正常会显示OK
+
+```
+{"status":"OK"}
+```
+
+4、加密解密
+
+对 `develop`字符串加密
+
+```
+curl http://192.168.1.237:7100/encrypt -d  develop -u config-user:99282424-5939-4b08-a40f-87b2cbc403f6
+```
+
+对 `develop`字符串解密
+
+```
+curl http://192.168.1.237:7100/decrypt -d  0fb593294187a31f35dea15e8bafaf77745328dcc20d6d6dd0dfa5ae753d6836 -u config-user:99282424-5939-4b08-a40f-87b2cbc403f6
+```
+
+-u username:password 为basic认证
+
+5、配置文件
+
+```
+spring:   datasource:     username: '{cipher}0fb593294187a31f35dea15e8bafaf77745328dcc20d6d6dd0dfa5ae753d6836'
+```
+
+需要加密的内容以 `{cipher}`开头，并注意要使节单引号包起来，不然报错。
+
+6、读取配置
+
+这样客户端读取出来的配置是自动解密了的，如果要关闭自动解密功能通过客户端自己来解密，同时也要保留加解密的端点可以通过关闭以下配置即可。
+
+```
+spring.cloud.config.server.encrypt.enabled=false
+```
+
+
+
+## 4：动态刷新配置信息
+
+有时候在配置中心有些参数是需要修改的，这时候如何不重启而达到实时生效的效果呢？
+
+添加依赖
+
+```xml
+<dependencies>
+	<dependency> 
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-actuator</artifactId>
+	</dependency>
+</dependencies>
+```
+
+`spring-boot-starter-actuator`：这个模块的/refresh(POST请求)端点可以刷新配置，更多的使用参考Spring Boot系列文章。
+
+生效前提
+
+在需要刷新的Bean上添加@RefreshScope注解。
+
+```
+@RefreshScope
+@RestController
+public class TestController {    
+	@Value("${username}")    
+	private String username;
+	
+```
+
+当配置更改时，标有@RefreshScope的Bean将得到特殊处理来生效配置。
+
+扩展问题
+
+如果项目少配置少的情况可以通过/refresh来手动刷新配置，如果项目比较复杂的情况呢这种肯定是行不通的，Spring Cloud Bus消息总线可以解决配置修改的真正的动态刷新。
 
 
 
