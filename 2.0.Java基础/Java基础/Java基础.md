@@ -382,6 +382,38 @@ public static String toString(int[] a) ：返回指定数组内容的字符串�
     
 ```
 
+### Vector类
+
+实现类似动态数组的功能
+
+创建了一个向量类的对象后，可以往其中随意地插入不同的类的对象，既不需顾及类型也不需预先选定向量的容量，并可方便地进行查找。
+
+对于预先不知或不愿预先定义数组大小，并需频繁进行查找、插入和删除工作的情况，可以考虑使用向量类。
+
+构造
+
+　　public vector()
+　　public vector(int initialcapacity,int capacityIncrement)
+　　public vector(int initialcapacity)
+
+就算设定了容量，当真正存放的数据个数超过容量时，系统也会扩充向量对象。
+
+方法
+
+插入
+
+- public final synchronized void addElement(Object obj)
+- public final synchronized void setElementAt(object obj,int index)
+- public final synchronized void insertElementAt(Object obj,int index)
+
+删除
+
+- public final synchronized void removeElement(Object obj)
+- public final synchronized void removeAllElement()
+- public final synchronized void removeElementlAt(int index)
+
+查询搜索
+
 
 
 ## 2：Object类
@@ -1066,6 +1098,16 @@ Object remove(): 获取队列头部的元素，并删除该元素。
 
 PriorityQueue实现类
 
+
+
+## 4：Stack
+
+Stack类是Vector类的子类。它向用户提供了堆栈这种高级的数据结构。
+
+
+
+
+
 ## 5：Map
 
 Key-value型，不允许重复，同一对象所对应的类
@@ -1401,6 +1443,10 @@ CopyOnWriteArraySet基于CopyOnWriteArrayList实现，其唯一的不同是在ad
 
 
 
+## 7：位集合类BitSet
+
+
+
 # 四：异常
 
 ## 1：概述
@@ -1492,6 +1538,8 @@ catch 尽可能进行区分异常类型，再做对应的异常处理。
 3：有 try 块放到了事务代码中， catch
 异常后，如果需要回滚事务，一定要注意手动回滚事务。
 
+4：有特殊的流关闭等操作一定必须放在finally中
+
 程序检测
 
 If（num==0）{}
@@ -1504,9 +1552,9 @@ If（num==0）{}
 
 与其它对象一样，可以访问一个异常对象的成员变量或调用它的方法。
 
-getMessage() 获取异常信息，返回字符串
+getMessage() 获取异常信息，返回字符串
 
-printStackTrace()
+printStackTrace()
 获取异常类名和异常信息，以及异常出现在程序中的位置。返回值void。
 
 ![](media/8ad7e9991f083c26998a74c0c25b0d51.png)
@@ -1515,15 +1563,17 @@ If（num==0）{}
 
 方法三：手动抛出异常
 
-首先要生成异常类对象，然后通过throw语句实现抛出操作(提交给Java运行环境)。
+首先要生成异常类对象，然后通过throw语句实现抛出操作(提交给Java运行环境)。
 
 **IOException e=new IOException();**
 
 **Throw e;**
 
-可以抛出的异常必须是Throwable或其子类的实例。下面的语句在编译时将会产生语法错误：
+可以抛出的异常必须是Throwable或其子类的实例。下面的语句在编译时将会产生语法错误：
 
 **Throw new String("wanttothrow");**
+
+
 
 ## 4：用户自定义异常类
 
@@ -1562,7 +1612,20 @@ public static boolean checkUsername(String uname) throws LoginException{
 }
 ```
 
+### 总结：
 
+1：在项目中不要捕获Java类库中继承自RuntimeException的运行时异常，这类异常由程序员预检查违法来规避，保证程序健壮性。
+
+2：不能大段进行try……catch……对于非稳定代码的
+catch 尽可能进行区分异常类型，再做对应的异常处理。给出准确的异常处理信息
+
+3：有 try 块放到了事务代码中， catch异常后，如果需要回滚事务，一定要注意手动回滚事务。
+
+4：有特殊的流关闭等操作一定必须放在finally中
+
+5：请确保在Javadoc中添加一个@throws 声明，并描述可能导致的异常情况。
+
+6：
 
 # 五：多线程：
 
