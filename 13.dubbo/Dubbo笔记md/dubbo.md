@@ -657,17 +657,25 @@ Simple Monitor
 </dependency>
 ```
 
- 注意starter版本适配： ![media/84d12f3e96c95bc7abf084e0bf6e8201.png](media/84d12f3e96c95bc7abf084e0bf6e8201.png)
+ 注意starter版本适配： 
+
+![media/84d12f3e96c95bc7abf084e0bf6e8201.png](media/84d12f3e96c95bc7abf084e0bf6e8201.png)
 
 2：配置application.properties
 
 ```yml
 提供者配置：
+
 dubbo.application.name=gmall-user
+# 这里是zk的连接配置
 dubbo.registry.protocol=zookeeper
 dubbo.registry.address=192.168.67.159:2181
+# 需要扫描的包
 dubbo.scan.base-package=com.atguigu.gmall
+# ProtocolConfig Bean
+dubbo.protocol.id=dubbo
 dubbo.protocol.name=dubbo
+
 application.name就是服务名，不能跟别的dubbo提供端重复
 registry.protocol 是指定注册中心协议
 registry.address 是注册中心的地址加端口号
