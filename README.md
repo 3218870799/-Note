@@ -40,6 +40,7 @@
 | 17.4  | 业务流程管理Activiti      |                                                        |
 | 17.5  | 统计分析                  |                                                        |
 | 17.6  | 作业调度Quartz            |                                                        |
+| 17.7  | Netty:shaved_ice:         | 异步事件驱动的网络应用程序框架                         |
 | 18    | webservice                |                                                        |
 | 19    | Hadoop                    |                                                        |
 | 20    | HBase                     |                                                        |
