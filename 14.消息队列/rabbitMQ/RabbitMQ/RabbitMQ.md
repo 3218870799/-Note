@@ -148,8 +148,6 @@ chmod 400 /var/lib/rabbitmq/.erlang.cookie
 
 rabbitmqctl stop
 
- 
-
 ### 2.3.2 插件管理
 
 1、添加插件
@@ -184,19 +182,13 @@ RabbitMQ安装成功后使用默认用户名guest登录
 
 2、 删除用户：rabbitmqctl delete_user {username}
 
- 
-
 3、 修改密码：rabbitmqctl change_password {username} {newpassword}
 
 rabbitmqctl change_password root 123456
 
- 
-
 4、 设置用户角色：rabbitmqctl set_user_tags {username} {tag}
 
 rabbitmqctl set_user_tags root administrator
-
- 
 
 tag参数表示用户角色取值为：management *，*monitoring *，**policymaker* administrator
 
@@ -871,10 +863,6 @@ RabbitMQ有两种方式来解决这个问题：
 1. 通过AMQP提供的事务机制实现；
 2. 使用发送者确认模式实现；
 
- 
-
- 
-
 #### 3.5.4.1 事务使用
 
 事务的实现主要是对信道（Channel）的设置，主要的方法有三个：
@@ -887,53 +875,221 @@ RabbitMQ有两种方式来解决这个问题：
 
 在01-rabbitmq-send-java项目中创建，com.bjpowernode.rabbitmq.transaction.Send类
 
- 
+ ```java
+public class Send{
+    public static void main(String[] args) throws IOException, TimeoutException {
+        //创建链接工厂对象
+        ConnectionFactory factory=new ConnectionFactory();
+        factory.setHost("192.168.171.143");//设置RabbitMQ的主机IP
+        factory.setPort(5672);//设置RabbitMQ的端口号
+        factory.setUsername("root");//设置访问用户名
+        factory.setPassword("root");//设置访问密码
+        Connection connection=null;//定义链接对象
+        Channel channel=null;//定义通道对象
+        connection=factory.newConnection();//实例化链接对象
+        channel=connection.createChannel();//实例化通道对象
+        String message ="Hello World!";
+String exchangeName="myExchangeTransaction";
+//指定Exchange的类型
+//参数1为 交换机名称
+//参数2为交换机类型取值为 direct、fanout、topic、headers
+//参数3 为是否为持久化消息 true表示持久化消息 false表示非持久化
+channel.exchangeDeclare(exchangeName, "direct", true);
+       // 声明事务
+channel.txSelect();
+        //发送消息到RabbitMQ
+        //参数1 我们自定义的交换机名称
+        //参数2 自定义的RoutingKey值
+        //参数3 设置消息的属性，可以通过消息属性设置消息是否是持久化的
+        //参数4 具体要发送的消息信息
+       channel.basicPublish(exchangeName,"myRoutingKeyTransaction",null,message.getBytes("UTF-8"));
+// 提交事务
+       channel.txCommit();
+        System.out.println("消息发送成功: "+message);
+        channel.close();
+        connection.close();
+    }
+}
 
-  public class Send{      public static void main(String[] args) throws IOException,  TimeoutException {        //创建链接工厂对象        ConnectionFactory factory=new ConnectionFactory();        factory.setHost("192.168.171.143");//设置RabbitMQ的主机IP        factory.setPort(5672);//设置RabbitMQ的端口号        factory.setUsername("root");//设置访问用户名        factory.setPassword("root");//设置访问密码        Connection connection=null;//定义链接对象        Channel channel=null;//定义通道对象        connection=factory.newConnection();//实例化链接对象        channel=connection.createChannel();//实例化通道对象        String message ="Hello World!";  String `exchangeName=`"myExchangeTransaction";  //指定Exchange的类型  //参数1为 交换机名称  //参数2为交换机类型取值为 direct、fanout、topic、headers  //参数3 为是否为持久化消息 true表示持久化消息 false表示非持久化  `channel.exchangeDeclare(exchangeName, "direct", true);``    // 声明事务``channel.txSelect();`      //发送消息到RabbitMQ      //参数1 我们自定义的交换机名称      //参数2 自定义的RoutingKey值      //参数3 设置消息的属性，可以通过消息属性设置消息是否是持久化的      //参数4 具体要发送的消息信息      channel.basicPublish(`exchangeName`,"myRoutingKeyTransaction",null,message.getBytes("UTF-8"));  // 提交事务  `    channel.txCommit();`        System.out.println("消息发送成功: "+message);      channel.close();      connection.close();    }  }  
-
- 
-
- 
-
- 
+ ```
 
 #### 3.6.1.4编写消息接收类
 
 在01-rabbitmq-receive-java项目中创建，com.bjpowernode.rabbitmq.transaction.Receive类
 
- 
+ ```java
+public class Receive{
+    public static void main(String[] args) throws IOException, TimeoutException {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setUsername("root");
+        factory.setPassword("root");
+        factory.setHost("192.168.171.143");
+        //建立到代理服务器到连接
+        Connection conn = factory.newConnection();
+        //获得信道
+        final Channel channel = conn.createChannel();
+        //声明交换器
+        String exchangeName = "myExchangeTransaction";
+        channel.exchangeDeclare(exchangeName, "direct", true);
+        //声明队列
+        String queueName = channel.queueDeclare().getQueue();
+        String routingKey = "myRoutingKeyTransaction";
+        //绑定队列，通过键 hola 将队列和交换器绑定起来
+        channel.queueBind(queueName, exchangeName, routingKey);
+        //消费消息
+        boolean autoAck = true;
+        String consumerTag = "";
+            //接收消息 
+            //参数1 队列名称
+            //参数2 是否自动确认消息 true表示自动确认 false表示手动确认
+           //参数3 为消息标签 用来区分不同的消费者这列暂时为""
+           // 参数4 消费者回调方法用于编写处理消息的具体代码（例如打印或将消息写入数据库） 
+            channel.basicConsume(queueName, autoAck, consumerTag, new DefaultConsumer(channel) {
+                @Override
+                public void handleDelivery(String consumerTag,
+                                           Envelope envelope,
+                                           AMQP.BasicProperties properties,
+                                           byte[] body) throws IOException {
+                    //获取消息数据
+                    String bodyStr = new String(body, "UTF-8");
+                    System.out.println(bodyStr);
+                }
+            });
+channel.close();
+        conn.close();
+    }
+}
 
-  public class Receive{      public static void main(String[] args) throws IOException,  TimeoutException {        ConnectionFactory factory = new ConnectionFactory();        factory.setUsername("root");        factory.setPassword("root");        factory.setHost("192.168.171.143");        //建立到代理服务器到连接        Connection conn = factory.newConnection();        //获得信道        final Channel channel = conn.createChannel();        //声明交换器        String exchangeName = "myExchangeTransaction";        channel.exchangeDeclare(exchangeName, "direct", true);        //声明队列        String queueName = channel.queueDeclare().getQueue();        String routingKey = "myRoutingKeyTransaction";        //绑定队列，通过键 hola 将队列和交换器绑定起来        channel.queueBind(queueName, exchangeName, routingKey);        //消费消息        boolean autoAck = true;        String consumerTag = "";        //接收消息         //参数1 队列名称        //参数2 是否自动确认消息 true表示自动确认 false表示手动确认         //参数3 为消息标签 用来区分不同的消费者这列暂时为""         // 参数4 消费者回调方法用于编写处理消息的具体代码（例如打印或将消息写入数据库）         channel.basicConsume(queueName,  autoAck, consumerTag, new DefaultConsumer(channel) {          @Override          public void  handleDelivery(String consumerTag,                         Envelope envelope,                         AMQP.BasicProperties properties,                        byte[] body) throws IOException  {            //获取消息数据            String bodyStr = new  String(body, "UTF-8");              System.out.println(bodyStr);          }        });  `channel.close();``    conn.close();`    }  }  
-
- 
-
- 
+ ```
 
 ### 3.5.5 消息的发送者确认模式
 
 Confirm发送方确认模式使用和事务类似，也是通过设置Channel进行发送方确认的，最终达到确保所有的消息全部发送成功
 
-**Confirm****的三种实现方式：**
+**Confirm的三种实现方式：**
 
-方式一：channel.waitForConfirms()普通发送方确认模式；
+方式一：channel.waitForConfirms()普通发送方确认模式
 
-  public class Send {     public static void main(String[]  args) throws IOException, TimeoutException, InterruptedException {       //创建链接工厂对象       ConnectionFactory factory=new  ConnectionFactory();         factory.setHost("192.168.222.128");//设置RabbitMQ的主机IP       factory.setPort(5672);//设置RabbitMQ的端口号       factory.setUsername("root");//设置访问用户名         factory.setPassword("root");//设置访问密码       Connection connection=null;//定义链接对象       Channel channel=null;//定义通道对象         connection=factory.newConnection();//实例化链接对象         channel=connection.createChannel();//实例化通道对象       String message ="Hello World!3";          //创建队列 ，名字为myQueue         channel.queueDeclare("myQueue", true, false, false, null);       // 开启发送方确认模式       channel.confirmSelect();       long  time=System.currentTimeMillis();       //发送消息到指定队列       for(int i=0;i<10000;i++){         message="Hello  World!"+i;           channel.basicPublish("","myQueue",null,message.getBytes("UTF-8"));       }       channel.waitForConfirms();         System.out.println(System.currentTimeMillis()-time);        System.out.println("消息发送成功: "+message);       channel.close();       connection.close();     }   }     
+```java
+public class Send {
+    public static void main(String[] args) throws IOException, TimeoutException, InterruptedException {
+        //创建链接工厂对象
+        ConnectionFactory factory=new ConnectionFactory();
+        factory.setHost("192.168.222.128");//设置RabbitMQ的主机IP
+        factory.setPort(5672);//设置RabbitMQ的端口号
+        factory.setUsername("root");//设置访问用户名
+        factory.setPassword("root");//设置访问密码
+        Connection connection=null;//定义链接对象
+        Channel channel=null;//定义通道对象
+        connection=factory.newConnection();//实例化链接对象
+        channel=connection.createChannel();//实例化通道对象
+        String message ="Hello World!3";
 
- 
+        //创建队列 ，名字为myQueue
+        channel.queueDeclare("myQueue", true, false, false, null);
+        // 开启发送方确认模式
+        channel.confirmSelect();
+        long time=System.currentTimeMillis();
+        //发送消息到指定队列
+        for(int i=0;i<10000;i++){
+            message="Hello World!"+i;
+            channel.basicPublish("","myQueue",null,message.getBytes("UTF-8"));
+        }
+        channel.waitForConfirms();
+        System.out.println(System.currentTimeMillis()-time);
+        System.out.println("消息发送成功: "+message);
+        channel.close();
+        connection.close();
+    }
+}
+
+```
 
 方式二：channel.waitForConfirmsOrDie()批量确认模式；
 
-  public class Send {     public static void main(String[]  args) throws IOException, TimeoutException, InterruptedException {       //创建链接工厂对象       ConnectionFactory factory=new  ConnectionFactory();         factory.setHost("192.168.222.128");//设置RabbitMQ的主机IP       factory.setPort(5672);//设置RabbitMQ的端口号         factory.setUsername("root");//设置访问用户名         factory.setPassword("root");//设置访问密码       Connection connection=null;//定义链接对象       Channel channel=null;//定义通道对象         connection=factory.newConnection();//实例化链接对象         channel=connection.createChannel();//实例化通道对象       String message ="Hello  World!3";          //创建队列 ，名字为myQueue         channel.queueDeclare("myQueue", true, false, false, null);       // 开启发送方确认模式       channel.confirmSelect();       long  time=System.currentTimeMillis();       //发送消息到指定队列       for(int i=0;i<10000;i++){         message="Hello  World!"+i;           channel.basicPublish("","myQueue",null,message.getBytes("UTF-8"));       }       channel.waitForConfirmsOrDie();         System.out.println(System.currentTimeMillis()-time);       System.out.println("消息发送成功: "+message);       channel.close();       connection.close();     }   }     
+ ```java
+public class Send {
+    public static void main(String[] args) throws IOException, TimeoutException, InterruptedException {
+        //创建链接工厂对象
+        ConnectionFactory factory=new ConnectionFactory();
+        factory.setHost("192.168.222.128");//设置RabbitMQ的主机IP
+        factory.setPort(5672);//设置RabbitMQ的端口号
+        factory.setUsername("root");//设置访问用户名
+        factory.setPassword("root");//设置访问密码
+        Connection connection=null;//定义链接对象
+        Channel channel=null;//定义通道对象
+        connection=factory.newConnection();//实例化链接对象
+        channel=connection.createChannel();//实例化通道对象
+        String message ="Hello World!3";
+
+        //创建队列 ，名字为myQueue
+        channel.queueDeclare("myQueue", true, false, false, null);
+        // 开启发送方确认模式
+        channel.confirmSelect();
+        long time=System.currentTimeMillis();
+        //发送消息到指定队列
+        for(int i=0;i<10000;i++){
+            message="Hello World!"+i;
+            channel.basicPublish("","myQueue",null,message.getBytes("UTF-8"));
+        }
+        channel.waitForConfirmsOrDie();
+        System.out.println(System.currentTimeMillis()-time);
+        System.out.println("消息发送成功: "+message);
+        channel.close();
+        connection.close();
+    }
+}
+
+ ```
 
  
 
 方式三：channel.addConfirmListener()异步监听发送方确认模式
 
-  public class Send {     public static void main(String[]  args) throws IOException, TimeoutException, InterruptedException {       //创建链接工厂对象       ConnectionFactory factory=new  ConnectionFactory();         factory.setHost("192.168.222.128");//设置RabbitMQ的主机IP       factory.setPort(5672);//设置RabbitMQ的端口号         factory.setUsername("root");//设置访问用户名       factory.setPassword("root");//设置访问密码       Connection connection=null;//定义链接对象       Channel channel=null;//定义通道对象         connection=factory.newConnection();//实例化链接对象         channel=connection.createChannel();//实例化通道对象       String message ="Hello  World!3";          //创建队列 ，名字为myQueue         channel.queueDeclare("myQueue", true, false, false, null);       // 开启发送方确认模式       channel.confirmSelect();       long  time=System.currentTimeMillis();       //发送消息到指定队列       for(int i=0;i<10000;i++){         message="Hello World!"+i;           channel.basicPublish("","myQueue",null,message.getBytes("UTF-8"));       }       channel.addConfirmListener(new  ConfirmListener() {         public void handleAck(long  deliveryTag, boolean multiple) throws IOException {             System.out.println("未确认消息，标识：" + deliveryTag+"----"+multiple);         }            public void handleNack(long  deliveryTag, boolean multiple) throws IOException {             System.out.println("已确认消息，标识："+deliveryTag+" ---多个消息："+multiple);         }       });         System.out.println(System.currentTimeMillis()-time);       System.out.println("消息发送成功: "+message);       channel.close();       connection.close();     }   }     
+```java
+public class Send {
+    public static void main(String[] args) throws IOException, TimeoutException, InterruptedException {
+        //创建链接工厂对象
+        ConnectionFactory factory=new ConnectionFactory();
+        factory.setHost("192.168.222.128");//设置RabbitMQ的主机IP
+        factory.setPort(5672);//设置RabbitMQ的端口号
+        factory.setUsername("root");//设置访问用户名
+        factory.setPassword("root");//设置访问密码
+        Connection connection=null;//定义链接对象
+        Channel channel=null;//定义通道对象
+        connection=factory.newConnection();//实例化链接对象
+        channel=connection.createChannel();//实例化通道对象
+        String message ="Hello World!3";
 
- 
+        //创建队列 ，名字为myQueue
+        channel.queueDeclare("myQueue", true, false, false, null);
+        // 开启发送方确认模式
+        channel.confirmSelect();
+        long time=System.currentTimeMillis();
+        //发送消息到指定队列
+        for(int i=0;i<10000;i++){
+            message="Hello World!"+i;
+            channel.basicPublish("","myQueue",null,message.getBytes("UTF-8"));
+        }
+        channel.addConfirmListener(new ConfirmListener() {
+            public void handleAck(long deliveryTag, boolean multiple) throws IOException {
+                System.out.println("未确认消息，标识：" + deliveryTag+"----"+multiple);
+            }
 
- 
+            public void handleNack(long deliveryTag, boolean multiple) throws IOException {
+                System.out.println("已确认消息，标识："+deliveryTag+" ---多个消息："+multiple);
+            }
+        });
+        System.out.println(System.currentTimeMillis()-time);
+        System.out.println("消息发送成功: "+message);
+        channel.close();
+        connection.close();
+    }
+}
+
+```
+
+  
 
 ### 3.5.6 消息的消费者确认模式
 
@@ -979,71 +1135,80 @@ basicNack()：可以一次拒绝N条消息，客户端可以设置basicNack方�
 
 ## 4.1   创建消息生产者工程
 
- 
-
 创建模块02-rabbitmq-springboot-send
+
+![image-20201214175500578](media/image-20201214175500578.png)
+
+![image-20201214175511553](media/image-20201214175511553.png)
 
 配置模块02-rabbitmq-springboot-send的application.properties文件添加对RabbitMQ的集成
 
-  #配置RabbitMQ链接信息   #配置RabbitMQ服务器的IP地址   spring.rabbitmq.host=192.168.222.128   #配置RabbitMQ服务器的端口   spring.rabbitmq.port=5672   #配置RabbitMQ服务器的访问账号   spring.rabbitmq.username=root   #配置RabbitMQ服务器的访问密码   spring.rabbitmq.password=root     
-
- 
+```yml
+#配置RabbitMQ链接信息
+#配置RabbitMQ服务器的IP地址
+spring.rabbitmq.host=192.168.222.128
+#配置RabbitMQ服务器的端口
+spring.rabbitmq.port=5672
+#配置RabbitMQ服务器的访问账号
+spring.rabbitmq.username=root
+#配置RabbitMQ服务器的访问密码
+spring.rabbitmq.password=root
+```
 
 创建SendService接口与实现类
 
- 
+```java
+@service("sendService")
+public class SendServiceImpl implements SendService{
+    //注入Amap的模板类，利用这个对象来发送和接收消息
+    @Resource
+    private AmqpTemplate amqpTemplate;
+    @Override
+    public void sendMessage(String message){
+        amqpTemplate.convertANdSend("bootDirectExchange","bootDirectRouting",message);
+    }
+}
+```
 
- 
+ Application.java
 
- 
+```java
+@SpringBootApplication
+public class Application{
+    public static void main(String[] args){
+        ApplicationContext ac = SpringApplication.run(Application.class,args);
+        SendService service = (SendService) ac.getBean("sendService");
+        
+        service.sendMessage("Boot的测试数据");
+    }
+}
+```
 
- 
 
- 
 
 ## 4.2   创建消息接收者工程
 
 创建模块02-rabbitmq-springboot-receive
 
- 
+ ![image-20201214213244839](media/image-20201214213244839.png)
 
- 
+![image-20201214213257519](media/image-20201214213257519.png)
 
- 
 
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
 
 配置模块02-rabbitmq-springboot-receive的application.properties文件添加对RabbitMQ的集成
 
- 
-
-  #配置RabbitMQ链接信息   #配置RabbitMQ服务器的IP地址   spring.rabbitmq.host=192.168.222.128   #配置RabbitMQ服务器的端口   spring.rabbitmq.port=5672   #配置RabbitMQ服务器的访问账号   spring.rabbitmq.username=root   #配置RabbitMQ服务器的访问密码   spring.rabbitmq.password=root     
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
+ ```yml
+#配置RabbitMQ链接信息
+#配置RabbitMQ服务器的IP地址
+spring.rabbitmq.host=192.168.222.128
+#配置RabbitMQ服务器的端口
+spring.rabbitmq.port=5672
+#配置RabbitMQ服务器的访问账号
+spring.rabbitmq.username=root
+#配置RabbitMQ服务器的访问密码
+spring.rabbitmq.password=root
+ ```
 
 ## 4.3   Direct模式消息发送和接收
 
@@ -1051,25 +1216,50 @@ basicNack()：可以一次拒绝N条消息，客户端可以设置basicNack方�
 
 在02-rabbitmq-springboot-send模块中创建类，com.bjpowernode.direct.Send
 
-  @Service   public class Send {     //自动注入Amqp的模板对象     @Resource     private AmqpTemplate template;     public void send(){       //发送消息到队列       //参数 1 为消息存放的交换机名称  （需要事前创建）       //参数 2 为RoutingKey，接收者需要根据这个key精准接收消息       //参数 3 为具体存入队列中的消息数据         template.convertAndSend("BootDirectExchange","BootRouting","SpringBootDirect");     }   }  
+```java
+@Service
+public class Send {
+    //自动注入Amqp的模板对象
+    @Resource
+    private AmqpTemplate template;
+    public void send(){
+        //发送消息到队列
+        //参数 1 为消息存放的交换机名称 （需要事前创建）
+        //参数 2 为RoutingKey，接收者需要根据这个key精准接收消息
+        //参数 3 为具体存入队列中的消息数据
+        template.convertAndSend("BootDirectExchange","BootRouting","SpringBootDirect");
+    }
+}
+```
 
- 
 
- 
 
 创建Amqp配置类com.bjpowernode.rabbitmq.config.AmqpConfig
 
- 
-
-  @Configuration   public class AmqpConfig {  //@Bean 用于模拟Spring配置文件中的<bean>标签，用于创建名字为  // BootDirectExchange的交换机     @Bean     public DirectExchange myChange(){       return new  DirectExchange("BootDirectExchange");     }   }  
-
- 
+ ```java
+@Configuration
+public class AmqpConfig {
+//@Bean 用于模拟Spring配置文件中的<bean>标签，用于创建名字为
+// BootDirectExchange的交换机
+    @Bean
+    public DirectExchange myChange(){
+        return new DirectExchange("BootDirectExchange");
+    }
+}
+ ```
 
 运行测试Direct消息发送，编写Application.java类
 
-  @SpringBootApplication   public class Application {     public static void main(String[]  args) {      ApplicationContext ac=  SpringApplication.run(Application.class, args);      Send send= (Send)  ac.getBean("send");      send.send();     }   }  
-
- 
+```java
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+      ApplicationContext ac= SpringApplication.run(Application.class, args);
+      Send send= (Send) ac.getBean("send");
+      send.send();
+    }
+}
+```
 
  
 
@@ -1077,35 +1267,65 @@ basicNack()：可以一次拒绝N条消息，客户端可以设置basicNack方�
 
 在02-rabbitmq-springboot-receive模块中创建类，com.bjpowernode.direct.Receive
 
- 
-
-  @Service   public class Receive {     //@RabbitListener注解用于标记当前方法为消息监听方法，可以监听某个队列，当队列中有新消息则自动完成接收，不需要调用，自动进行接受     @RabbitListener(queues  ="myQueueDirect")     public void receive(String  message){       System.out.println("Boot的Direct消息----"+message);     }   }  
-
- 
+ ```java
+@Service
+public class Receive {
+    //@RabbitListener注解用于标记当前方法为消息监听方法，可以监听某个队列，当队列中有新消息则自动完成接收，不需要调用，自动进行接受
+    @RabbitListener(queues ="myQueueDirect")
+    public void receive(String message){
+        System.out.println("Boot的Direct消息----"+message);
+    }
+}
+ ```
 
 创建Amqp配置类com.bjpowernode.rabbitmq.config.AmqpConfig
 
-  @Configuration   public class AmqpConfig {        //创建一个名字为BootDirectExchange的交换机     @Bean     public DirectExchange myChange(){       return new  DirectExchange("BootDirectExchange");     }  //创建一个名字为myQueueDirect的队列     @Bean     public Queue queue(){       return new Queue("myQueueDirect");     }     //将队列绑定到交换机，配置一个队列和交换机的绑定     @Bean("binding")  //参数1 为自定义队列对象，参数名queue为自定义队列Bean 的id  //参数 2 为自定义的交换机，参数名myChange 为自定义交换机Bean 的id     public Binding binding(Queue  queue,Exchange myChange){  // 将队列绑定到交换机，参数BootRouting为RoutingKey       return  BindingBuilder.bind(queue).to(myChange).with("BootRouting  ").noargs();     }   }  
+```java
+@Configuration
+public class AmqpConfig {
 
- 
+//创建一个名字为BootDirectExchange的交换机
+    @Bean
+    public DirectExchange myChange(){
+        return new DirectExchange("BootDirectExchange");
+    }
+//创建一个名字为myQueueDirect的队列
+    @Bean
+    public Queue queue(){
+        return new Queue("myQueueDirect");
+    }
+
+//将队列绑定到交换机，配置一个队列和交换机的绑定
+    @Bean("binding")
+//参数1 为自定义队列对象，参数名queue为自定义队列Bean 的id
+//参数 2 为自定义的交换机，参数名myChange 为自定义交换机Bean 的id
+    public Binding binding(Queue queue,Exchange myChange){
+// 将队列绑定到交换机，参数BootRouting为RoutingKey
+        return BindingBuilder.bind(queue).to(myChange).with("BootRouting ").noargs();
+    }
+}
+```
+
+
 
 运行测试Receive消息接收，编写Application.java类
 
-  @SpringBootApplication   public class Application {     public static void main(String[]  args) {       SpringApplication.run(Application.class,  args);     }   }  
+```java
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
 
- 
+**只能接受一次，执行一次接受一次，不能不间断的接受**
 
-只能接受一次，执行一次接受一次，不能不间断的接受
-
- 
-
-如果当前监听方法正常结束spring就会启动自动确认消息，如果出现异常则不会确认消息，因此在消息处理时我们要做好消息的防止重复处理工作。
+**如果当前监听方法正常结束spring就会启动自动确认消息，如果出现异常则不会确认消息，因此在消息处理时我们要做好消息的防止重复处理工作。**
 
  
 
 ## 4.4   Fanout模式消息发送和接收
-
- 
 
 多个接受者可以
 
@@ -1113,59 +1333,99 @@ basicNack()：可以一次拒绝N条消息，客户端可以设置basicNack方�
 
 在02-rabbitmq-springboot-send模块中创建类，com.bjpowernode.fanout.Send
 
- 
-
-  @Service   public class Send {     //自动注入Amqp的模板对象     @Resource     private AmqpTemplate template;     public void fanoutSend(){  //发送消息  //参数 1 为交换机名称  //参数 2 为Routingkey ，由于Fanout不需要绑定RoutingKey因此可以为空  //参数 3 为具体的消息内容         template.convertAndSend("BootFanoutExchange","","SpringBootFanout");     }   }  
-
- 
-
- 
+```java
+@Service
+public class Send {
+    //自动注入Amqp的模板对象
+    @Resource
+    private AmqpTemplate template;
+    public void fanoutSend(){
+//发送消息
+//参数 1 为交换机名称
+//参数 2 为Routingkey ，由于Fanout不需要绑定RoutingKey因此可以为空
+//参数 3 为具体的消息内容
+        template.convertAndSend("BootFanoutExchange","","SpringBootFanout");
+    }
+}
+```
 
 修改Amqp配置类com.bjpowernode.rabbitmq.config.AmqpConfig，增加以下内容
 
-  //创建交换机  @Bean   public FanoutExchange fanoutExchange(){  //创建一个基于Fanout的交换机 名字为BootFanoutExchange     return new FanoutExchange("BootFanoutExchange");   }  
-
- 
-
- 
+```java
+//创建交换机
+@Bean
+public FanoutExchange fanoutExchange(){
+//创建一个基于Fanout的交换机 名字为BootFanoutExchange
+    return new FanoutExchange("BootFanoutExchange");
+}
+```
 
 运行测试Direct消息发送，编写Application.java类
 
-  @SpringBootApplication   public class Application {     public static void main(String[]  args) {      ApplicationContext ac=  SpringApplication.run(Application.class, args);      Send send= (Send)  ac.getBean("send");      send.fanoutSend();     }   }  
+```java
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+      ApplicationContext ac= SpringApplication.run(Application.class, args);
+      Send send= (Send) ac.getBean("send");
+      send.fanoutSend();
+    }
+}
+```
 
- 
 
- 
 
 ### 4.4.2 消息接收
 
 在02-rabbitmq-springboot-receive模块中创建类，com.bjpowernode.fanout.Receove
 
- 
+ ```java
+@Service
+public class Receive {
+    @RabbitListener(queues ="fanoutQueue")
+    public void fanoutReceive(String message){
+        System.out.println("Boot的Fanout消息----"+message);
+    }
+}
+ ```
 
-  @Service   public class Receive {     @RabbitListener(queues  ="fanoutQueue")     public void fanoutReceive(String  message){         System.out.println("Boot的Fanout消息----"+message);     }   }            
 
- 
-
- 
 
 修改Amqp配置类com.bjpowernode.rabbitmq.config.AmqpConfig，增加以下内容
 
-  //创建一个名字为 fanoutQueue的队列  @Bean   public Queue fanoutQueue(){     return new  Queue("fanoutQueue");   }  //创建一个名字为 BootFanoutExchange的交换机   @Bean   public FanoutExchange fanoutExchange(){     return new  FanoutExchange("BootFanoutExchange");   }     @Bean   public Binding fanoutBinding(Queue  fanoutQueue,FanoutExchange fanoutExchange){     //将队列绑定到指定的交换机上  //参数1 为指定的队列对象  //参数2 为指定的交换机对象     return  BindingBuilder.bind(fanoutQueue).to(fanoutExchange);   }     
+```java
+//创建一个名字为 fanoutQueue的队列
+@Bean
+public Queue fanoutQueue(){
+    return new Queue("fanoutQueue");
+}
+//创建一个名字为 BootFanoutExchange的交换机
+@Bean
+public FanoutExchange fanoutExchange(){
+    return new FanoutExchange("BootFanoutExchange");
+}
 
- 
-
- 
+@Bean
+public Binding  fanoutBinding(Queue fanoutQueue,FanoutExchange fanoutExchange){
+   //将队列绑定到指定的交换机上
+//参数1 为指定的队列对象
+//参数2 为指定的交换机对象
+    return BindingBuilder.bind(fanoutQueue).to(fanoutExchange);
+}
+```
 
 运行测试Receive消息接收，编写Application.java类
 
-  @SpringBootApplication   public class Application {     public static void main(String[]  args) {       SpringApplication.run(Application.class,  args);     }   }  
+```java
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
 
- 
 
- 
-
- 
 
 ## 4.5   Topic模式消息发送和接收
 
@@ -1173,57 +1433,119 @@ basicNack()：可以一次拒绝N条消息，客户端可以设置basicNack方�
 
 在02-rabbitmq-springboot-send模块中创建类，com.bjpowernode.topic.Send
 
- 
-
-  @Service   public class Send {     //自动注入Amqp的模板对象     @Resource     private AmqpTemplate template;  public void topicSend(){  //发送消息  //参数 1 为交换机名称  //参数 2 为Routingkey   //参数 3 为具体的消息内容         template.convertAndSend("BootTopicExchange","Boot.text","SpringBootTopic");     }   }                                   
-
- 
-
- 
+ ```java
+@Service
+public class Send {
+    //自动注入Amqp的模板对象
+    @Resource
+    private AmqpTemplate template;
+public void topicSend(){
+//发送消息
+//参数 1 为交换机名称
+//参数 2 为Routingkey 
+//参数 3 为具体的消息内容
+        template.convertAndSend("BootTopicExchange","Boot.text","SpringBootTopic");
+    }
+}
+ ```
 
 修改Amqp配置类com.bjpowernode.rabbitmq.config.AmqpConfig，增加以下内容
 
-  //创建交换机  @Bean   public TopicExchange topicExchange(){    return new  TopicExchange("BootTopicExchange");   }     
+```java
+//创建交换机
+@Bean
+public TopicExchange topicExchange(){
+  return new TopicExchange("BootTopicExchange");
+}
+```
 
- 
 
- 
 
 运行测试Direct消息发送，编写Application.java类
 
-  @SpringBootApplication   public class Application {     public static void main(String[]  args) {      ApplicationContext ac=  SpringApplication.run(Application.class, args);      Send send= (Send)  ac.getBean("send");      send. topicSend ();     }   }  
-
- 
-
- 
+```java
+@Service
+public class Receive {
+    @RabbitListener(queues ="topicQueue")
+    public void topicReceive(String message){
+        System.out.println("Boot的Fanout消息111----"+message);
+    }
+@RabbitListener(queues ="topicQueue2")
+    public void fanoutReceive 02(String message){
+        System.out.println("Boot的Fanout消息222----"+message);
+    }
+}
+```
 
 ### 4.5.2 消息接收
 
 在02-rabbitmq-springboot-receive模块中创建类，com.bjpowernode.topic.Receove
 
- 
+ ```java
+@Service
+public class Receive {
+    @RabbitListener(queues ="topicQueue")
+    public void topicReceive(String message){
+        System.out.println("Boot的Fanout消息111----"+message);
+    }
+@RabbitListener(queues ="topicQueue2")
+    public void fanoutReceive 02(String message){
+        System.out.println("Boot的Fanout消息222----"+message);
+    }
+}
 
-  @Service   public class Receive {     @RabbitListener(queues  ="topicQueue")     public void topicReceive(String  message){       System.out.println("Boot的Fanout消息111----"+message);     }  @RabbitListener(queues  ="topicQueue2")     public void fanoutReceive 02(String  message){        System.out.println("Boot的Fanout消息222----"+message);     }   }                  
+ ```
 
- 
 
- 
 
 修改Amqp配置类com.bjpowernode.rabbitmq.config.AmqpConfig，增加以下内容
 
-  //创建交换机，  @Bean   public TopicExchange TopicExchange(){  //创建一个名为BootTopicExchange的Topic的交换机     return new TopicExchange("BootTopicExchange");   }  //创建队列   @Bean   public Queue topicQueue(){     return new  Queue("topicQueue");   }  //创建队列   @Bean   public Queue topicQueue2(){     return new  Queue("topicQueue2");   }  //绑定队列到交换机   @Bean   public Binding topicBinding(Queue  topicQueue,TopicExchange topicExchange){     //将队列绑定到指定交换机  //参数1 为指定队列对象  //参数2 为指定的交换机对象  //参数3 为RoutingKey的匹配规则，Boot.#表示 可以接收以Boot开头的任意子孙路径下的队列  Return  BindingBuilder.bind(topicQueue).to(topicExchange).with("Boot.#");   }   @Bean   public Binding topicBinding2(Queue topicQueue2,TopicExchange  topicExchange){      //将队列绑定到指定交换机  //参数1 为指定队列对象  //参数2 为指定的交换机对象  //参数3 为RoutingKey的匹配规则，#.test表示 可以接收以任意路径靠头的但是必须以test结尾的队列     return  BindingBuilder.bind(topicQueue2).to(topicExchange).with("#.text");   }  
-
- 
-
- 
+```java
+//创建交换机，
+@Bean
+public TopicExchange TopicExchange(){
+//创建一个名为BootTopicExchange的Topic的交换机
+    return new TopicExchange("BootTopicExchange");
+}
+//创建队列
+@Bean
+public Queue topicQueue(){
+    return new Queue("topicQueue");
+}
+//创建队列
+@Bean
+public Queue topicQueue2(){
+    return new Queue("topicQueue2");
+}
+//绑定队列到交换机
+@Bean
+public Binding  topicBinding(Queue topicQueue,TopicExchange topicExchange){
+    //将队列绑定到指定交换机
+//参数1 为指定队列对象
+//参数2 为指定的交换机对象
+//参数3 为RoutingKey的匹配规则，Boot.#表示 可以接收以Boot开头的任意子孙路径下的队列
+Return BindingBuilder.bind(topicQueue).to(topicExchange).with("Boot.#");
+}
+@Bean
+public Binding  topicBinding2(Queue topicQueue2,TopicExchange topicExchange){
+    //将队列绑定到指定交换机
+//参数1 为指定队列对象
+//参数2 为指定的交换机对象
+//参数3 为RoutingKey的匹配规则，#.test表示 可以接收以任意路径靠头的但是必须以test结尾的队列
+    return BindingBuilder.bind(topicQueue2).to(topicExchange).with("#.text");
+}
+```
 
 运行测试Receive消息接收，编写Application.java类
 
-  @SpringBootApplication   public class Application {     public static void main(String[]  args) {         SpringApplication.run(Application.class, args);     }   }  
-
- 
-
- 
+```java
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
 
  
 
@@ -1414,16 +1736,6 @@ Erlang Cookie是保证不同节点可以互相通信的秘钥,要保证集群中
 修改SpringBoot的application.properties文件进行集群的继承
 
   #spring.rabbitmq.port=5672  #配置RabbitMQ的集群访问地址   spring.rabbitmq.addresses=192.168.222.129:5672,192.168.222.130:5672   #配置RabbitMQ服务器的访问账号   spring.rabbitmq.username=root   #配置RabbitMQ服务器的访问密码   spring.rabbitmq.password=root  
-
- 
-
- 
-
- 
-
- 
-
- 
 
  
 
