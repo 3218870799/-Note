@@ -43,14 +43,31 @@ Java.lang.ClassLoader的之类，用户可以定制的加载方式。
 
 一个JVM实例只存在一个堆内存，堆内存的大小是可以调节的。类加载器读取了类文件后，需要把类，方法，穿变量放到堆内存中，New创建对象在堆内存
 
-，
-
-它是JVM管理的内存中最大的一块区域，堆内存和方法区都被所有线程共享，在虚拟机启动时创建。在垃圾收集的层面上来看，由于现在收集器基本上都采用分代收集算法，因此堆还可以分为新生代（YoungGeneration）和老年代（OldGeneration），新生代还可以分为Eden、From
-Survivor、To Survivor。
+它是JVM管理的内存中最大的一块区域，堆内存和方法区都被所有线程共享，在虚拟机启动时创建。在垃圾收集的层面上来看，由于现在收集器基本上都采用分代收集算法，因此堆还可以分为新生代（YoungGeneration）和老年代（OldGeneration），新生代还可以分为Eden、FromSurvivor、To Survivor。
 
 JAVA1.7如下图，但在Java1.8中，其他基本没变，只是将Perm变成了元空间
 
+
+
 ![](media/437ae1e416d81de526731a7645ce04e4.png)
+
+
+
+### 3.1：新生代
+
+在方法中去new一个对象，那这方法调用完毕后，对象就会被回收，这就是一个典型的新生代对象。
+
+新生代中的对象98%都是“朝生夕死”的，所以并不需要按照1:1的比例来划分内存空间，而是将**内存分为一块比较大的Eden空间和两块较小的Survivor空间**，每次使用Eden和其中一块Survivor。当回收时，将Eden和Survivor中还存活着的对象一次性地复制到另外一块Survivor空间上，最后清理掉Eden和刚才用过的Survivor空间。
+
+**当Survivor空间不够用时，需要依赖于老年代进行分配担保，所以大对象直接进入老年代**。同时，**长期存活的对象将进入老年代**
+
+### 3.2：老年代
+
+
+
+### 3.3：永久代
+
+
 
 2：诊断
 
@@ -120,14 +137,15 @@ Roots之间没有可达路径，这些对象就被判了死刑。
 
 ![](media/3215444394f4149996b7cff89328d529.png)
 
-1：四种引用
+#### 1：四种引用
 
 （1）强引用 只有所有 GC Roots
-对象都不通过【强引用】引用该对象，该对象才能被垃圾回收
+对象都不通过【强引用】引用该对象，该对象才能被垃圾回收。
+
+当内存空间不足，Java虚拟机宁愿抛出OutOfMemoryError错误，使程序异常终止，也不会靠随意回收具有强引用的对象来解决内存不足的问题。
 
 （2） 软引用（SoftReference）
-仅有软引用引用该对象时，在垃圾回收后，内存仍不足时会再次出发垃圾回收，回收软引用
-对象 可以配合引用队列来释放软引用自身
+仅有软引用引用该对象时，在垃圾回收后，内存仍不足时会再次出发垃圾回收，回收软引用对象 可以配合引用队列来释放软引用自身。
 
 （3） 弱引用（WeakReference）
 仅有弱引用引用该对象时，在垃圾回收时，无论内存是否充足，都会回收弱引用对象
@@ -214,13 +232,18 @@ gc，STW的时 间更长
 
 图中展示了7种作用于不同分代的收集器，如果两个收集器之间存在连线，则说明它们可以搭配使用。虚拟机所处的区域则表示它是属于新生代还是老年代收集器。
 
-## （1）串行
+## （1）串行Serial
 
 单线程，堆内存较小，适合个人电脑
 
 \-XX:+UseSerialGC = Serial + SerialOld
 
 ![](media/530cde92773d69076884fef97e7f6b30.png)
+
+
+
+- 新生代采用复制算法，Stop-The-World
+- 老年代采用标记-整理算法，Stop-The-World
 
 ## （2）吞吐量优先——并行
 
@@ -233,6 +256,11 @@ gc，STW的时 间更长
 \-XX:ParallelGCThreads=n
 
 ![](media/e232c9b02a1cd063eb588f2329cce5cb.png)
+
+- 新生代采用复制算法，Stop-The-World
+- 老年代采用标记-整理算法，Stop-The-World
+
+停顿时间和吞吐量不可能同时调优。
 
 ## （3）响应时间优先
 
@@ -298,6 +326,8 @@ G1
 
 ## （5）CMS(并发标记清除)垃圾收集器
 
+老年代收集器
+
 以获取最短回收停顿时间
 
 “Concurrent”并发是指垃圾收集的线程和用户执行的线程是可以同时执行的。
@@ -307,6 +337,10 @@ CMS是基于“标记-清除”算法实现的，整个过程分为4个步骤：
 2、并发标记（CMS concurrent mark）。
 3、重新标记（CMS remark）。
 4、并发清除（CMS concurrent sweep）。
+
+![89af7bbc-5331-4c62-ab7e-18e93350f826](media/641601-20150915141621148-1908245224.png)
+
+上图中，初始标记和重新标记时，需要stop the world。整个过程中耗时最长的是并发标记和并发清除，这两个过程都可以和用户线程一起工作。
 
 缺点：
 1、CMS收集器对CPU资源非常敏感。
@@ -526,3 +560,241 @@ B）来了，会告知（线程A）有并发访问，线程 A
 5.检查List、MAP等集合对象是否有使用完后，未清除的问题。List、MAP等集合对象会始终存有对对象的引用，使得这些对象不能被GC回收。
 
 第四步，使用内存查看工具动态查看内存使用情况
+
+
+
+# 五：常用JVM配置参数
+
+1：在IDE的后台打印GC日志
+
+Eclipse设置
+
+![d32742cf-b002-4c55-a185-d4ccdc90a69c](media/171129239884226.png)
+
+![bc5b8afb-9d1f-438b-9225-ee7fbbbe2454](media/171129257698181.png)
+
+箭头处加上**-XX:+PrintGCDetails**这句话
+
+
+
+IDEA设置
+
+![94726055-e81f-45b8-8978-d1277c5acb17](media/171129297858722.png)
+
+![f2c896da-404c-4415-98ef-5b582dec3528](media/171129312389478.png)
+
+箭头处加上**-XX:+PrintGCDetails**这句话
+
+## 5.1：Trace跟踪打印
+
+1、打印GC的简要信息：
+
+```
+-verbose:gc
+-XX:+printGC
+```
+
+解释：可以打印GC的简要信息。比如：
+
+[GC 4790K->374K(15872K), 0.0001606 secs]
+
+[GC 4790K->374K(15872K), 0.0001474 secs]
+
+[GC 4790K->374K(15872K), 0.0001563 secs]
+
+[GC 4790K->374K(15872K), 0.0001682 secs]
+
+上方日志的意思是说，GC之前，用了4M左右的内存，GC之后，用了374K内存，一共回收了将近4M。内存大小一共是16M左右。
+
+ 
+
+**2、打印GC的详细信息：**
+
+```
+-XX:+PrintGCDetails
+```
+
+解释：打印GC详细信息。
+
+```
+-XX:+PrintGCTimeStamps
+```
+
+解释：打印CG发生的时间戳。
+
+ 
+
+**理解GC日志的含义：**
+
+**例如下面这段日志：**
+
+[GC[DefNew: 4416K->0K(4928K), 0.0001897 secs] 4790K->374K(15872K), 0.0002232 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+
+上方日志的意思是说：这是一个新生代的GC。方括号内部的“4416K->0K(4928K)”含义是：“GC前该**内存区域**已使用容量->GC后该内存区域已使用容量（该内存区域总容量）”。而在方括号之外的“4790K->374K(15872K)”表示“GC前**Java堆**已使用容量->GC后Java堆已使用容量（Java堆总容量）”。
+
+再往后看，“0.0001897 secs”表示该内存区域GC所占用的时间，单位是秒。
+
+ 
+
+**再比如下面这段GC日志：**
+
+![1fe41f36-cc6b-4a8b-b48e-8cbe2e3a04af](media/171129348949360.png)
+
+上图中，我们先看一下用红框标注的“[0x27e80000, 0x28d80000, 0x28d80000)”的含义，它表示新生代在内存当中的位置：第一个参数是申请到的起始位置，第二个参数是申请到的终点位置，第三个参数表示最多能申请到的位置。上图中的例子表示新生代申请到了15M的控件，而这个**15M是等于：（eden space的12288K）+（from space的1536K）+（to space的1536K）**。
+
+疑问：**分配到的新生代有15M，但是可用的只有13824K**，为什么会有这个差异呢？等我们在后面的文章中学习到了GC算法之后就明白了。
+
+ 
+
+**3、指定GC log的位置：**
+
+```
+-Xloggc:log/gc.log
+```
+
+解释：**指定GC log的位置，以文件输出**。帮助开发人员分析问题。
+
+[![805e8e33-1e3b-46c0-af9d-d68f4d38816f](media/171129362381618.png)
+
+ 
+
+```
+-XX:+PrintHeapAtGC
+```
+
+解释：每一次GC前和GC后，都打印堆信息。
+
+例如：
+
+![1c6f3837-4b31-4ac2-a639-e79c92f80df5](media/171129379106073.png)
+
+上图中，红框部分正好是一次GC，红框部分的前面是GC之前的日志，红框部分的后面是GC之后的日志。
+
+ 
+
+```
+-XX:+TraceClassLoading
+```
+
+解释：监控类的加载。
+
+例如：
+
+> [Loaded java.lang.Object from shared objects file]
+>
+> [Loaded java.io.Serializable from shared objects file]
+>
+> [Loaded java.lang.Comparable from shared objects file]
+>
+> [Loaded java.lang.CharSequence from shared objects file]
+>
+> [Loaded java.lang.String from shared objects file]
+>
+> [Loaded java.lang.reflect.GenericDeclaration from shared objects file]
+>
+> [Loaded java.lang.reflect.Type from shared objects file]
+
+```
+-XX:+PrintClassHistogram
+```
+
+ 
+
+解释：按下Ctrl+Break后，打印类的信息。
+
+例如：
+
+![c8050739-0029-47cd-95bd-fbbd6289a5d1](media/171129389254130.png)
+
+##  5.2：堆的分配参数
+
+#### 1、-Xmx –Xms
+
+指定最大堆和最小堆
+
+
+
+#### 2、-Xmn、-XX:NewRatio、-XX:SurvivorRatio：
+
+- -Xmn
+
+　　　　**设置新生代大小**
+
+- -XX:NewRatio
+
+　　　　新生代（eden+2*s）和老年代（不包含永久区）的比值
+
+  　　　　例如：4，表示新生代:老年代=1:4，即新生代占整个堆的1/5
+
+- -XX:SurvivorRatio（幸存代）
+
+　　　　设置两个Survivor区和eden的比值
+
+  　　　　例如：8，表示两个Survivor:eden=2:8，即一个Survivor占年轻代的1/10
+
+
+
+#### 3、-XX:+HeapDumpOnOutOfMemoryError、-XX:+HeapDumpPath
+
+- **-XX:+HeapDumpOnOutOfMemoryError**
+
+　　　　OOM时导出堆到文件
+
+　　　　　　根据这个文件，我们可以看到系统dump时发生了什么。
+
+- -XX:+HeapDumpPath
+
+　　　　导出OOM的路径
+
+## 5.3：栈的分配参数
+
+**1、Xss：**
+
+> 设置栈空间的大小。通常只有几百K
+>
+> 　　决定了函数调用的深度
+>
+> 　　每个线程都有独立的栈空间
+>
+> 　　局部变量、参数 分配在栈上
+
+注：栈空间是每个线程私有的区域。栈里面的主要内容是栈帧，而栈帧存放的是局部变量表，局部变量表的内容是：局部变量、参数。
+
+我们来看下面这段代码：（没有出口的递归调用）
+
+```java
+public class TestStackDeep {
+    private static int count = 0;
+    public static void recursion(long a, long b, long c) {
+        long e = 1, f = 2, g = 3, h = 4, i = 5, k = 6, q = 7, x = 8, y = 9, z = 10;
+        count++;
+        recursion(a, b, c);
+    }
+    public static void main(String args[]) {
+        try {
+            recursion(0L, 0L, 0L);
+        } catch (Throwable e) {
+            System.out.println("deep of calling = " + count);
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+上方这段代码是没有出口的递归调用，肯定会出现OOM的。
+
+如果设置栈大小为128k：
+
+```
+-Xss128K 
+```
+
+运行效果如下：（方法被调用了294次）
+
+![5c2b2060-e54a-4e7c-9a30-81567204d55b](media/171130061135723.png)
+
+如果设置栈大小为256k：（方法被调用748次）
+
+![7d6be7d6-b646-42bf-9357-1a3bccbb7a49](media/171130069886823.png)
+
+意味着函数调用的次数太深，像这种递归调用就是个典型的例子。
