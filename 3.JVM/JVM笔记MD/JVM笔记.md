@@ -798,3 +798,10 @@ public class TestStackDeep {
 ![7d6be7d6-b646-42bf-9357-1a3bccbb7a49](media/171130069886823.png)
 
 意味着函数调用的次数太深，像这种递归调用就是个典型的例子。
+
+# 六：VisualVM的使用
+
+## 性能分析的主要方式
+
+## 安装
+
