@@ -2843,138 +2843,81 @@ Mybatis中缓存分为一级缓存，二级缓存。
 
 编写用户持久层**Dao**接口
 
-/\*\*
-
-\*
-
-\* \<p\>Title: IUserDao\</p\>
-
-\* \<p\>Description: 用户的业务层接口\</p\>
-
-\* \<p\>Company: http://www.itheima.com/ \</p\>
-
-\*/
-
-**public interface** IUserDao {
-
-/\*\*
-
-\* 根据id查询
-
-\* **\@param** userId
-
-\* **\@return**
-
-\*/
-
-User findById(Integer userId);
-
-}
+```java
+public interface IUserDao { 
+/** 
+* 根据id查询 
+* @param userId 
+* @return 
+*/ 
+User findById(Integer userId); 
+} 
+```
 
 编写用户持久层映射文件
 
-\<?xml version=*"1.0"* encoding=*"UTF-8"*?\>
+```xml
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.itheima.dao.IUserDao"> 
+<!-- 根据id查询 --> 
+<select id="findById" resultType="UsEr" parameterType="int" useCache="true"> 
+select * from user where id = #{uid} 
+</select> 
+</mapper> 
 
-\<!DOCTYPE mapper
-
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd"\>
-
-\<mapper namespace=*"com.itheima.dao.IUserDao"*\>
-
-\<!-- 根据id查询 --\>
-
-\<select id=*"findById"* resultType=*"UsEr"* parameterType=*"int"*
-useCache=*"true"*\>
-
-select \* from user where id = \#{uid}
-
-\</select\>
-
-\</mapper\>
+```
 
 编写测试方法
 
-/\*\*
-
-\*
-
-\* \<p\>Title: MybastisCRUDTest\</p\>
-
-\* \<p\>Description: 一对多的操作\</p\>
-
-\* \<p\>Company: http://www.itheima.com/ \</p\>
-
-\*/
-
-**public class** UserTest {
-
-**private** InputStream in ;
-
-**private** SqlSessionFactory factory;
-
-**private** SqlSession session;
-
-**private** IUserDao userDao;
-
-\@Test
-
-**public void** testFindById() {
-
+```java
+/** 
+* 
+* <p>Title: MybastisCRUDTest</p> 
+* <p>Description: 一对多的操作</p> 
+* <p>Company: http://www.itheima.com/ </p> 
+*/ 
+public class UserTest { 
+private InputStream in ; 
+private SqlSessionFactory factory; 
+private SqlSession session; 
+private IUserDao userDao; 
+@Test 
+public void testFindById() { 
 //6.执行操作
+ 
+User user = userDao.findById(41); 
+System.out.println("第一次查询的用户："+user); 
+User user2 = userDao.findById(41); 
+System.out.println("第二次查询用户："+user2); 
+System.out.println(user == user2); 
+} 
+ 
+@Before//在测试方法执行之前执行 
+public void init()throws Exception { 
+//1.读取配置文件 
+in = Resources.getResourceAsStream("SqlMapConfig.xml"); 
+//2.创建构建者对象 
+SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder(); 
+//3.创建SqlSession工厂对象 
+factory = builder.build(in); 
+//4.创建SqlSession对象 
+session = factory.openSession(); 
+//5.创建Dao的代理对象 
+userDao = session.getMapper(IUserDao.class); 
+} 
+ 
+@After//在测试方法执行完成之后执行 
+public void destroy() throws Exception{ 
+//7.释放资源 
+session.close(); 
+in.close(); 
+} 
+} 
 
-User user = userDao.findById(41);
-
-System.**out**.println("第一次查询的用户："+user);
-
-User user2 = userDao.findById(41);
-
-System.**out**.println("第二次查询用户："+user2);
-
-System.**out**.println(user == user2);
-
-}
-
-\@Before//在测试方法执行之前执行
-
-**public void** init()**throws** Exception {
-
-//1.读取配置文件
-
-in = Resources.*getResourceAsStream*("SqlMapConfig.xml");
-
-//2.创建构建者对象
-
-SqlSessionFactoryBuilder builder = **new** SqlSessionFactoryBuilder();
-
-//3.创建SqlSession工厂对象
-
-factory = builder.build(in);
-
-//4.创建SqlSession对象
-
-session = factory.openSession();
-
-//5.创建Dao的代理对象
-
-userDao = session.getMapper(IUserDao.**class**);
-
-}
-
-\@After//在测试方法执行完成之后执行
-
-**public void** destroy() **throws** Exception{
-
-//7.释放资源
-
-session.close();
-
-in.close();
-
-}
-
-}
+```
 
 测试结果如下：
 
@@ -2982,9 +2925,7 @@ in.close();
 
 ### 1.2 一级缓存的分析 
 
-一级缓存是SqlSession范围的缓存，当调用SqlSession的修改，添加，删除，commit()，close()
-
-方法时，就会清空一级缓存。
+一级缓存是SqlSession范围的缓存，当调用SqlSession的修改，添加，删除，commit()，close()方法时，就会清空一级缓存。
 
 第一次发起查询用户id为1的用户信息，先去找缓存中是否有id为1的用户信息，如果没有，从数据库查询用户信息。
 
@@ -2996,70 +2937,69 @@ in.close();
 
 ### 1.3 测试一级缓存的清空 
 
-/\*\*
+测试一级缓存
 
-\* 测试一级缓存
-
-\*/
-
-\@Test
-
-**public void** testFirstLevelCache(){
-
-User user1 = userDao.findById(41);
-
-System.**out**.println(user1);
-
-// sqlSession.close();
-
-//再次获取SqlSession对象
-
-// sqlSession = factory.openSession();
-
-sqlSession.clearCache();//此方法也可以清空缓存
-
-userDao = sqlSession.getMapper(IUserDao.**class**);
-
-User user2 = userDao.findById(41);
-
-System.**out**.println(user2);
-
-System.**out**.println(user1 == user2);
-
+```java
+public class UserTest { 
+private InputStream in ; 
+private SqlSessionFactory factory; 
+private SqlSession session; 
+private IUserDao userDao; 
+@Test 
+public void testFindById() { 
+//6.执行操作
+ 
+User user = userDao.findById(41); 
+System.out.println("第一次查询的用户："+user); 
+User user2 = userDao.findById(41); 
+System.out.println("第二次查询用户："+user2); 
+System.out.println(user == user2); 
+} 
+ 
+@Before//在测试方法执行之前执行 
+public void init()throws Exception { 
+//1.读取配置文件 
+in = Resources.getResourceAsStream("SqlMapConfig.xml"); 
+//2.创建构建者对象 
+SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder(); 
+//3.创建SqlSession工厂对象 
+factory = builder.build(in); 
+//4.创建SqlSession对象 
+session = factory.openSession(); 
+//5.创建Dao的代理对象 
+userDao = session.getMapper(IUserDao.class); 
+} 
+ 
+@After//在测试方法执行完成之后执行 
+public void destroy() throws Exception{ 
+//7.释放资源 
+session.close(); 
+in.close(); 
+} 
 }
 
-测试缓存的同步
+```
 
-\@Test
+测试缓存同步
 
-**public void** testClearlCache(){
+```java
+@Test 
+public void testClearlCache(){ 
+//1.根据id查询用户 
+User user1 = userDao.findById(41); 
+System.out.println(user1); 
+//2.更新用户信息 
+user1.setUsername("update user clear cache"); 
+user1.setAddress("北京市海淀区"); 
+userDao.updateUser(user1); 
+//3.再次查询id为41的用户 
+User user2 = userDao.findById(41); 
+System.out.println(user2); 
+System.out.println(user1 == user2); 
+} 
+```
 
-//1.根据id查询用户
-
-User user1 = userDao.findById(41);
-
-System.**out**.println(user1);
-
-//2.更新用户信息
-
-user1.setUsername("update user clear cache");
-
-user1.setAddress("北京市海淀区");
-
-userDao.updateUser(user1);
-
-//3.再次查询id为41的用户
-
-User user2 = userDao.findById(41);
-
-System.**out**.println(user2);
-
-System.**out**.println(user1 == user2);
-
-}
-
-当执行sqlSession.close()后，再次获取sqlSession并查询id=41的User对象时，又重新执行了sql
-语句，从数据库进行了查询操作。
+当执行sqlSession.close()后，再次获取sqlSession并查询id=41的User对象时，又重新执行了sql语句，从数据库进行了查询操作。
 
 ## 2 Mybatis二级缓存 
 
@@ -3073,8 +3013,7 @@ System.**out**.println(user1 == user2);
 
 sqlSession1去查询用户信息，查询到用户信息会将查询数据存储到二级缓存中。
 
-如果SqlSession3去执行相同 mapper映射下sql，执行commit提交，将会清空该
-mapper映射下的二级缓存区域的数据。
+如果SqlSession3去执行相同 mapper映射下sql，执行commit提交，将会清空该mapper映射下的二级缓存区域的数据。
 
 sqlSession2去查询与sqlSession1相同的用户信息，首先会去缓存中找是否存在数据，如果存在直接从缓存中取出数据。
 
@@ -3082,46 +3021,39 @@ sqlSession2去查询与sqlSession1相同的用户信息，首先会去缓存中�
 
 第一步：在**SqlMapConfig.xml**文件开启二级缓存
 
-\<settings\>
+```xml
+<settings> 
+<!-- 开启二级缓存的支持 --> 
+<setting name="cacheEnabled" value="true"/> 
+</settings> 
+```
 
-\<!-- 开启二级缓存的支持 --\>
-
-\<setting name=*"cacheEnabled"* value=*"true"*/\>
-
-\</settings\>
-
-因为cacheEnabled的取值默认就为true，所以这一步可以省略不配置。为true代表开启二级缓存；为false代表不开启二级缓存。
+因cacheEnabled的取值默认就为true，所以这一步可以省略不配置。为true代表开启二级缓存；为false代表不开启二级缓存。
 
 第二步：配置相关的**Mapper**映射文件
 
 \<cache\>标签表示当前这个mapper映射将使用二级缓存，区分的标准就看mapper的namespace值。
 
-\<?xml version=*"1.0"* encoding=*"UTF-8"*?\>
+```xml
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.itheima.dao.IUserDao"> 
+<!-- 开启二级缓存的支持 --> 
+<cache></cache> 
+</mapper> 
 
-\<!DOCTYPE mapper
-
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd"\>
-
-\<mapper namespace=*"com.itheima.dao.IUserDao"*\>
-
-\<!-- 开启二级缓存的支持 --\>
-
-**\<cache\>\</cache\>**
-
-\</mapper\>
+```
 
 第三步：配置**statement**上面的**useCache**属性
 
-\<!-- 根据id查询 --\>
-
-\<select id=*"findById"* resultType=*"user"* parameterType=*"int"*
-**useCache="true"**\>
-
-select \* from user where id = \#{uid}
-
-\</select\>
+```xml
+<!-- 根据id查询 --> 
+<select id="findById" resultType="user" parameterType="int" useCache="true"> 
+select * from user where id = #{uid} 
+</select> 
+```
 
 将UserDao.xml映射文件中的\<select\>标签中设置useCache=”true”代表当前这个statement要使用二级缓存，如果不使用二级缓存可以设置为false。
 
@@ -3129,77 +3061,44 @@ select \* from user where id = \#{uid}
 
 ### 2.3 二级缓存测试 
 
-/\*\*
+```java
+public class SecondLevelCacheTest { 
+private InputStream in; 
+private SqlSessionFactory factory; 
+@Before//用于在测试方法执行之前执行 
+public void init()throws Exception{ 
+//1.读取配置文件，生成字节输入流 
+in = Resources.getResourceAsStream("SqlMapConfig.xml"); 
+//2.获取SqlSessionFactory 
+factory = new SqlSessionFactoryBuilder().build(in); 
+} 
+@After//用于在测试方法执行之后执行 
+public void destroy()throws Exception{ 
+in.close(); 
+} 
 
-\* **\@author** 黑马程序员
+```
 
-\* **\@Company** http://www.ithiema.com
+测试二级缓存
 
-\*/
-
-**public class** SecondLevelCacheTest {
-
-**private** InputStream in;
-
-**private** SqlSessionFactory factory;
-
-\@Before//用于在测试方法执行之前执行
-
-**public void** init()**throws** Exception{
-
-//1.读取配置文件，生成字节输入流
-
-in = Resources.getResourceAsStream("SqlMapConfig.xml");
-
-//2.获取SqlSessionFactory
-
-factory = **new** SqlSessionFactoryBuilder().build(in);
-
+```java
+@Test 
+public void testFirstLevelCache(){ 
+SqlSession sqlSession1 = factory.openSession(); 
+IUserDao dao1 = sqlSession1.getMapper(IUserDao.class); 
+User user1 = dao1.findById(41); 
+System.out.println(user1); 
+sqlSession1.close();//一级缓存消失 
+SqlSession sqlSession2 = factory.openSession(); 
+IUserDao dao2 = sqlSession2.getMapper(IUserDao.class); 
+User user2 = dao2.findById(41); 
+System.out.println(user2); 
+sqlSession2.close(); 
+System.out.println(user1 == user2); 
+} 
 }
 
-\@After//用于在测试方法执行之后执行
-
-**public void** destroy()**throws** Exception{
-
-in.close();
-
-}
-
-/\*\*
-
-\* 测试一级缓存
-
-\*/
-
-\@Test
-
-**public void** testFirstLevelCache(){
-
-SqlSession sqlSession1 = factory.openSession();
-
-IUserDao dao1 = sqlSession1.getMapper(IUserDao.**class**);
-
-User user1 = dao1.findById(41);
-
-System.**out**.println(user1);
-
-sqlSession1.close();//一级缓存消失
-
-SqlSession sqlSession2 = factory.openSession();
-
-IUserDao dao2 = sqlSession2.getMapper(IUserDao.**class**);
-
-User user2 = dao2.findById(41);
-
-System.**out**.println(user2);
-
-sqlSession2.close();
-
-System.**out**.println(user1 == user2);
-
-}
-
-}
+```
 
 经过上面的测试，我们发现执行了两次查询，并且在执行第一次查询后，我们关闭了一级缓存，再去执行第二次查询时，我们发现并没有对数据库发出sql语句，所以此时的数据就只能是来自于我们所说的二级缓存。
 
@@ -3207,21 +3106,13 @@ System.**out**.println(user1 == user2);
 
 当我们在使用二级缓存时，所缓存的类一定要实现java.io.Serializable接口，这种就可以使用序列化方式来保存对象。
 
-/\*\*
-
-\*
-
-\* \<p\>Title: User\</p\>
-
-\* \<p\>Description: 用户的实体类\</p\>
-
-\* \<p\>Company: http://www.itheima.com/ \</p\>
-
-\*/
-
-**public class** User **implements Serializable** {
-
+```java
+public class User implements Serializable { 
 }
+
+```
+
+
 
 # 第6章：注解开发
 
@@ -4045,23 +3936,30 @@ List\<Account\> accounts = accountDao.findAll();
 
 ### 1 在SqlMapConfig中开启二级缓存支持 
 
-\<!-- 配置二级缓存 --\>
+```xml
+<!-- 配置二级缓存 -->
 
-\<settings\>
+<settings>
 
-\<!-- 开启二级缓存的支持 --\>
+<!-- 开启二级缓存的支持 -->
 
-\<setting name=*"cacheEnabled"* value=*"true"*/\>
+<setting name=*"cacheEnabled"* value=*"true"*>
 
-\</settings\>
+</setting>
+    
+```
+
+
 
 在持久层接口中使用注解配置二级缓存
 
-\@CacheNamespace(blocking=**true**)
-
+```java
+@CacheNamespace(blocking=true)
 //mybatis基于注解方式实现配置二级缓存
+Public interface IuserDao {}
+```
 
-**Public interface** IuserDao {}
+
 
 
 
