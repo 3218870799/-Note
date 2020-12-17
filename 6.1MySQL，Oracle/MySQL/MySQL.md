@@ -577,7 +577,7 @@ insert into emp(empno, ename, job, mgr, hiredate, sal, comm, deptno) values(9995
 
 -   如何将查询的数据直接放到已经存在的表中，可以使用条件
 
-| insert into emp_bak select \* from emp where sal=3000; 
+ insert into emp_bak select \* from emp where sal=3000; 
 
 
 ![](media/61e7740c576a27a71b62ecdea97376b1.png)
@@ -689,7 +689,25 @@ mysql\> select \* from table_constraints where table_name = 't_student';
 
 每个表应该具有主键，主键可以标识记录的唯一性，主键分为单一主键和复合（联合）主键，单一主键是由一个字段构成的，复合（联合）主键是由多个字段构成的
 
-drop table if exists t_student;  create table t_student()  student_id int(10) primary key,/\*列级约束\*/  student_name varchar(20) not null,  sex char(2) default 'm',  birthday date,   email varchar(30) ,  classes_id int(3)  ) insert into t_student(student_id, student_name , sex, birthday, email, classes_id)  values (1001,'zhangsan','m', '1988-01-01', 'qqq\@163.com', 10) 
+drop table if exists t_student; 
+
+ create table t_student()  
+
+student_id int(10) primary key,
+
+/\*列级约束\*/  
+
+student_name varchar(20) not null,  
+
+sex char(2) default 'm', 
+
+ birthday date,   
+
+email varchar(30) , 
+
+classes_id int(3)  ) 
+
+insert into t_student(student_id, student_name , sex, birthday, email, classes_id)  values (1001,'zhangsan','m', '1988-01-01', 'qqq\@163.com', 10) 
 
 
 向以上表中加入学号为1001的两条记录，出现如下错误，因为加入了主键约束
@@ -698,11 +716,27 @@ drop table if exists t_student;  create table t_student()  student_id int(10) pr
 
 我们也可以通过表级约束为约束起个名称：
 
-| drop table if exists t_student;  create table t_student(  student_id int(10),  student_name varchar(20) not null,  sex char(2) default 'm',  birthday date,   email varchar(30) ,  classes_id int(3),  CONSTRAINT p_id PRIMARY key (student_id) ) insert into t_student(student_id, student_name , sex, birthday, email, classes_id)  values (1001,'zhangsan','m', '1988-01-01', 'qqq\@163.com', 10) |
-|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+ drop table if exists t_student;  
 
+create table t_student( 
 
-#### 13.4.4、外键约束，foreign key
+ student_id int(10),  
+
+student_name varchar(20) not null,  
+
+sex char(2) default 'm',  
+
+birthday date,   
+
+email varchar(30) ,  
+
+classes_id int(3),  
+
+CONSTRAINT p_id PRIMARY key (student_id) 
+
+) 
+
+insert into t_student(student_id, student_name , sex, birthday, email, classes_id)  values (1001,'zhangsan','m', '1988-01-01', 'qqq\@163.com', 10) 
 
 外键主要是维护表之间的关系的，主要是为了保证参照完整性，如果表中的某个字段为外键字段，那么该字段的值必须来源于参照的表的主键，如：emp中的deptno值必须来源于dept表中的deptno字段值。
 
@@ -710,20 +744,20 @@ drop table if exists t_student;  create table t_student()  student_id int(10) pr
 
 首先建立班级表t_classes
 
-| drop table if exists t_classes; create table t_classes(  classes_id int(3),  classes_name varchar(40),  constraint pk_classes_id primary key(classes_id) ) |
-|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| drop table if exists t_classes; 
+
+create table t_classes(  classes_id int(3),  classes_name varchar(40),  constraint pk_classes_id primary key(classes_id) ) |
+
 
 
 在t_student中加入外键约束
 
 | drop table if exists t_student; create table t_student(  student_id int(10),  student_name varchar(20),  sex char(2),  birthday date,  email varchar(30),  classes_id int(3),  constraint student_id_pk primary key(student_id), constraint fk_classes_id foreign key(classes_id) references t_classes(classes_id)  ) |
-|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 
 向t_student中加入数据
 
 | insert into t_student(student_id, student_name, sex, birthday, email, classes_id) values(1001, 'zhangsan', 'm', '1988-01-01', 'qqq\@163.com', 10) |
-|---------------------------------------------------------------------------------------------------------------------------------------------------|
 
 
 ![](media/fae6477d97a065ef670706d3cccefbca.png)
@@ -736,8 +770,7 @@ drop table if exists t_student;  create table t_student()  student_id int(10) pr
 
 以上成功的插入了学生信息，当时classes_id没有值，这样会影响参照完整性，所以我们建议将外键字段设置为非空
 
-| drop table if exists t_student; create table t_student(  student_id int(10),  student_name varchar(20),  sex char(2),  birthday date,  email varchar(30),  classes_id int (3) not null,  constraint student_id_pk primary key(student_id),  constraint fk_classes_id foreign key(classes_id) references t_classes(classes_id)  ) insert into t_student(student_id, student_name, sex, birthday, email, cla sses_id) values(1001, 'zhangsan', 'm', '1988-01-01', 'qqq\@163.com', null); |
-|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| drop table if exists t_student; create table t_student(  student_id int(10),  student_name varchar(20),  sex char(2),  birthday date,  email varchar(30),  classes_id int (3) not null,  constraint student_id_pk primary key(student_id),  constraint fk_classes_id foreign key(classes_id) references t_classes(classes_id)  ) insert into t_student(student_id, student_name, sex, birthday, email, cla sses_id) values(1001, 'zhangsan', 'm', '1988-01-01', 'qqq\@163.com', null); 
 
 
 再次插入班级编号为null的数据
@@ -746,8 +779,15 @@ drop table if exists t_student;  create table t_student()  student_id int(10) pr
 
 添加数据到班级表，添加数据到学生表，删除班级数据，将会出现如下错误：
 
-| insert into t_classes (classes_id,classes_name) values (10,'366'); insert into t_student( student_id, student_name, sex, birthday, email, classes_id ) values( 1001, 'zhangsan', 'm', '1988-01-01', 'qqq\@163.com', 10 ) mysql\> update t_classes set classes_id = 20 where classes_name = '366'; [media/4a9d08a6e20422892104c933f2cb3882.png](media/4a9d08a6e20422892104c933f2cb3882.png) 因为子表（t_student）存在一个外键classes_id，它参照了父表（t_classes）中的主键，所以先删除子表中的引用记录，再修改父表中的数据。 我们也可以采取以下措施 级联更新。 mysql\> delete from t_classes where classes_id = 10; [media/1963d5bf9dc207fc9e77347a49724fd2.png](media/1963d5bf9dc207fc9e77347a49724fd2.png) 因为子表（t_student）存在一个外键classes_id，它参照了父表（t_classes）中的主键，所以先删除父表，那么将会影响子表的参照完整性，所以正确的做法是，先删除子表中的数据，再删除父表中的数据，采用drop table也不行，必须先drop子表，再drop父表 我们也可以采取以下措施 级联删除。 |
-|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| insert into t_classes (classes_id,classes_name) values (10,'366'); insert into t_student( student_id, student_name, sex, birthday, email, classes_id ) values( 1001, 'zhangsan', 'm', '1988-01-01', 'qqq\@163.com', 10 ) mysql\> update t_classes set classes_id = 20 where classes_name = '366';
+
+![media/4a9d08a6e20422892104c933f2cb3882.png](media/4a9d08a6e20422892104c933f2cb3882.png) 
+
+因为子表（t_student）存在一个外键classes_id，它参照了父表（t_classes）中的主键，所以先删除子表中的引用记录，再修改父表中的数据。 我们也可以采取以下措施 级联更新。 mysql\> delete from t_classes where classes_id = 10; 
+
+![media/1963d5bf9dc207fc9e77347a49724fd2.png](media/1963d5bf9dc207fc9e77347a49724fd2.png)
+
+ 因为子表（t_student）存在一个外键classes_id，它参照了父表（t_classes）中的主键，所以先删除父表，那么将会影响子表的参照完整性，所以正确的做法是，先删除子表中的数据，再删除父表中的数据，采用drop table也不行，必须先drop子表，再drop父表 我们也可以采取以下措施 级联删除。 
 
 
 #### 13.4.5、级联更新与级联删除
@@ -1199,7 +1239,7 @@ ERROR 1111 (HY000): Invalid use of group function
 
 -   取得所有的员工数
 
-| select count(\*) from emp; 
+select count(\*) from emp; 
 
 
 ![](media/05381aae01db48b07584a10063621b56.png)
