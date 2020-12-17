@@ -1386,34 +1386,48 @@ TreeMap是用键来进行升序顺序来排序的。通过Comparable 或 Compara
 2.  map.put("1", "value1"); 
 3.  map.put("2", "value2"); 
 4.  map.put("3", "value3"); 
-5.   
-6.  //第一种：普遍使用，由于二次取值,效率会比第二种和第三种慢一倍
-7.  System.out.println("通过Map.keySet遍历key和value："); 
-8.  **for** (String key : map.keySet()) { 
-9.   System.out.println("key= "+ key + " and value= " + map.get(key)); 
-10.  } 
-11.   
-12.  //第二种 
-13.  System.out.println("通过Map.entrySet使用iterator遍历key和value："); 
-14.  Iterator<Map.Entry<String, String>> it = map.entrySet().iterator(); 
-15.  **while** (it.hasNext()) { 
-16.   Map.Entry<String, String> entry = it.next(); 
-17.   System.out.println("key= " + entry.getKey() + " and value= " + entry.getValue()); 
-18.  } 
-19.   
-20.  //第三种：无法在for循环时实现remove等操作 
-21.  System.out.println("通过Map.entrySet遍历key和value"); 
-22.  **for** (Map.Entry<String, String> entry : map.entrySet()) { 
-23.   System.out.println("key= " + entry.getKey() + " and value= " + entry.getValue()); 
-24.  } 
-25.  
-26.  //第四种：只能获取values,不能获取key 
-27.  System.out.println("通过Map.values()遍历所有的value，但不能遍历key"); 
-28.  **for** (String v : map.values()) { 
-29.   System.out.println("value= " + v); 
-30.  } 
 
-  
+//第一种：普遍使用，由于二次取值,效率会比第二种和第三种慢一倍
+
+```java
+System.out.println("通过Map.keySet遍历key和value：");
+ **for** (String key : map.keySet()) { 
+ 		System.out.println("key= "+ key + " and value= " + map.get(key)); 
+ } 
+```
+
+//第二种 :通过Map.entrySet使用iterator遍历key和value
+
+```java
+ System.out.println("通过Map.entrySet使用iterator遍历key和value："); 
+ Iterator<Map.Entry<String, String>> it = map.entrySet().iterator(); 
+ **while** (it.hasNext()) { 
+ 		Map.Entry<String, String> entry = it.next(); 
+ 		System.out.println("key= " + entry.getKey() + " and value= " + entry.getValue()); 
+ } 
+```
+
+
+
+//第三种：无法在for循环时实现remove等操作 
+
+```java
+ System.out.println("通过Map.entrySet遍历key和value"); 
+ **for** (Map.Entry<String, String> entry : map.entrySet()) { 
+ 		System.out.println("key= " + entry.getKey() + " and value= " + entry.getValue()); 
+ } 
+```
+
+
+
+//第四种：只能获取values,不能获取key 
+
+```java
+System.out.println("通过Map.values()遍历所有的value，但不能遍历key"); 
+ **for** (String v : map.values()) { 
+ 		System.out.println("value= " + v); 
+ } 
+```
 
   Map.entrySet迭代器会生成EntryIterator,其返回的实例是一个包含key/value键值对的对象。而keySet中迭代器返回的只是key对象，还需要到map中二次取值。故entrySet要比keySet快一倍左右。
 
