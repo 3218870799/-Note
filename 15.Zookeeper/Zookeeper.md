@@ -2,45 +2,37 @@
 
 ## 1.1 概述 
 
->   Zookeeper 是一个开源的分布式的，为分布式应用提供协调服务的 Apache 项目。
-
-![](media/3f78f8714c25b9937f4d4441e748c499.jpg)
+Zookeeper 是一个开源的分布式的，为分布式应用提供协调服务的 Apache 项目。
 
 ## 1.2 特点 
 
->   1）Zookeeper：一个领导者（leader），多个跟随者（follower）组成的集群。
+1）Zookeeper：一个领导者（leader），多个跟随者（follower）组成的集群。
 
->   2）Leader负责进行投票的发起和决议，更新系统状态
+2）Leader负责进行投票的发起和决议，更新系统状态
 
->   3）Follower用于接收客户请求并向客户端返回结果，在选举Leader过程中参与投票
+3）Follower用于接收客户请求并向客户端返回结果，在选举Leader过程中参与投票
 
->   4）集群中只要有半数以上节点存活，Zookeeper集群就能正常服务。
+4）集群中只要有半数以上节点存活，Zookeeper集群就能正常服务。
 
->   5）全局数据一致：每个server保存一份相同的数据副本，client无论连接到哪个server，数据都是一致的。
+5）全局数据一致：每个server保存一份相同的数据副本，client无论连接到哪个server，数据都是一致的。
 
->   6）更新请求顺序进行，来自同一个client的更新请求按其发送顺序依次执行。
+6）更新请求顺序进行，来自同一个client的更新请求按其发送顺序依次执行。
 
->   7）数据更新原子性，一次数据更新要么成功，要么失败。
+7）数据更新原子性，一次数据更新要么成功，要么失败。
 
->   8）实时性，在一定时间范围内，client能读到最新数据。
+8）实时性，在一定时间范围内，client能读到最新数据。
 
 ![](media/88a4231e4cc3d956495f9ad6c2d8749c.jpg)
 
 ## 1.3 数据结构 
 
-![](media/3f78f8714c25b9937f4d4441e748c499.jpg)
+
 
 ## 1.4 应用场景 
 
 提供的服务包括：统一命名服务、统一配置管理、统一集群管理、服务器节点动态上下线、软负载均衡等。
 
-![](media/3f78f8714c25b9937f4d4441e748c499.jpg)
-
 统一命名服务
-
-![](media/3f78f8714c25b9937f4d4441e748c499.jpg)
-
-![](media/3f78f8714c25b9937f4d4441e748c499.jpg)
 
 ## 1.5 下载地址 
 
@@ -484,182 +476,279 @@ server。
 
 ### **3.3.1 Eclipse** 环境搭建 
 
->   1．创建一个 Maven 工程
+1．创建一个 Maven 工程
 
-#### 2．添加 pom 文件 
+2．添加 pom 文件 
 
->   \<dependencies\>
+```xml
+<dependencies> 
+  <dependency> 
+   <groupId>junit</groupId> 
+   <artifactId>junit</artifactId> 
+   <version>RELEASE</version> 
+  </dependency> 
+  <dependency> 
+   <groupId>org.apache.logging.log4j</groupId> 
+   <artifactId>log4j-core</artifactId> 
+   <version>2.8.2</version> 
+  </dependency> 
+  <!-- 
+https://mvnrepository.com/artifact/org.apache.zookeeper/zook eeper --> 
+  <dependency> 
+   <groupId>org.apache.zookeeper</groupId> 
+   <artifactId>zookeeper</artifactId> 
+   <version>3.4.10</version> 
+  </dependency> 
+</dependencies> 
+```
 
->   \<dependency\>
 
->   \<groupId\>junit\</groupId\>
 
->   \<artifactId\>junit\</artifactId\>
+3．拷贝 log4j.properties 文件到项目根目录需要在项目的 src/main/resources目录下，新建一个文件，命名为“log4j.properties”，在文件中填入。
 
->   \<version\>RELEASE\</version\>
+```yml
+log4j.rootLogger=INFO, stdout   log4j.appender.stdout=org.apache.log4j.ConsoleAppender   log4j.appender.stdout.layout=org.apache.log4j.PatternLayout   log4j.appender.stdout.layout.ConversionPattern=%d %p [%c] 
+- %m%n   
+log4j.appender.logfile=org.apache.log4j.FileAppender   log4j.appender.logfile.File=target/spring.log   log4j.appender.logfile.layout=org.apache.log4j.PatternLayout   log4j.appender.logfile.layout.ConversionPattern=%d %p [%c] - %m%n   
+```
 
->   \</dependency\>
 
->   \<dependency\>
-
->   \<groupId\>org.apache.logging.log4j\</groupId\>
-
->   \<artifactId\>log4j-core\</artifactId\>
-
->   \<version\>2.8.2\</version\>
-
->   \</dependency\>
-
->   \<!--
-
->   https://mvnrepository.com/artifact/org.apache.zookeeper/zook eeper --\>
-
->   \<dependency\>
-
->   \<groupId\>org.apache.zookeeper\</groupId\>
-
->   \<artifactId\>zookeeper\</artifactId\>
-
->   \<version\>3.4.10\</version\>
-
->   \</dependency\>
-
->   \</dependencies\>
-
-3．拷贝 log4j.properties 文件到项目根目录需要在项目的 src/main/resources
-目录下，新建一个文件，命名为“log4j.properties”，在文件中填入。
-
->   log4j.rootLogger=INFO, stdout
->   log4j.appender.stdout=org.apache.log4j.ConsoleAppender
->   log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
->   log4j.appender.stdout.layout.ConversionPattern=%d %p [%c]
-
->   \- %m%n
-
->   log4j.appender.logfile=org.apache.log4j.FileAppender
->   log4j.appender.logfile.File=target/spring.log
->   log4j.appender.logfile.layout=org.apache.log4j.PatternLayout
->   log4j.appender.logfile.layout.ConversionPattern=%d %p [%c] - %m%n
 
 ### **3.3.2** 创建 **ZooKeeper** 客户端 
 
-| private static String connectString =   "hadoop102:2181,hadoop103:2181,hadoop104:2181"; private static int sessionTimeout = 2000; private ZooKeeper zkClient = null;   \@Before   public void init() throws Exception {   zkClient = new ZooKeeper(connectString, sessionTimeout, new Watcher() {   \@Override   public void process(WatchedEvent event) {   // 收到事件通知后的回调函数（用户的业务逻辑）   System.out.println(event.getType() + "--" + event.getPath());   // 再次启动监听   try {   zkClient.getChildren("/", true);   } catch (Exception e) {   e.printStackTrace();   }   }   });   }  |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+```java
+private static String connectString = 
+ "hadoop102:2181,hadoop103:2181,hadoop104:2181";  private static int sessionTimeout = 2000;  private ZooKeeper zkClient = null; 
+ 
+ @Before 
+ public void init() throws Exception { 
+ 
+ zkClient = new ZooKeeper(connectString, sessionTimeout, new Watcher() { 
+ 
+   @Override 
+   public void process(WatchedEvent event) { 
+ 
+    // 收到事件通知后的回调函数（用户的业务逻辑） 
+    System.out.println(event.getType() + "--" + event.getPath()); 
+ 
+    // 再次启动监听 
+    try { 
+     zkClient.getChildren("/", true); 
+    } catch (Exception e) { 
+     e.printStackTrace(); 
+    } 
+   } 
+  }); 
+ } 
+```
+
 
 
 ### 3.3.3 创建子节点 
 
->   // 创建子节点
-
->   \@Test
-
->   public void create() throws Exception {
-
->   // 参数1：要创建的节点的路径； 参数2：节点数据 ； 参数3：节点权限
->   ；参数4：节点的类型
-
->   String nodeCreated = zkClient.create("/atguigu",
-
-"jinlian".getBytes(), Ids.OPEN_ACL_UNSAFE,
-
->   CreateMode.PERSISTENT);
-
->   }
+```java
+// 创建子节点 
+@Test 
+public void create() throws Exception { 
+ 
+  // 参数1：要创建的节点的路径； 参数2：节点数据 ； 参数3：节点权限 ；参数4：节点的类型 
+  String nodeCreated = zkClient.create("/atguigu", 
+	"jinlian".getBytes(), 	Ids.OPEN_ACL_UNSAFE, 
+CreateMode.PERSISTENT); 
+}
+```
 
 ### **3.3.4** 获取子节点并监听节点变化 
 
->   // 获取子节点
+```java
+// 获取子节点 
+@Test 
+public void getChildren() throws Exception { 
+ 
+  List<String> children = zkClient.getChildren("/", true);  
+  for (String child : children) {    System.out.println(child); 
+} 	} 
+// 延时阻塞 
+Thread.sleep(Long.MAX_VALUE); 
 
->   \@Test
-
->   public void getChildren() throws Exception {
-
->   List\<String\> children = zkClient.getChildren("/", true);
-
->   for (String child : children) { System.out.println(child);
-
-| }  | }  // 延时阻塞  Thread.sleep(Long.MAX_VALUE);  |
-|----|------------------------------------------------|
-
+```
 
 ### **3.3.5** 判断 **Znode** 是否存在 
 
-| // 判断znode是否存在  \@Test  public void exist() throws Exception {   Stat stat = zkClient.exists("/eclipse", false);   System.out.println(stat == null ? "not exist" : "exist"); }  |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+```java
+// 判断znode是否存在 
+@Test 
+public void exist() throws Exception { 
+ 
+ Stat stat = zkClient.exists("/eclipse", false);  
+ System.out.println(stat == null ? "not exist" : "exist");
+} 
+```
+
+
 
 
 ## 3.4 监听服务器节点动态上下线案例 
 
 1．需求某分布式系统中，主节点可以有多台，可以动态上下线，任意一台客户端都能实时感知到主节点服务器的上下线。
 
->   2．需求分析，如图 5-12 所示
+3．具体实现 
 
-![](media/3f78f8714c25b9937f4d4441e748c499.jpg)
+先在集群上创建/servers 节点
 
->   服务器动态上下线案例分析
+```java
+[zk: localhost:2181(CONNECTED) 10] create /servers "servers" Created /servers 
+```
 
->   图 5-12 服务器动态上下线
+服务器端向 Zookeeper 注册代码
 
-#### 3．具体实现 
+```java
+package com.atguigu.zkcase; import java.io.IOException; 
 
-1.  先在集群上创建/servers 节点
-
-    [zk: localhost:2181(CONNECTED) 10] create /servers "servers" Created
-    /servers
-
-2.  服务器端向 Zookeeper 注册代码
-
-    package com.atguigu.zkcase; import java.io.IOException;
-
-| import org.apache.zookeeper.CreateMode; import org.apache.zookeeper.WatchedEvent; import org.apache.zookeeper.Watcher; import org.apache.zookeeper.ZooKeeper; import org.apache.zookeeper.ZooDefs.Ids;  public class DistributeServer {   private static String connectString = "hadoop102:2181,hadoop103:2181,hadoop104:2181"; private static int sessionTimeout = 2000; private ZooKeeper zk = null;   private String parentNode = "/servers";   // 创建到zk的客户端连接   public void getConnect() throws IOException{   zk = new ZooKeeper(connectString, sessionTimeout, new Watcher() {   \@Override   public void process(WatchedEvent event) {   }   });   }   // 注册服务器   public void registServer(String hostname) throws Exception{   String create = zk.create(parentNode + "/server", hostname.getBytes(), Ids.OPEN_ACL_UNSAFE,  CreateMode.EPHEMERAL_SEQUENTIAL);   System.out.println(hostname +" is online "+ create);   }   // 业务功能   public void business(String hostname) throws Exception{   System.out.println(hostname+" is working ...");   Thread.sleep(Long.MAX_VALUE);   }   public static void main(String[] args) throws Exception { // 1获取zk连接   DistributeServer server = new DistributeServer(); server.getConnect();   // 2 利用zk连接注册服务器信息   server.registServer(args[0]);   // 3 启动业务功能   server.business(args[0]);   }  |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-
-
->   }
+import org.apache.zookeeper.CreateMode; import org.apache.zookeeper.WatchedEvent; import org.apache.zookeeper.Watcher; import org.apache.zookeeper.ZooKeeper; import org.apache.zookeeper.ZooDefs.Ids; 
+ 
+public class DistributeServer { 
+ 
+ private 	static 	String 	connectString 	=
+"hadoop102:2181,hadoop103:2181,hadoop104:2181";  private static int sessionTimeout = 2000;  private ZooKeeper zk = null; 
+ private String parentNode = "/servers"; 
+  
+ // 创建到zk的客户端连接 
+ public void getConnect() throws IOException{ 
+   
+  zk = new ZooKeeper(connectString, sessionTimeout, new Watcher() { 
+ 
+   @Override 
+   public void process(WatchedEvent event) {  
+   } 
+  }); 
+ } 
+  
+ // 注册服务器 
+ public void registServer(String hostname) throws Exception{ 
+ 
+  String create = zk.create(parentNode + "/server", hostname.getBytes(), 	Ids.OPEN_ACL_UNSAFE, 
+CreateMode.EPHEMERAL_SEQUENTIAL); 
+   
+  System.out.println(hostname +" is online "+ create); 
+ } 
+  
+ // 业务功能 
+ public void business(String hostname) throws Exception{ 
+  System.out.println(hostname+" is working ..."); 
+   
+  Thread.sleep(Long.MAX_VALUE); 
+ } 
+  
+ public static void main(String[] args) throws Exception {
+   
+// 1获取zk连接 
+  DistributeServer server = new DistributeServer();   server.getConnect(); 
+   
+  // 2 利用zk连接注册服务器信息 
+  server.registServer(args[0]); 
+   
+  // 3 启动业务功能 
+  server.business(args[0]); 
+ } 
+```
 
 1.  客户端代码
 
-| package com.atguigu.zkcase; import java.io.IOException; import java.util.ArrayList; import java.util.List;  import org.apache.zookeeper.WatchedEvent; import org.apache.zookeeper.Watcher; import org.apache.zookeeper.ZooKeeper;  public class DistributeClient {   private static String connectString = "hadoop102:2181,hadoop103:2181,hadoop104:2181"; private static int sessionTimeout = 2000; private ZooKeeper zk = null;   private String parentNode = "/servers";   // 创建到zk的客户端连接   public void getConnect() throws IOException {   zk = new ZooKeeper(connectString, sessionTimeout, new Watcher() {   \@Override   public void process(WatchedEvent event) {   // 再次启动监听   try {   getServerList();   } catch (Exception e) {   e.printStackTrace();   }   }   });   }   // 获取服务器列表信息   public void getServerList() throws Exception {   // 1获取服务器子节点信息，并且对父节点进行监听   List\<String\> children = zk.getChildren(parentNode, true);   // 2存储服务器信息列表   ArrayList\<String\> servers = new ArrayList\<\>();   // 3遍历所有节点，获取节点中的主机名称信息   for (String child : children) {   byte[] data = zk.getData(parentNode + "/" + child, false, null);   servers.add(new String(data));   }   // 4打印服务器列表信息  |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+```java
+package com.atguigu.zkcase; import java.io.IOException; import java.util.ArrayList; import java.util.List; 
+import org.apache.zookeeper.WatchedEvent; import org.apache.zookeeper.Watcher; import org.apache.zookeeper.ZooKeeper; 
+ 
+public class DistributeClient { 
+ 
+ private 	static 	String 	connectString 	=
+"hadoop102:2181,hadoop103:2181,hadoop104:2181";  private static int sessionTimeout = 2000;  private ZooKeeper zk = null; 
+ private String parentNode = "/servers"; 
+ 
+ // 创建到zk的客户端连接 
+ public void getConnect() throws IOException { 
+  zk = new ZooKeeper(connectString, sessionTimeout, new Watcher() { 
+ 
+   @Override 
+   public void process(WatchedEvent event) { 
+ 
+    // 再次启动监听 
+    try { 
+     getServerList(); 
+    } catch (Exception e) { 
+     e.printStackTrace(); 
+    } 
+   } 
+  }); 
+ } 
+ 
+ // 获取服务器列表信息 
+ public void getServerList() throws Exception { 
+   
+  // 1获取服务器子节点信息，并且对父节点进行监听 
+  List<String> children = zk.getChildren(parentNode, true); 
+ 
+        // 2存储服务器信息列表 
+  ArrayList<String> servers = new ArrayList<>(); 
+   
+        // 3遍历所有节点，获取节点中的主机名称信息 
+  for (String child : children) { 
+   byte[] data = zk.getData(parentNode + "/" + child, false, null); 
+ 
+   servers.add(new String(data)); 
+  } 
+ 
+        // 4打印服务器列表信息 
+  System.out.println(servers); 
+ } 
+ 
+ // 业务功能 
+ public void business() throws Exception{ 
+ 
+  System.out.println("client is working ..."); Thread.sleep(Long.MAX_VALUE); 
+ } 
+ 
+ public static void main(String[] args) throws Exception { 
+ 
+  // 1获取zk连接 
+  DistributeClient client = new DistributeClient(); 
+  client.getConnect(); 
+ 
+  // 2获取servers的子节点信息，从中获取服务器信息列表 
+  client.getServerList(); 
+ 
+  // 3业务进程启动 
+  client.business(); 
+ } 
+} 
+
+```
 
 
->   System.out.println(servers);
-
->   }
-
->   // 业务功能
-
->   public void business() throws Exception{
-
->   System.out.println("client is working ..."); Thread.sleep(Long.MAX_VALUE);
-
->   }
-
->   public static void main(String[] args) throws Exception {
-
->   // 1获取zk连接
-
->   DistributeClient client = new DistributeClient();
-
->   client.getConnect();
-
->   // 2获取servers的子节点信息，从中获取服务器信息列表
-
->   client.getServerList();
-
->   // 3业务进程启动
-
->   client.business();
-
->   }
-
->   }
 
 # 第 4 章 Zookeeper 内部原理 
 
-## 4.1 节点类型 
+## 4.1 节点类型
 
-![](media/3f78f8714c25b9937f4d4441e748c499.jpg)
+四种数据节点ZNode：
+
+（1）PERSISTENT-持久节点
+
+除非手动删除，否则节点一直存在于 Zookeeper 上
+
+（2）EPHEMERAL-临时节点
+
+临时节点的生命周期与客户端会话绑定，一旦客户端会话失效（客户端与zookeeper 连接断开不一定会话失效），那么这个客户端创建的所有临时节点都会被移除。
+
+（3）PERSISTENT_SEQUENTIAL-持久顺序节点
+
+基本特性同持久节点，只是增加了顺序属性，节点名后边会追加一个由父节点维护的自增整型数字。
+
+（4）EPHEMERAL_SEQUENTIAL-临时顺序节点
+
+基本特性同临时节点，增加了顺序属性，节点名后边会追加一个由父节点维护的自增整型数字。
+
+
 
 ## 4.2 Stat 结构体 
 
@@ -688,9 +777,87 @@ server。
 
 9.  dataLength- znode 的数据长度 11）numChildren - znode 子节点数量
 
-## 4.3 监听器原理（面试重点） 
+## 4.3 监听器原理（面试重点）
 
-![](media/3f78f8714c25b9937f4d4441e748c499.jpg)
+数据变更通知
+
+Zookeeper 允许客户端向服务端的某个 Znode 注册一个 Watcher 监听，当服务端的一些指定事件触发了这个 Watcher，服务端会向指定客户端发送一个事件通知来实现分布式的通知功能，然后客户端根据 Watcher 通知状态和事件类型做出业务上的改变。
+
+工作机制：
+
+（1）客户端注册 watcher
+
+（2）服务端处理 watcher
+
+（3）客户端回调 watcher
+
+Watcher 特性总结：
+
+（1）一次性
+
+无论是服务端还是客户端，一旦一个 Watcher 被 触 发 ，Zookeeper 都会将其从相应的存储中移除。这样的设计有效的减轻了服务端的压力，不然对于更新非常频繁的节点，服务端会不断的向客户端发送事件通知，无论对于网络还是服务端的压力都非常大。
+
+（2）客户端串行执行
+
+客户端 Watcher 回调的过程是一个串行同步的过程。
+
+（3）轻量
+
+3.1、Watcher 通知非常简单，只会告诉客户端发生了事件，而不会说明事件的具体内容。
+
+3.2、客户端向服务端注册 Watcher 的时候，并不会把客户端真实的 Watcher 对象实体传递到服务端，仅仅是在客户端请求中使用 boolean 类型属性进行了标记。
+
+（4）watcher event 异步发送 watcher 的通知事件从 server 发送到 client 是异步的，这就存在一个问题，不同的客户端和服务器之间通过 socket 进行通信，由于网络延迟或其他因素导致客户端在不通的时刻监听到事件，由于 Zookeeper 本身提供了 ordering guarantee，即客户端监听事件后，才会感知它所监视 znode发生了变化。所以我们使用 Zookeeper 不能期望能够监控到节点每次的变化。Zookeeper 只能保证最终的一致性，而无法保证强一致性。
+
+（5）注册 watcher getData、exists、getChildren
+
+（6）触发 watcher create、delete、setData
+
+（7）当一个客户端连接到一个新的服务器上时，watch 将会被以任意会话事件触发。当与一个服务器失去连接的时候，是无法接收到 watch 的。而当 client 重新连接时，如果需要的话，所有先前注册过的 watch，都会被重新注册。通常这是完全透明的。只有在一个特殊情况下，watch 可能会丢失：对于一个未创建的 znode的 exist watch，如果在客户端断开连接期间被创建了，并且随后在客户端连接上之前又删除了，这种情况下，这个 watch 事件可能会被丢失。
+
+#### 客户端注册 Watcher 实现
+
+（1）调用 getData()/getChildren()/exist()三个 API，传入 Watcher 对象
+
+（2）标记请求 request，封装 Watcher 到 WatchRegistration
+
+（3）封装成 Packet 对象，发服务端发送 request
+
+（4）收到服务端响应后，将 Watcher 注册到 ZKWatcherManager 中进行管理
+
+（5）请求返回，完成注册。
+
+#### 服务端处理 Watcher 实现
+
+（1）服务端接收 Watcher 并存储
+
+接收到客户端请求，处理请求判断是否需要注册 Watcher，需要的话将数据节点的节点路径和 ServerCnxn（ServerCnxn 代表一个客户端和服务端的连接，实现了 Watcher 的 process 接口，此时可以看成一个 Watcher 对象）存储在WatcherManager 的 WatchTable 和 watch2Paths 中去。
+
+（2）Watcher 触发
+
+以服务端接收到 setData() 事务请求触发 NodeDataChanged 事件为例：
+
+2.1 封装 WatchedEvent
+
+将通知状态（SyncConnected）、事件类型（NodeDataChanged）以及节点路径封装成一个 WatchedEvent 对象
+
+2.2 查询 Watcher
+
+从 WatchTable 中根据节点路径查找 Watcher
+
+2.3 没找到；说明没有客户端在该数据节点上注册过 Watcher
+
+2.4 找到；提取并从 WatchTable 和 Watch2Paths 中删除对应 Watcher（从这里可以看出 Watcher 在服务端是一次性的，触发一次就失效了）
+
+（3）调用 process 方法来触发 Watcher
+
+这里 process 主要就是通过 ServerCnxn 对应的 TCP 连接发送 Watcher 事件通知。
+
+#### 客户端回调 Watcher
+
+客户端 SendThread 线程接收事件通知，交由 EventThread 线程回调 Watcher。
+
+客户端的 Watcher 机制同样是一次性的，一旦被触发后，该 Watcher 就失效了。
 
 ## 4.4 选举机制（面试重点） 
 
@@ -732,9 +899,23 @@ server。
 
 ## 4.5 写数据流程 
 
-![](media/be886a25c654fbfe20a663d5bb264b85.jpg)
+# 第 5 章：常见问题与解决方案
 
-# 第 5 章 企业面试真题 
+1：Zookeeper 怎么保证主从节点的状态同步？
+
+Zookeeper 的核心是原子广播机制，这个机制保证了各个 server 之间的同步。实现这个机制的协议叫做 Zab 协议。Zab 协议有两种模式，它们分别是恢复模式和广播模式。
+
+1. 恢复模式
+
+当服务启动或者在领导者崩溃后，Zab就进入了恢复模式，当领导者被选举出来，且大多数 server 完成了和 leader 的状态同步以后，恢复模式就结束了。状态同步保证了 leader 和 server 具有相同的系统状态。
+
+1. 广播模式
+
+一旦 leader 已经和多数的 follower 进行了状态同步后，它就可以开始广播消息了，即进入广播状态。这时候当一个 server 加入 ZooKeeper 服务中，它会在恢复模式下启动，发现 leader，并和 leader 进行状态同步。待到同步结束，它也参与消息广播。ZooKeeper 服务一直维持在 Broadcast 状态，直到 leader 崩溃了或者 leader 失去了大部分的 followers 支持。
+
+
+
+
 
 5.1 请简述 ZooKeeper 的选举机制
 
@@ -755,3 +936,7 @@ server。
 5.4 ZooKeeper 的常用命令
 
 ls create get delete set…
+
+
+
+https://thinkwon.blog.csdn.net/article/details/104397719
