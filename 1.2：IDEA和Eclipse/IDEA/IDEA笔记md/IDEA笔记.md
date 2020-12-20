@@ -1097,7 +1097,55 @@ install。安装到本地仓库的位置。
 
 其他操作这里不再赘述。
 
-# 十三、其它设置
+# 十三、常用插件
+
+1、CodeGlance 代码迷你缩放图插件
+
+2、 Codota
+
+代码提示工具，扫描你的代码后，根据你的敲击完美提示
+
+Codota基于数百万个开源Java程序和您的上下文来完成代码行，从而帮助您以更少的错误更快地进行编码。
+
+3、Material Theme UI
+
+那就顺便推荐一下这个吧，超多的主题插件，各种颜色，各种模式，感兴趣的可以试一下，图我就不截了
+
+4、Alibaba Java Coding Guidelines
+
+阿里巴巴的编码规约检查插件
+
+检查你的编码习惯，让你更规范
+
+
+
+9、Json Parser json串格式化工具，不用打开浏览器了
+
+厌倦了打开浏览器来格式化和验证JSON？为什么不安装JSON Parser并在具有脱机支持的IDE内进行呢？JSON Parser是用于验证和格式化JSON字符串的轻量级插件。安装并传播:)
+
+
+
+11、JUnitGenerator
+
+自动生成测试代码。
+
+![img](media/a0bc98b6f0f74925a9011b1f06592d42.png)
+
+![img](media/072d95e3f27a44a1987fcf5e182240ab.png)
+
+
+
+15、Translation 翻译插件 灰常牛逼
+
+![img](media/17868b6895884a0f8652cff200dd60ec.png)
+
+翻译中文，给接口起名字就不用费劲啦
+
+![img](media/3ee4ddb31cc54213a06866edf90f095d.png)
+
+
+
+# 十四：其他设置
 
 ## 1.生成 javadoc 
 
