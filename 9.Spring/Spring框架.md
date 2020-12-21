@@ -868,17 +868,13 @@ Step3**：项目** aop_leadin3
 
 AOP（Aspect OrientProgramming），面向切面编程。面向切面编程是从动态角度考虑程序运行过程。
 
-AOP 底层，就是采用动态代理模式实现的。采用了两种代理：JDK 的动态代理，与 CGLIB
-的动态代理。
-
-AOP 为 Aspect Oriented Programming
-的缩写，意为：面向切面编程，可通过运行期动态代理实现程序功能的统一维护的一种技术。AOP是 Spring 框架中的一个重要内容。利用 AOP可以对业务逻辑的各个部分进行隔离，从而使得业务逻辑各部分之间的耦合度降低，提高程序的可重用性，同时提高了开发的效率。
+AOP 底层，就是采用动态代理模式实现的。采用了两种代理：JDK 的动态代理，与 CGLIB的动态代理。
 
 面向切面编程，就是将交叉业务逻辑封装成切面，利用 AOP容器的功能将切面织入到主业务逻辑中。所谓交叉业务逻辑是指，通用的、与主业务逻辑无关的代码，如安全检查、事务、日志、缓存等。
 
 若不使用AOP，则会出现代码纠缠，即交叉业务逻辑与主业务逻辑混合在一起。这样，会使主业务逻辑变的混杂不清。
 
-例如，转账，在真正转账业务逻辑前后，需要权限控制、日志记录、加载事务、结束事务等交叉业务逻辑，而这些业务逻辑与主业务逻辑间并无直接关系。但，它们的代码量所占比重能达到总代码量的一半甚至还多。它们的存在，不仅产生了大量的“冗余”代码，还大大干扰了主业务逻辑---转账。
+
 
 ## 3.3 面向切面编程对有什么好处？ 
 
@@ -890,6 +886,8 @@ AOP 为 Aspect Oriented Programming
 
 使用 **AOP** 减少重复代码，专注业务实现：
 
+它将应用系统拆分分了2个部分：核心业务逻辑（Core business concerns）及横向的通用逻辑，
+
 ![](media/38f7a158418705b93f68089b02c77c0a.jpg)
 
 ## 3.3动态代理
@@ -899,10 +897,10 @@ AOP 为 Aspect Oriented Programming
 2：CGLIB动态代理
 
 -   没有接口，只有实现类。
-
 -   采用字节码增强框架 cglib，在运行时 创建目标类的子类，从而对目标类进行增强。
-
 -   导入jar包：
+
+通常建议使用jdk代理
 
 自己导包（了解）：
 
@@ -919,6 +917,8 @@ spring-core..jar 已经整合以上两个内容
 切面泛指交叉业务逻辑。上例中的事务处理、日志处理就可以理解为切面。
 
 常用的切面是通知（Advice）。实际就是对主业务逻辑的一种增强。
+
+切面用Spring 的Advisor 或拦截器实现。
 
 ### （2） 连接点（JoinPoint） 
 
@@ -946,19 +946,34 @@ StudentServiceImpl
 
 Spring按照通知Advice在目标类方法的连接点位置，可以分为5类
 
--   前置通知 org.springframework.aop.MethodBeforeAdvice
+- 前置通知Before advice
 
-    在目标方法执行前实施增强
+  在目标方法执行前实施增强
 
--   后置通知 org.springframework.aop.AfterReturningAdvice
+  但这个通知不能阻止连接点前的执行。
+  ApplicationContext 中在\<aop:aspect>里面使用\<aop:before>元素进行声明。
 
-    在目标方法执行后实施增强
+- 后置通知After advice
 
--   环绕通知 org.aopalliance.intercept.MethodInterceptor
+  在目标方法执行后实施增强(不论是正常返回还是异常退出)
 
-    在目标方法执行前后实施增强
+  ApplicationContext 中在\<aop:aspect>里面使用\<aop:after>元素进行声明。
 
--   异常抛出通知 org.springframework.aop.ThrowsAdvice
+-   After returnadvice：
+
+在某连接点正常完成后执行的通知，不包括抛出
+异常的情况。
+ApplicationContext 中在\<aop:aspect>里面使用\<aop:after-returning>
+元素进行声明。
+
+- 环绕通知 Around advice
+
+  包围一个连接点的通知，类似Web 中Servlet 规范
+  中的Filter 的doFilter 方法。可以在方法的调用前后完成自定义的行
+  为，也可以选择不执行。ApplicationContext 中在\<aop:aspect>里面
+  使用\<aop:around>元素进行声明。
+
+-   异常抛出通知
 
     在方法抛出异常后实施增强
 
