@@ -475,7 +475,7 @@ Servlet生命周期：实例化，初始化init，接收请求service，销毁de
 
 Bean的生命周期：实例化bean，设置对象属性（DI依赖注入），处理Aware接口，
 
-，（1）实例化Bean：
+（1）实例化Bean：
 
 对于BeanFactory容器，当客户向容器请求一个尚未初始化的bean时，或初始化bean的时候需要注入另一个尚未初始化的依赖时，容器就会调用createBean进行实例化。对于ApplicationContext容器，当容器启动结束后，通过获取BeanDefinition对象中的信息，实例化所有的bean。
 
