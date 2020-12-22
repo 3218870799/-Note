@@ -2463,9 +2463,193 @@ IO是面向流的，NIO是面向缓冲区的
 
 # 八：JDBC
 
-# 特性
+# 九：特性
 
-## 2：反射
+## 1：反射
+
+**就是在运行时才知道要操作的类是什么，并且可以在运行时获取类的完整构造，并调用对应的方法。**
+
+
+
+
+
+### 基本反射技术：
+
+ **根据一个字符串得到一个类**
+
+getClass方法
+
+```java
+ String name = "Huanglinqing";
+ Class c1 = name.getClass();
+ System.out.println(c1.getName());
+//输出
+//java.lang.String
+```
+
+**Class.forName**
+
+```java
+   String name = "java.lang.String";
+   Class c1 = null;
+   try {
+          c1 = Class.forName(name);
+          System.out.println(c1.getName());
+      } catch (ClassNotFoundException e) {
+  }
+//输出
+//java.lang.String
+```
+
+从这个简单的例子可以看出，一般情况下我们使用反射获取一个对象的步骤：
+
+- 获取类的 Class 对象实例
+
+```
+Class clz = Class.forName("com.zhenai.api.Apple");
+```
+
+- 根据 Class 对象实例获取 Constructor 对象
+
+```
+Constructor appleConstructor = clz.getConstructor();
+```
+
+- 使用 Constructor 对象的 newInstance 方法获取反射类对象
+
+```
+Object appleObj = appleConstructor.newInstance();
+```
+
+而如果要调用某一个方法，则需要经过下面的步骤：
+
+- 获取方法的 Method 对象
+
+```
+Method setPriceMethod = clz.getMethod("setPrice", int.class);
+```
+
+- 利用 invoke 方法调用方法
+
+```
+setPriceMethod.invoke(appleObj, 14);
+```
+
+### 获取类的成员
+
+当类中方法定义为私有的时候我们能调用？不能！当变量是私有的时候我们能获取吗？不能！但是反射可以。比如源码中有你需要用到的方法，但是那个方法是私有的，这个时候你就可以通过反射去执行这个私有方法，并且获取私有变量。
+
+**获取类的构造函数**
+
+### 反射API
+
+获取反射中的Class对象
+
+在反射中，要获取一个类或调用一个类的方法，我们首先需要获取到该类的 Class 对象。
+
+在 Java API 中，获取 Class 类对象有三种方法：
+
+**第一种，使用 Class.forName 静态方法。**当你知道该类的全路径名时，你可以使用该方法获取 Class 类对象。
+
+```
+Class clz = Class.forName("java.lang.String");
+```
+
+**第二种，使用 .class 方法。**
+
+这种方法只适合在编译前就知道操作的 Class。
+
+```
+Class clz = String.class;
+```
+
+**第三种，使用类对象的 getClass() 方法。**
+
+```
+String str = new String("Hello");
+Class clz = str.getClass();
+```
+
+
+
+通过反射创建类对象
+
+通过反射创建类对象主要有两种方式：通过 Class 对象的 newInstance() 方法、通过 Constructor 对象的 newInstance() 方法。
+
+第一种：通过 Class 对象的 newInstance() 方法。
+
+```
+Class clz = Apple.class;
+Apple apple = (Apple)clz.newInstance();
+```
+
+第二种：通过 Constructor 对象的 newInstance() 方法
+
+```
+Class clz = Apple.class;
+Constructor constructor = clz.getConstructor();
+Apple apple = (Apple)constructor.newInstance();
+```
+
+通过 Constructor 对象创建类对象可以选择特定构造方法，而通过 Class 对象则只能使用默认的无参数构造方法。下面的代码就调用了一个有参数的构造方法进行了类对象的初始化。
+
+```
+Class clz = Apple.class;
+Constructor constructor = clz.getConstructor(String.class, int.class);
+Apple apple = (Apple)constructor.newInstance("红富士", 15);
+```
+
+
+
+通过反射获取类属性、方法、构造器
+
+我们通过 Class 对象的 getFields() 方法可以获取 Class 类的属性，但无法获取私有属性。
+
+```
+Class clz = Apple.class;
+Field[] fields = clz.getFields();
+for (Field field : fields) {
+    System.out.println(field.getName());
+}
+```
+
+输出结果是：
+
+```
+price
+```
+
+而如果使用 Class 对象的 getDeclaredFields() 方法则可以获取包括私有属性在内的所有属性：
+
+```
+Class clz = Apple.class;
+Field[] fields = clz.getDeclaredFields();
+for (Field field : fields) {
+    System.out.println(field.getName());
+}
+```
+
+输出结果是：
+
+```
+name
+price
+```
+
+与获取类属性一样，当我们去获取类方法、类构造器时，如果要获取私有方法或私有构造器，则必须使用有 declared 关键字的方法。
+
+### 源码解析
+
+异常报错时的输出
+
+可以看到异常堆栈指出了异常在 Method 的第 497 的 invoke 方法中，其实这里指的 invoke 方法就是我们反射调用方法中的 invoke。
+
+```
+Method method = clz.getMethod("setPrice", int.class); 
+method.invoke(object, 4);   //就是这里的invoke方法
+```
+
+
 
 允许程序在执行期借助于反射API取得任何类的内部信息，并能直接操作任意对象的内部属性及方法。
 
