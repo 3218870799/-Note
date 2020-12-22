@@ -16,8 +16,7 @@ Mycat官网：<http://www.mycat.io/>
 
 ## Mycat是什么
 
-Mycat是一个开源数据库中间件，是一个实现了MySQL协议的的数据库中间件服务器，我们可以把它看作是一个数据库代理，用MySQL客户端工具和命令行访问Mycat，而Mycat再使用用MySQL原生（Native）协议与多个MySQL服务器通信，也可以用JDBC协议与大多数主流数据库服务器通信，包括SQL
-Server、Oracle、DB2、PostgreSQL等主流数据库，也支持MongoDB这种新型NoSQL方式的存储，未来还会支持更多类型的存储；
+Mycat是一个开源数据库中间件，是一个实现了MySQL协议的的数据库中间件服务器，我们可以把它看作是一个数据库代理，用MySQL客户端工具和命令行访问Mycat，而Mycat再使用用MySQL原生（Native）协议与多个MySQL服务器通信，也可以用JDBC协议与大多数主流数据库服务器通信，包括SQL Server、Oracle、DB2、PostgreSQL等主流数据库，也支持MongoDB这种新型NoSQL方式的存储，未来还会支持更多类型的存储；
 
 一般地，Mycat主要用于代理MySQL数据库，虽然它也支持去访问其他类型的数据库；
 
@@ -57,9 +56,9 @@ Mycat的默认端口是8066，一般地，我们可以使用常见的对象映�
 
 ### 下载
 
-<http://dl.mycat.io/1.6-RELEASE/>
+https://github.com/MyCATApache/Mycat-download 具体下载哪个版本以发布为准，推荐1.4,1.5.
 
->   我们将08-MyCat\\tools目录下下载好的Mycat直接上传到Linux上
+我们将下载好的Mycat直接上传到Linux上
 
 ### 解压
 
@@ -108,10 +107,8 @@ mycat默认数据访问端口是8066
 **常用配置：**
 
 -   配置序列生成方式
-
-    -   配置mycat逻辑数据库
-
-        -   配置mycat的访问账户和密码
+-   配置mycat逻辑数据库
+-   配置mycat的访问账户和密码
 
 #### schema.xml
 
@@ -120,12 +117,9 @@ mycat默认数据访问端口是8066
 **常用配置：**
 
 -   配置逻辑库映射
-
-    -   配置垂直切分的表
-
-        -   配置真实的数据库
-
-        -   配置读写结点
+-   配置垂直切分的表
+-   配置真实的数据库
+-   配置读写结点
 
 # Mycat读写分离
 
@@ -141,7 +135,9 @@ mycat默认数据访问端口是8066
 
 ### 配置sequnceHandlerType属性
 
-**\<property name="sequnceHandlerType"\>1\</property\>**
+```xml
+<property name="sequnceHandlerType">1</property>
+```
 
 指定使用Mycat全局序列的类型：
 
@@ -151,56 +147,59 @@ mycat默认数据访问端口是8066
 
 ### 设置连接mycat时的用户名和密码, 逻辑库
 
->   **\<user name="mycat"\>**
+```xml
+<user name="mycat">
+        <property name="password">123456</property>
+        <property name="schemas">mycatdb</property>
+</user>
 
->   **\<property name="password"\>123456\</property\>**
-
->   **\<property name="schemas"\>mycatdb\</property\>**
-
->   **\</user\>**
+```
 
 ### 完整配置信息
 
->   \<?xml version="1.0" encoding="UTF-8"?\>  
->   \<!DOCTYPE mycat:server SYSTEM "server.dtd"\>  
->   \<mycat:server xmlns:mycat="http://io.mycat/"\>  
->   \<system\>  
->   \<!-- 1为开启实时统计、0为关闭 --\>  
->   \<property name="useSqlStat"\>0\</property\>  
->   \<!-- 1为开启全加班一致性检测、0为关闭 --\>  
->   \<property name="useGlobleTableCheck"\>0\</property\>  
->     
->   \<property name="sequnceHandlerType"\>2\</property\>  
->   \<!--默认为type 0: DirectByteBufferPool \| type 1 ByteBufferArena--\>  
->   \<property name="processorBufferPoolType"\>0\</property\>  
->     
->   \<!--分布式事务开关，0为不过滤分布式事务，1为过滤分布式事务（  
->   如果分布式事务内只涉及全局表，则不过滤），2为不过滤分布式事务,但是记录分布式事务日志--\>  
->   \<property name="handleDistributedTransactions"\>0\</property\>  
->   \<!--off heap for merge/order/group/limit 1开启 0关闭--\>  
->   \<property name="useOffHeapForMerge"\>1\</property\>  
->   \<!--单位为m--\>  
->   \<property name="memoryPageSize"\>1m\</property\>  
->   \<!--单位为k--\>  
->   \<property name="spillsFileBufferSize"\>1k\</property\>  
->   \<property name="useStreamOutput"\>0\</property\>  
->   \<!--单位为m--\>  
->   \<property name="systemReserveMemorySize"\>384m\</property\>  
->   \<!--是否采用zookeeper协调切换 --\>  
->   \<property name="useZKSwitch"\>true\</property\>  
->   \</system\>  
->     
->   \<user name="mycat"\>  
->   \<property name="password"\>123456\</property\>  
->   \<property name="schemas"\>mycatdb\</property\>  
->   \</user\>  
->     
->   \<user name="user"\>  
->   \<property name="password"\>user\</property\>  
->   \<property name="schemas"\>mycatdb\</property\>  
->   \<property name="readOnly"\>true\</property\>  
->   \</user\>  
->   \</mycat:server\>
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mycat:server SYSTEM "server.dtd">
+<mycat:server xmlns:mycat="http://io.mycat/">
+    <system>
+        <!-- 1为开启实时统计、0为关闭 -->
+        <property name="useSqlStat">0</property>  
+        <!-- 1为开启全加班一致性检测、0为关闭 -->
+        <property name="useGlobleTableCheck">0</property>  
+    
+        <property name="sequnceHandlerType">2</property>
+        <!--默认为type 0: DirectByteBufferPool | type 1 ByteBufferArena-->
+        <property name="processorBufferPoolType">0</property>
+    
+        <!--分布式事务开关，0为不过滤分布式事务，1为过滤分布式事务（
+        如果分布式事务内只涉及全局表，则不过滤），2为不过滤分布式事务,但是记录分布式事务日志-->
+        <property name="handleDistributedTransactions">0</property>
+        <!--off heap for merge/order/group/limit      1开启   0关闭-->
+        <property name="useOffHeapForMerge">1</property>
+        <!--单位为m-->
+        <property name="memoryPageSize">1m</property>
+        <!--单位为k-->
+        <property name="spillsFileBufferSize">1k</property>
+        <property name="useStreamOutput">0</property>
+        <!--单位为m-->
+        <property name="systemReserveMemorySize">384m</property>
+        <!--是否采用zookeeper协调切换  -->
+        <property name="useZKSwitch">true</property>
+    </system>
+    
+    <user name="mycat">
+        <property name="password">123456</property>
+        <property name="schemas">mycatdb</property>
+    </user>
+    
+    <user name="user">
+        <property name="password">user</property>
+        <property name="schemas">mycatdb</property>
+        <property name="readOnly">true</property>
+    </user>
+</mycat:server>
+
+```
 
 ## 配置schema.xml文件
 
@@ -325,41 +324,39 @@ balance一般设置为1即可
 
 ### 完整配置信息（双主双从）
 
->   \<?xml version="1.0"?\>  
->   \<!DOCTYPE mycat:schema SYSTEM "schema.dtd"\>  
->   \<mycat:schema xmlns:mycat="http://io.mycat/"\>  
->   \<!--只做读写分离，不做分库分表，Mycat只是帮我们转发一下请求，读转发到从库，写转发到主库，则schema标签里面不用配置table--\>  
->   \<schema name="mycatdb" checkSQLschema="false" sqlMaxLimit="100"
->   dataNode="dn1"/\>  
->   \<!--配置真实存在的物理数据库--\>  
->   \<dataNode name="dn1" dataHost="localhost1" database="test" /\>  
->     
->   \<dataHost name="localhost1"  
->   maxCon="1000"  
->   minCon="10"  
->   balance="1"  
->   writeType="0"  
->   dbType="mysql"  
->   dbDriver="native"  
->   switchType="1"  
->   slaveThreshold="100"\>  
->   \<heartbeat\>select user()\</heartbeat\>  
->   \<writeHost host="hostM3307" url="localhost:3307" user="root"
->   password="123456"\>  
->   \<readHost host="hostS3308" url="localhost:3308" user="root"
->   password="123456" /\>  
->   \<readHost host="hostS3309" url="localhost:3309" user="root"
->   password="123456" /\>  
->   \</writeHost\>  
->   \<writeHost host="hostM3308" url="localhost:3308" user="root"
->   password="123456"\>  
->   \<readHost host="hostS3307" url="localhost:3307" user="root"
->   password="123456" /\>  
->   \<readHost host="hostS3310" url="localhost:3310" user="root"
->   password="123456" /\>  
->   \</writeHost\>  
->   \</dataHost\>  
->   \</mycat:schema\>
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+<!--只做读写分离，不做分库分表，Mycat只是帮我们转发一下请求，读转发到从库，写转发到主库，则schema标签里面不用配置table-->
+<schema name="mycatdb" checkSQLschema="false" sqlMaxLimit="100" dataNode="dn1"/>
+<!--配置真实存在的物理数据库-->
+<dataNode name="dn1" dataHost="localhost1" database="test" />
+
+<dataHost name="localhost1"
+          maxCon="1000"
+          minCon="10"
+          balance="1"
+          writeType="0"
+          dbType="mysql"
+          dbDriver="native"
+          switchType="1"
+          slaveThreshold="100">
+    <heartbeat>select user()</heartbeat>
+    <writeHost host="hostM3307" url="localhost:3307" user="root" password="123456">
+        <readHost host="hostS3308" url="localhost:3308" user="root" password="123456" />
+        <readHost host="hostS3309" url="localhost:3309" user="root" password="123456" />
+    </writeHost>
+    <writeHost host="hostM3308" url="localhost:3308" user="root" password="123456">
+        <readHost host="hostS3307" url="localhost:3307" user="root" password="123456" />
+        <readHost host="hostS3310" url="localhost:3310" user="root" password="123456" />
+    </writeHost>
+</dataHost>
+</mycat:schema>
+
+```
+
+
 
 ## 测试读写分离
 
@@ -418,57 +415,53 @@ balance一般设置为1即可
 
 指定主键生成策略
 
->   \<!--配置数据库的主键怎么生成，0为本地文件方式，1为数据库方式，2为时间戳序列方式--\>  
->   
+```xml
+<!--配置数据库的主键怎么生成，0为本地文件方式，1为数据库方式，2为时间戳序列方式-->
 
->   \<property name="sequnceHandlerType"\>0\</property\>
+<property name="sequnceHandlerType">0</property>
+```
+
+
 
 ### 配置schema.xml
 
 指定逻辑库，分片结点，结点主机等
 
->   \<?xml version="1.0"?\>  
->   \<!DOCTYPE mycat:schema SYSTEM "schema.dtd"\>  
->   \<mycat:schema xmlns:mycat="http://io.mycat/"\>  
->   \<schema name="mycatdb" checkSQLschema="false" sqlMaxLimit="100"\>  
->   \<!--
->   要实现分库分表，那么就需要在\<schema\>标签下配置表了，现在是水平切分，表示要对哪张表进行切分
->   --\>  
->   \<table name="orders" primaryKey="id" autoIncrement="true"
->   dataNode="dn1,dn2,dn3" rule="mod-long" /\>  
->   \</schema\>  
->     
->   \<!--配置真实的数据库名称 test --\>  
->   \<dataNode name="dn1" dataHost="localhost1" database="test01" /\>  
->   \<dataNode name="dn2" dataHost="localhost1" database="test02" /\>  
->   \<dataNode name="dn3" dataHost="localhost1" database="test03" /\>  
->     
->   \<dataHost name="localhost1"  
->   maxCon="1000"  
->   minCon="10"  
->   balance="1"  
->   writeType="0"  
->   dbType="mysql"  
->   dbDriver="native"  
->   switchType="1"  
->   slaveThreshold="100"\>  
->   \<heartbeat\>select user()\</heartbeat\>  
->   \<writeHost host="hostM3307" url="localhost:3307" user="root"
->   password="123456"\>  
->   \<readHost host="hostS3308" url="localhost:3308" user="root"
->   password="123456" /\>  
->   \<readHost host="hostS3309" url="localhost:3309" user="root"
->   password="123456" /\>  
->   \</writeHost\>  
->   \<writeHost host="hostM3308" url="localhost:3308" user="root"
->   password="123456"\>  
->   \<readHost host="hostS3307" url="localhost:3307" user="root"
->   password="123456" /\>  
->   \<readHost host="hostS3310" url="localhost:3310" user="root"
->   password="123456" /\>  
->   \</writeHost\>  
->   \</dataHost\>  
->   \</mycat:schema\>
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+<schema name="mycatdb" checkSQLschema="false" sqlMaxLimit="100">
+    <!-- 要实现分库分表，那么就需要在<schema>标签下配置表了，现在是水平切分，表示要对哪张表进行切分 -->
+    <table name="orders" primaryKey="id" autoIncrement="true"                                   dataNode="dn1,dn2,dn3" rule="mod-long" />
+</schema>
+
+<!--配置真实的数据库名称 test -->
+<dataNode name="dn1" dataHost="localhost1" database="test01" />
+<dataNode name="dn2" dataHost="localhost1" database="test02" />
+<dataNode name="dn3" dataHost="localhost1" database="test03" />
+
+<dataHost name="localhost1"
+          maxCon="1000"
+          minCon="10"
+          balance="1"
+          writeType="0"
+          dbType="mysql"
+          dbDriver="native"
+          switchType="1"
+          slaveThreshold="100">
+    <heartbeat>select user()</heartbeat>
+    <writeHost host="hostM3307" url="localhost:3307" user="root" password="123456">
+        <readHost host="hostS3308" url="localhost:3308" user="root" password="123456" />
+        <readHost host="hostS3309" url="localhost:3309" user="root" password="123456" />
+    </writeHost>
+    <writeHost host="hostM3308" url="localhost:3308" user="root" password="123456">
+        <readHost host="hostS3307" url="localhost:3307" user="root" password="123456" />
+        <readHost host="hostS3310" url="localhost:3310" user="root" password="123456" />
+    </writeHost>
+</dataHost>
+</mycat:schema>
+```
 
 ### 配置rule.xml
 
@@ -695,5 +688,3 @@ insert into tb1(id,name) values(**next value for MYCATSEQ_GLOBA**L,"test");
 本课程偏向于资深开发人员、架构师；
 
 一般中小公司不会采用到该技术，因为中小公司的数据量没有达到一定的级别，在数据量比较大的时候才会采用该技术
-
-可以在简历中体现：本人爱好互联网各类开发技术，乐于技术研究，利用工作之余研究过Mycat分库分表、xxx源码、xxx等技术
