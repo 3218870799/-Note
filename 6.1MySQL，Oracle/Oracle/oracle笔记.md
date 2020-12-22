@@ -20,6 +20,52 @@ ORACLE数据库系统是美国ORACLE公司（甲骨文）提供的以分布式�
 
 ## 4：PLSQL工具的安装
 
+（1）设置tools->preferences->connection中sqlplus路径
+
+![IMG_256](media/clip_image001.jpg)
+
+​      （2）确认服务器上的tnsnames.ora和linstener中的host为虚拟机ip地址
+
+![img](media/clip_image003.jpg)
+
+ 
+
+  　（3）将服务器中tnsnames.ora文件拷贝到本地路径无需修改，如果是拷贝发的资料需要修改文件中远程orcl服务器的ip地址
+
+![img](media/clip_image005.jpg)
+
+ 　（4）系统变量中设置TNS_ADMIN变量为tnsnames.ora文件目录
+
+![img](media/clip_image007.jpg)
+
+ 
+
+ 8.解决中文乱码问题
+
+查询select userenv('language') from dual;--AMERICAN_AMERICA.ZHS16GBK
+
+查询select * from V$NLS_PARAMETERS;
+
+在系统变量中设置NLS_LANG=AMERICAN_AMERICA.ZHS16GBK
+
+重新启动PLSQL
+
+## 5：基本使用
+
+解锁scott用户设置密码为tiger
+
+OracleDBConsoleorcl --可以不启动,用于管理Oracle的企业管理器的服务.
+
+OracleJobSchedulerORCL --通常不启动,用于定期操作任务的服务
+
+OracleOraDb10g_home1iSQL*Plus --可以不启动,isqlplus服务,用网页执行sql,11g已经取消这个功能
+
+OracleOraDb10g_home1TNSListener --必须启动,这是临听,用于远程客户端连接你的Oracle
+
+OracleServiceORCL --必须启动,这是Oracle数据库的服务
+
+
+
 # 二：Oracle体系结构
 
 ## 1：基本概念
@@ -144,6 +190,10 @@ TRUNC(列|数字 [,保留小数位])
 select upper('yes') from dual;--YES
 --转小写
 select lower('YES') from dual;--yes
+length（），
+replace（），
+substr()
+
 
 ```
 
@@ -154,6 +204,8 @@ select lower('YES') from dual;--yes
 ```sql
 --四舍五入，后边参数表示保留的位数
 select round(26.16,1) from dual;
+trunc（），
+mod（）
 ```
 
 2.4：日期函数（不同于mysql）
@@ -163,6 +215,8 @@ select round(26.16,1) from dual;
 select sysdate - e.hiredate from emp e;
 --算出明天此刻
 select sysdate+1 from dual;
+add_months(),
+
 --查询距离现在几月
 select months_between(sysdate,e.hiredate) from emp e;
 --查询距离现在几年
@@ -173,7 +227,19 @@ select round((sysdate-e.hiredate)/7) from emp e;
 select to_char(sysdate,'fm yyyy-mm-dd hh24:mi:ss') from dual;
 --字符串转日期
 select to_date('2018-6-7 16:39:50','fm yyyy-mm-dd hh24:mi:ss') from dual;
+
+
 ```
+
+
+
+转换函数
+
+通用函数
+
+nvl(),
+
+nvl2()
 
 
 
@@ -490,6 +556,12 @@ conn.close();
 
 ![](media/a22e380e5fe4adc78ed468a783509077.png)
 
+# 七：触发器
+
+
+
+
+
 # 六：常用SQL语句
 
 
@@ -501,4 +573,6 @@ conn.close();
 mysql以表级锁为主，对资源锁定的粒度很大，虽然InnoDB引擎的表可以用行级锁，但这个行级锁的机制依赖于表的索引，如果表没有索引，或者sql语句没有使用索引，那么仍然使用表级锁。
 
 oracle使用行级锁，对资源锁定的粒度要小很多，只是锁定sql需要的资源，并且加锁是在数据库中的数据行上，不依赖与索引。所以oracle对并发性的支持要好很多。
+
+
 
