@@ -877,19 +877,23 @@ IDEA设置
 
 例如：
 
-> [Loaded java.lang.Object from shared objects file]
->
-> [Loaded java.io.Serializable from shared objects file]
->
-> [Loaded java.lang.Comparable from shared objects file]
->
-> [Loaded java.lang.CharSequence from shared objects file]
->
-> [Loaded java.lang.String from shared objects file]
->
-> [Loaded java.lang.reflect.GenericDeclaration from shared objects file]
->
-> [Loaded java.lang.reflect.Type from shared objects file]
+```console
+[Loaded java.lang.Object from shared objects file]
+
+[Loaded java.io.Serializable from shared objects file]
+
+[Loaded java.lang.Comparable from shared objects file]
+
+[Loaded java.lang.CharSequence from shared objects file]
+
+[Loaded java.lang.String from shared objects file]
+
+[Loaded java.lang.reflect.GenericDeclaration from shared objects file]
+
+[Loaded java.lang.reflect.Type from shared objects file]
+```
+
+
 
 ```
 -XX:+PrintClassHistogram
@@ -942,6 +946,43 @@ IDEA设置
 - -XX:+HeapDumpPath
 
 　　　　导出OOM的路径
+
+导出的文件使用专门的工具进行打开，可参考第六章
+
+
+
+#### **4、-XX:OnOutOfMemoryError：**
+
+- -XX:OnOutOfMemoryError
+
+　　　　在OOM时，执行一个脚本。
+
+　　　　　　可以在OOM时，发送邮件，甚至是重启程序。
+
+例如我们设置如下的参数：
+
+```
+-XX:OnOutOfMemoryError=D:/tools/jdk1.7_40/bin/printstack.bat %p //p代表的是当前进程的pid 
+```
+
+上方参数的意思是说，执行printstack.bat脚本，而这个脚本做的事情是：D:/tools/jdk1.7_40/bin/jstack -F %1 > D:/a.txt，即当程序OOM时，在D:/a.txt中将会生成**线程**的dump。
+
+
+
+#### **5、堆的分配参数总结：**
+
+- 根据实际事情调整新生代和幸存代的大小，默认为新生代占堆内存1/3，老年代占2/3
+- 官方推荐新生代占堆的3/8
+- 幸存代占新生代的1/10
+- **在OOM时，记得Dump出堆**，确保可以排查现场问题
+
+#### **6、永久区分配参数：**
+
+- -XX:PermSize -XX:MaxPermSize
+
+　　　　设置永久区的初始空间和最大空间。也就是说，jvm启动时，永久区一开始就占用了PermSize大小的空间，如果空间还不够，可以继续扩展，但是不能超过MaxPermSize，否则会OOM。
+
+　　　　他们表示，一个系统可以容纳多少个类型
 
 ## 5.3：栈的分配参数
 
