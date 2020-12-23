@@ -467,14 +467,16 @@ balance一般设置为1即可
 
 指定分片结点数
 
->   \<function name="mod-long" class="io.mycat.route.function.PartitionByMod"\>  
->   \<!-- how many data nodes --\>  
->   \<property name="count"\>3\</property\>  
->   \</function\>
+```xml
+<function name="mod-long" class="io.mycat.route.function.PartitionByMod">
+    <!-- how many data nodes -->
+    <property name="count">3</property>
+</function>
+```
 
 ### 水平切分测试
 
-#### 通过Navicat在3307上创建三个库test01,test02和test03,并在每个库中创建orders表
+通过Navicat在3307上创建三个库test01,test02和test03,并在每个库中创建orders表
 
 ![](media/0687296768bb6faf42c7cff7360544dc.png)
 
@@ -508,10 +510,13 @@ insert into orders (id,money) values (next value for MYCATSEQ_GLOBAL,90.4);
 
 指定主键生成策略
 
->   \<!--配置数据库的主键怎么生成，0为本地文件方式，1为数据库方式，2为时间戳序列方式--\>  
->   
+```xml
+<!--配置数据库的主键怎么生成，0为本地文件方式，1为数据库方式，2为时间戳序列方式-->
 
->   \<property name="sequnceHandlerType"\>0\</property\>
+<property name="sequnceHandlerType">0</property>
+```
+
+
 
 ### 配置schema.xml
 
@@ -519,68 +524,61 @@ insert into orders (id,money) values (next value for MYCATSEQ_GLOBAL,90.4);
 
 需求：整个P2P平台的数据库（p2p）进行垂直切分，分为前台数据库（p2p-web）、后台数据库（p2p-admin）
 
->   \<?xml version="1.0"?\>  
->   \<!DOCTYPE mycat:schema SYSTEM "schema.dtd"\>  
->   \<mycat:schema xmlns:mycat="http://io.mycat/"\>  
->   \<schema name="mycatdb" checkSQLschema="false" sqlMaxLimit="100"\>  
->     
->   \<!-- 要实现分库分表，那么就需要在\<schema\>标签下配置表了，现在是垂直切分
->   --\>  
->     
->   \<!--需求：整个P2P平台的数据库（p2p）进行垂直切分，分为前台数据库（p2p-web）、后台数据库（p2p-admin）--\>  
->     
->   \<!--P2P前台数据库--\>  
->   \<table name="orders" primaryKey="id" autoIncrement="true" dataNode="dn1"/\>  
->   \<table name="users" primaryKey="id" autoIncrement="true" dataNode="dn1"/\>  
->     
->   \<!--P2P后台数据库--\>  
->   \<table name="products" primaryKey="id" autoIncrement="true"
->   dataNode="dn2"/\>  
->   \<table name="creditor" primaryKey="id" autoIncrement="true"
->   dataNode="dn2"/\>  
->   \</schema\>  
->     
->   \<!--配置真实的数据库名称 testdb01 --\>  
->   \<dataNode name="dn1" dataHost="localhost1" database="p2p-web" /\>  
->   \<dataNode name="dn2" dataHost="localhost1" database="p2p-admin" /\>  
->     
->   \<dataHost name="localhost1"  
->   maxCon="1000"  
->   minCon="10"  
->   balance="1"  
->   writeType="0"  
->   dbType="mysql"  
->   dbDriver="native"  
->   switchType="1"  
->   slaveThreshold="100"\>  
->   \<heartbeat\>select user()\</heartbeat\>  
->   \<writeHost host="hostM3307" url="localhost:3307" user="root"
->   password="123456"\>  
->   \<readHost host="hostS3308" url="localhost:3308" user="root"
->   password="123456" /\>  
->   \<readHost host="hostS3309" url="localhost:3309" user="root"
->   password="123456" /\>  
->   \</writeHost\>  
->   \<writeHost host="hostM3308" url="localhost:3308" user="root"
->   password="123456"\>  
->   \<readHost host="hostS3307" url="localhost:3307" user="root"
->   password="123456" /\>  
->   \<readHost host="hostS3310" url="localhost:3310" user="root"
->   password="123456" /\>  
->   \</writeHost\>  
->   \</dataHost\>  
->     
->   \</mycat:schema\>
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+<schema name="mycatdb" checkSQLschema="false" sqlMaxLimit="100">
+
+    <!-- 要实现分库分表，那么就需要在<schema>标签下配置表了，现在是垂直切分 -->
+
+    <!--需求：整个P2P平台的数据库（p2p）进行垂直切分，分为前台数据库（p2p-web）、后台数据库（p2p-admin）-->
+
+    <!--P2P前台数据库-->
+    <table name="orders" primaryKey="id" autoIncrement="true" dataNode="dn1"/>
+    <table name="users" primaryKey="id" autoIncrement="true" dataNode="dn1"/>
+
+    <!--P2P后台数据库-->
+    <table name="products" primaryKey="id" autoIncrement="true" dataNode="dn2"/>
+    <table name="creditor" primaryKey="id" autoIncrement="true" dataNode="dn2"/>
+</schema>
+
+<!--配置真实的数据库名称 testdb01 -->
+<dataNode name="dn1" dataHost="localhost1" database="p2p-web" />
+<dataNode name="dn2" dataHost="localhost1" database="p2p-admin" />
+
+<dataHost name="localhost1"
+          maxCon="1000"
+          minCon="10"
+          balance="1"
+          writeType="0"
+          dbType="mysql"
+          dbDriver="native"
+          switchType="1"
+          slaveThreshold="100">
+    <heartbeat>select user()</heartbeat>
+    <writeHost host="hostM3307" url="localhost:3307" user="root" password="123456">
+        <readHost host="hostS3308" url="localhost:3308" user="root" password="123456" />
+        <readHost host="hostS3309" url="localhost:3309" user="root" password="123456" />
+    </writeHost>
+    <writeHost host="hostM3308" url="localhost:3308" user="root" password="123456">
+        <readHost host="hostS3307" url="localhost:3307" user="root" password="123456" />
+        <readHost host="hostS3310" url="localhost:3310" user="root" password="123456" />
+    </writeHost>
+</dataHost>
+
+</mycat:schema>
+```
 
 ### 垂直切分测试
 
-#### 在3307上创建两个个数据库p2p-web,p2p-admin
+在3307上创建两个数据库p2p-web,p2p-admin
 
 ![](media/cd8056d2769dac71cd7afc2ce9c326f6.png)
 
-#### 在p2p-web库中创建users和orders表
+在p2p-web库中创建users和orders表
 
-#### 在p2p-admin库中创建products和news表
+在p2p-admin库中创建products和news表
 
 #### 插入、查询测试
 
@@ -616,54 +614,51 @@ sequnceHandlerType=2
 
 ### 在数据库中创建一张表，三个函数
 
->   DROP TABLE IF EXISTS **MYCAT_SEQUENCE**;  
->     
->   CREATE TABLE MYCAT_SEQUENCE (name VARCHAR(50) NOT NULL,current_value INT NOT
->   NULL,increment INT NOT NULL DEFAULT 1,  
->   PRIMARY KEY(name)) ENGINE=InnoDB default charset=utf8;  
->     
->   INSERT INTO MYCAT_SEQUENCE(name,current_value,increment) VALUES ("GLOBAL",
->   0, 100);  
->     
->   DROP FUNCTION IF EXISTS **mycat_seq_currval**;  
->   DELIMITER //  
->   CREATE FUNCTION mycat_seq_currval(seq_name VARCHAR(50)) RETURNS varchar(64)
->   CHARSET utf8  
->   DETERMINISTIC  
->   BEGIN  
->   DECLARE retval VARCHAR(64);  
->   SET retval="-999999999,null";  
->   SELECT concat(CAST(current_value AS CHAR),",",CAST(increment AS CHAR)) INTO
->   retval FROM MYCAT_SEQUENCE WHERE name = seq_name;  
->   RETURN retval;  
->   END //  
->   DELIMITER ;  
->     
->     
->   DROP FUNCTION IF EXISTS **mycat_seq_setval**;  
->   DELIMITER //  
->   CREATE FUNCTION mycat_seq_setval(seq_name VARCHAR(50),value INTEGER) RETURNS
->   varchar(64) CHARSET utf8  
->   DETERMINISTIC  
->   BEGIN  
->   UPDATE MYCAT_SEQUENCE  
->   SET current_value = value  
->   WHERE name = seq_name;  
->   RETURN mycat_seq_currval(seq_name);  
->   END //  
->   DELIMITER ;  
->     
->   DROP FUNCTION IF EXISTS **mycat_seq_nextval**;  
->   DELIMITER //  
->   CREATE FUNCTION mycat_seq_nextval(seq_name VARCHAR(50)) RETURNS varchar(64)
->   CHARSET utf8  
->   DETERMINISTIC  
->   BEGIN  
->   UPDATE MYCAT_SEQUENCE  
->   SET current_value = current_value + increment WHERE name = seq_name;  
->   RETURN mycat_seq_currval(seq_name);  
->   END //  
->   DELIMITER ;
+```sql
+DROP TABLE IF EXISTS MYCAT_SEQUENCE;
+
+CREATE TABLE MYCAT_SEQUENCE (name VARCHAR(50) NOT NULL,current_value INT NOT NULL,increment INT NOT NULL DEFAULT 1,
+PRIMARY KEY(name)) ENGINE=InnoDB default charset=utf8;
+
+INSERT INTO MYCAT_SEQUENCE(name,current_value,increment) VALUES ("GLOBAL", 0, 100);
+
+DROP FUNCTION IF EXISTS mycat_seq_currval;
+DELIMITER //
+CREATE FUNCTION mycat_seq_currval(seq_name VARCHAR(50)) RETURNS varchar(64) CHARSET utf8
+DETERMINISTIC
+BEGIN
+DECLARE retval VARCHAR(64);
+SET retval="-999999999,null";
+SELECT concat(CAST(current_value AS CHAR),",",CAST(increment AS CHAR)) INTO retval FROM MYCAT_SEQUENCE WHERE name = seq_name;
+RETURN retval;
+END //
+DELIMITER  ;
+
+
+DROP FUNCTION IF EXISTS mycat_seq_setval;
+DELIMITER //
+CREATE FUNCTION mycat_seq_setval(seq_name VARCHAR(50),value INTEGER) RETURNS varchar(64) CHARSET utf8
+DETERMINISTIC
+BEGIN
+UPDATE MYCAT_SEQUENCE
+SET current_value = value
+WHERE name = seq_name;
+RETURN mycat_seq_currval(seq_name);
+END //
+DELIMITER ;
+
+DROP FUNCTION IF EXISTS mycat_seq_nextval;
+DELIMITER //
+CREATE FUNCTION mycat_seq_nextval(seq_name VARCHAR(50)) RETURNS varchar(64) CHARSET utf8
+DETERMINISTIC
+BEGIN
+UPDATE MYCAT_SEQUENCE
+SET current_value = current_value + increment WHERE name = seq_name;
+RETURN mycat_seq_currval(seq_name);
+END //
+DELIMITER ;
+
+```
 
 ### server.xml配置
 
@@ -684,7 +679,5 @@ GLOBAL=dn2
 insert into tb1(id,name) values(**next value for MYCATSEQ_GLOBA**L,"test");
 
 # 总结
-
-本课程偏向于资深开发人员、架构师；
 
 一般中小公司不会采用到该技术，因为中小公司的数据量没有达到一定的级别，在数据量比较大的时候才会采用该技术
