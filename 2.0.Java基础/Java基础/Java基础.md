@@ -1169,42 +1169,6 @@ Resize效率很低
 
 * `public Set<Map.Entry<K,V>> entrySet()`: 获取到Map集合中所有的键值对对象的集合(Set集合)。
 
-
-
-### 1：HashMap与TreeMap的区别
-
-实现方式
-
-HashMap:基于哈希表实现。（1.8基于数组链表红黑树）使用HashMap要求添加的键类明确定义了hashCode（）和equals
-
-TreeMap:基于红黑树实现。TreeMap没有调优选项，因为该树总处于平衡状态。
-
-用途
-
-HashMap：适用于在Map中插入、删除和定位元素。
-
-TreeMap：适用于按自然顺序或自定义顺序遍历键（key)。
-
-HashMap通常比TreeMap快一点（树和哈希表的数据结构使然），建议多使用HashMap,在需要排序的Map时候才用TreeMap.
-
-### 2：HashMap与HashTable的区别
-
-1：他们都可以存储key-value型数据，都实现了Map接口，
-
-2：
-
-HashMap是线程不安全的效率高，
-
-HashTable是线程安全的，效率低
-
-Hashtable是同步的，而HashMap不是。
-
-因此，HashMap更适合于单线程环境，而Hashtable适合于多线程环境。
-
-要想既安全又效率高就用ConcurrentHashMap
-
-3：HashMap是可以把null作为key或者value的，但是HashTable不行
-
 ### HashMap(重点)
 
 HashMap不是线程安全的，如果想要线程安全的HashMap，可以通过Collections类的静态方法synchronizedMap获得线程安全的HashMap。
@@ -1213,6 +1177,10 @@ HashMap不是线程安全的，如果想要线程安全的HashMap，可以通过
 
 HashMap的底层主要是基于数组，链表和红黑树来实现的，HashMap 会根据 key.
 hashCode() 计算出 hash 值，根据 hash 值将 value 保存在 bucket 里。
+
+HashMap类中有一个非常重要的字段，就是 Node[] table，即哈希桶数组，明显它是一个Node的数组
+
+
 
 **当冲突时HashMap 的做法是用链表和红黑树存储相同 hash 值的 value。当 hash
 冲突的个数比较少时，使用链表否则使用红黑树。**
@@ -1227,12 +1195,15 @@ boolean containsKey(Object key) 判断集合中是否包含指定的key
 
 boolean containsValue(Object value) 判断集合中是否包含指定的value
 
+
+
+
+
 HashMap中关于红黑树的三个关键参数：
 
 ![](media/587309242992088d200c973008ad2bce.png)
 
-影响HashMap性能的两个重要参数，“initial capacity”（初始化容量）和”load
-factor“（负载因子）
+影响HashMap性能的两个重要参数，“initial capacity”（初始化容量）和”load factor“（负载因子）
 
 容量就是哈希表桶的个数，负载因子就是键值对个数与哈希表长度的一个比值
 
@@ -1240,19 +1211,7 @@ factor“（负载因子）
 
 #### 方法
 
-Get：
-
-1、通过hash值获取该key映射到的桶。
-
-2、桶上的key就是要查找的key，则直接命中。
-
-3、桶上的key不是要查找的key，则查看后续节点：
-
-（1）如果后续节点是树节点，通过调用树的方法查找该key。
-
-（2）如果后续节点是链式节点，则通过循环遍历链查找该key。
-
-PUT：
+**PUT：**
 
 1、先通过hash值计算出key映射到哪个桶。
 
@@ -1268,42 +1227,74 @@ PUT：
 
 5、如果size大于阈值，则进行扩容。
 
-Hash：
+HashMap新增元素的时间复杂度是不固定的，可能的值有O(1)、O(logn)、O(n)。
+
+**get**：
+
+1、通过hash值获取该key映射到的桶。
+
+2、桶上的key就是要查找的key，则直接命中。
+
+3、桶上的key不是要查找的key，则查看后续节点：
+
+（1）如果后续节点是树节点，通过调用树的方法查找该key。
+
+（2）如果后续节点是链式节点，则通过循环遍历链查找该key。
+
+
+
+**Hash：**
 
 hash指的是key的哈希值，hash是通过下面这个方法计算出来的，采用了二次哈希的方式，其中key的hashCode方法是一个native方法：
 
-static final int hash(Object key) {
+```java
+static final int hash(Object key) {   //jdk1.8 & jdk1.7
+     int h;
+     // h = key.hashCode() 为第一步 取hashCode值
+     // h ^ (h >>> 16)  为第二步 高位参与运算
+     return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+}
+```
 
-int h;
 
-return (key == null) ? 0 : (h = key.hashCode()) \^ (h \>\>\> 16);
 
 这个hash方法先通过key的hashCode方法获取一个哈希值，再拿这个哈希值与它的高16位的哈希值做一个异或操作来得到最后的哈希值
 
 为啥要这样做呢？注释中是这样解释的：如果当n很小，假设为64的话，那么n-1即为63（0x111111），这样的值跟hashCode()直接做与操作，实际上只使用了哈希值的后6位。如果当哈希值的高位变化很大，低位变化很小，这样就很容易造成冲突了，所以这里把高低位都利用起来，从而解决了这个问题。
 
-决定了HashMap的大小只能是2的幂次方
+决定了HashMap的大小只能是2的幂次方。
+
+当length总是2的n次方时，h& (length-1)运算等价于对length取模，也就是h%length，但是&比%具有更高的效率。
 
 ![](media/cbd0fb60a87957476f708c7b1ea32132.png)
 
-Resize
+**Resize**
+
+方法是使用一个新的数组代替已有的容量小的数组。
 
 HashMap在进行扩容时，使用的rehash方式非常巧妙，因为每次扩容都是翻倍，与原来计算（n-1）&hash的结果相比，只是多了一个bit位，所以节点要么就在原来的位置，要么就被分配到“原位置+旧容量”这个位置。
 
 例如，原来的容量为32，那么应该拿hash跟31（0x11111）做与操作；在扩容扩到了64的容量之后，应该拿hash跟63（0x111111）做与操作。新容量跟原来相比只是多了一个bit位，假设原来的位置在23，那么当新增的那个bit位的计算结果为0时，那么该节点还是在23；相反，计算结果为1时，则该节点会被分配到23+31的桶上。
 
-#### ConcurrentHashMap
+### ConcurrentHashMap
 
-ConcurrentHashMap是由Segment数组结构和HashEntry数组结构组成。Segment是一种可重入锁ReentrantLock，在ConcurrentHashMap里扮演锁的角色，HashEntry则用于存储键值对数据。
+ConcurrentHashMap是由Segment数组结构和HashEntry数组结构组成。
 
+Segment是一种可重入锁ReentrantLock，在ConcurrentHashMap里扮演锁的角色，HashEntry则用于存储键值对数据。
 
-JDK1.8的实现已经抛弃了Segment分段锁机制，利用CAS+Synchronized来保证并发更新的安全。数据结构采用：数组+链表+红黑树。
+JDK1.8的实现已经抛弃了Segment分段锁机制，利用CAS+Synchronized来保证并发更新的安全。
 
-1.8源码
+#### 结构
 
-CAS操作
+数据结构采用：Node数组+链表+红黑树。
 
-**1：初始化**
+Node：是ConcurrentHashMap存储结构的基本单元，继承于HashMap中的Entry，用于存储数据
+
+TreeNode：红黑树的数据的存储结构，用于红黑树中存储数据，当链表的节点数大于8时会转换成红黑树的结构，他就是通过TreeNode作为存储结构代替Node来转换成黑红树
+
+TreeBin：reeBin就是封装TreeNode的容器，它提供转换黑红树的一些条件和锁的控制
+
+#### 初始化
 
 初始化：保证安全，加锁（尽量避免加锁，即使加锁范围尽量小），CAS加自旋
 
@@ -1315,17 +1306,56 @@ New 的时候并不会初始化数组，只有但put时才会初始化数组。�
 
 创建时如果传入
 
-Final ConcurrentHashMap chm = new ConcurrentHashMap(32);
+```java
+final ConcurrentHashMap chm = new ConcurrentHashMap(32);
+```
 
 这是其初始容量为64
 
-![](media/a1c64c01cd004ceffef00da261391561.png)
+注意：构造方法中，都涉及一个变量`sizeCtl`，这个变量是一个非常重要的变量，它的值不同，对应的含义也不同。
 
-![](media/ef404a45ab30272ecc7bbe46d2b157a2.png)
+```txt
+sizeCtl为0：代表数组未初始化，且数组的初始容量为16
+
+sizeCtl为正数：如果数组未初始化，那么其记录的是数组的初始容量，如果数组已经初始化，那么其记录的是数组的扩容阈值（数组的初始容量的0.75倍）
+
+sizeCtl为1，表示数组正在进行初始化
+
+sizeCtl小于0，并且不是-1，表示数组正在扩容，-[1+n],表示此时有n个线程正在共同完成数组的扩容操作
+```
+
+源代码：
+
+```java
+public ConcurrentHahsMap(int initialCapacity){
+    if(initialCapacity<0)
+        throw new IllegalArgumentEcception();
+    int cap = ((initialCapacity>=(MAXINUM_CAPACITY>>>1))?
+              MAXINUM_CAPACITY:
+               tableSizeFor(initialCapacity+(initialCapacity>>>1)+1));
+    this.size = cap;
+}
+```
 
 初始化后，将值赋值给了sizeCtl
 
-SizeCtl为正数，如果数组未初始化，那么其记录的是初始容量，如果数组已经初始化，那么其记录的是数组的扩容阈值（数组的初始容量的75%）
+#### put
+
+对当前的table进行无条件自循环直到put成功
+
+- 如果没有初始化就先调用initTable（）方法来进行初始化过程
+
+- 如果没有hash冲突就直接CAS插入
+
+- 如果还在进行扩容操作就先进行扩容
+
+- 如果存在hash冲突，就加锁来保证线程安全，这里有两种情况，一种是链表形式就直接遍历到尾端插入，一种是红黑树就按照红黑树结构插入，
+
+- 最后一个如果Hash冲突时会形成Node链表，在链表长度超过8，Node数组超过64时会将链表结构转换为红黑树的结构，break再一次进入循环
+
+- 如果添加成功就调用addCount（）方法统计size，并且检查是否需要扩容
+
+
 
 **2：添加安全**
 
@@ -1381,6 +1411,46 @@ Map m = Collections.synchronizedSortedMap(new TreeMap(…));
 
 TreeMap是用键来进行升序顺序来排序的。通过Comparable 或 Comparator来排序。
 （实现和TreeSet基本一致）。
+
+### 对比
+
+1：HashMap与TreeMap的区别
+
+实现方式
+
+HashMap:基于哈希表实现。（1.8基于数组链表红黑树）使用HashMap要求添加的键类明确定义了hashCode（）和equals
+
+TreeMap:基于红黑树实现。TreeMap没有调优选项，因为该树总处于平衡状态。
+
+用途
+
+HashMap：适用于在Map中插入、删除和定位元素。
+
+TreeMap：适用于按自然顺序或自定义顺序遍历键（key)。
+
+HashMap通常比TreeMap快一点（树和哈希表的数据结构使然），建议多使用HashMap,在需要排序的Map时候才用TreeMap.
+
+2：HashMap与HashTable的区别
+
+1：他们都可以存储key-value型数据，都实现了Map接口，
+
+2：
+
+HashMap是线程不安全的效率高，
+
+HashTable是线程安全的，效率低
+
+Hashtable是同步的，而HashMap不是。
+
+因此，HashMap更适合于单线程环境，而Hashtable适合于多线程环境。
+
+要想既安全又效率高就用ConcurrentHashMap
+
+3：HashMap是可以把null作为key或者value的，但是HashTable不行
+
+
+
+
 
 ### 常用的遍历Map的方法
 
@@ -1846,13 +1916,13 @@ BlockingQueue\<Runnable\> workQueue,
 
 RejectedExecutionHandler handler)
 
-**corePoolSize**
+**corePoolSize核心线程数量**
 
 线程池中的核心线程数，当提交一个任务时，线程池创建一个新线程执行任务，直到当前线程数等于corePoolSize,
 即使有其他空闲线程能够执行新来的任务,
 也会继续创建线程；如果当前线程数为corePoolSize，继续提交的任务被保存到阻塞队列中，等待被执行；如果执行了线程池的prestartAllCoreThreads()方法，线程池会提前创建并启动所有核心线程。
 
-**workQueue**
+**workQueue阻塞队列**
 
 用来保存等待被执行的任务的阻塞队列. 在JDK中提供了如下阻塞队列：
 
@@ -1866,21 +1936,21 @@ SynchronousQuene：一个不存储元素的阻塞队列，每个插入操作必�
 
 (4) priorityBlockingQuene：具有优先级的无界阻塞队列；
 
-**maximumPoolSize**
+**maximumPoolSize最大线程数**
 线程池中允许的最大线程数。如果当前阻塞队列满了，且继续提交任务，则创建新的线程执行任务，前提是当前线程数小于maximumPoolSize；当阻塞队列是无界队列,
 则maximumPoolSize则不起作用,
 因为无法提交至核心线程池的线程会一直持续地放入workQueue.
 
-**keepAliveTime**  
+**keepAliveTime线程空闲时的存活时间**  
 线程空闲时的存活时间，即当线程没有任务执行时，该线程继续存活的时间；默认情况下，该参数只在线程数大于corePoolSize时才有用,超过这个时间的空闲线程将被终止；
 
 **unit**  
 keepAliveTime的单位
 
-**threadFactory**  
+**threadFactory线程工厂**  
 创建线程的工厂，通过自定义的线程工厂可以给每个新建的线程设置一个具有识别度的线程名。默认为DefaultThreadFactory
 
-**handler**  
+**handler当拒绝处理任务时的策略**  
 线程池的饱和策略，当阻塞队列满了，且没有空闲的工作线程，如果继续提交任务，必须采取一种策略处理该任务，线程池提供了4种策略：  
 
 AbortPolicy：
@@ -1914,6 +1984,24 @@ DiscardPolicy：直接丢弃任务；
 方法二：使用自动锁 synchronized。
 
 方法三：使用手动锁 Lock。
+
+### 4：方法
+
+execute（）：提交任务，交给线程池执行
+
+submit（）：提交任务，能够返回执行结果 execute + Future
+
+shutdown（）：关闭线程池，等待任务都执行完
+
+shutdownNow（）：关闭线程池，不等待任务执行完
+
+getTaskCount（）：线程池已执行和未执行的任务总数
+
+getCompletedTaskCount（）：已完成的任务数量
+
+getPoolSize（）：线程池当前的线程数量
+
+getActiveCount（）：当前线程池中正在执行任务的线程数量
 
 ### 4；关闭方式
 
