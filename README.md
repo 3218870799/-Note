@@ -1,10 +1,18 @@
 # 说明
 
-本项目是个人学习的笔记，包含一些工具的安装与使用，基础的知识点的整理，以及工作学习中的经验。
+:a:本项目是个人学习的笔记，包含一些工具的安装与使用，基础的知识点的整理，以及工作学习中的经验。
 
-主要目的是对于一些基础的东西便于查看与后续问题更改！！
 
-如果也能各位有些许参考作用，我将十分荣幸！
+
+:b:一些知识梳理我会放在各个文件夹中，是学习某项技术时必须掌握的原理以及使用技巧。
+
+对于一些综合技术的探索，或者对某一功能的开发遇到的问题探索，个人经验的总结，我会放在我的博客文件中。
+
+
+
+:cupid:如果也能各位有些许参考作用，我将十分荣幸！
+
+
 
 由于目前内容越来越多，一篇的篇幅过长，担心读者对于内容的查看没有过多时间，但是分篇破坏其完整性，故更改目录结构进行中……
 
@@ -16,19 +24,51 @@
 
 说明：以Java描述的常用数据结构与基本算法的操作，常见刷题笔记
 
-### 章节目录：
+### [一：概述](https://github.com/3218870799/-Note/blob/main/0.0%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95.md#%E7%AC%AC%E4%B8%80%E7%AB%A0%E6%A6%82%E8%BF%B0)
 
-[一：概述](https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md#一基础语法)
+### [二：数组](https://github.com/3218870799/-Note/blob/main/0.0%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95.md#%E7%AC%AC%E4%BA%8C%E7%AB%A0%E6%95%B0%E7%BB%84)
 
-二：数组
-
-三：队列
+### [三：队列](https://github.com/3218870799/-Note/blob/main/0.0%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95.md#%E7%AC%AC%E4%B8%89%E7%AB%A0%E9%98%9F%E5%88%97)
 
 
 
 
 
+## Java基础::balloon:
 
+说明：java的基础知识，源码探索以及对新版本的实验研究
+
+- ### [一：基础语法](https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md#一基础语法)
+
+
+- ### [二：常用API](https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md#%E4%BA%8C%E5%B8%B8%E7%94%A8api)
+
+
+- ### [三：集合](https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md#%E4%B8%89%E9%9B%86%E5%90%88)
+
+- ### [四：异常](https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md#%E5%9B%9B%E5%BC%82%E5%B8%B8)
+
+- ### [五：多线程](https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md#%E4%BA%94%E5%A4%9A%E7%BA%BF%E7%A8%8B)
+
+- ### [六：IO与NIO](https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md#%E5%85%ADio%E4%B8%8Enio)
+
+- ### [七：网络编程](https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md#%E4%B8%83%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B)
+
+- ### [八：JDBC](https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md#%E5%85%ABjdbc)
+
+- ### [九：特性](https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md#%E4%B9%9D%E7%89%B9%E6%80%A7)
+
+- ### [Java8](https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md#java8)
+
+- ### [Java9](https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md#java9)
+
+- ### [Java10](https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md#java10)
+
+- ### [Java11](https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md#java11)
+
+- ### [Java12](https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md#java12)
+
+- ### [Java13](https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md#java13)
 
 | 序号  | 标题                      | 说明                                                   | 子章节                                                       |
 | ----- | ------------------------- | ------------------------------------------------------ | ------------------------------------------------------------ |
@@ -103,3 +143,14 @@
 
 
 
+https://github.com/3218870799/-Note/blob/main/0.0%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95.md
+
+> > :haircut:**由于个人原因，工作后不如在学校的时间充裕，对于博客的排版等问题精力不足，**
+
+> > **故将自己的学习笔记整理成Word文档和MD方式上传至GitHub，**
+
+> > :dancing_women:**博客如果有什么新奇的想法依然还是会找时间更新的，毕竟园友还是很神通的都。**
+
+
+
+> > :cake:**个人笔记项目地址：https://github.com/3218870799/-Note**
