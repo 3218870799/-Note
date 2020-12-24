@@ -12,6 +12,14 @@
 
 ### 1.1：关键字
 
+类与接口的声明：class（类）,extends（继承）,implements（实现）,interface
+
+流程控制：if.else,switch,do,while,case,break,continue,return,default,for
+
+异常处理：try,catch,finally,throw,throws,
+
+
+
 - #### final
 
 类：不能被继承，方法：不能被重写，变量：不能被改变
@@ -33,13 +41,11 @@ Synchronized：保证在同一时刻，只有一个线程可以执行某个方�
 - #### volatile
 
 保证可见性，有序性（指令重排），保证单次读写的原子性
-
-
 保证了不同线程对这个变量进行操作时的可见性，即一个线程修改了某个变量的值，这新值对其他线程来说是立即可见的。（实现可见性）
 
- 禁止进行指令重排序。（实现有序性）
+禁止进行指令重排序。（实现有序性）
 
- volatile 只能保证对单次读/写的原子性。i++ 这种操作不能保证原子性。
+volatile 只能保证对单次读/写的原子性。i++ 这种操作不能保证原子性。
 
 synchronized 和 volatile 的区别是什么？
 
@@ -174,9 +180,13 @@ priavte 本类可见
 
 数据范围与字节数不一定相关，float数据范围比long更加广泛，但是float是4字节，long是8字节。
 
+**注:double型比float型存储范围更大，精度更高，所以通常的浮点型的数据在不声明的情况下都是double型的。**
 
+**2）引用类型**
 
-2）引用类型
+引用数据类型传递的是内存的使用权，是一块内存空间，它可以由多个单位同时使用。
+
+String：字符串型，用于存储一串字符
 
 
 
@@ -192,8 +202,6 @@ byte、short、char‐‐>int‐‐>long‐‐>float‐‐>double
 
 浮点转成整数，直接取消小数点，可能造成数据损失精度。
 int 强制转成short 砍掉2个字节，可能造成数据丢失。
-
-
 
 
 
@@ -269,6 +277,90 @@ do……while
 ### 4.2：继承
 
 如果子类父类中出现重名的成员变量
+
+Java中的向上转型与向下转型
+
+1 ： 向上转型：大体可以理解为子类转换成父类，例子优先还是：
+
+```java
+1 public class Animal {
+ 2     public void eat(){
+ 3         System.out.println("animal eatting...");
+ 4     }
+ 5 }
+ 7 public class Cat extends Animal{
+ 9     public void eat(){
+11         System.out.println("我吃鱼");
+12     }
+13 }
+15 public class Dog extends Animal{
+17     public void eat(){
+19         System.out.println("我吃骨头");
+20     }
+22     public void run(){
+23         System.out.println("我会跑");
+24     }
+25 }
+27 public class Main {
+29     public static void main(String[] args) {
+31         Animal animal = new Cat(); //向上转型
+32         animal.eat();
+34         animal = new Dog();
+35         animal.eat();
+36     }
+38 }
+39 
+40 //结果:
+41 //我吃鱼
+42 //我吃骨头
+```
+
+(1):虽然将子类转换成父类，但调用方法是调用的是子类的方法，这里的转型只是父类的引用指向了子类的实例。
+
+(2):如果子类还有父类中没有的方法 w 可以调用吗 ？答案当然是不能，子类转换成父类，子类多余的方法会丢失，就像例子中dog的run（）方法会丢失
+
+(3)为什么要用向上转型：父类是接口啊！接口的好处就不用说了，比如当你对所有动物全部放生，就不用一个个放生，可以 Save（Animal）；就OK
+
+2：向下转型：简单来说就是将父类转换为子类，但是转换可就不像向上转那末好转了！理解起来也比向上转型不好理解
+
+(1)：首先注意：向下转型的前提是父类对象指向的是子类对象，就是你必须先向上转然后才能向下转，可能会有人说转上去再转下来，没有意义啊！作用就是当再次转下来的时候，就可以调用向上转丢失的方法，而且编程以后接口一多会有很多泛型编程，这样就可以针对父类进行编程，如果需要再取用子类的方法。
+
+（2）：强制类型转换：将一个子类的引用赋值给超类，编译器是允许的，但将一个超类引用赋给一个子类变量必须进行强制类型转换
+
+```java
+public class Sys{   
+    public static void main(String[] args) {   
+        Animal a=new Dog(); //向上转型  
+        a.eat();  
+          
+        Dog aa=(Dog)a; //向下转型,编译和运行皆不会出错(正确的)  
+        aa.eat();//向下转型时调用的是子类的  
+        aa.run(); 
+            
+        Animal a2=new Animal();  
+        Dog aa2=(Dog) a2; //-不安全的---向下转型,编译无错但会运行会出错  
+        aa2.eat();  
+        aa2.run();   
+    }  
+} 
+//结果为：
+//我吃骨头
+//我吃骨头
+//我会跑
+//报错······
+```
+
+​     结果表明：只有先经过向上转型的才能进行向下转型，向下转型必须要进行强制类型转换，
+
+（3）：另外要注意两点，
+
+第一：如果Cat向上转成Animal，那末向下转Animal只能转成Cat，不能转成Dog，因为Cat怎么也不会变成Dog
+
+第二：为了安全的类型转换，向下转型时最好先  if ( Dog instanceof Animal) 判断一下，否则一旦无法转换，程序就会直接终止
+
+
+
+
 
 ### 4.3：多态
 
@@ -349,6 +441,8 @@ FlyAble f = new FlyAble(){
         return sum;
     }
 ```
+
+### 5.3：抽象方法及重写
 
 
 
@@ -794,7 +888,7 @@ Equals方法用来比较对象时，若没有对equals进行重写，其都是�
 
 3：基本数据类型与自动拆箱
 
-## 11： Comparable接口和Comparator接口
+### 11： Comparable接口和Comparator接口
 
 Comparable接口只包含compareTo()方法
 
@@ -839,35 +933,28 @@ Comparator也可以看成一种排序算法的实现，将算法和数据分离�
 可以使用多种排序标准，比如员工按照员工号，年龄，名字，升序or降序排序等，并调用（如Collections.sort
 或者 Arrays.sort）方法，对Collection进行排序
 
+```java
 // 自然排序按照员工号的顺序
-
 public int compareTo(Employee obj) {
-
-Employee employee = (Employee) obj;
-
-return this.no - employee.no;
-
+	Employee employee = (Employee) obj;
+	return this.no - employee.no;
 }
 
-/\*\*
+/*
 
-\*
+*
 
-\* 按照员工的年龄进行比较的比较器。
+* 按照员工的年龄进行比较的比较器。
 
-\*/
+*/
 
-public class AgeComparator implements Comparator\<Employee\> {
-
-\@Override
-
+public class AgeComparator implements Comparator<Employee> {
+@Override
 public int compare(Employee o1, Employee o2) {
-
-return o1.getAge()-o2.getAge();
-
+	return o1.getAge()-o2.getAge();
 }
-
 }
+```
 
 Comparable是【】排序接口，若一个类实现了Coparable接口，说明该类支持排序此外，“实现Comparable接口的类的对象”可以用作“有序映射(如TreeMap)”中的键或“有序集合(TreeSet)”中的元素，而不需要指定比较器。
 
@@ -1745,8 +1832,6 @@ volatile
 
 
 
-
-
 1. **就绪(Runnable):**线程准备运行，不一定立马就能开始执行。
 2. **运行中(Running)：**进程正在执行线程的代码。
 3. **等待中(Waiting):**线程处于阻塞的状态，等待外部的处理结束。
@@ -1754,6 +1839,18 @@ volatile
 5. **I/O阻塞(Blocked on I/O)：**等待I/O操作完成。
 6. **同步阻塞(Blocked on Synchronization)：**等待获取锁。
 7. **死亡(Dead)：**线程完成了执行
+
+![img](media/1174906-20180716200023341-515113887.png)
+
+多个线程处理同一个资源，需要线程间通信解决线程对资源的占用，避免对同一资源争夺。及引入等待唤醒机制（wait（），notify（））
+
+(a）wait（）方法:线程调用wait()方法，**释放**它对锁的拥有权，然后**等待另外的线程来通知它**（通知的方式是notify()或者notifyAll()方法），这样它才能重新获得锁的拥有权和恢复执行。
+
+　　  要确保调用wait()方法的时候**拥有锁**，即，wait()方法的调用必须放在**synchronized**方法或**synchronized**块中。
+
+(b)notify()方法：`notify()方法会唤醒一个等待当前对象的锁的线程。唤醒在此对象监视器上等待的单个线程。`
+
+(c)`notifAll()方法：**``**notifyAll（）方法会唤醒在此对象监视器上等待的所有线程。**`
 
 
 
@@ -1780,6 +1877,23 @@ volatile
 
 **继承Thread类，重写run方法（其实Thread类本身也实现了Runnable接口）**
 
+测试：
+
+```java
+class MyThread extends Thread{
+  public void run(){
+
+  }
+}
+public class TestThread{
+  public static void main(String[] args）{
+      MyThread thread = new MyThread();//创建用户线程对象
+      thread.start();//启动用户线程
+      thread.run();//主线程调用用户线程对象的run()方法
+  }
+}
+```
+
 方法
 
 ```java
@@ -1794,6 +1908,23 @@ public interrupte()
 ```
 
 **实现Runnable接口，重写run方法**
+
+当使用Thread(Runnable thread)方式创建线程对象时，须为该方法传递一个实现了Runnable接口的对象，这样创建的线程将调用实现Runnable接口的对象的run()方法
+
+```java
+public class TestThread{
+  public static void main(String[] args){
+      Mythread mt = new Mythread();
+      Thread t = new Thread(mt);//创建用户线程
+       t.start();//启动用户线程
+  }
+}
+class Mythread implements Runnable{
+    public void run(){
+
+    }
+}
+```
 
 **实现Callable接口，重写call方法（有返回值）**
 
@@ -1852,7 +1983,133 @@ Join（）：
 
 ## 5.6：线程池
 
-原理：
+作用：避免频繁地创建和销毁线程，达到线程对象的重用。另外，使用线程池还可以根据项目灵活地控制并发的数目。
+
+ThreadPoolExecutor类是线程池中最核心的一个类，它提供了四个构造方法。
+
+### 1，参数
+
+**corePoolSize核心线程数量**
+
+线程池中的核心线程数，当提交一个任务时，线程池创建一个新线程执行任务，直到当前线程数等于corePoolSize,
+即使有其他空闲线程能够执行新来的任务,
+也会继续创建线程；如果当前线程数为corePoolSize，继续提交的任务被保存到阻塞队列中，等待被执行；如果执行了线程池的prestartAllCoreThreads()方法，线程池会提前创建并启动所有核心线程。
+
+**workQueue阻塞队列**
+
+用来保存等待被执行的任务的阻塞队列. 在JDK中提供了如下阻塞队列：
+
+```java
+(1) ArrayBlockingQueue：基于数组结构的有界阻塞队列，按FIFO排序任务；
+
+(2)
+LinkedBlockingQuene：基于链表结构的阻塞队列，按FIFO排序任务，吞吐量通常要高于ArrayBlockingQuene；
+
+(3)
+SynchronousQuene：一个不存储元素的阻塞队列，每个插入操作必须等到另一个线程调用移除操作，否则插入操作一直处于阻塞状态，吞吐量通常要高于LinkedBlockingQuene；
+
+(4) priorityBlockingQuene：具有优先级的无界阻塞队列
+```
+
+**maximumPoolSize最大线程数**
+线程池中允许的最大线程数。如果当前阻塞队列满了，且继续提交任务，则创建新的线程执行任务，前提是当前线程数小于maximumPoolSize；当阻塞队列是无界队列,
+则maximumPoolSize则不起作用,
+因为无法提交至核心线程池的线程会一直持续地放入workQueue.
+
+**keepAliveTime线程空闲时的存活时间**  
+线程空闲时的存活时间，即当线程没有任务执行时，该线程继续存活的时间；默认情况下，该参数只在线程数大于corePoolSize时才有用,超过这个时间的空闲线程将被终止；
+
+**unit**  
+keepAliveTime的单位
+
+```
+有7种取值，在TimeUnit类中有7种静态属性
+*    TimeUnit.DAYS;               //天
+*    TimeUnit.HOURS;             //小时
+*    TimeUnit.MINUTES;           //分钟
+*    TimeUnit.SECONDS;           //秒
+*    TimeUnit.MILLISECONDS;      //毫秒
+*    TimeUnit.MICROSECONDS;      //微妙
+*    TimeUnit.NANOSECONDS;       //纳秒
+```
+
+**threadFactory线程工厂**  
+创建线程的工厂，通过自定义的线程工厂可以给每个新建的线程设置一个具有识别度的线程名。默认为DefaultThreadFactory
+
+**handler当拒绝处理任务时的策略**  
+线程池的饱和策略，当阻塞队列满了，且没有空闲的工作线程，如果继续提交任务，必须采取一种策略处理该任务，线程池提供了4种策略：  
+
+```java
+AbortPolicy：直接抛出异常，默认策略；
+CallerRunsPolicy：用调用者所在的线程来执行任务；
+DiscardOldestPolicy：丢弃阻塞队列中靠最前的任务，并执行当前任务；
+DiscardPolicy：直接丢弃任务,当然也可以根据应用场景实现
+```
+
+
+
+RejectedExecutionHandler接口，自定义饱和策略，如记录日志或持久化存储不能处理的任务。
+
+### 2：构造方法
+
+```java
+ public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize,long keepAliveTime,TimeUnit unit,
+            BlockingQueue<Runnable> workQueue);
+
+    public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize,long keepAliveTime,TimeUnit unit,
+            BlockingQueue<Runnable> workQueue,ThreadFactory threadFactory);
+
+    public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize,long keepAliveTime,TimeUnit unit,
+            BlockingQueue<Runnable> workQueue,RejectedExecutionHandler handler);
+
+    public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize,long keepAliveTime,TimeUnit unit,
+        BlockingQueue<Runnable> workQueue,ThreadFactory threadFactory,RejectedExecutionHandler handler);
+```
+
+### 3：其他创建线程池的方法
+
+1：newSingleThreadExecutor()：只创建唯一的工作者线程来执行任务。线程数目唯一，队列顺序执行
+
+2：newCachedThreadPool()：创建一个可缓存线程池，如果线程池长度超过处理需求，可灵活回收空闲线程，若无可回收这创建新新线程。
+
+处理大量短时间工作任务的线程池，他会缓存线程并重用，无缓存线程时，就会创建新线程，闲置超过60秒则会被移出缓存，其内部使用
+SynchronousQueue 作为工作队列；
+
+3：newFixedThreadPool(int  nThreads)：创建一个制定工作线程数量的线程池，任何时候最多有 nThreads
+个工作线程是活动的
+
+4：newSingleThreadScheduledExecutor()：创建单线程池，返回
+ScheduledExecutorService，可以进行定时或周期性的工作调度；
+
+5：newScheduledThreadPool(int
+corePoolSize)：创建一个定长的线程池，可以进行定时或周期性的工作调度，区别在于单一工作线程还是多个工作线程
+
+6：newWorkStealingPool(int parallelism)： Java 8
+才加入这个创建方法，其内部会构建ForkJoinPool，利用Work-Stealing算法，并行地处理任务，不保证处理顺序；
+
+7：ThreadPoolExecutor()：是最原始的线程池创建，上面1-3创建方式都是对ThreadPoolExecutor的封装。
+
+### 4：方法
+
+execute（）：提交任务，交给线程池执行
+
+submit（）：提交任务，能够返回执行结果 execute + Future
+
+shutdown（）：关闭线程池，等待任务都执行完
+
+shutdownNow（）：关闭线程池，不等待任务执行完
+
+getTaskCount（）：线程池已执行和未执行的任务总数
+
+getCompletedTaskCount（）：已完成的任务数量
+
+getPoolSize（）：线程池当前的线程数量
+
+getActiveCount（）：当前线程池中正在执行任务的线程数量
+
+
+
+### 原理：
 
 当一个任务提交至线程池之后，
 
@@ -1877,92 +2134,9 @@ ThreadPoolExecutor执行execute()流程：
 3.
 如果创建一个新的工作线程将使当前运行的线程数量超过maximumPoolSize，则交给RejectedExecutionHandler来处理任务。
 
-### 1：创建线程池的方法，
 
-1：newSingleThreadExecutor()：只创建唯一的工作者线程来执行任务。线程数目唯一，队列顺序执行
 
-2：newCachedThreadPool()：创建一个可缓存线程池，如果线程池长度超过处理需求，可灵活回收空闲线程，若无可回收这创建新新线程。
 
-处理大量短时间工作任务的线程池，他会缓存线程并重用，无缓存线程时，就会创建新线程，闲置超过60秒则会被移出缓存，其内部使用
-SynchronousQueue 作为工作队列；
-
-3：newFixedThreadPool(int  nThreads)：创建一个制定工作线程数量的线程池，任何时候最多有 nThreads
-个工作线程是活动的
-
-4：newSingleThreadScheduledExecutor()：创建单线程池，返回
-ScheduledExecutorService，可以进行定时或周期性的工作调度；
-
-5：newScheduledThreadPool(int
-corePoolSize)：创建一个定长的线程池，可以进行定时或周期性的工作调度，区别在于单一工作线程还是多个工作线程
-
-6：newWorkStealingPool(int parallelism)： Java 8
-才加入这个创建方法，其内部会构建ForkJoinPool，利用Work-Stealing算法，并行地处理任务，不保证处理顺序；
-
-7：ThreadPoolExecutor()：是最原始的线程池创建，上面1-3创建方式都是对ThreadPoolExecutor的封装。
-
-### 2，参数
-
-public ThreadPoolExecutor(
-
-int corePoolSize,
-
-int maximumPoolSize,
-
-long keepAliveTime,
-
-TimeUnit unit,
-
-BlockingQueue\<Runnable\> workQueue,
-
-RejectedExecutionHandler handler)
-
-**corePoolSize核心线程数量**
-
-线程池中的核心线程数，当提交一个任务时，线程池创建一个新线程执行任务，直到当前线程数等于corePoolSize,
-即使有其他空闲线程能够执行新来的任务,
-也会继续创建线程；如果当前线程数为corePoolSize，继续提交的任务被保存到阻塞队列中，等待被执行；如果执行了线程池的prestartAllCoreThreads()方法，线程池会提前创建并启动所有核心线程。
-
-**workQueue阻塞队列**
-
-用来保存等待被执行的任务的阻塞队列. 在JDK中提供了如下阻塞队列：
-
-(1) ArrayBlockingQueue：基于数组结构的有界阻塞队列，按FIFO排序任务；
-
-(2)
-LinkedBlockingQuene：基于链表结构的阻塞队列，按FIFO排序任务，吞吐量通常要高于ArrayBlockingQuene；
-
-(3)
-SynchronousQuene：一个不存储元素的阻塞队列，每个插入操作必须等到另一个线程调用移除操作，否则插入操作一直处于阻塞状态，吞吐量通常要高于LinkedBlockingQuene；
-
-(4) priorityBlockingQuene：具有优先级的无界阻塞队列；
-
-**maximumPoolSize最大线程数**
-线程池中允许的最大线程数。如果当前阻塞队列满了，且继续提交任务，则创建新的线程执行任务，前提是当前线程数小于maximumPoolSize；当阻塞队列是无界队列,
-则maximumPoolSize则不起作用,
-因为无法提交至核心线程池的线程会一直持续地放入workQueue.
-
-**keepAliveTime线程空闲时的存活时间**  
-线程空闲时的存活时间，即当线程没有任务执行时，该线程继续存活的时间；默认情况下，该参数只在线程数大于corePoolSize时才有用,超过这个时间的空闲线程将被终止；
-
-**unit**  
-keepAliveTime的单位
-
-**threadFactory线程工厂**  
-创建线程的工厂，通过自定义的线程工厂可以给每个新建的线程设置一个具有识别度的线程名。默认为DefaultThreadFactory
-
-**handler当拒绝处理任务时的策略**  
-线程池的饱和策略，当阻塞队列满了，且没有空闲的工作线程，如果继续提交任务，必须采取一种策略处理该任务，线程池提供了4种策略：  
-
-AbortPolicy：
-
-直接抛出异常，默认策略；
-
-CallerRunsPolicy：用调用者所在的线程来执行任务；
-
-DiscardOldestPolicy：丢弃阻塞队列中靠最前的任务，并执行当前任务；
-
-DiscardPolicy：直接丢弃任务；  
-当然也可以根据应用场景实现RejectedExecutionHandler接口，自定义饱和策略，如记录日志或持久化存储不能处理的任务。
 
 ### 3：状态
 
@@ -1985,23 +2159,7 @@ DiscardPolicy：直接丢弃任务；
 
 方法三：使用手动锁 Lock。
 
-### 4：方法
 
-execute（）：提交任务，交给线程池执行
-
-submit（）：提交任务，能够返回执行结果 execute + Future
-
-shutdown（）：关闭线程池，等待任务都执行完
-
-shutdownNow（）：关闭线程池，不等待任务执行完
-
-getTaskCount（）：线程池已执行和未执行的任务总数
-
-getCompletedTaskCount（）：已完成的任务数量
-
-getPoolSize（）：线程池当前的线程数量
-
-getActiveCount（）：当前线程池中正在执行任务的线程数量
 
 ### 4；关闭方式
 
@@ -2018,6 +2176,22 @@ Notify方法：
 - IO密集型：尽可能多的线程, Ncpu\*2，比如数据库连接池  
 -
 混合型：CPU密集型的任务与IO密集型任务的执行时间差别较小，拆分为两个线程池；否则没有必要拆分。
+
+### 6：线程池中遇到的问题
+
+（1）如果你提交任务时，线程池队列已满，这时会发生什么？
+
+如果你使用的LinkedBlockingQueue，也就是无界队列的话，没关系，继续添加任务到阻塞队列中等待执行，因为LinkedBlockingQueue可以近乎认为是一个无穷大的队列，可以无限存放任务；
+
+如果你使用的是有界队列比方说ArrayBlockingQueue的话，任务首先会被添加到ArrayBlockingQueue中，ArrayBlockingQueue满了，则会使用拒绝策略RejectedExecutionHandler处理满了的任务，默认是AbortPolicy。
+
+（2）高并发、任务执行时间短的业务怎样使用线程池？并发不高、任务执行时间长的业务怎样使用线程池？并发高、业务执行时间长的业务怎样使用线程池？这是我在并发编程网上看到的一个问题：
+
+　　　　1）高并发、任务执行时间短的业务，线程池线程数可以设置为CPU核数+1，减少线程上下文的切换
+　　　　2）并发不高、任务执行时间长的业务要区分开看：
+　　　　　　　a）假如是业务时间长集中在IO操作上，也就是IO密集型的任务，因为IO操作并不占用CPU，所以不要让所有的CPU闲下来，可以加大线程池中的线程数目，让CPU处理更多的业务
+　　　　　　　b）假如是业务时间长集中在计算操作上，也就是计算密集型任务，这个就没办法了，和（1）一样吧，线程池中的线程数设置得少一些，减少线程上下文的切换
+　　　　3）并发高、业务执行时间长，解决这种类型任务的关键不在于线程池而在于整体架构的设计，看看这些业务里面某些数据是否能做缓存是第一步，增加服务器是第二步，至于线程池的设置，设置参考 2）。最后，业务执行时间长的问题，也可能需要分析一下，看看能不能使用中间件对任务进行拆分和解耦。
 
 ## 2：进程间通信
 
@@ -2149,6 +2323,26 @@ Word中存储的是指向重量级锁的指针，此时等待锁的线程都会�
 6：独享锁（排它锁）与共享锁
 
 是指该锁一次只能被一个线程所持有。
+
+
+
+## 5.6：线程协作
+
+​	**1，CountDownLatch**
+
+　　这个类是为了帮助猿友们方便的实现一个这样的场景，就是某一个线程需要等待其它若干个线程完成某件事以后才能继续进行
+
+　　**2，CyclicBarrier**
+
+　　这个类是为了帮助猿友们方便的实现多个线程一起启动的场景，就像赛跑一样，只要大家都准备好了，那就开始一起冲。比如下面这个程序，所有的线程都准备好了，才会一起开始执行。
+
+　　**3，Semaphore**
+
+　　这个类是为了帮助猿友们方便的实现控制数量的场景，可以是线程数量或者任务数量等等。来看看下面这段简单的代码。
+
+　　**4，Exchanger**
+
+　　这个类是为了帮助猿友们方便的实现两个线程交换数据的场景，使用起来非常简单，看看下面这段代码
 
 # 六：IO与NIO
 
@@ -4479,3 +4673,4 @@ System.out.println(Objects.toString(object));
 1：实现拷贝文件工具类使用字节流还是字符流？
 
 字节流（图片，声音，图像）
+
