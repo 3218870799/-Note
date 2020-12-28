@@ -184,7 +184,7 @@ system 目录是 IntelliJ IDEA 系统文件目录，是 IntelliJ IDEA与开发�
 | ctrl + shift + F   | 全局搜索                                        |
 | ctrl + R           | 替换                                            |
 | Ctrl + Shift + R   | 全局替换                                        |
-|                    |                                                 |
+| ctrl+alt+v         | 提取方法返回值                                  |
 |                    |                                                 |
 |                    |                                                 |
 |                    |                                                 |
