@@ -1163,3 +1163,23 @@ java -jar arthas-boot.jar
 
 
 
+## 实用VisualVM进行方法优化
+
+项目中的某一个接口，在某一场景下（数据量大），性能让人难以忍受。
+
+使用 Visual VM 分析某个接口的性能的方法如下：
+
+![bg1](media/c168a436-a642-42ea-8c25-1d169dfeaf5a.png)
+
+结果显示如下:
+
+![bg1](media/01833431-a079-4993-98d7-99cfa4a17238.png)
+
+通过上图，我们可以看到比较耗时的方法为 resolveBytePosition 和 rest，getFile 和 currentUser 是网络请求，暂不考虑。
+
+
+
+Plumbr
+
+JVM检测工具，但是要企业邮箱注册
+
