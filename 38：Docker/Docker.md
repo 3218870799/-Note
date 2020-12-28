@@ -126,6 +126,86 @@ systemctl stop docker
 
 https://hub.docker.com/
 
+根据镜像启动容器：
+
+```cmd
+docker run --name mytomcat -d tomcat:latest
+```
+
+参数说明：
+
+![image-20201228220330904](media/image-20201228220330904.png)
+
+**获取镜像**
+
+根据镜像名称拉取镜像
+
+```
+[root@docker01 ~]# docker pull centos
+Using default tag: latest
+latest: Pulling from library/centos
+af4b0a2388c6: Downloading  34.65MB/73.67MB
+```
+
+查看当前主机镜像列表
+
+```
+[root@docker01 ~]# docker image list 
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+centos              latest              ff426288ea90        3 weeks ago         207MB
+nginx               latest              3f8a4339aadd        5 weeks ago         108MB
+```
+
+拉第三方镜像方法
+
+```
+docker pull index.tenxcloud.com/tenxcloud/httpd
+```
+
+**导出镜像**
+
+```
+[root@docker01 ~]# docker image list 
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+centos              latest              ff426288ea90        3 weeks ago         207MB
+nginx               latest              3f8a4339aadd        5 weeks ago         108MB
+# 导出
+[root@docker01 ~]# docker image save centos > docker-centos.tar.gz
+```
+
+**删除镜像**
+
+```
+[root@docker01 ~]# docker image rm centos:latest
+[root@docker01 ~]# docker image list 
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+nginx               latest              3f8a4339aadd        5 weeks ago         108MB
+```
+
+
+
+**导入镜像**
+
+```
+[root@docker01 ~]# docker image load -i docker-centos.tar.gz  
+e15afa4858b6: Loading layer  215.8MB/215.8MB
+Loaded image: centos:latest
+[root@docker01 ~]# docker image list 
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+centos              latest              ff426288ea90        3 weeks ago         207MB
+nginx               latest              3f8a4339aadd        5 weeks ago         108MB
+```
+
+
+
+**查看镜像的详细信息**
+
+```
+[root@docker01 ~]# docker image inspect centos
+```
+
+
+
 ### 2）、容器操作
 
 软件镜像（QQ安装程序）----运行镜像----产生一个容器（正在运行的软件，运行的QQ）；
@@ -165,6 +245,141 @@ https://docs.docker.com/engine/reference/commandline/docker/
 可以参考每一个镜像的文档
 
 ````
+
+查看正在运行的容器
+
+```
+[root@docker01 ~]# docker container ls
+    或
+[root@docker01 ~]# docker ps 
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES
+8708e93fd767        nginx               "nginx -g 'daemon of…"   6 seconds ago       Up 4 seconds        80/tcp              keen_lewin
+```
+
+
+
+
+
+查看你容器详细信息/ip
+
+```
+[root@docker01 ~]# docker container  inspect  容器名称/id
+```
+
+
+
+
+
+查看你所有容器（包括未运行的）
+
+```
+[root@docker01 ~]# docker ps -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                      PORTS               NAMES
+8708e93fd767        nginx               "nginx -g 'daemon of…"   4 minutes ago       Exited (0) 59 seconds ago                       keen_lewin
+f9f3e6af7508        nginx               "nginx -g 'daemon of…"   5 minutes ago       Exited (0) 5 minutes ago                        optimistic_haibt
+8d8f81da12b5        nginx               "nginx -g 'daemon of…"   3 hours ago         Exited (0) 3 hours ago                          lucid_bohr
+```
+
+
+
+停止容器
+
+```
+[root@docker01 ~]# docker stop 容器名称/id 
+或
+[root@docker01 ~]# docker container  kill  容器名称/id
+
+```
+
+**进入容器方法**
+
+**启动时进去方法**
+
+```
+[root@docker01 ~]# docker run -it #参数：-it 可交互终端
+[root@docker01 ~]# docker run -it nginx:latest  /bin/bash
+root@79241093859e:/#
+```
+
+
+
+退出/离开容器
+
+```
+ctrl+p & ctrl+q
+```
+
+
+
+**启动后进入容器的方法**
+
+启动一个docker
+
+```
+[root@docker01 ~]# docker run -it centos:latest 
+[root@1bf0f43c4d2f /]# ps -ef 
+UID         PID   PPID  C STIME TTY          TIME CMD
+root          1      0  0 15:47 pts/0    00:00:00 /bin/bash
+root         13      1  0 15:47 pts/0    00:00:00 ps -ef
+```
+
+
+
+attach进入容器，使用pts/0 ，会让所用通过此方法进如放入用户看到同样的操作。
+
+```
+[root@docker01 ~]# docker attach 1bf0f43c4d2f
+[root@1bf0f43c4d2f /]# ps -ef 
+UID         PID   PPID  C STIME TTY          TIME CMD
+root          1      0  0 15:47 pts/0    00:00:00 /bin/bash
+root         14      1  0 15:49 pts/0    00:00:00 ps -ef
+```
+
+
+
+自命名启动一个容器 --name
+
+```
+[root@docker01 ~]# docker attach 1bf0f43c4d2f
+[root@1bf0f43c4d2f /]# ps -ef 
+UID         PID   PPID  C STIME TTY          TIME CMD
+root          1      0  0 15:47 pts/0    00:00:00 /bin/bash
+root         14      1  0 15:49 pts/0    00:00:00 ps -ef
+```
+
+
+
+exec 进入容器方法（推荐使用）
+
+```
+[root@docker01 ~]# docker exec -it clsn1  /bin/bash 
+[root@b20fa75b4b40 /]# 重新分配一个终端
+[root@b20fa75b4b40 /]# ps -ef 
+UID         PID   PPID  C STIME TTY          TIME CMD
+root          1      0  0 16:11 pts/0    00:00:00 /bin/bash
+root         13      0  0 16:14 pts/1    00:00:00 /bin/bash
+root         26     13  0 16:14 pts/1    00:00:00 ps -ef
+```
+
+**删除所有容器**
+
+```
+[root@docker01 ~]# docker rm -f  `docker ps -a -q`
+# -f 强制删除
+```
+
+
+
+**启动时进行端口映射**
+
+-p参数端口映射
+
+```
+[root@docker01 ~]# docker run -d -p 8888:80  nginx:latest 
+287bec5c60263166c03e1fc5b0b8262fe76507be3dfae4ce5cd2ee2d1e8a89a9
+```
+
+
 
 
 
