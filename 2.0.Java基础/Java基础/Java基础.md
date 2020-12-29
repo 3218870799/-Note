@@ -1606,29 +1606,7 @@ System.out.println("通过Map.values()遍历所有的value，但不能遍历key"
 
   Map.entrySet迭代器会生成EntryIterator,其返回的实例是一个包含key/value键值对的对象。而keySet中迭代器返回的只是key对象，还需要到map中二次取值。故entrySet要比keySet快一倍左右。
 
-## 6：concurrent并发包
 
-**AbstractQueuedSynchronizer (AQS)**
-
-提供了一个基于FIFO队列
-
- **6.1 ConcurrentHashMap**
-
-**6.2 ReentrantLock**
-
-**6.3 Condition**
-
-**6.4 CopyOnWriteArrayList**
-
- CopyOnWriteArrayList是一个线程安全、并且在读操作时无锁的ArrayList
-
-**6.5 CopyOnWriteArraySet**
-
-CopyOnWriteArraySet基于CopyOnWriteArrayList实现，其唯一的不同是在add时调用的是CopyOnWriteArrayList的addIfAbsent方法。保证了无重复元素，但在add时每次都要进行数组的遍历，因此性能会略低于上个。
-
-**6.6 ArrayBlockingQueue**
-
-**6.7 ThreadPoolExecutor**
 
 
 
@@ -1820,6 +1798,90 @@ catch 尽可能进行区分异常类型，再做对应的异常处理。给出�
 
 并行：多个cpu实例或者多台机器同时执行一段处理逻辑，是真正的同时。 
 并发：通过cpu调度算法，让用户看上去同时执行，实际上从cpu操作层面不是真正的同时。
+
+## 1：concurrent并发包
+
+JUC包增加了并发编程中常用的工具类，用于定义类似于线程的自定义子 系统，包括线程池、异步 IO 和轻量级任务框架。提供可调的、灵活的线程池。还提供了设计用于多线程上下文中的 Collection 实现等。
+
+1：Volatile关键字
+
+见前关键字
+
+2：原子变量与CAS算法
+
+标量原子变量类 AtomicInteger，AtomicLong和AtomicBoolean类分别支持对原始数据类型int，long和boolean的操作。当引用变量需要以原子方式更新时，AtomicReference类用于处理引用数据类型。
+
+原子数组类 有三个类称为AtomicIntegerArray，AtomicLongArray和AtomicReferenceArray，它们表示一个int，long和引用类型的数组，其元素可以进行原子性更新。
+
+
+
+CAS（比较交换）是一种无锁非阻塞的算法实现
+
+CAS会导致ABA问题，线程1准备用CAS将变量的值由A替换为B，在此之前，线程2将变量的值由A替换为C，又由C替换为A，然后线程1执行CAS时发现变量的值仍然为A，所以CAS成功。但实际上这时的现场已经和最初不同了，尽管CAS成功，但可能存在潜藏的问题。
+
+
+
+3：ConcurrentHashMap
+
+见前
+
+
+
+4：CountDownLatch（闭锁）
+
+一个同步辅助类，在完成一组正在其他线程中执行的操作之前，它允许一个或多个线程一直等待。
+
+**CountDownLatch最重要的方法是countDown()——倒数 和 await()，前者主要是倒数一次，后者是等待倒数到0，如果没有到达0，就只有阻塞等待了。**
+
+
+
+5：Lock同步锁
+
+
+
+6：Condition 控制线程通信
+
+
+
+
+
+7：**ReadWriteLock 读写锁**
+
+
+
+8：**线程8锁**
+
+
+
+
+
+
+
+**AbstractQueuedSynchronizer (AQS)**
+
+提供了一个基于FIFO队列
+
+ **6.1 ConcurrentHashMap**
+
+**6.2 ReentrantLock**
+
+**6.3 Condition**
+
+**6.4 CopyOnWriteArrayList**
+
+ CopyOnWriteArrayList是一个线程安全、并且在读操作时无锁的ArrayList
+
+**6.5 CopyOnWriteArraySet**
+
+CopyOnWriteArraySet基于CopyOnWriteArrayList实现，其唯一的不同是在add时调用的是CopyOnWriteArrayList的addIfAbsent方法。保证了无重复元素，但在add时每次都要进行数组的遍历，因此性能会略低于上个。
+
+**6.6 ArrayBlockingQueue**
+
+**6.7 ThreadPoolExecutor**
+
+
+
+
 
 ## 5.1：原理/方法机制
 
