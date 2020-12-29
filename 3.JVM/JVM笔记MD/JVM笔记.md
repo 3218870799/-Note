@@ -433,25 +433,40 @@ https://www.cnblogs.com/webor2006/p/11055468.html
 
 `java`编译器将 `.java` 文件编译成扩展名为 `.class` 的文件。.class 文件中保存着java转换后，虚拟机将要执行的指令。当需要某个类的时候，java虚拟机会加载 .class 文件，并创建对应的class对象，将class文件加载到虚拟机的内存，这个过程被称为类的加载。
 
-![](media/20190302102035338.png)
+![image-20201229165142316](media/image-20201229165142316.png)
 
-加载
+（1）加载
 
 类加载过程的一个阶段，ClassLoader通过一个类的完全限定名查找此类字节码文件，并利用字节码文件创建一个class对象。
 
-验证
+在加载阶段，虚拟机主要完成三件事情： 
+① 通过一个类的全限定名（比如com.danny.framework.t）来获取定义该类的二进制流； 
+② 将这个字节流所代表的静态存储结构转化为方法区的运行时存储结构； 
+③ 在内存中生成一个代表这个类的java.lang.Class对象，作为程序访问方法区中这个类的外部接口。
 
-目的在于确保class文件的字节流中包含信息符合当前虚拟机要求，不会危害虚拟机自身的安全，主要包括四种验证：文件格式的验证，元数据的验证，字节码验证，符号引用验证。
+（2）验证
 
-准备
+目的在于确保class文件的字节流中包含信息符合当前虚拟机要求，不会危害虚拟机自身的安全，主要包括四种验证：
+
+文件格式的验证，
+
+元数据的验证，
+
+字节码验证，
+
+符号引用验证。
+
+
+
+（3）准备
 
 为类变量（static修饰的字段变量）分配内存并且设置该类变量的初始值，（如static int i = 5 这里只是将 i 赋值为0，在初始化的阶段再把 i 赋值为5)，这里不包含final修饰的static ，因为final在编译的时候就已经分配了。这里不会为实例变量分配初始化，类变量会分配在方法区中，实例变量会随着对象分配到Java堆中。
 
-解析
+（4）解析
 
 这里主要的任务是把常量池中的符号引用替换成直接引用
 
-初始化
+（5）初始化
 
 这里是类记载的最后阶段，如果该类具有父类就进行对父类进行初始化，执行其静态初始化器（静态代码块）和静态初始化成员变量。（前面已经对static 初始化了默认值，这里我们对它进行赋值，成员变量也将被初始化）
 
@@ -460,6 +475,8 @@ https://www.cnblogs.com/webor2006/p/11055468.html
 
 
 ## 5. 类加载器 
+
+作用：加载class，确定类的唯一性
 
 把实现类加载阶段中的“通过一个类的全限定名来获取描述此类的二进制字节流”这个动作的代码模块称为“类加载器”。
 
@@ -473,6 +490,22 @@ https://www.cnblogs.com/webor2006/p/11055468.html
 
 即使两个类来源于同一个 Class 文件，被同一个虚拟机加载，只要加载它们的类加载器不同，那这两个类也不相等。
 这里所指的“相等”，包括代表类的 Class 对象的 equals() 方法、 isAssignableFrom() 方法、isInstance() 方法的返回结果，也包括使用 instanceof 关键字做对象所属关系判定等情况。
+
+
+
+#### 分类
+
+类加载器分为如下几种：启动类加载器（Bootstrap ClassLoader）、扩展类加载器（Extension ClassLoader）、应用程序类加载器（Application ClassLoader）和自定义类加载器（User ClassLoader），其中启动类加载器属于JVM的一部分，其他类加载器都用java实现，并且最终都继承自java.lang.ClassLoader。
+
+① 启动类加载器（Bootstrap ClassLoader）是由C/C++编译而来的，看不到源码，所以在java.lang.ClassLoader源码中看到的Bootstrap ClassLoader的定义是native的“private native Class findBootstrapClass(String name);”。启动类加载器主要负责加载JAVA_HOMElib目录或者被-Xbootclasspath参数指定目录中的部分类，具体加载哪些类可以通过“System.getProperty(“sun.boot.class.path”)”来查看。
+
+② 扩展类加载器（Extension ClassLoader）由sun.misc.Launcher.ExtClassLoader实现，负责加载JAVA_HOMElibext目录或者被java.ext.dirs系统变量指定的路径中的所有类库，可以用通过“System.getProperty(“java.ext.dirs”)”来查看具体都加载哪些类。
+
+③ 应用程序类加载器（Application ClassLoader）由sun.misc.Launcher.AppClassLoader实现，负责加载用户类路径（我们通常指定的classpath）上的类，如果程序中没有自定义类加载器，应用程序类加载器就是程序默认的类加载器。
+
+④ 自定义类加载器（User ClassLoader），JVM提供的类加载器只能加载指定目录的类（jar和class），如果我们想从其他地方甚至网络上获取class文件，就需要自定义类加载器来实现，自定义类加载器主要都是通过继承ClassLoader或者它的子类来实现，但无论是通过继承ClassLoader还是它的子类，最终自定义类加载器的父加载器都是应用程序类加载器，因为不管调用哪个父类加载器，创建的对象都必须最终调用java.lang.ClassLoader.getSystemClassLoader()作为父加载器，getSystemClassLoader()方法的返回值是sun.misc.Launcher.AppClassLoader即应用程序类加载器。
+
+
 
 #### 双亲委派
 
