@@ -12,7 +12,7 @@
 
 目录结构
 
-![image-20201022141250357](image-20201022141250357.png)
+![image-20201022141250357](media/image-20201022141250357.png)
 
 bin：go的指令
 
@@ -23,9 +23,9 @@ src：go的源代码
 创建工作区间，并创建文件test.go,文本方式打开，键入
 
 ```go
-**package** main
+package main
 
-**import** "fmt"
+import "fmt"
 
 func main() {
   fmt.Println("Hello, World!")
@@ -64,7 +64,27 @@ D:\Golang\Workplace>go run test.go
 
 7）切片slice，延时执行defer
 
+C + Python
+
+如果定义了变量，没有用到，代码编译不能通过
+
+
+
+官方API文档
+
+中文网在线文档：https://studygolang.com/pkgdoc
+
+
+
 ## 2.3：变量
+
+标识符
+
+
+
+
+
+
 
 ### 2.3.1：类型
 
@@ -94,6 +114,22 @@ var num = 10.11
 name :="tom"
 ```
 
+
+
+基本数据类型
+
+int
+
+float
+
+bool
+
+string
+
+数组
+
+结构体struct
+
 ### 2.3.2：运算
 
 
@@ -103,6 +139,10 @@ name :="tom"
 ```go
 var ptr *int = &num
 ```
+
+
+
+
 
 ## 2.4：运算符
 
@@ -150,7 +190,26 @@ res3 := Fun1(4,9)
 
 2）引用类型：指针，slice切片，map，管道chan，interface等
 
+
+
+### 2.5.3init函数
+
+每一个源文件都可以包含一个init函数，该函数会在main函数执行前，被Go运行框架调用
+
 ### 2.5.3：字符串函数
+
+```go
+//统计肌肤穿长度
+len("str")
+
+//字符串遍历
+str = "hello 北京"
+r := []rune(str)
+for i:=0;i<len(r);i++ {
+    fmt.Printf("字符串=%c\n",r[i])
+}
+
+```
 
 
 
@@ -177,6 +236,8 @@ return func(x int) int {
 ## 2.7：函数的defer(延迟执行)
 
 在函数中，**为了在函数执行完毕后，及时释放资源**，提供defer
+
+当go执行到一个defer时，不会立即执行defer后的语句，而是将语句压入栈中，当函数执行完毕，再重栈中取出执行。
 
 ```go
 func sun(n1 int,n2 int) int {
@@ -219,6 +280,25 @@ defer connect.close()
 
 Go语言不支持try ……catch……finally，而是引入的处理方式为**defer ，panic，recover**：Go中可以抛出一个**panic的异常**，然后在**defer中通过recover捕获**这个异常，然后处理
 
+```go
+func test(){
+    //使用defer + recover 来捕获和处理异常
+    defer func(){
+        //recover()内置函数，可以捕获到异常
+        err := recover()
+        if err !=nil{
+            fmt.Println("err = ",err)
+        }        
+    }()
+    num1 :=10
+    num2 :=0
+    res :=num1/num2
+    fmt.Println("res = ",res)    
+}
+```
+
+自定义异常
+
 
 
 ## 2.9：数组与切片
@@ -257,13 +337,142 @@ func main(){
 
 slice[ 存放22的地址，长度len，容量cap]
 
+## 2.10：Map
+
+key-value结构，成为字段或者关联数组
+
+key和value的值不能是slice，map还有function，其他都可以，key是不能重复的，重复的相当于更新
+
+声明是不会分配内存的，初始化需要make，分配内存后才能赋值和使用
+
+```go
+func main(){
+    //map的声明和注意事项
+    var a map[string]string
+    //在使用map前，需要先make，make的作用就是给分配数据空间
+    a = make(map[string]string,10)
+    a["no1"] = "no1"
+    a["no2"] = "no2"
+    a["no1"] = "no3"
+    fmt.Println(a)
+    //删除
+    delete(a,"no1")
+    //如果删除的不存在，不会操作，也不会报错
+    delete(a,"no4")
+    //遍历
+    for k,v := range a {
+        fmt.Print("k=%v v=%v",k,v)
+    }
+    
+}
+```
+
+### map切片
+
+切片的数据类型如果是map，称之为map切片，这样map的个数就可以动态变化了
+
+```go
+func main(){
+    var m []map[string]string
+    //???这个2
+    m = make([]map[string]string,2)
+}
+```
+
+# 第三章：面向对象
+
+结构体
+
+声明结构体
+
+```go
+type Student struct{
+    Name string
+    Age int
+    Score float32
+}
+```
+
+封装
+
+继承
+
+```go
+type Pupil struct{
+    //直接嵌入Student匿名结构体
+    Student
+}
+```
+
+多重继承
+
+接口
+
+```go
+type AInterface interface{
+    Say()
+}
+```
+
+多态
+
+# 第四章：文件
+
+打开文件
+
+```go
+func main(){
+    file ,err := os.open("d:/test.txt")
+    if err !=nil {
+        fmt.Println("open file err=",err)
+    }
+    //输出文件
+    fmt.Println("file = %v",file)
+    //关闭文件
+    err = file.close()
+    if err != nil {
+        fmt.Println("close file err=",err)
+    }
+}
+```
 
 
 
+# 第五章：Goroutine 和channel
+
+Golang的协程重要，它可以轻松开启上万个协程，其他编程语言的并发机制是一般基于线程，开启过多的线程，资源耗费大，这里就凸显Golang的并发的优势了。
+
+## Goroutine的调度模型
+
+MPG模式
+
+M：操作系统的主线程（物理线程）
+
+P：协程执行需要的上下文
+
+G：协程
+
+![image-20201229221517480](media/image-20201229221517480.png)
+
+![image-20201229221556445](media/image-20201229221556445.png)
 
 
 
-  
+设置Golang运行的CPU数
+
+go1.8后，默认让程序运行在多个核上。可以不用设置
+
+```go
+func main(){
+    //获取当前系统CPU的数量
+    num：= runtime.NumCPU()
+    //我这里设置num-1的CPU运行go程序
+    runtime.GOMAXPROCS(num)
+    fmt.Println("num=",num)
+}
+```
 
 
+
+## channel管道
 
