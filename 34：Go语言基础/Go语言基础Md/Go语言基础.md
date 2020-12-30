@@ -476,3 +476,168 @@ func main(){
 
 ## channel管道
 
+不同的goroutine之间如何进行通信？
+
+1）全局变量互斥锁
+
+2）使用管道channel来解决
+
+
+
+本质是一个队列，保持先进先出的原则，线程安全，都goroutine访问时，不需要加锁，channel是有类型的，string的channel只能存放string，
+
+声明
+
+```go
+var 变量名 chan 数据类型
+var intChan chan int(intChan用于存放int数据)
+```
+
+channel是引用类型，必须make之后才能使用
+
+```go
+func main() {
+	//创建一个可以存放3个int类型的管道
+	var intChan chan int
+	intChan = make(chan int,3)
+
+	//看看intChan是什么
+	fmt.Printf("intChan的值 = %v intChan 本身的地址 = %p \n",intChan,&intChan)
+	//像管道写入数据
+	intChan<- 10
+	num :=211
+	intChan<- num
+	intChan<- 50
+	//查看管道的长度和容量
+	fmt.Printf("channel len %v cap=%v \n",len(intChan),cap(intChan))//3,3
+
+	//从管道中取出数据
+	var num2 int
+	num2 = <- intChan
+	fmt.Printf("num2 = %v\n",num2)
+	fmt.Printf("channel len %v cap=%v \n",len(intChan),cap(intChan))//2,3
+
+}
+```
+
+channel有声明为只读或则只写性质
+
+```go
+var chan2 chan<- int//只写性质
+var chan3 <-chan int//只读性质 
+```
+
+
+
+# 第六章：反射
+
+反射可以在运行时动态获取变量的各种信息，比如变量的类型，类别，如果是结构体变量，还可以回去到结构体本身信息
+
+使用反射，需要引入 `import ("reflect")
+
+
+
+当不知道接口调用那个函数，根据传入参数在运行时确定调用的具体接口，这种需要对函数或方法反射
+
+```go
+func reflectTest01(num interface{}) {
+	//通过反射获取的传入的变量的type，kind值
+	//先获取到reflect。Type
+	rTyp:= reflect.TypeOf(num)
+	fmt.Printf("rType = ",rTyp)
+
+	//获取reflect.Value
+	rVal:=reflect.ValueOf(num)
+	n2:=2 + rVal.Int()
+	fmt.Printf("n2 = %v\n",n2)
+	fmt.Printf("rVal = %v rVal Type = %T\n",rVal,rVal)
+}
+```
+
+
+
+# 第七章：网络编程
+
+
+
+
+
+# 第八章：Redis的使用
+
+1：安装Redis库
+
+在GoPath路径下执行安装命令
+
+```cmd
+go get github.com/garyburd/redigo/redis
+```
+
+使用
+
+```go
+import(
+	"fmt"
+    "github.com/garyburd/redigo/redis"//引入redis包
+)
+
+func main(){
+    //通过go向redis写入数据和读取数据
+    //链接到redis
+    conn,err := redis.Dial("tcp","127.0.0.1:6379")
+    if err!=nil {
+        fmt.Println("redis.Dial err = ",err)
+        return
+    }
+    defer conn.Close()//关闭
+    //痛过go向redis写入数据
+    _,err = conn.Do("Set","name","maoma")
+        if err!=nil {
+        fmt.Println("Set err = ",err)
+        return
+    }
+    
+    //通过go向redis读取数据
+    r,err := redis.String(conn.Do("Get","name"))
+    if err!=nil{
+                fmt.Println("Get err = ",err)
+        return
+    }
+}
+
+```
+
+
+
+## Redisl连接池
+
+事先初始化一定数量的链接，放入连接词中
+
+```go
+import(
+	"fmt"
+    "github.com/garyburd/redigo/redis"//引入redis包
+)
+//定义一个全局的pool
+var pool *redis.Pool
+
+//当启动程序是，就初始化连接词
+func init(){
+    pool = &redis.Pool{
+        MaxIdle:8,//最大空闲连接数
+        MaxActive:0,//表示和数据库的最大连接数，0表示没有限制
+        IdleTimeout:100,//最大空闲时间
+        Dial:func()(redis.Conn,error){
+            //初始化链接的代码，链接那个IP的redis
+            return redis.Dial("tcp","localhost:6379")
+        },
+    }
+}
+func main(){
+    //先从pool取出一个链接
+    conn:=pool.Get()
+    defer conn.Close()
+    
+    
+}
+```
+
