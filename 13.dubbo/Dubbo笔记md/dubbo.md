@@ -1,4 +1,4 @@
-# 一、基础知识
+﻿# 一、基础知识
 
 ## 1、分布式基础理论
 
@@ -12,7 +12,7 @@
 
 ### 1.2）、发展演变
 
-![C:\\Users\\lfy\\Desktop\\dubbo-architecture-roadmap.jpg](media/23791576e8f92918933e5ec1909d4538.jpeg)
+![](media/23791576e8f92918933e5ec1909d4538.jpeg)
 
 **单一应用架构**
 
@@ -131,9 +131,9 @@ clientPort=2181  zookeeper的端口号
 
 ls /：列出zookeeper根下保存的所有节点
 
-create –e /atguigu 123：创建一个atguigu节点，值为123
+create –e /xqc 123：创建一个xqc节点，值为123
 
-get /atguigu：获取/atguigu节点的值
+get /xqc：获取/xqc节点的值
 
 ### 3.2）windows安装dubbo-admin
 
@@ -426,7 +426,7 @@ public List<UserAddress> getUserAddressList(String userId)
 pom.xml 
 <dependencies>  
      <dependency\>  
-         <groupId>com.atguigu.dubbo</groupId>
+         <groupId>com.xqc.dubbo</groupId>
          <artifactId>gmall-interface</artifactId>  
          <version>0.0.1-SNAPSHOT</version>  
       </dependency>  
@@ -449,7 +449,7 @@ public class** UserServiceImpl **implements** UserService {
 pom.xml
 <dependencies\>
     <dependency\>
-        <groupId\>com.atguigu.dubbo\</groupId\>
+        <groupId\>com.xqc.dubbo\</groupId\>
         <artifactId\>gmall-interface\</artifactId\> 
         <version\>0.0.1-SNAPSHOT\</version\>
     </dependency\>  
@@ -513,7 +513,7 @@ dubbo 2.6及以后的版本引入curator操作zookeeper
     <!--使用dubbo协议，将服务暴露在20880端口  -->
     <dubbo:protocol name="dubbo" port="20880" />
     <!-- 指定需要暴露的服务 -->
-    <dubbo:service interface="com.atguigu.gmall.service.UserService" ref="userServiceImpl" />
+    <dubbo:service interface="com.xqc.gmall.service.UserService" ref="userServiceImpl" />
 ```
 
 3：启动服务
@@ -561,7 +561,7 @@ dubbo 2.6及以后的版本引入curator操作zookeeper
 	<!-- 指定注册中心地址 -->
 	<dubbo:registry address="zookeeper://118.24.44.169:2181" />
 	<!-- 生成远程服务代理，可以和本地bean一样使用demoService -->
-	<dubbo:reference id="userService" interface="com.atguigu.gmall.service.UserService"></dubbo:reference>
+	<dubbo:reference id="userService" interface="com.xqc.gmall.service.UserService"></dubbo:reference>
 
 
 ```
@@ -580,12 +580,12 @@ dubbo 2.6及以后的版本引入curator操作zookeeper
 <dubbo:application name="gmall-user"></dubbo:application>
     <dubbo:registry address="zookeeper://118.24.44.169:2181" />
     <dubbo:protocol name="dubbo" port="20880" />
-<dubbo:annotation package="com.atguigu.gmall.user.impl"/>
+<dubbo:annotation package="com.xqc.gmall.user.impl"/>
     
 import com.alibaba.dubbo.config.annotation.Service;
-import com.atguigu.gmall.bean.UserAddress;
-import com.atguigu.gmall.service.UserService;
-import com.atguigu.gmall.user.mapper.UserAddressMapper;
+import com.xqc.gmall.bean.UserAddress;
+import com.xqc.gmall.service.UserService;
+import com.xqc.gmall.user.mapper.UserAddressMapper;
 
 @Service //使用dubbo提供的service注解，注册暴露服务
 public class UserServiceImpl implements UserService {
@@ -600,7 +600,7 @@ public class UserServiceImpl implements UserService {
 ```xml
 <dubbo:application name="gmall-order-web"></dubbo:application>
 <dubbo:registry address="zookeeper://118.24.44.169:2181" />
-<dubbo:annotation package="com.atguigu.gmall.order.controller"/>
+<dubbo:annotation package="com.xqc.gmall.order.controller"/>
 
 @Controller
 public class OrderController {
@@ -671,7 +671,7 @@ dubbo.application.name=gmall-user
 dubbo.registry.protocol=zookeeper
 dubbo.registry.address=192.168.67.159:2181
 # 需要扫描的包
-dubbo.scan.base-package=com.atguigu.gmall
+dubbo.scan.base-package=com.xqc.gmall
 # ProtocolConfig Bean
 dubbo.protocol.id=dubbo
 dubbo.protocol.name=dubbo
@@ -685,7 +685,7 @@ base-package  注解方式要扫描的包
 dubbo.application.name=gmall-order-web
 dubbo.registry.protocol=zookeeper
 dubbo.registry.address=192.168.67.159:2181
-dubbo.scan.base-package=com.atguigu.gmall
+dubbo.scan.base-package=com.xqc.gmall
 dubbo.protocol.name=dubbo
 
 ```
