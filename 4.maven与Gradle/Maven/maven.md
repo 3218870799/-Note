@@ -1,26 +1,4 @@
-# Maven介绍
-
-## 项目开发中遇到的问题
-
-1、都是同样的代码，为什么在我的机器上可以编译执行，而在他的机器上就不行？
-
-2、为什么在我的机器上可以正常打包，而配置管理员却打不出来?
-
-3、项目组加入了新的人员，我要给他说明编译环境如何设置，但是让我挠头的是，有些细节我也记不清楚了。
-
-4、我的项目依赖一些jar包，我应该把他们放哪里？放源码库里？
-
-5、这是我开发的第二个项目，还是需要上面的那些jar包，再把它们复制到我当前项目的svn库里吧
-
-6、现在是第三次，再复制一次吧 ----- 这样真的好吗？
-
-7、我写了一个数据库相关的通用类，并且推荐给了其他项目组，现在已经有五个项目组在使用它了，今天我发现了一个bug，并修正了它，我会把jar包通过邮件发给其他项目组
-
-\-----这不是一个好的分发机制，太多的环节可能导致出现bug
-
-8、项目进入测试阶段，每天都要向测试服务器部署一版。每次都手动部署，太麻烦了。
-
-## 什么是maven
+﻿# Maven介绍
 
 Maven是基于项目对象模型(POM)，可以通过一小段描述信息来管理项目的构建，报告和文档的软件项目管理工具。
 
@@ -36,7 +14,7 @@ Maven主要有两个功能：
 
 **构建过程：**
 
-![E:\\工作\\java\\课件\\17-Maven\\讲义\\项目构建过程.JPG](media/7388b3e8c79ac938cc3a5e231ac9dfef.jpeg)
+![](media/7388b3e8c79ac938cc3a5e231ac9dfef.jpeg)
 
 ## 项目构建的方式
 
@@ -157,22 +135,34 @@ target目录会在编译之后自动创建。
 
 ### 第二步：创建HelloWorld.java
 
-在src/main/java/cn/itcast/maven目录下新建文件Hello.java
+在src/main/java/cn/xqc/maven目录下新建文件Hello.java
 
-| package cn.itcast.maven; public class HelloWorld {  public String sayHello(String name){  return "Hello World :" + name + "!";  } } |
-|-------------------------------------------------------------------------------------------------------------------------------------|
+```java
+public class HelloWorld {  
+    public String sayHello(String name){
+        return "Hello World :" + name + "!"; 
+    } 
+} 
+```
 
 
 ### 第三步：创建TestHelloWorld.java
-
-| package cn.itcast.maven; import org.junit.Test; import static junit.framework.Assert.\*; public class TestHelloWorld{  \@Test  public void testSayHello(){  HelloWorld hw = new HelloWorld();  String result = hw.sayHello("zhangsan");  assertEquals("hello zhangsan",result);  }  } |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-
+```java
+ public class TestHelloWorld{  
+     @Test  
+     public void testSayHello(){  
+         HelloWorld hw = new HelloWorld(); 
+         String result = hw.sayHello("zhangsan");  
+         assertEquals("hello zhangsan",result);
+     }  
+ }
+```
 
 ### 第四步：配置pom.xml
 
-| \<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"\>  \<!-- 版本：4.0.0 --\>  \<modelVersion\>4.0.0\</modelVersion\>  \<!-- 组织名称：暂时使用 组织名称+项目名称 作为组织名称 --\>  \<!-- 组织名称：实际名称 按照访问路径规范设置，通常以功能作为名称：eg: junit spring --\>  \<groupId\>cn.itcast.maven\</groupId\>  \<!-- 项目名称 --\>  \<artifactId\>HelloWorld\</artifactId\>  \<!-- 当前项目版本号：同一个项目开发过程中可以发布多个版本，此处标示0.0.1版 --\>  \<!-- 当前项目版本号：每个工程发布后可以发布多个版本，依赖时调取不同的版本，使用不同的版本号 --\>  \<version\>0.0.1\</version\>  \<!-- 名称：可省略 --\>  \<name\>Hello\</name\>  \<!-- 依赖关系 --\>  \<dependencies\>  \<!-- 依赖设置 --\>  \<dependency\>  \<!-- 依赖组织名称 --\>  \<groupId\>junit\</groupId\>  \<!-- 依赖项目名称 --\>  \<artifactId\>junit\</artifactId\>  \<!-- 依赖版本名称 --\>  \<version\>4.9\</version\>  \<!-- 依赖范围：test包下依赖该设置 --\>  \<scope\>test\</scope\>  \</dependency\>   \</dependencies\> \</project\> |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+```xml
+
+```
 
 
 到此maven工程即创建成功。
@@ -313,18 +303,17 @@ M2Eclipse是eclipse中的maven插件
 
 #### 创建MavenFirst.java
 
-在src/main/java中创建cn.itcast.maven包，然后创建MavenFirst.java
+在src/main/java中创建cn.xqc.maven包，然后创建MavenFirst.java
 
-| **package** cn.itcast.maven; **public class** MavenFirst {  **public** String sayHello(String name) {  **return** "hello " + name;  } } |
-|-----------------------------------------------------------------------------------------------------------------------------------------|
+ ```**package** cn.xqc.maven; **public class** MavenFirst {  **public** String sayHello(String name) {  **return** "hello " + name;  } } ```
 
 
 #### 创建TestMavenFirst.java
 
-在src/test/java中创建cn.itcast.maven包，然后创建TestMavenFirst.java
+在src/test/java中创建cn.xqc.maven包，然后创建TestMavenFirst.java
 
-| **package** cn.itcast.maven; **import** org.junit.Assert; **import** org.junit.Test; **public class** TestMavenFirst {  \@Test  **public void** testSayHello() {  MavenFirst first = **new** MavenFirst();  String result = first.sayHello("zhangsan");  Assert.*assertEquals*("hello zhangsan", result);  } } |
-|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+```java **package** cn.xqc.maven; **import** org.junit.Assert; **import** org.junit.Test; **public class** TestMavenFirst {  \@Test  **public void** testSayHello() {  MavenFirst first = **new** MavenFirst();  String result = first.sayHello("zhangsan");  Assert.*assertEquals*("hello zhangsan", result);  } } ```java
+​```java```````````````java----```java
 
 
 #### 执行maven命令进行测试
@@ -380,20 +369,20 @@ Packaging：指定打包方式，默认为jar。选项有：jar、war、pom。
 
 在Maven-second工程中依赖使用maven-first工程的代码
 
-| \<project xmlns=*"http://maven.apache.org/POM/4.0.0"* xmlns:xsi=*"http://www.w3.org/2001/XMLSchema-instance"*  xsi:schemaLocation=*"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"*\>  \<modelVersion\>4.0.0\</modelVersion\>  \<groupId\>cn.itcast.maven\</groupId\>  \<artifactId\>maven-second\</artifactId\>  \<version\>0.0.1-SNAPSHOT\</version\>  \<dependencies\>  \<dependency\>  \<groupId\>junit\</groupId\>  \<artifactId\>junit\</artifactId\>  \<version\>4.12\</version\>  \</dependency\>  \<dependency\>  \<groupId\>cn.itcast.maven\</groupId\>  \<artifactId\>maven-first\</artifactId\>  \<version\>0.0.1-SNAPSHOT\</version\>  \</dependency\>  \</dependencies\> \</project\> |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+```java \<project xmlns=*"http://maven.apache.org/POM/4.0.0"* xmlns:xsi=*"http://www.w3.org/2001/XMLSchema-instance"*  xsi:schemaLocation=*"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"*\>  \<modelVersion\>4.0.0\</modelVersion\>  \<groupId\>cn.xqc.maven\</groupId\>  \<artifactId\>maven-second\</artifactId\>  \<version\>0.0.1-SNAPSHOT\</version\>  \<dependencies\>  \<dependency\>  \<groupId\>junit\</groupId\>  \<artifactId\>junit\</artifactId\>  \<version\>4.12\</version\>  \</dependency\>  \<dependency\>  \<groupId\>cn.xqc.maven\</groupId\>  \<artifactId\>maven-first\</artifactId\>  \<version\>0.0.1-SNAPSHOT\</version\>  \</dependency\>  \</dependencies\> \</project\> ```java
+​```java````````````````````````````````````java-----------------```java
 
 
 #### 创建MavenSecond.java
 
-| **package** cn.itcast.maven; **public class** MavenSecond {  **public** String sayHello(String name) {  MavenFirst first = **new** MavenFirst();  **return** first.sayHello(name) + ":second";  } } |
-|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+```java **package** cn.xqc.maven; **public class** MavenSecond {  **public** String sayHello(String name) {  MavenFirst first = **new** MavenFirst();  **return** first.sayHello(name) + ":second";  } } ```java
+​```java`````````java---------```java
 
 
 #### 创建TestMavenSecond.java
 
-| **package** cn.itcast.maven; **import** org.junit.Assert; **import** org.junit.Test; **public class** TestMavenSecond {  \@Test  **public void** testSayHello() {  MavenSecond second = **new** MavenSecond();  String result = second.sayHello("zhangsan");  Assert.*assertEquals*("hello zhangsan:second", result);  } } |
-|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+```java **package** cn.xqc.maven; **import** org.junit.Assert; **import** org.junit.Test; **public class** TestMavenSecond {  \@Test  **public void** testSayHello() {  MavenSecond second = **new** MavenSecond();  String result = second.sayHello("zhangsan");  Assert.*assertEquals*("hello zhangsan:second", result);  } } ```java
+​```java```````````````java----------------```java
 
 
 #### 测试工程
@@ -402,8 +391,8 @@ Packaging：指定打包方式，默认为jar。选项有：jar、war、pom。
 
 如果maven-first工程没有安装则会出现以下错误：
 
-| [INFO] Scanning for projects... [INFO]  [INFO] ------------------------------------------------------------------------ [INFO] Building maven-second 0.0.1-SNAPSHOT [INFO] ------------------------------------------------------------------------ [WARNING] The POM for cn.itcast:maven-first:jar:0.0.1-SNAPSHOT is missing, no dependency information available [INFO] ------------------------------------------------------------------------ [INFO] BUILD FAILURE [INFO] ------------------------------------------------------------------------ [INFO] Total time: 0.218s [INFO] Finished at: Fri Sep 25 15:06:00 CST 2015 [INFO] Final Memory: 4M/15M [INFO] ------------------------------------------------------------------------ [ERROR] Failed to execute goal on project maven-second: Could not resolve dependencies for project cn.itcast:maven-second:jar:0.0.1-SNAPSHOT: **Could not find artifact cn.itcast:maven-first:jar:0.0.1-SNAPSHOT** -\> [Help 1] [ERROR]  [ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch. [ERROR] Re-run Maven using the -X switch to enable full debug logging. [ERROR]  [ERROR] For more information about the errors and possible solutions, please read the following articles: [ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/DependencyResolutionException |
-|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+```java [INFO] Scanning for projects... [INFO]  [INFO] ```---------------- [INFO] Building maven-second 0.0.1-SNAPSHOT [INFO] ```---------------- [WARNING] The POM for cn.xqc:maven-first:jar:0.0.1-SNAPSHOT is missing, no dependency information available [INFO] ```---------------- [INFO] BUILD FAILURE [INFO] ```---------------- [INFO] Total time: 0.218s [INFO] Finished at: Fri Sep 25 15:06:00 CST 2015 [INFO] Final Memory: 4M/15M [INFO] ```---------------- [ERROR] Failed to execute goal on project maven-second: Could not resolve dependencies for project cn.xqc:maven-second:jar:0.0.1-SNAPSHOT: **Could not find artifact cn.xqc:maven-first:jar:0.0.1-SNAPSHOT** -\> [Help 1] [ERROR]  [ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch. [ERROR] Re-run Maven using the -X switch to enable full debug logging. [ERROR]  [ERROR] For more information about the errors and possible solutions, please read the following articles: [ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/DependencyResolutionException ```java
+​```java`````````````````````````````````````````````````````````````````````java-----------```java
 
 
 提示找不到maven-first的jar包。当系统运行时是从本地仓库中找依赖的jar包的，所以必须先将maven-first安装才能正常运行，需要在maven-first工程上运行
@@ -444,7 +433,6 @@ Maven世界拥有大量构建，我们需要找一个用来唯一标识一个构
 			<scope>test</scope>
 		</dependency>		
 	</dependencies>
-
 ```
 
 
@@ -539,7 +527,7 @@ Maven-second中依赖log4j-1.2.9和log4j-1.2.14
 ```xml
 <exclusions>
 	<exclusion>
-		<groupId>cn.itcast.maven</groupId>
+		<groupId>cn.xqc.maven</groupId>
 		<artifactId>maven-first</artifactId>
 	</exclusion>
 </exclusions>
@@ -701,7 +689,7 @@ Maven的核心仅仅定义了抽象的生命周期，具体的任务都是交由
 
 Web.xml内容如下：
 
-```xml
+​```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
@@ -961,8 +949,8 @@ Tomcat7:run
 
 在本地仓库的setting.xml中配置如下：
 
-| \<mirrors\>  \<mirror\>  \<!--此处配置所有的构建均从私有仓库中下载 \*代表所有，也可以写central --\>  \<id\>nexus\</id\>  \<mirrorOf\>\*\</mirrorOf\>  \<url\>http://localhost:8080/nexus-2.7.0-06/content/groups/public/\</url\>  \</mirror\>  \</mirrors\> |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+```java \<mirrors\>  \<mirror\>  \<!--此处配置所有的构建均从私有仓库中下载 \*代表所有，也可以写central --\>  \<id\>nexus\</id\>  \<mirrorOf\>\*\</mirrorOf\>  \<url\>http://localhost:8080/nexus-2.7.0-06/content/groups/public/\</url\>  \</mirror\>  \</mirrors\> ```java
+```java````````````java---------```java
 
 
 ![](media/d1641ea1a64cb0c2c5ee9d6920bb84e8.png)
@@ -973,16 +961,16 @@ Tomcat7:run
 
 在本地仓库的setting.xml中配置如下：
 
-| \<server\>  \<id\>releases\</id\>  \<username\>admin\</username\>  \<password\>admin123\</password\>  \</server\>  \<server\>  \<id\>snapshots\</id\>  \<username\>admin\</username\>  \<password\>admin123\</password\>  \</server\>  |
-|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+```java \<server\>  \<id\>releases\</id\>  \<username\>admin\</username\>  \<password\>admin123\</password\>  \</server\>  \<server\>  \<id\>snapshots\</id\>  \<username\>admin\</username\>  \<password\>admin123\</password\>  \</server\>  ```java
+```java````````````--------```java
 
 
 #### 第二步：配置pom文件
 
 在需要构建的项目中修改pom文件
 
-| \<distributionManagement\>  \<repository\>  \<id\>releases\</id\>  \<name\>Internal Releases\</name\>  \<url\>http://localhost:8080/nexus-2.7.0-06/content/repositories/releases/\</url\>  \</repository\>  \<snapshotRepository\>  \<id\>snapshots\</id\>  \<name\>Internal Snapshots\</name\>  \<url\>http://localhost:8080/nexus-2.7.0-06/content/repositories/snapshots/\</url\>  \</snapshotRepository\>  \</distributionManagement\> |
-|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+```java \<distributionManagement\>  \<repository\>  \<id\>releases\</id\>  \<name\>Internal Releases\</name\>  \<url\>http://localhost:8080/nexus-2.7.0-06/content/repositories/releases/\</url\>  \</repository\>  \<snapshotRepository\>  \<id\>snapshots\</id\>  \<name\>Internal Snapshots\</name\>  \<url\>http://localhost:8080/nexus-2.7.0-06/content/repositories/snapshots/\</url\>  \</snapshotRepository\>  \</distributionManagement\> ```java
+```java`````````````````````java----------------```java
 
 
 #### 第三步：执行maven的deploy命令
