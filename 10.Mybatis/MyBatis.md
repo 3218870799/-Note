@@ -1,4 +1,4 @@
-# 第1章 框架概述 
+﻿# 第1章 框架概述 
 
 ## 1.1 软件开发常用结构 
 
@@ -276,13 +276,13 @@ PRIMARY KEY (\`id\`)
 
 **（**6**） 编写** Student **实体类**
 
-创建包 com.bjpowernode.domain, 包中创建 Student 类
+创建包 com.xqc.domain, 包中创建 Student 类
 
 ```java
-package com.bjpowernode.domain; 
+package com.xqc.domain; 
 /** 
 *	<p>Description: 实体类 </p> 
-*	<p>Company: http://www.bjpowernode.com 
+*	<p>Company: http://www.xqc.com 
  */
  public class Student { 
     //属性名和列名一样 
@@ -298,15 +298,15 @@ package com.bjpowernode.domain;
 
 **（**7**） 编写** Dao **接口** StudentDao
 
-创建 com.bjpowernode.dao 包，创建 StudentDao 接口
+创建 com.xqc.dao 包，创建 StudentDao 接口
 
 ```java
-package com.bjpowernode.dao;
-import com.bjpowernode.domain.Student; 
+package com.xqc.dao;
+import com.xqc.domain.Student; 
 import java.util.List; 
 /**
  * <p>Description: Dao接口 </p> 
- * <p>Company: http://www.bjpowernode.com 
+ * <p>Company: http://www.xqc.com 
  */ 
 public interface StudentDao { 
     /*查询所有数据*/ 
@@ -333,14 +333,14 @@ public interface StudentDao {
      namespace：必须有值，自定义的唯一字符串                 
 		推荐使用：dao接口的全限定名称 
 --> 
-<mapper namespace="com.bjpowernode.dao.StudentDao"> 
+<mapper namespace="com.xqc.dao.StudentDao"> 
     <!-- 
        <select>: 查询数据， 标签中必须是select语句               
 			id:  sql语句的自定义名称，推荐使用dao接口中方法名称，                    
 			使用名称表示要执行的sql语句      
 			resultType: 查询语句的返回结果数据类型，使用全限定类名  
     --> 
-    <select id="selectStudents" resultType="com.bjpowernode.domain.Student"> 
+    <select id="selectStudents" resultType="com.xqc.domain.Student"> 
         <!--要执行的sql语句-->         
         select id,name,email,age from student 
     </select> 
@@ -380,7 +380,7 @@ public interface StudentDao {
     </environments> 
     <mappers> 
         <!--告诉mybatis要执行的sql语句的位置--> 
-        <mapper resource="com/bjpowernode/dao/StudentDao.xml"/> 
+        <mapper resource="com/xqc/dao/StudentDao.xml"/> 
 </mappers> 
 <configuration> 
 
@@ -394,7 +394,7 @@ public interface StudentDao {
 
 **（**10**） 创建测试类** MyBatisTest
 
-src/test/java/com/bjpowernode/ 创建 MyBatisTest.java 文件 
+src/test/java/com/xqc/ 创建 MyBatisTest.java 文件 
 
 ```java
 @Test
@@ -408,7 +408,7 @@ public void testStart() throws IOException{
     //4.获取SqlSession,SqlSession能执行sql语句 
     SqlSession session = factory.openSession(); 
     //5.执行SqlSession的selectList() 
-    List<Student> studentList =      session.selectList("com.bjpowernode.dao.StudentDao.selectStudents"); 
+    List<Student> studentList =      session.selectList("com.xqc.dao.StudentDao.selectStudents"); 
     //6.循环输出查询结果 
     studentList.forEach( student -> System.out.println(student)); 
     //7.关闭SqlSession，释放资源     session.close(); 
@@ -418,7 +418,7 @@ public void testStart() throws IOException{
 ```
 
 List\<Student\> studentList =
-session.selectList("com.bjpowernode.dao.StudentDao.selectStudents");
+session.selectList("com.xqc.dao.StudentDao.selectStudents");
 近似等价的jdbc代码
 
 Connection conn = 获取连接对象
@@ -540,7 +540,7 @@ student.setAge(30); *//*要修改的年龄值
 
 *//6.*执行更新*update* int rows = session.update(
 
-"com.bjpowernode.dao.StudentDao.updateStudent",student);
+"com.xqc.dao.StudentDao.updateStudent",student);
 
 *//7.*提交事务
 
@@ -594,7 +594,7 @@ SqlSession session = factory.openSession();
 
 *//6.*执行删除*delete* int rows = session.delete(
 
-"com.bjpowernode.dao.StudentDao.deleteStudent",id);
+"com.xqc.dao.StudentDao.deleteStudent",id);
 
 *//7.*提交事务
 
@@ -658,13 +658,13 @@ SqlSession的实例不能被共享，SqlSession 接口对象是线程不安全�
 
 **（**1**） 创建** MyBatisUtil **类**
 
-**package** com.bjpowernode.common;
+**package** com.xqc.common;
 
 **/\*\***
 
 **\<p\>Description:** 实体类 **\</p\>**
 
-**\<p\>Company: http://www.bjpowernode.com**
+**\<p\>Company: http://www.xqc.com**
 
 **\*/**
 
@@ -712,7 +712,7 @@ SqlSession session = MyBatisUtil.*getSqlSession*();
 
 List\<Student\> studentList = session.selectList(
 
-**"com.bjpowernode.dao.StudentDao.selectStudents"**);
+**"com.xqc.dao.StudentDao.selectStudents"**);
 
 studentList.forEach( student -\> System.**out**.println(student));
 
@@ -764,7 +764,7 @@ studentList.forEach( stu -\> System.**out**.println(stu)); }
 **public int** insertStudent(Student student) { SqlSession session =
 MyBatisUtil.*getSqlSession*(); **int** nums = session.insert(
 
-**"com.bjpowernode.dao.StudentDao.insertStudent"**,student); session.commit();
+**"com.xqc.dao.StudentDao.insertStudent"**,student); session.commit();
 session.close(); **return** nums;
 
 }
@@ -786,7 +786,7 @@ System.**out**.println(**"**使用**Dao**添加数据**:"**+nums);
 **public int** updateStudent(Student student) { SqlSession session =
 MyBatisUtil.*getSqlSession*(); **int** nums = session.insert(
 
-**"com.bjpowernode.dao.StudentDao.updateStudent"**,student); session.commit();
+**"com.xqc.dao.StudentDao.updateStudent"**,student); session.commit();
 session.close(); **return** nums;
 
 }
@@ -809,7 +809,7 @@ System.**out**.println(**"**使用**Dao**修改数据**:"**+nums);
 SqlSession session = MyBatisUtil.*getSqlSession*(); **int** nums =
 session.insert(
 
-**"com.bjpowernode.dao.StudentDao.deleteStudent"**,1006); session.commit();
+**"com.xqc.dao.StudentDao.deleteStudent"**,1006); session.commit();
 session.close(); **return** nums;
 
 }
@@ -1012,7 +1012,7 @@ mapper 文件：
 使用
 
 \<**select id="selectMultiObject"
-resultType="com.bjpowernode.domain.Student"**\>
+resultType="com.xqc.domain.Student"**\>
 
 select id,name,email,age from student where name=\#{ queryParam .queryName} or
 age =\#{ queryParam .queryAge}
@@ -1057,7 +1057,7 @@ List\<Student\> selectMultiMap(Map\<String,Object\> map)
 
 mapper 文件：
 
-\<**select id="selectMultiMap" resultType="com.bjpowernode.domain.Student"**\>
+\<**select id="selectMultiMap" resultType="com.xqc.domain.Student"**\>
 
 select id,name,email,age from student where name=\#{myname} or age =\#{myage}
 
@@ -1108,7 +1108,7 @@ $这样的参数会直接参与sql编译,从而不能避免注入攻击
 
 \#{…}代替 sql 语句的“?”。这样做更安全，更迅速，通常也是首选做法，
 
-\<**select id="selectById" resultType="com.bjpowernode.domain.Student"**\>
+\<**select id="selectById" resultType="com.xqc.domain.Student"**\>
 
 select id,name,email,age from student where id=\#{studentId}
 
@@ -1134,13 +1134,13 @@ where id=? 就是where id=\#{studentId} ps.setInt(1,1005) , 1005会替换掉
 
 mapper 文件：
 
-\<**select id="findById" resultType="com.bjpowernode.domain.Student"**\>
+\<**select id="findById" resultType="com.xqc.domain.Student"**\>
 
 select *\** from student where id=\#{studentId}
 
 \</**select**\>
 
-**\<**select id="findByEmail" resultType="com.bjpowernode.domain.Student"**\>**
+**\<**select id="findByEmail" resultType="com.xqc.domain.Student"**\>**
 
 **select \* from student where email=\#{stuentEmail}**
 
@@ -1167,7 +1167,7 @@ System.**out**.println(**"findByEmail:"**+student2);
 mapper 文件：
 
 **\<**select id="findByDiffField"
-resultType="com.bjpowernode.domain.Student"**\>**
+resultType="com.xqc.domain.Student"**\>**
 
 **select \* from student where** \${col} **=** \#{cval}
 
@@ -1230,7 +1230,7 @@ Student selectById(**int** id);
 
 mapper 文件：
 
-\<**select id="selectById" resultType="com.bjpowernode.domain.Student"**\>
+\<**select id="selectById" resultType="com.xqc.domain.Student"**\>
 
 select id,name,email,age from student where id=\#{studentId}
 
@@ -1303,7 +1303,7 @@ List\<Student\> selectUseResultMap(QueryParam param);
 
 **--\>**
 
-**\<**resultMap id="studentMap" type="com.bjpowernode.domain.Student"**\>**
+**\<**resultMap id="studentMap" type="com.xqc.domain.Student"**\>**
 
 **\<!--** 主键字段使用**id --\>**
 
@@ -1343,13 +1343,13 @@ stuList.forEach( stu -\> System.**out**.println(stu));
 
 步骤：
 
-1. 创建新的实体类 PrimaryStudent package com.bjpowernode.domain;
+1. 创建新的实体类 PrimaryStudent package com.xqc.domain;
 
 /\*\*
 
 \<p\>Description: 实体类 \</p\>
 
-\<p\>Company: http://www.bjpowernode.com
+\<p\>Company: http://www.xqc.com
 
 \*/
 
@@ -1358,7 +1358,7 @@ List\<PrimaryStudent\> selectUseFieldAlias(QueryParam param);
 3. mapper 文件：
 
 \<select id="selectUseFieldAlias"
-resultType="com.bjpowernode.domain.PrimaryStudent"\>
+resultType="com.xqc.domain.PrimaryStudent"\>
 
 select id as stuId, name as stuName,age as stuAge from student where
 name=\#{queryName} or age=\#{queryAge} \</select\>
@@ -1400,7 +1400,7 @@ mapper 文件：
 
 \<resultMap id="primaryStudentMap"
 
-type="com.bjpowernode.domain.PrimaryStudent"\>
+type="com.xqc.domain.PrimaryStudent"\>
 
 *\<!--* 主键字段使用*id --\>*
 
@@ -1452,7 +1452,7 @@ List\<Student\> selectLikeFirst(String name);
 
 mapper 文件：
 
-\<**select id="selectLikeFirst" resultType="com.bjpowernode.domain.Student"**\>
+\<**select id="selectLikeFirst" resultType="com.xqc.domain.Student"**\>
 select id,name,email,age from student where name like \#{studentName}
 
 \</**select**\>
@@ -1474,7 +1474,7 @@ List\<Student\> selectLikeSecond(String name);
 
 mapper 文件：
 
-\<**select id="selectLikeSecond" resultType="com.bjpowernode.domain.Student"**\>
+\<**select id="selectLikeSecond" resultType="com.xqc.domain.Student"**\>
 select id,name,email,age from student where name like "%" \#{studentName} "%"
 
 \</**select**\>
@@ -1590,7 +1590,7 @@ List\<Student\> selectStudentWhere (Student student);
 mapper 文件：
 
 \<**select id="selectStudentWhere"
-resultType="com.bjpowernode.domain.Student"**\>
+resultType="com.xqc.domain.Student"**\>
 
 select id,name,email,age from student
 
@@ -1643,7 +1643,7 @@ List\<Student\> selectStudentForList(List\<Integer\> idList);
 mapper 文件：
 
 \<**select id="selectStudentForList"
-resultType="com.bjpowernode.domain.Student"**\>
+resultType="com.xqc.domain.Student"**\>
 
 select id,name,email,age from student
 
@@ -1687,7 +1687,7 @@ List\<Student\> selectStudentForList2(List\<Student\> stuList);
 mapper 文件：
 
 \<**select id="selectStudentForList2"
-resultType="com.bjpowernode.domain.Student"**\>
+resultType="com.xqc.domain.Student"**\>
 
 select id,name,email,age from student
 
@@ -2019,7 +2019,7 @@ resultType=”别名”\> mybatis.xml 主配置文件定义别名：
 
 **--\>**
 
-\<typeAlias type="com.bjpowernode.domain.Student" alias="mystudent"/\>
+\<typeAlias type="com.xqc.domain.Student" alias="mystudent"/\>
 
 **\<!--**
 
@@ -2028,7 +2028,7 @@ resultType=”别名”\> mybatis.xml 主配置文件定义别名：
 
 **--\>**
 
-\<package name="com.bjpowernode.domain"/\>
+\<package name="com.xqc.domain"/\>
 
 \<**package name="...**其他包**"**/\>
 
@@ -2045,13 +2045,13 @@ id,name,email,age from student **\</select\>**
 
 使用相对于类路径的资源,从 classpath 路径查找文件
 
-例如：\<mapper resource="com/bjpowernode/dao/StudentDao.xml" /\>
+例如：\<mapper resource="com/xqc/dao/StudentDao.xml" /\>
 
 （2） \<package name=""/\>
 
 指定包下的所有 Dao 接口
 
-如：\<package name="com.bjpowernode.dao"/\> 注意：此种方法要求 Dao 接口名称和
+如：\<package name="com.xqc.dao"/\> 注意：此种方法要求 Dao 接口名称和
 mapper 映射文件名称相同，且在同一个目录中。
 
 # 第7章 扩展 
