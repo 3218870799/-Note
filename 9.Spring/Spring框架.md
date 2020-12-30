@@ -1,26 +1,19 @@
-# 第1章 Spring 概述 
+﻿# 第1章 Spring 概述 
 
-## 1.1 Spring 框架是什么 
+## 1.1 简介
 
->   Spring 是于 2003 年兴起的一个轻量级的 Java
->   开发框架，它是为了解决企业应用开发的复杂性而创建的。
+Spring 是于 2003 年兴起的一个轻量级的 Java开发框架，它是为了解决企业应用开发的复杂性而创建的。
 
->   Spring 的核心是控制反转（IoC）和面向切面编程（AOP）。Spring 是可以在 Java
->   SE/EE 中使用的轻量级开源框架。
+Spring 的核心是控制反转（IoC）和面向切面编程（AOP）。Spring 是可以在 JavaSE/EE 中使用的轻量级开源框架。
 
-Spring
-的主要作用就是为代码“解耦”，降低代码间的耦合度。就是让对象和对象（模块和模块）之间关系不是使用代码关联，而是通过配置来说明。即在
-Spring 中说明对象（模块）的关系。
+Spring的主要作用就是为代码“解耦”，降低代码间的耦合度。就是让对象和对象（模块和模块）之间关系不是使用代码关联，而是通过配置来说明。即在Spring 中说明对象（模块）的关系。
 
-Spring 根据代码的功能特点，使用 Ioc 降低业务对象之间耦合度。IoC
-使得主业务在相互调用过程中，不用再自己维护关系了，即不用再自己创建要使用的对象了。而是由
-Spring 容器统一管理，自动“注入”,注入即赋值。 而 AOP
-使得系统级服务得到了最大复用，且不用再由程序员手工将系统级服务“混杂”到主业务逻辑中了，而是由
+Spring 根据代码的功能特点，使用 Ioc 降低业务对象之间耦合度。IoC使得主业务在相互调用过程中，不用再自己维护关系了，即不用再自己创建要使用的对象了。而是由Spring 容器统一管理，自动“注入”,注入即赋值。 而 AOP使得系统级服务得到了最大复用，且不用再由程序员手工将系统级服务“混杂”到主业务逻辑中了，而是由
 Spring 容器统一完成“织入”。
 
- 轻量级：与EJB对比，依赖资源少，销毁的资源少。
+轻量级：与EJB对比，依赖资源少，销毁的资源少。
 
- 分层： 一站式，每一个层都提供的解决方案
+分层： 一站式，每一个层都提供的解决方案
 
 web层：struts，spring-MVC
 
@@ -61,7 +54,7 @@ Spring 是一个框架，是一个半成品的软件。有 20个模块组成。�
     -   Spring
         对JavaEE开发中非常难用的一些API（JDBC、JavaMail、远程调用等），都提供了封装，使这些API应用难度大大降低
 
-1.3 Spring **体系结构**
+Spring **体系结构**
 
 ![](media/87d9fbefc903d2889466a35363150c0b.jpg)
 
@@ -100,26 +93,18 @@ Spring 提供了以下5种标准的事件：
 
 控制反转（IoC，Inversion of  Control），是一个概念，是一种思想。指将传统上由程序代码直接操控的对象调用权交给容器，通过容器来实现对象的装配和管理。**控制反转就是对对象控制权的转移**，从程序代码本身反转到了外部容器。通过容器实现对象的创建，属性赋值，依赖的管理。
 
-IoC
-是一个概念，是一种思想，其实现方式多种多样。当前比较流行的实现方式是依赖注入。应用广泛。
+IoC是一个概念，是一种思想，其实现方式多种多样。当前比较流行的实现方式是依赖注入。
 
-依赖：classA 类中含有 classB 的实例，在 classA 中调用 classB 的方法完成功能，即
-classA 对 classB 有依赖。
+依赖：
+
+classA 类中含有 classB 的实例，在 classA 中调用 classB 的方法完成功能，即classA 对 classB 有依赖。BeanDefinition对象负责记录和管理各个业务对象自建的依赖关系：容器中的每一个bean都会有一个对应的BeanDefinition实例，该实例负责保存bean对象的所有必要信息，包括bean对象的class类型、是否是抽象类、构造方法和参数、其它属性等等。
 
 Ioc 的实现：
-
->   依赖注入：DI(Dependency
->   Injection)，程序代码不做定位查询，这些工作由容器自行完成。
 
 依赖注入 DI
 是指程序运行过程中，若需要调用另一个对象协助时，无须在代码中创建被调用者，而是依赖于外部容器，由外部容器创建后传递给程序。
 
-Spring
-的依赖注入对调用者与被调用者几乎没有任何要求，完全支持对象之间依赖关系的管理。
 
->   **Spring** 框架使用依赖注入（**DI**）实现 **IoC**。
-
-Spring 容器是一个超级大工厂，负责创建、管理所有的 Java 对象，这些 Java对象被称为 Bean。Spring 容器管理着容器中 Bean 之间的依赖关系，Spring使用“依赖注入”的方式来管理 Bean 之间的依赖关系。使用 IoC 实现对象之间的解耦和。
 
 ## 2.1 开发工具准备 
 
@@ -359,7 +344,7 @@ factory-method 确定静态方法名
 --\>
 
 \<bean id=*"userServiceId"*
-class=*"com.itheima.c_inject.b_static_factory.MyBeanFactory"*
+class=*"com.xqc.static_factory.MyBeanFactory"*
 factory-method=*"createService"*\>\</bean\>
 
 #### 实例工厂
@@ -399,7 +384,7 @@ factory-method=*"createService"*\>\</bean\>
 \<!-- 创建工厂实例 --\>
 
 \<bean id=*"myBeanFactoryId"*
-class=*"com.itheima.c_inject.c_factory.MyBeanFactory"*\>\</bean\>
+class=*"com.xqc.factory.MyBeanFactory"*\>\</bean\>
 
 \<!-- 获得userservice
 
@@ -459,7 +444,7 @@ prototype
 
 ![](media/5737f3ce1d2fb71bec94eda59f7b6eb7.png)
 
-| \<bean id=*"userServiceId"* class=*"com.itheima.d_scope.UserServiceImpl"*   scope=*"prototype"* \>\</bean\> |
+| \<bean id=*"userServiceId"* class=*"com.xqc.d_scope.UserServiceImpl"*   scope=*"prototype"* \>\</bean\> |
 |-------------------------------------------------------------------------------------------------------------|
 
 
@@ -826,6 +811,8 @@ XML 方式优点是：
 
     xml 的缺点是：编写麻烦，效率低，大型项目过于复杂。
 
+
+
 # 第**3**章 **AOP** 面向切面编程 
 
 ## 3.1 不使用 AOP 的开发方式（理解） 
@@ -899,6 +886,14 @@ AOP 底层，就是采用动态代理模式实现的。采用了两种代理：J
 -   没有接口，只有实现类。
 -   采用字节码增强框架 cglib，在运行时 创建目标类的子类，从而对目标类进行增强。
 -   导入jar包：
+
+
+
+不同的与优缺点：
+
+JDK 是基于接口实现，而 CGLIB 继承代理类
+
+
 
 通常建议使用jdk代理
 
