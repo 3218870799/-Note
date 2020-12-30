@@ -1,4 +1,4 @@
-# 第一章：Redis介绍
+﻿# 第一章：Redis介绍
 
 ## 1.1：什么是NoSql
 
@@ -214,13 +214,13 @@ cp /root/redis-3.0.0/redis.conf ./
 
 -   启动
 
-启动客户端命令：[root\@itheima bin]\# ./redis-cli -h 127.0.0.1 -p 6379
+启动客户端命令：[root\@xqc bin]\# ./redis-cli -h 127.0.0.1 -p 6379
 
 \-h：指定访问的redis服务器的ip地址
 
 \-p：指定访问的redis服务器的port端口
 
-还可以写成：[root\@itheima bin]\# ./redis-cli
+还可以写成：[root\@xqc bin]\# ./redis-cli
 
 使用默认配置：默认的ip【127.0.0.1】，默认的port【6379】
 
@@ -1244,7 +1244,7 @@ AOF重写过程是由后台子进程`bgrewriteaof`来完成的，这也是为了
 
 第一步：复制出一个从机
 
-[root\@itheima redis19]\# cp bin/ bin2 –r
+[root\@xqc redis19]\# cp bin/ bin2 –r
 
 第二步：修改从机的redis.conf
 
@@ -1262,15 +1262,15 @@ slaveof 192.168.242.137 6379
 
 第四步：清除从机中的持久化文件
 
-[root\@itheima bin2]\# rm -rf appendonly.aof dump.rdb
+[root\@xqc bin2]\# rm -rf appendonly.aof dump.rdb
 
 第五步：启动从机
 
-[root\@itheima bin2]\# ./redis-server redis.conf
+[root\@xqc bin2]\# ./redis-server redis.conf
 
 第六步：启动6380的客户端
 
-[root\@itheima bin2]\# ./redis-cli -p 6380
+[root\@xqc bin2]\# ./redis-cli -p 6380
 
 注意：
 
@@ -1322,9 +1322,9 @@ Redis 集群中内置了 16384 个哈希槽，当需要在 Redis 集群中放置
 
 第一步：安装ruby
 
-[root\@itheima bin2]\# yum install ruby
+[root\@xqc bin2]\# yum install ruby
 
-[root\@itheima bin2]\# yum install rubygems
+[root\@xqc bin2]\# yum install rubygems
 
 第二步：将以下文件上传到linux系统
 
@@ -1332,19 +1332,19 @@ Redis 集群中内置了 16384 个哈希槽，当需要在 Redis 集群中放置
 
 第三步：安装ruby和redis接口
 
-[root\@itheima \~]\# gem install redis-3.0.0.gem
+[root\@xqc \~]\# gem install redis-3.0.0.gem
 
 第四步：将redis-3.0.0包下src目录中的以下文件拷贝到redis19/redis-cluster/
 
 ![](media/5da978d46ee16befc2ebb60452dccbc9.png)
 
-[root\@itheima src]\# cd /usr/local/redis19/
+[root\@xqc src]\# cd /usr/local/redis19/
 
-[root\@itheima redis19]\# mkdir redis-cluster
+[root\@xqc redis19]\# mkdir redis-cluster
 
-[root\@itheima redis19]\# cd /root/redis-3.0.0/src/
+[root\@xqc redis19]\# cd /root/redis-3.0.0/src/
 
-[root\@itheima src]\# cp redis-trib.rb /usr/local/redis19/redis-cluster
+[root\@xqc src]\# cp redis-trib.rb /usr/local/redis19/redis-cluster
 
 第五步：查看是否拷贝成功
 
@@ -1358,11 +1358,11 @@ Redis 集群中内置了 16384 个哈希槽，当需要在 Redis 集群中放置
 
 第一步：复制出一个7001机器
 
-[root\@itheima redis19]\# cp bin ./redis-cluster/7001 –r
+[root\@xqc redis19]\# cp bin ./redis-cluster/7001 –r
 
 第二步：如果存在持久化文件，则删除
 
-[root\@itheima 7001]\# rm -rf appendonly.aof dump.rdb
+[root\@xqc 7001]\# rm -rf appendonly.aof dump.rdb
 
 第三步：设置集群参数
 
@@ -1374,15 +1374,15 @@ Redis 集群中内置了 16384 个哈希槽，当需要在 Redis 集群中放置
 
 第五步：复制出7002-7006机器
 
-[root\@itheima redis-cluster]\# cp 7001/ 7002 -r
+[root\@xqc redis-cluster]\# cp 7001/ 7002 -r
 
-[root\@itheima redis-cluster]\# cp 7001/ 7003 -r
+[root\@xqc redis-cluster]\# cp 7001/ 7003 -r
 
-[root\@itheima redis-cluster]\# cp 7001/ 7004 -r
+[root\@xqc redis-cluster]\# cp 7001/ 7004 -r
 
-[root\@itheima redis-cluster]\# cp 7001/ 7005 -r
+[root\@xqc redis-cluster]\# cp 7001/ 7005 -r
 
-[root\@itheima redis-cluster]\# cp 7001/ 7006 –r
+[root\@xqc redis-cluster]\# cp 7001/ 7006 –r
 
 第六步：修改7002-7006机器的端口
 
@@ -1392,9 +1392,9 @@ Redis 集群中内置了 16384 个哈希槽，当需要在 Redis 集群中放置
 
 第八步：修改start-all.sh文件的权限
 
-[root\@itheima redis-cluster]\# chmod u+x start-all.sh
+[root\@xqc redis-cluster]\# chmod u+x start-all.sh
 
-[root\@itheima redis-cluster]\# ./start-all.sh
+[root\@xqc redis-cluster]\# ./start-all.sh
 
 第九步：创建集群
 
@@ -1458,7 +1458,7 @@ M: a908736eadd1cd06e86fdff8b2749a6f46b38c00 192.168.242.137:7006
 
 ## 7.5：连接集群
 
-[root\@itheima 7001]\# ./redis-cli -h 192.168.242.137 -p 7001 **–c**
+[root\@xqc 7001]\# ./redis-cli -h 192.168.242.137 -p 7001 **–c**
 
 \-c：指定是集群连接
 
