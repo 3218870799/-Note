@@ -1,4 +1,4 @@
-﻿# 第1章 Spring 概述 
+﻿ 第1章 Spring 概述 
 
 ## 1.1 简介
 
@@ -104,79 +104,43 @@ Ioc 的实现：
 依赖注入 DI
 是指程序运行过程中，若需要调用另一个对象协助时，无须在代码中创建被调用者，而是依赖于外部容器，由外部容器创建后传递给程序。
 
+## 2.1 开发工具准备
 
-
-## 2.1 开发工具准备 
-
-开发工具：idea2017 以上
-
-依赖管理：maven3 以上 jdk:1.8 上
-
-需要设置 maven 本机仓库：
+添加Maven依赖
 
 ![](media/081ba0fbb9b15ca4be633e7ade0de359.jpg)
 
-**设置eclipse的提示**
 
--   步骤一：确定xsd文件位置
-
-spring-framework-3.2.0.RELEASE\\schema\\beans
-
-![](media/e1a4bd7cd3500b20a48ca371af7149bf.png)
-
--   步骤二：复制路径
-
-![](media/feb87d362df32df46391b5a7944bdf1b.png)
-
--   步骤三：搜索“xml catalog”
-
-![](media/abcf2d3baace31a0e4f67d2afa5f4ea8.png)
-
--   步骤四：添加约束提示
-
-![](media/ff48cd570025ebbc21551d587c0d697d.png)
 
 ## 2.2 Spring 的第一个程序 
 
 举例：01-primay
 
-### 2.2.1 创建 maven 项目 
+2.2.1 创建 maven 项目 
 
 ![](media/1ca3b805e4561093c16fe97dca503de7.jpg)
 
-### 2.2.2 引入 maven 依赖 pom.xml
+2.2.2 引入 maven 依赖 pom.xml
 
-\<dependency\>
-
-\<groupId\>org.springframework\</groupId\>
-
-\<artifactId\>spring-context\</artifactId\>
-
-\<version\>5.2.5.RELEASE\</version\>
-
-\</dependency\>
-
-插件
-
-<build\>
-
-<plugins\>
-
-\<plugin\>
-
-\<artifactId\>maven-compiler-plugin\</artifactId\>
-
-\<version\>3.1\</version\>
-
-\<configuration\>
-
-\<source\>1.8\</source\>
-
-\<target\>1.8\</target\>
-
-\</configuration\> \</plugin\> \</plugins\>
-
-</build\>
+```xml
+<dependency> 
+  <groupId>org.springframework</groupId> 
+  <artifactId>spring-context</artifactId> 
+  <version>5.2.5.RELEASE</version> 
+</dependency> 
+<build> 
+	<plugins> 
+       <plugin> 
+            <artifactId>maven-compiler-plugin</artifactId> 
+            <version>3.1</version> 
+            <configuration> 
+                <source>1.8</source> 
+                <target>1.8</target> 
+            </configuration>        
+    	</plugin> 
+ 	</plugins> 
+</build>
+```
 
 >   **核心开发包说明：**
 
@@ -205,7 +169,7 @@ spring-framework-3.2.0.RELEASE\\schema\\beans
 
     -   第三方的主要用于处理日志
 
-### 2.2.3 定义接口与实体类 
+2.2.3 定义接口与实体类 
 
 ```java
 **public interface** SomeService { **void** doSome();
@@ -228,7 +192,7 @@ spring-framework-3.2.0.RELEASE\\schema\\beans
 
 
 
-### 2.2.4 创建 Spring 配置文件 
+2.2.4 创建 Spring 配置文件 
 
 位置：在 src/main/resources/目录现创建一个 xml 文件，
 
@@ -244,11 +208,11 @@ id：该属性是Bean实例的唯一标识，程序通过 id 属性访问 Bean�
 
 class：指定该 Bean所属的类，注意这里只能是类，不能是接口。
 
-### 2.2.5 定义测试类 
+2.2.5 定义测试类 
 
 ![](media/be5e8f44c3c6126160a03081ef8ae1fc.jpg)
 
-### 2.2.6 使用 spring 创建非自定义类对象 
+2.2.6 使用 spring 创建非自定义类对象 
 
 spring 配置文件加入 java.util.Date 定义：
 
@@ -256,7 +220,7 @@ spring 配置文件加入 java.util.Date 定义：
 
 MyTest 测试类中：调用 getBean(“myDate”); 获取日期类对象。
 
-### 2.2.7 容器接口和实现类 
+2.2.7 容器接口和实现类 
 
 ApplicationContext **接口（容器）**
 
@@ -265,21 +229,21 @@ ApplicationContext 用于加载 Spring
 
 ![](media/cee8cf135693ed4679814d8b8686ec70.jpg)
 
-#### A、 配置文件在类路径下 
+A、 配置文件在类路径下 
 
 若 Spring 配置文件存放在项目的类路径下，则使用 ClassPathXmlApplicationContext
 实现类进行加载。
 
 ![](media/cdcf7b1d369a6b76cae9be855576248f.jpg)
 
-#### B**、** ApplicationContext **容器中对象的装配时机** 
+B**、** ApplicationContext **容器中对象的装配时机** 
 
 ApplicationContext
 容器，会在容器对象初始化时，将其中的所有对象一次性全部装配好。以后代码中若要使用到这些对象，只需从内存中直接获取即可。执行效率较高。但占用内存。
 
 ![](media/7fb3d4302d29c56b68e3e4a68a1c3f6a.jpg)
 
-#### C**、** 使用 spring 容器创建的 java 对象 
+C**、** 使用 spring 容器创建的 java 对象 
 
 ![](media/9324f0294fe12578500c994e1f2359fb.jpg)
 
@@ -438,14 +402,17 @@ prototype
 
 -   配置信息
 
-| \<bean id="" class="" scope=""\> |
-|----------------------------------|
-
+```xml
+<bean id="" class="" scope="">
+```
 
 ![](media/5737f3ce1d2fb71bec94eda59f7b6eb7.png)
 
-| \<bean id=*"userServiceId"* class=*"com.xqc.d_scope.UserServiceImpl"*   scope=*"prototype"* \>\</bean\> |
-|-------------------------------------------------------------------------------------------------------------|
+```xml
+<bean id=*"userServiceId"* class=*"com.xqc.d_scope.UserServiceImpl"*   scope=*"prototype"* ></bean>
+```
+
+
 
 
 2：Spring如何解决线程并发问题？
