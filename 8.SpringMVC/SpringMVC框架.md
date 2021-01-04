@@ -132,7 +132,7 @@ Struts2 的OGNL 表达式使页面的开发效率相比Spring MVC更高些，但
 
 ## 2.1 SpringMVC的入门案例 
 
-### 2.1.1 前期准备 
+2.1.1 前期准备 
 
 下载开发包： https://spring.io/projects
 
@@ -150,11 +150,11 @@ jsp中的内容：
 
 \<a href=*"hello"*\>SpringMVC入门案例\</a\>
 
-### 2.1.2 拷贝jar包 
+2.1.2 拷贝jar包 
 
 spring mvc的jar包就在 除了上面两个jar包之外，还需要拷贝spring的注解ioc所需jar包（包括一个aop的jar包
 
-### 2.1.3 配置核心控制器-一个Servlet
+2.1.3 配置核心控制器-一个Servlet
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?> 
@@ -186,7 +186,7 @@ spring mvc的jar包就在 除了上面两个jar包之外，还需要拷贝spring
 
 
 
-### 2.1.4 创建spring mvc的配置文件 
+2.1.4 创建spring mvc的配置文件 
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?> 
@@ -210,7 +210,7 @@ spring mvc的jar包就在 除了上面两个jar包之外，还需要拷贝spring
 
 ```
 
-### 2.1.5 编写控制器并使用注解配置 
+2.1.5 编写控制器并使用注解配置 
 
 ```java
 @Controller("helloController") 
@@ -224,51 +224,83 @@ public class HelloController {
 
 ```
 
-### 2.1.6 测试 
+2.1.6 测试 
 
-## 2.2 入门案例的执行过程及原理分析 
+## 2.2：执行过程及原理分析
 
-### 2.2.1 案例的执行过程 
+理论处理流程：
 
-1、服务器启动，应用被加载。读取到web.xml中的配置创建spring容器并且初始化容器中的对象。从入门案例中可以看到的是：HelloController和InternalResourceViewResolver，但是远不止这些。
+![img](media/1174906-20200317211657375-433915799.png)
 
-2、浏览器发送请求，被DispatherServlet捕获，该Servlet并不处理请求，而是把请求转发出去。转发的路径是根据请求URL，匹配\@RequestMapping中的内容。
+（1）用户发送请求至前端控制器DispatcherServlet；
 
-3、匹配到了后，执行对应方法。该方法有一个返回值。
+（2） DispatcherServlet收到请求后，调用HandlerMapping处理器映射器，请求获取Handle；
 
-4、根据方法的返回值，借助InternalResourceViewResolver找到对应的结果视图。
+（3）处理器映射器根据请求url找到具体的处理器，生成处理器对象及处理器拦截器(如果有则生成)一并返回给DispatcherServlet；
 
-5、渲染结果视图，响应浏览器
+（4）DispatcherServlet 调用 HandlerAdapter处理器适配器；
 
-### 2.2.2 SpringMVC的请求响应流程 
+（5）HandlerAdapter 经过适配调用 具体处理器(Handler，也叫后端控制器)；
 
-## 2.3 入门案例中涉及的组件 
+（6）Handler执行完成返回ModelAndView；
 
-### 2.3.1 DispatcherServlet：前端控制器 
+（7）HandlerAdapter将Handler执行结果ModelAndView返回给DispatcherServlet；
+
+（8）DispatcherServlet将ModelAndView传给ViewResolver视图解析器进行解析；
+
+（9）ViewResolver解析后返回具体View；
+
+（10）DispatcherServlet对View进行渲染视图（即将模型数据填充至视图中）
+
+（11）DispatcherServlet响应用户。
+
+
+
+实现处理流程：
+
+![img](media/1174906-20180811205735659-1927603846.png)
+
+1）在Web.xml中配置前端控制器
+
+2）在SpringMVC的配置文件（springMVC.xml）中配置处理器映射器
+
+3）在SpringMVC的配置文件（Springmvc.xml）中配置处理器适配器（处理器映射器有三种，无论采取哪种都可以）
+
+4）创建自定义Controller
+
+5）配置自定义Controller的bean在Springmvc中
+
+6）配置视图解析器
+
+
+
+## 2.3 组件 
+
+DispatcherServlet：前端控制器 
 
 用户请求到达前端控制器，它就相当于mvc模式中的c，dispatcherServlet是整个流程控制的中心，由它调用其它组件处理用户的请求，dispatcherServlet的存在降低了组件之间的耦合性。
 
-### 2.3.2 HandlerMapping：处理器映射器 
+2.3.2 HandlerMapping：处理器映射器 
 
 HandlerMapping负责根据用户请求找到Handler即处理器，SpringMVC提供了不同的映射器实现不同的映射方式，例如：配置文件方式，实现接口方式，注解方式等。
 
-### 2.3.3 Handler：处理器 
+2.3.3 Handler：处理器 
 
 它就是我们开发中要编写的具体业务控制器。由DispatcherServlet把用户请求转发到Handler。由Handler对具体的用户请求进行处理。
 
-### 2.3.4 HandlAdapter：处理器适配器 
+2.3.4 HandlAdapter：处理器适配器 
 
 通过HandlerAdapter对处理器进行执行，这是适配器模式的应用，通过扩展适配器可以对更多类型的处理器进行执行。
 
-### 2.3.5 View Resolver：视图解析器 
+2.3.5 View Resolver：视图解析器 
 
 View Resolver负责将处理结果生成View视图，View Resolver首先根据逻辑视图名解析成物理视图名即具体的页面地址，再生成View视图对象，最后对View进行渲染将处理结果通过页面展示给用户。
 
-### 2.3.6 View：视图 
+2.3.6 View：视图 
 
 SpringMVC框架提供了很多的View视图类型的支持，包括：jstlView、freemarkerView、pdfView等。我们最常用的视图就是jsp。一般情况下需要通过页面标签或页面模版技术将模型数据通过页面展示给用户，需要由程序员根据业务需求开发具体的页面。
 
-### 2.3.7 \<mvc:annotation-driven\>说明 
+2.3.7 \<mvc:annotation-driven\>说明 
 
 在SpringMVC的各个组件中，处理器映射器、处理器适配器、视图解析器称为SpringMVC的三大组件。使用\<mvc:annotation-driven\>自动加载RequestMappingHandlerMapping（处理映射器）和RequestMappingHandlerAdapter（处理适配器），可用在SpringMVC.xml配置文件中使用\<mvc:annotation-driven\>替代注解处理器和适配器的配置。
 
@@ -298,207 +330,6 @@ SpringMVC框架提供了很多的View视图类型的支持，包括：jstlView�
 明确：
 
 我们只需要编写处理具体业务的控制器以及视图。
-
-## 2.4 RequestMapping注解 
-
-### 2.4.1 使用说明 
-
-源码：
-
-```java
-@Target({ElementType.METHOD, ElementType.TYPE}) 
-@Retention(RetentionPolicy.RUNTIME) 
-@Documented 
-@Mapping 
-public @interface RequestMapping { 
-} 
-
-```
-
-作用：
-
-用于建立请求URL和处理请求方法之间的对应关系。
-
-出现位置：
-
-类上：
-
-请求URL的第一级访问目录。此处不写的话，就相当于应用的根目录。写的话需要以/开头。
-
-它出现的目的是为了使我们的URL可以按照模块化管理:
-
-例如：
-
-账户模块：
-
-/account/add
-
-/account/update
-
-/account/delete
-
-...
-
-订单模块：
-
-/order/add
-
-/order/update
-
-/order/delete
-
-红色的部分就是把RequsetMappding写在类上，使我们的URL更加精细。
-
-方法上：
-
-请求URL的第二级访问目录。
-
-属性：
-
-value：用于指定请求的URL。它和path属性的作用是一样的。
-
-method：用于指定请求的方式。
-
-params：用于指定限制请求参数的条件。它支持简单的表达式。要求请求参数的key和value必须和配置的一模一样。
-
-例如：
-
-params = {"accountName"}，表示请求参数必须有accountName
-
-params = {"moeny!100"}，表示请求参数中money不能是100。
-
-headers：用于指定限制请求消息头的条件。
-
-注意：
-
-以上四个属性只要出现2个或以上时，他们的关系是与的关系。
-
-### 2.4.2 使用示例 
-
-**2.4.2.1** 出现位置的示例：
-
-控制器代码**:**
-
-```java
-@Controller("accountController") 
-@RequestMapping("/account") 
-public class AccountController { 
-@RequestMapping("/findAccount") 
-public String findAccount() { 
-System.out.println("查询了账户。。。。"); 
-return "success"; 
-} 
-} 
-```
-
-**jsp**中的代码：
-
-```jsp
-<%@ page language="java" contentType="text/html; charset=UTF-8" 
-pageEncoding="UTF-8"%> 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
-"http://www.w3.org/TR/html4/loose.dtd"> 
-<html> 
-<head> 
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
-<title>requestmapping的使用</title> 
-</head> 
-<body> 
-<!-- 第一种访问方式 --> 
-<a href="${pageContext.request.contextPath}/account/findAccount"> 
-查询账户 
-</a> 
-<br/> 
-<!-- 第二种访问方式 --> 
-<a href="account/findAccount">查询账户</a> 
-</body> 
-</html> 
-
-```
-
-注意：
-
-当我们使用此种方式配置时，在**jsp**中第二种写法时，不要在访问**URL**前面加**/**，否则无法找到资源。
-
-**2.4.2.2 method**属性的示例：
-
-控制器代码：
-
-/\*\*
-
-\* 保存账户
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping(value="/saveAccount",method=RequestMethod.**POST**)
-
-**public** String saveAccount() {
-
-System.**out**.println("保存了账户");
-
-**return** "success";
-
-}
-
-**jsp**代码：
-
-\<!-- 请求方式的示例 --\>
-
-\<a href=*"account/saveAccount"*\>保存账户，get请求\</a\>
-
-\<br/\>
-
-\<form action=*"account/saveAccount"* method=*"post"*\>
-
-\<input type=*"submit"* value=*"*保存账户，*post*请求*"*\>
-
-\</form\>
-
-注意：
-
-当使用get请求时，提示错误信息是405，信息是方法不支持get方式请求
-
-**2.4.2.3 params**属性的示例：
-
-控制器的代码：
-
-/\*\*
-
-\* 删除账户
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping(value="/removeAccount",params= {"accountName","money\>100"})
-
-**public** String removeAccount() {
-
-System.**out**.println("删除了账户");
-
-**return** "success";
-
-}
-
-**jsp**中的代码：
-
-\<!-- 请求参数的示例 --\>
-
-\<a
-href=*"account/removeAccount?accountName=aaa&money\>100"*\>删除账户，金额100\</a\>
-
-\<br/\>
-
-\<a
-href=*"account/removeAccount?accountName=aaa&money\>150"*\>删除账户，金额150\</a\>
-
-注意：
-
-当我们点击第一个超链接时,可以访问成功。
-
-当我们点击第二个超链接时，无法访问。如下图：
 
 # 第3章 请求参数的绑定 
 
@@ -1164,7 +995,270 @@ System.**out**.println(session);
 
 执行结果：
 
-# 第4章 常用注解 
+# 第4章 常用注解
+
+## @RequestMapping
+
+用于建立请求URL和处理请求方法之间的对应关系。
+
+### 说明
+
+源码：
+
+```java
+@Target({ElementType.METHOD, ElementType.TYPE}) 
+@Retention(RetentionPolicy.RUNTIME) 
+@Documented 
+@Mapping 
+public @interface RequestMapping { 
+} 
+
+```
+
+出现位置：
+
+类上：
+
+请求URL的第一级访问目录。此处不写的话，就相当于应用的根目录。写的话需要以/开头。
+
+它出现的目的是为了使我们的URL可以按照模块化管理:
+
+例如：
+
+账户模块：
+
+/account/add
+
+/account/update
+
+/account/delete
+
+...
+
+订单模块：
+
+/order/add
+
+/order/update
+
+/order/delete
+
+红色的部分就是把RequsetMappding写在类上，使我们的URL更加精细。
+
+方法上：
+
+请求URL的第二级访问目录。
+
+属性：
+
+value：用于指定请求的URL。它和path属性的作用是一样的。
+
+method：用于指定请求的方式。
+
+params：用于指定限制请求参数的条件。它支持简单的表达式。要求请求参数的key和value必须和配置的一模一样。
+
+例如：
+
+params = {"accountName"}，表示请求参数必须有accountName
+
+params = {"moeny!100"}，表示请求参数中money不能是100。
+
+headers：用于指定限制请求消息头的条件。
+
+注意：
+
+以上四个属性只要出现2个或以上时，他们的关系是与的关系。
+
+### 示例 
+
+**2.4.2.1** 出现位置的示例：
+
+控制器代码**:**
+
+```java
+@Controller("accountController") 
+@RequestMapping("/account") 
+public class AccountController { 
+@RequestMapping("/findAccount") 
+public String findAccount() { 
+System.out.println("查询了账户。。。。"); 
+return "success"; 
+} 
+} 
+```
+
+**jsp**中的代码：
+
+```jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8" 
+pageEncoding="UTF-8"%> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+"http://www.w3.org/TR/html4/loose.dtd"> 
+<html> 
+<head> 
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+<title>requestmapping的使用</title> 
+</head> 
+<body> 
+<!-- 第一种访问方式 --> 
+<a href="${pageContext.request.contextPath}/account/findAccount"> 
+查询账户 
+</a> 
+<br/> 
+<!-- 第二种访问方式 --> 
+<a href="account/findAccount">查询账户</a> 
+</body> 
+</html> 
+
+```
+
+注意：
+
+当我们使用此种方式配置时，在**jsp**中第二种写法时，不要在访问**URL**前面加**/**，否则无法找到资源。
+
+**2.4.2.2 method**属性的示例：
+
+控制器代码：
+
+/\*\*
+
+\* 保存账户
+
+\* **\@return**
+
+\*/
+
+\@RequestMapping(value="/saveAccount",method=RequestMethod.**POST**)
+
+**public** String saveAccount() {
+
+System.**out**.println("保存了账户");
+
+**return** "success";
+
+}
+
+**jsp**代码：
+
+\<!-- 请求方式的示例 --\>
+
+\<a href=*"account/saveAccount"*\>保存账户，get请求\</a\>
+
+\<br/\>
+
+\<form action=*"account/saveAccount"* method=*"post"*\>
+
+\<input type=*"submit"* value=*"*保存账户，*post*请求*"*\>
+
+\</form\>
+
+注意：
+
+当使用get请求时，提示错误信息是405，信息是方法不支持get方式请求
+
+**2.4.2.3 params**属性的示例：
+
+控制器的代码：
+
+/\*\*
+
+\* 删除账户
+
+\* **\@return**
+
+\*/
+
+\@RequestMapping(value="/removeAccount",params= {"accountName","money\>100"})
+
+**public** String removeAccount() {
+
+System.**out**.println("删除了账户");
+
+**return** "success";
+
+}
+
+**jsp**中的代码：
+
+\<!-- 请求参数的示例 --\>
+
+\<a
+href=*"account/removeAccount?accountName=aaa&money\>100"*\>删除账户，金额100\</a\>
+
+\<br/\>
+
+\<a
+href=*"account/removeAccount?accountName=aaa&money\>150"*\>删除账户，金额150\</a\>
+
+注意：
+
+当我们点击第一个超链接时,可以访问成功。
+
+当我们点击第二个超链接时，无法访问。如下图：
+
+## @RequestBody
+
+接受客户端传入的JSON数据
+
+### 4.2.1 说明 
+
+用于获取请求体内容。直接使用得到是key=value&key=value...结构的数据。
+
+get请求方式不适用。
+
+属性：
+
+required：是否必须有请求体。默认值是:true。当取值为true时,get请求方式会报错。如果取值为false，get请求得到是null。
+
+### 4.2.2 示例 
+
+**post**请求**jsp**代码：
+
+```jsp
+<!-- request body注解 --> 
+<form action="springmvc/useRequestBody" method="post"> 
+用户名称：<input type="text" name="username" ><br/> 
+用户密码：<input type="password" name="password" ><br/> 
+用户年龄：<input type="text" name="age" ><br/> 
+<input type="submit" value="保存"> 
+</form> 
+```
+
+**get**请求**jsp**代码：
+
+```jsp
+<a href="springmvc/useRequestBody?body=test">requestBody注解get请求</a> 
+```
+
+Controller代码：
+
+```java
+/** 
+* RequestBody注解 
+* @param user 
+* @return 
+*/ 
+@RequestMapping("/useRequestBody") 
+public String useRequestBody(@RequestBody(required=false) String body){ 
+	System.out.println(body); 
+	return "success"; 
+} 
+
+```
+
+
+
+## @ResponseBody
+
+ 返回客户端JSON数据
+
+
+
+## @Param
+
+表单参数和方法形参不一样时使用
+
+
 
 ## 4.1 RequestParam 
 
@@ -1214,76 +1308,17 @@ System.**out**.println(username+","+age);
 
 运行结果：
 
-## 4.2 RequestBody 
 
-### 4.2.1 说明 
 
-作用：
+## @PathVaribale
 
-用于获取请求体内容。直接使用得到是key=value&key=value...结构的数据。
-
-get请求方式不适用。
-
-属性：
-
-required：是否必须有请求体。默认值是:true。当取值为true时,get请求方式会报错。如果取值为false，get请求得到是null。
-
-### 4.2.2 示例 
-
-**post**请求**jsp**代码：
-
-\<!-- request body注解 --\>
-
-\<form action=*"springmvc/useRequestBody"* method=*"post"*\>
-
-用户名称：\<input type=*"text"* name=*"username"* \>\<br/\>
-
-用户密码：\<input type=*"password"* name=*"password"* \>\<br/\>
-
-用户年龄：\<input type=*"text"* name=*"age"* \>\<br/\>
-
-\<input type=*"submit"* value=*"*保存*"*\>
-
-\</form\>
-
-**get**请求**jsp**代码：
-
-\<a href=*"springmvc/useRequestBody?body=test"*\>requestBody注解get请求\</a\>
-
-控制器代码：
-
-/\*\*
-
-\* RequestBody注解
-
-\* **\@param** user
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping("/useRequestBody")
-
-**public** String useRequestBody(\@RequestBody(required=**false**) String body){
-
-System.**out**.println(body);
-
-**return** "success";
-
-}
-
-**post**请求运行结果：
-
-**get**请求运行结果：
-
-## 4.3 PathVaribale 
+RESTful风格时使用
 
 ### 4.3.1 说明 
 
 作用：
 
-用于绑定url中的占位符。例如：请求url中
-/delete/**{id}**，这个**{id}**就是url占位符。
+用于绑定url中的占位符。例如：请求url中/delete/**{id}**，这个**{id}**就是url占位符。
 
 url支持占位符是spring3.0之后加入的。是springmvc支持rest风格URL的一个重要标志。
 
@@ -1297,92 +1332,33 @@ required：是否必须提供占位符。
 
 **jsp**代码：
 
-\<!-- PathVariable注解 --\>
-
-\<a href=*"springmvc/usePathVariable/100"*\>pathVariable注解\</a\>
+```jsp
+<!-- PathVariable注解 --> 
+<a href="springmvc/usePathVariable/100">pathVariable注解</a> 
+```
 
 控制器代码：
 
-/\*\*
-
-\* PathVariable注解
-
-\* **\@param** user
-
-\* \@return
-
-\*/
-
-\@RequestMapping("/usePathVariable/{id}")
-
-**public** String usePathVariable(\@PathVariable("id") Integer id){
-
-System.**out**.println(id);
-
-**return** "success";
-
+```java
+/** 
+* PathVariable注解 
+* @param user 
+* @return 
+*/ 
+@RequestMapping("/usePathVariable/{id}") 
+public String usePathVariable(@PathVariable("id") Integer id){ 
+	System.out.println(id); 
+	return "success"; 
 }
 
-运行结果：
-
-### 4.3.3 REST风格URL 
-
-什么是**rest**：
-
-REST（英文：Representational State
-Transfer，简称REST）描述了一个架构样式的网络系统，比如 web
-应用程序。它首次出现在 2000 年 Roy Fielding 的博士论文中，他是 HTTP
-规范的主要编写者之一。在目前主流的三种Web服务交互方案中，REST相比于SOAP（Simple
-Object Access
-protocol，简单对象访问协议）以及XML-RPC更加简单明了，无论是对URL的处理还是对Payload的编码，REST都倾向于用更加简单轻量的方法设计和实现。值得注意的是REST并没有一个明确的标准，而更像是一种设计的风格。
-
-它本身并没有什么实用性，其核心价值在于如何设计出符合REST风格的网络接口。
-
-**restful**的优点
-
-它结构清晰、符合标准、易于理解、扩展方便，所以正得到越来越多网站的采用。
-
-**restful**的特性：
-
-资源（Resources）：网络上的一个实体，或者说是网络上的一个具体信息。
-
-它可以是一段文本、一张图片、一首歌曲、一种服务，总之就是一个具体的存在。可以用一个URI（统一资源定位符）指向它，每种资源对应一个特定的
-URI 。要
-
-获取这个资源，访问它的URI就可以，因此 **URI** 即为每一个资源的独一无二的识别符。
-
-表现层（Representation）：把资源具体呈现出来的形式，叫做它的表现层
-（Representation）。
-
-比如，文本可以用 txt 格式表现，也可以用 HTML 格式、XML 格式、JSON
-格式表现，甚至可以采用二进制格式。
-
-状态转化（State Transfer）：每
-发出一个请求，就代表了客户端和服务器的一次交互过程。
-
-HTTP协议，是一个无状态协议，即所有的状态都保存在服务器端。因此，如果客户端想要操作服务器，必须通过某种手段，让服务器端发生“状态转化”（State
-Transfer）。而这种转化是建立在表现层之上的，所以就是
-“表现层状态转化”。具体说，就是 HTTP
-协议里面，四个表示操作方式的动词：GET、POST、PUT、DELETE。它们分别对应四种基本操作：GET
-用来获取资源，POST 用来新建资源，PUT 用来更新资源，DELETE 用来删除资源。
-
-**restful**的示例：
-
-/account/1 HTTP GET ： 得到 id = 1 的 account
-
-/account/1 HTTP DELETE： 删除 id = 1的 account
-
-/account/1 HTTP PUT： 更新id = 1的 account
-
-/account HTTP POST： 新增 account
+```
 
 ### 4.3.4 基于HiddentHttpMethodFilter的示例 
 
 作用：
 
 由于浏览器 form 表单只支持 GET 与 POST 请求，而DELETE、PUT 等 method
-并不支持，Spring3.0
-添加了一个过滤器，可以将浏览器请求改为指定的请求方式，发送给我们的控制器方法，使得支持
+并不支持，Spring3.0添加了一个过滤器，可以将浏览器请求改为指定的请求方式，发送给我们的控制器方法，使得支持
 GET、POST、PUT 与DELETE 请求。
 
 使用方法：
@@ -1397,139 +1373,79 @@ GET、POST、PUT 与DELETE 请求。
 
 jsp中示例代码：
 
-\<!-- 保存 --\>
-
-\<form action=*"springmvc/testRestPOST"* method=*"post"*\>
-
-用户名称：\<input type=*"text"* name=*"username"*\>\<br/\>
-
-\<!-- \<input type="hidden" name="_method" value="POST"\> --\>
-
-\<input type=*"submit"* value=*"*保存*"*\>
-
-\</form\>
-
-\<hr/\>
-
-\<!-- 更新 --\>
-
-\<form action=*"springmvc/testRestPUT/1"* method=*"post"*\>
-
-用户名称：\<input type=*"text"* name=*"username"*\>\<br/\>
-
-\<input type=*"hidden"* name=*"_method"* value=*"PUT"*\>
-
-\<input type=*"submit"* value=*"*更新*"*\>
-
-\</form\>
-
-\<hr/\>
-
-\<!-- 删除 --\>
-
-\<form action=*"springmvc/testRestDELETE/1"* method=*"post"*\>
-
-\<input type=*"hidden"* name=*"_method"* value=*"DELETE"*\>
-
-\<input type=*"submit"* value=*"*删除*"*\>
-
-\</form\>
-
-\<hr/\>
-
-\<!-- 查询一个 --\>
-
-\<form action=*"springmvc/testRestGET/1"* method=*"post"*\>
-
-\<input type=*"hidden"* name=*"_method"* value=*"GET"*\>
-
-\<input type=*"submit"* value=*"*查询*"*\>
-
-\</form\>
+```jsp
+<!-- 保存 --> 
+<form action="springmvc/testRestPOST" method="post"> 
+用户名称：<input type="text" name="username"><br/> 
+<!-- <input type="hidden" name="_method" value="POST"> --> 
+<input type="submit" value="保存"> 
+</form> 
+<hr/> 
+<!-- 更新 --> 
+<form action="springmvc/testRestPUT/1" method="post"> 
+用户名称：<input type="text" name="username"><br/> 
+<input type="hidden" name="_method" value="PUT"> 
+<input type="submit" value="更新"> 
+</form> 
+<hr/> 
+<!-- 删除 --> 
+<form action="springmvc/testRestDELETE/1" method="post"> 
+<input type="hidden" name="_method" value="DELETE"> 
+<input type="submit" value="删除"> 
+</form> 
+<hr/> 
+<!-- 查询一个 --> 
+<form action="springmvc/testRestGET/1" method="post"> 
+<input type="hidden" name="_method" value="GET"> 
+<input type="submit" value="查询"> 
+</form> 
+```
 
 控制器中示例代码：
 
-/\*\*
+```java
+/** 
+* post请求：保存 
+* @param username 
+* @return 
+*/ 
+@RequestMapping(value="/testRestPOST",method=RequestMethod.POST) 
+public String testRestfulURLPOST(User user){ 
+System.out.println("rest post"+user); 
+return "success"; 
+} 
+/** 
+* put请求：更新 
+* @param username 
+* @return 
+*/ 
+@RequestMapping(value="/testRestPUT/{id}",method=RequestMethod.PUT) 
+public String testRestfulURLPUT(@PathVariable("id")Integer id,User user){ 
+System.out.println("rest put "+id+","+user); 
+return "success"; 
+} 
+/** 
+* post请求：删除 
+* @param username 
+* @return 
+*/ 
+@RequestMapping(value="/testRestDELETE/{id}",method=RequestMethod.DELETE) 
+public String testRestfulURLDELETE(@PathVariable("id")Integer id){ 
+System.out.println("rest delete "+id);
+return "success"; 
+} 
+/** 
+* post请求：查询 
+* @param username 
+* @return 
+*/ 
+@RequestMapping(value="/testRestGET/{id}",method=RequestMethod.GET) 
+public String testRestfulURLGET(@PathVariable("id")Integer id){ 
+System.out.println("rest get "+id); 
+return "success"; 
+} 
 
-\* post请求：保存
-
-\* **\@param** username
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping(value="/testRestPOST",method=RequestMethod.**POST**)
-
-**public** String testRestfulURLPOST(User user){
-
-System.**out**.println("rest post"+user);
-
-**return** "success";
-
-}
-
-/\*\*
-
-\* put请求：更新
-
-\* **\@param** username
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping(value="/testRestPUT/{id}",method=RequestMethod.**PUT**)
-
-**public** String testRestfulURLPUT(\@PathVariable("id")Integer id,User user){
-
-System.**out**.println("rest put "+id+","+user);
-
-**return** "success";
-
-}
-
-/\*\*
-
-\* post请求：删除
-
-\* **\@param** username
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping(value="/testRestDELETE/{id}",method=RequestMethod.**DELETE**)
-
-**public** String testRestfulURLDELETE(\@PathVariable("id")Integer id){
-
-System.**out**.println("rest delete "+id);
-
-**return** "success";
-
-}
-
-/\*\*
-
-\* post请求：查询
-
-\* **\@param** username
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping(value="/testRestGET/{id}",method=RequestMethod.**GET**)
-
-**public** String testRestfulURLGET(\@PathVariable("id")Integer id){
-
-System.**out**.println("rest get "+id);
-
-**return** "success";
-
-}
-
-运行结果：
+```
 
 ## 4.4 RequestHeader 
 
