@@ -2249,11 +2249,15 @@ GlobalFilter,全局过滤器:
 
 所以有了springconfig配置中心
 
-![](.\图片\springconfig的1.png)
+SpringCloud Config为微服务架构中的微服务提供集中化的外部配置支持，配置服务器为各个不同微服务应用的所有环境提供一个中心化的外部配置。
 
 ![](.\图片\springconfig的2.png)
 
-![](.\图片\springconfig的3.png)
+SpringCloud Config分为服务端和客户端两部分。
+
+服务端也称为分布式配置中心，他是一个独立的微服务应用，用来连接配置服务器并未客户端提供获取配置信息，加密解密信息等访问接口。
+
+客户端则是通过制定的配置中心来管理应用资源，以及与业务相关的配置内容，并在启动的时候从配置中心获取和加载配置信息配置信息。配置服务器默认采用Git来存储配置信息，这样就有助于对环境配置进行吧版本管理，并且可以通过git客户端工具来方便的管理和访问配置内容。
 
 ![](.\图片\springconfig的4.png)
 
@@ -2261,9 +2265,9 @@ GlobalFilter,全局过滤器:
 
 
 
-### 使用配置中心:
+## 使用配置中心:
 
-#### 0,使用github作为配置中心的仓库:
+0,使用github作为配置中心的仓库:
 
 **初始化git环境:**
 
@@ -2271,25 +2275,25 @@ GlobalFilter,全局过滤器:
 
 
 
-#### 1,新建config模块:
+1,新建config模块:
 
 名字:   cloud-config-3344
 
-#### 2,pom
+2,pom
 
-#### 3,配置文件
+3,配置文件
 
 ![](.\图片\springconfig的6.png)
 
-#### 4,主启动类
+4,主启动类
 
 ![](.\图片\springconfig的7.png)
 
-#### 5,修改hosts:
+5,修改hosts:
 
 ![](.\图片\springconfig的8.png)
 
-#### 6,配置完成
+6,配置完成
 
 测试,3344是否可以从github上获取配置
 
@@ -2299,7 +2303,7 @@ GlobalFilter,全局过滤器:
 
 它实际上就是,读取到配置文件中的GitHub的地址,然后拼接上/master/config-dev.yml
 
-#### 7,读取配置文件的规则:
+7,读取配置文件的规则:
 
 ![](.\图片\springconfig的10.png)
 
@@ -2325,15 +2329,15 @@ GlobalFilter,全局过滤器:
 
 
 
-### 2,创建配置中心客户端:
+## 创建配置中心客户端:
 
-#### 1,创建config客户端项目
+1,创建config客户端项目
 
 名字: 	cloud-config-client-3355
 
-#### 2,pom
+2,pom
 
-#### 3,配置文件
+3,配置文件
 
 注意这个配置文件就不是application.yml
 
@@ -2347,11 +2351,11 @@ GlobalFilter,全局过滤器:
 
 
 
-#### 4,主启动类:
+4,主启动类:
 
 ![](.\图片\springconfig的17.png)
 
-#### 5,controller类
+5,controller类
 
 就是上面提到的,以rest风格将配置对外暴露
 
@@ -2361,7 +2365,7 @@ GlobalFilter,全局过滤器:
 
 **如果客户端运行正常,就会读取到github上配置文件的,config.info下的配置**
 
-#### 6,测试:
+6,测试:
 
 启动3344,3355
 
@@ -2373,7 +2377,7 @@ GlobalFilter,全局过滤器:
 
 
 
-#### 7,问题::
+7,问题::
 
 ```java
 上面3355确实获取到了配置文件,但是如果此时配置文件修改了,3355是获取不到的
@@ -2381,23 +2385,23 @@ GlobalFilter,全局过滤器:
   	除非重启服务
 ```
 
-#### **8,实现动态刷新:**
+**8,实现动态刷新:**
 
-##### 1,修改3355,添加一个pom依赖:
+1,修改3355,添加一个pom依赖:
 
 ![](.\图片\springconfig的22.png)
 
-##### 2,修改配置文件,添加一个配置:
+2,修改配置文件,添加一个配置:
 
 ![](.\图片\springconfig的23.png)
 
-##### 3,修改controller:
+3,修改controller:
 
 ![](.\图片\springconfig的24.png)
 
 
 
-##### 4,此时重启服务
+4,此时重启服务
 
 **此时3355还不可以动态获取**
 
@@ -2520,7 +2524,7 @@ spring.cloud.config.server.encrypt.enabled=false
 
 在需要刷新的Bean上添加@RefreshScope注解。
 
-```
+```java
 @RefreshScope
 @RestController
 public class TestController {    
@@ -2539,7 +2543,7 @@ public class TestController {
 
 
 
-# 消息总线:
+# 第九章：消息总线
 
 ## SpringCloud Bus:
 
