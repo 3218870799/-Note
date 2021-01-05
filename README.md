@@ -61,6 +61,7 @@
 | 12    | SpringBoot                |                                                              |        |
 | 13    | Dubbo                     |                                                              |        |
 | 14    | SpringCloud               |                                                              |        |
+| 14.1  | SpringCloudAlibaba        | 由于原本项目停更，目标代替SpringCloud                        |        |
 | 14    | 消息队列                  | rabbitMQ，Kafka，RocketMQ                                    |        |
 | 15    | Zookeeper                 |                                                              |        |
 | 16    | Linux                     |                                                              |        |
@@ -299,13 +300,15 @@ JavaWeb开发
 
 ### SpringBoot
 
+### 消息队列
+
+### Zookeeper
+
 ### Dubbo
 
 ### SpringCloud
 
-### 消息队列
-
-### Zookeeper
+### SpringCloudAlibaba
 
 
 
