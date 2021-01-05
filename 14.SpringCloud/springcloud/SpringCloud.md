@@ -1875,89 +1875,89 @@ IdUtil是Hutool包下的类,这个Hutool就是整合了所有的常用方法,比
 
 zuul停更了,
 
-## 13,GateWay
+## GateWay
 
-
-
-![](.\图片\gateway的1.png)
-
-![](.\图片\gateway的2.png)
+GateWay旨在提供一种简单而有效的方法来对API进行路由，以及提供强大的过滤器功能，例如：熔断，限流，重试等。
 
 **gateway之所以性能号,因为底层使用WebFlux,而webFlux底层使用netty通信(NIO)**
 
-
+提供了统一的路由方式且基于Filter链的方式提供了网关基本的功能。
 
 ![](.\图片\gateway的3.png)
 
 
 
-### GateWay的特性:
+### GateWay的特性
 
-![](.\图片\gateway的4.png)
+动态路由：能够匹配任何请求属性。
 
+可以对路由指定Predicate（断言）和Filter（过滤器）
 
+集成Hystrix的断路器功能
+
+集成SpringCloud服务发现功能
+
+易于编写的Predicate（断言）和Filter（过滤器）
+
+请求限流功能
+
+支持路径重写
 
 ### GateWay与zuul的区别:
 
-![](.\图片\gateway的5.png)
+1：Zuul 1.x 是一个基于阻塞I/O的API Gateway
 
+2：Zuul 1.x 基于Servlet2.5使用阻塞架构它不支持任何长连接（如，WebSocket）Zuul的设计模式和Nginx比较像，每次I/O操作都是从工作线程中选择一个执行，请求线程被阻塞到工作线程完成，但是差别是Nginx用C++实现，Zuul用Java实现，而JVM本身会有第一次加载较慢的情况，使得Zuul的性能相对较差
 
+3：Zuul 2.x想基于Netty非阻塞和长连接，但SpringCloud目前没有整合
+
+4：Gateway 使用非阻塞的API，还支持WebSocket，并且与Spring紧密集
 
 ### zuul1.x的模型:
 
-![](.\图片\gateway的6.png)
+基于Servlet的阻塞式处理模型
 
-![](.\图片\gateway的7.png)
-
-
-
-
-
-### 什么是webflux:
+### webflux:
 
 **是一个非阻塞的web框架,类似springmvc这样的**
 
-![](.\图片\gateway的8.png)
-
-
+Servlet3之后有了异步非阻塞的支持。而WebFlux是一个典型非阻塞异步的框架，它的核心是基于Reactor的相关API实现的。
 
 ### GateWay的一些概念:
 
-#### 1,路由:
+#### 1,路由
 
-![](.\图片\gateway的9.png)
+路由是构建网关的基本模块，它由ID，目标URL，一系列的断言和过滤器组成，如果断言为true则匹配该路由。
 
 就是根据某些规则,将请求发送到指定服务上
 
+#### 2,断言
 
-
-#### 2,断言:
-
-![](.\图片\gateway的10.png)
+参考Java8的Predicate，开发人员可以匹配HTTP请求中所有内容（比如请求头或请求参数）如果请求与断言相匹配，则进行路
 
 就是判断,如果符合条件就是xxxx,反之yyyy
 
 
 
-#### 3,过滤:
+#### 3,过滤
 
-![](.\图片\gateway的11.png)
+指的是Spring框架中GateWayFilter的实例，使用过滤器，可以请求被路由前或后对请求进行修改
 
 ​	**路由前后,过滤请求**
 
-
-
-
-
-### GateWay的工作原理:
+### 工作原理:
 
 ![](.\图片\gateway的12.png)
 
-![](.\图片\gateway的13.png)
+客户端向Gateway发出请求，然后在Gateway Handler Mapping中找到与请求相匹配的路由，将其发送到Gateway Web Handler
 
+Handler再通过制定的过滤器链来将请求发送到实际的服务之星业务逻辑，然后返回
 
+过滤器之间用虚线分开是因为过滤器可能会在发送代理请求之前（pre）或之后（post）执行业务逻辑
 
+Filter在“pre”类型的过滤器可以做参数校检，权限校检，零流量监控，日志输出，协议转换
 
+在post类型的过滤器中可以做响应内容，响应头的修改，日志的输出，流量监控等作用
 
 ### 使用GateWay:
 
@@ -1965,17 +1965,17 @@ zuul停更了,
 
 名字: 	cloud_gateway_9527
 
-#### 1,pom
+1,pom
 
-#### 2,配置文件
+2,配置文件
 
 ![](.\图片\gateway的14.png)
 
-#### 3,主启动类
+3,主启动类
 
 ![](.\图片\gateway的15.png)
 
-#### 4,针对pay模块,设置路由:
+4,针对pay模块,设置路由:
 
 ![](.\图片\gateway的16.png)
 
@@ -1993,7 +1993,7 @@ zuul停更了,
 
 
 
-#### 5,开始测试
+5,开始测试
 
 **启动7001,8001,9527**
 
@@ -2014,17 +2014,17 @@ zuul停更了,
 
 
 
-#### 6,GateWay的网关配置,
+6,GateWay的网关配置,
 
 ​		**GateWay的网关配置,除了支持配置文件,还支持硬编码方式**
 
-#### 7使用硬编码配置GateWay:
+7使用硬编码配置GateWay:
 
-##### 创建配置类:
+创建配置类:
 
 ![](.\图片\gateway的20.png)
 
-#### 8,然后重启服务即可
+8,然后重启服务即可
 
  
 
@@ -2046,15 +2046,19 @@ zuul停更了,
 
 
 
-#### 然后就可以启动微服务.测试
+然后就可以启动微服务.测试
 
 
 
 
 
+### Pridicate断言
+
+参考Java8的Predicate，开发人员可以匹配HTTP请求中所有内容（比如请求头或请求参数）如果请求与断言相匹配，则进行路
+
+就是判断,如果符合条件就是xxxx,反之yyyy
 
 
-### Pridicate断言:
 
 ![](.\图片\gateway的24.png)
 
@@ -2182,31 +2186,37 @@ Query:
 
 
 
-### Filter过滤器:
+### Filter过滤器
 
-![](.\图片\gateway的41.png)
+指的是Spring框架中GateWayFilter的实例，使用过滤器，可以请求被路由前或后对请求进行修改
 
+​	**路由前后,过滤请求**
 
+可用于修改进入的Http请求和返回的HTTP响应，路由过滤器只能指定路由进行使用，Gateway内置了多种路由过滤器，他们都有GatewayFilter的工厂类来产生。
 
 #### 生命周期:
 
 **在请求进入路由之前,和处理请求完成,再次到达路由之前**
 
+#### 种类
 
-
-#### 种类:
-
-![](.\图片\gateway的42.png)
+- GatewayFilter
+- GlobalFilter
 
 GateWayFilter,单一的过滤器
 
-**与断言类似,比如闲置,请求头,只有特定的请求头才放行,反之就过滤**:
+**与断言类似,比如闲置,请求头,只有特定的请求头才放行,反之就过滤**
 
-![](.\图片\gateway的43.png)
+```yml
+routes:
+	-id:paymet_routh # payment_route # 路由的ID，没有固定规则但要求唯一，建议配合服务名
+	uri:lb://cloud-provider-payment # 匹配后的目标服务地址，供服务的路由地址
+	#uri：http://localhost:8001 #匹配后提供服务的路由地址
+	filters:
+		-AddRequestParameter=X-Request-Id,1024 # 过滤器工厂会在匹配的请求头加上一堆请求头，名称为X-Request—Id值为1024
+```
 
 GlobalFilter,全局过滤器:
-
-
 
 
 
@@ -2226,29 +2236,7 @@ GlobalFilter,全局过滤器:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 6,服务配置:
+# 第八章：服务配置:
 
 ## Spring Config分布式配置中心:
 
