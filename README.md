@@ -318,15 +318,43 @@ JavaWeb开发
 
 ## :palm_tree:项目开发中你一定用过的组件
 
-### Lucene全文检索
 
-### solr全文检索服务器
 
-### shiro安全验证
+### 检索
+
+#### 1：Lucene全文检索
+
+#### 2：solr全文检索服务器
+
+#### 3：ElasticSearch
+
+
+
+### 安全验证
+
+#### 1：shiro安全验证
+
+#### 2：SpringSecurity
+
+
 
 ### 业务流程管理Activiti
 
+
+
 ### 自动代码生成
+
+
+
+### 作业调度Quartz
+
+
+
+### 单点登录
+
+
+
+### 模板引擎freemarker
 
 
 
