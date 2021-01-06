@@ -91,7 +91,7 @@
 | 36    | VMware                    |                                                              |        |
 | 37    | 持续集成Jenkins           |                                                              |        |
 | 40    | 架构设计                  |                                                              |        |
-|       |                           |                                                              |        |
+| 48    | 代码审查                  | SonarQube的安装与集成使用                                    |        |
 |       | 我的博客                  |                                                              |        |
 
 
@@ -316,9 +316,7 @@ JavaWeb开发
 
 
 
-## :palm_tree:项目应用组件
-
-
+## :palm_tree:项目开发中你一定用过的组件
 
 ### Lucene全文检索
 
@@ -384,7 +382,7 @@ JavaWeb开发
 
 
 
-## :mouse:Go   
+## :mouse:Go
 
 
 
@@ -392,13 +390,29 @@ JavaWeb开发
 
 
 
-## 环境搭建
+### 1：持续集成Jenkins
 
-## VMware   
 
-## 持续集成Jenkins
 
-## 架构设计
+### 2：代码审查SonarQube
+
+
+
+
+
+
+
+
+
+
+
+
+
+环境搭建
+
+VMware   
+
+架构设计
 
 
 
