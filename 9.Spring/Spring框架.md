@@ -1,4 +1,6 @@
-﻿ 第1章 Spring 概述 
+﻿
+
+{;第1章 Spring 概述
 
 ## 1.1 简介
 
@@ -257,7 +259,11 @@ C**、** 使用 spring 容器创建的 java 对象
 
 包含了各种Bean的定义，读取bean配置文档，管理bean的加载、实例化，控制bean的生命周期，维护bean之间的依赖关系。
 
-BeanFactroy采用的是延迟加载形式来注入Bean的，即只有在使用到某个Bean时(调用getBean())，才对该Bean进行加载实例化。ApplicationContext，它是在容器启动时，一次性创建了所有的Bean。
+
+
+BeanFactroy采用的是 `延迟加载` 形式来注入Bean的，即只有在使用到某个Bean时(调用getBean())，才对该Bean进行加载实例化。ApplicationContext，它是在容器启动时，一次性创建了所有的Bean。
+
+
 
 BeanFactory通常以编程的方式被创建，ApplicationContext还能以声明的方式创建，如使用ContextLoader。
 
@@ -265,116 +271,93 @@ BeanFactory通常以编程的方式被创建，ApplicationContext还能以声明
 
 -   静态工厂：用于生成实例对象，所有的方法必须是static
 
-| \<bean id="" class="工厂全限定类名" factory-method="静态方法"\> |
-|-----------------------------------------------------------------|
-
+ ```xml
+<bean id="" class="工厂全限定类名" factory-method="静态方法"> 
+ ```
 
 创建实例
 
-**public class** MyBeanFactory {
-
-/\*\*
-
-\* 创建实例
-
-\* **\@return**
-
-\*/
-
-**public static** UserService createService(){
-
-**return new** UserServiceImpl();
-
+```java
+public class MyBeanFactory {
+	
+	/**
+	 * 创建实例
+	 * @return
+	 */
+	public static UserService createService(){
+		return new UserServiceImpl();
+	}
 }
 
-}
+```
 
 Spring配置
 
-\<!-- 将静态工厂创建的实例交予spring
+```xml
+	<!-- 将静态工厂创建的实例交予spring 
+		class 确定静态工厂全限定类名
+		factory-method 确定静态方法名
+	-->
+	<bean id="userServiceId" class="com.xqc.c_inject.b_static_factory.MyBeanFactory" factory-method="createService"></bean>
 
-class 确定静态工厂全限定类名
+```
 
-factory-method 确定静态方法名
 
---\>
 
-\<bean id=*"userServiceId"*
-class=*"com.xqc.static_factory.MyBeanFactory"*
-factory-method=*"createService"*\>\</bean\>
-
-#### 实例工厂
+#### 3：实例工厂
 
 -   实例工厂：必须先有工厂实例对象，通过实例对象创建对象。提供所有的方法都是“非静态”的。
 
 1：工厂
 
-/\*\*
-
-\* 实例工厂,所有方法非静态
-
-\*
-
-\*/
-
-**public class** MyBeanFactory {
-
-/\*\*
-
-\* 创建实例
-
-\* **\@return**
-
-\*/
-
-**public** UserService createService(){
-
-**return new** UserServiceImpl();
+```java
+/**
+ * 实例工厂,所有方法非静态
+ *
+ */
+public class MyBeanFactory {
+	
+	/**
+	 * 创建实例
+	 * @return
+	 */
+	public UserService createService(){
+		return new UserServiceImpl();
+	}
 
 }
 
-}
+```
 
 2：Spring配置
 
-\<!-- 创建工厂实例 --\>
-
-\<bean id=*"myBeanFactoryId"*
-class=*"com.xqc.factory.MyBeanFactory"*\>\</bean\>
-
-\<!-- 获得userservice
-
-\* factory-bean 确定工厂实例
-
-\* factory-method 确定普通方法
-
---\>
-
-\<bean id=*"userServiceId"* factory-bean=*"myBeanFactoryId"*
-factory-method=*"createService"*\>\</bean\>
+```xml
+<!-- 创建工厂实例 -->
+	<bean id="myBeanFactoryId" class="com.itheima.c_inject.c_factory.MyBeanFactory"></bean>
+	<!-- 获得userservice 
+		* factory-bean 确定工厂实例
+		* factory-method 确定普通方法
+	-->
+	<bean id="userServiceId" factory-bean="myBeanFactoryId" factory-method="createService"></bean>
+```
 
 ### 2.3.2 Bean种类
 
--   普通bean：之前操作的都是普通bean。\<bean id="" class="A"\>
-    ，spring直接创建A实例，并返回
+-   普通bean：之前操作的都是普通bean。\<bean id="" class="A"\>，spring直接创建A实例，并返回
+    
+-   FactoryBean：是一个特殊的bean，具有工厂生成对象能力，只能生成特定的对象。bean必须使用 FactoryBean接口，此接口提供方法 getObject() 用于获得特定bean。
 
--   FactoryBean：是一个特殊的bean，具有工厂生成对象能力，只能生成特定的对象。
-
-bean必须使用 FactoryBean接口，此接口提供方法 getObject() 用于获得特定bean。
-
-\<bean id="" class="FB"\>
-先创建FB实例，使用调用getObject()方法，并返回方法的返回值
-
-FB fb = new FB();
-
-return fb.getObject();
+```xml
+<bean id="" class="FB"> 先创建FB实例，使用调用getObject()方法，并返回方法的返回值
+		FB fb = new FB();
+		return fb.getObject();
+```
 
 -   BeanFactory 和 FactoryBean 对比？
 
 BeanFactory：工厂，用于生成任意bean。
 
-FactoryBean：特殊bean，用于生成另一个特定的bean。例如：ProxyFactoryBean
-，此工厂bean用于生产代理。\<bean id="" class="....ProxyFactoryBean"\>
+FactoryBean：特殊bean，用于生成另一个特定的bean。例如：ProxyFactoryBean，此工厂bean用于生产代理。\<bean id="" class="....ProxyFactoryBean"\>
 获得代理对象实例。AOP使用
 
 ### 2.3.3：作用域
@@ -465,20 +448,15 @@ s)方法；由于这个方法是在Bean初始化结束时调用的，所以可�
 
 ## 2.3 基于 XML 的 DI 
 
->   举例：项目 di-xml
-
 ### 2.3.1 注入分类 
 
-bean 实例在调用无参构造器创建对象后，就要对 bean
-对象的属性进行初始化。初始化是由容器自动完成的，称为注入。
+bean 实例在调用无参构造器创建对象后，就要对 bean对象的属性进行初始化。初始化是由容器自动完成的，称为注入。
 
 >   根据注入方式的不同，常用的有两类：set 注入、构造注入。
 
 #### **（**1**）** set **注入**(**掌握**) 
 
-set 注入也叫设值注入是指，通过 setter
-方法传入被调用者的实例。这种注入方式简单、直观，因而在 Spring
-的依赖注入中大量使用。
+set 注入也叫设值注入是指，通过 setter方法传入被调用者的实例。这种注入方式简单、直观，因而在 Spring的依赖注入中大量使用。
 
 **A**、 简单类型
 
@@ -604,22 +582,19 @@ spring-\*.xml 的格式，即不能起名为 spring-total.xml。
 
 （1）no：默认的方式是不进行自动装配的，通过手工设置ref属性来进行装配bean。
 
-（2）byName：通过bean的名称进行自动装配，如果一个bean的 property 与另一bean
-的name 相同，就进行自动装配。
+（2）byName：通过bean的名称进行自动装配，如果一个bean的 property 与另一bean的name 相同，就进行自动装配。
 
 （3）byType：通过参数的数据类型进行自动装配。
 
 （4）constructor：利用构造函数进行装配，并且构造函数的参数通过byType进行装配。
 
-（5）autodetect：自动探测，如果有构造方法，通过
-construct的方式自动装配，否则使用 byType的方式自动装配。
+（5）autodetect：自动探测，如果有构造方法，通过construct的方式自动装配，否则使用 byType的方式自动装配。
 
 >   举例：di-annotation 项目
 
-对于 DI 使用注解，将不再需要在 Spring 配置文件中声明 bean 实例。Spring
-中使用注解，需要在原有 Spring 运行环境基础上再做一些改变。
+对于 DI 使用注解，将不再需要在 Spring 配置文件中声明 bean 实例。Spring中使用注解，需要在原有 Spring 运行环境基础上再做一些改变。
 
->   需要在 Spring 配置文件中配置组件扫描器，用于在指定的基本包中扫描注解。
+需要在 Spring 配置文件中配置组件扫描器，用于在指定的基本包中扫描注解。
 
 ![](media/43d72968aeb9d3190c8faf7035945d75.jpg)
 
@@ -654,87 +629,94 @@ base-package 可以指定一个父包就可以。
 ![](media/59384b316727aad4df3f2661d5c0ad4c.jpg)
 
 但不建议使用顶级的父包，扫描的路径比较多，导致容器启动时间变慢。指定到目标包和合适的。也就是注解所在包全路径。例如注解的类在
-com.bjpowernode.beans 包中
+com.xqc.beans 包中
 
-![](media/2d38f84e0d5fdc386cfdf71175f26fc2.jpg)
+```xml
+<context:component-scan base-package="com.xqc.benas"/>
+```
 
-### 2.4.1 定义 Bean 的注解\@Component(掌握) 
+### 2.4.1 定义 Bean 的注解@Component(掌握) 
 
->   需要在类上使用注解\@Component，该注解的 value 属性用于指定该 bean 的 id 值。
+需要在类上使用注解@Component，该注解的 value 属性用于指定该 bean 的 id 值。
 
->   举例：di01
+```java
+//注解参数中省略了value属性，该属性用于指定Bean的ID
+@Component("myStudent")
+public class Student{
+    private String name;
+    private int age;
+}
+```
 
-![](media/9b60ee9042e60bd4add08a5172821304.jpg)
+另外，Spring 还提供了 3 个创建对象的注解：
 
->   另外，Spring 还提供了 3 个创建对象的注解：
+-   @Repository 用于对 DAO 实现类进行注解
 
--   \@Repository 用于对 DAO 实现类进行注解
+-   @Service 用于对 Service 实现类进行注解
 
--   \@Service 用于对 Service 实现类进行注解
+-   @Controller 用于对 Controller 实现类进行注解
 
--   \@Controller 用于对 Controller 实现类进行注解
+这三个注解与@Component 都可以创建对象，但这三个注解还有其他的含义，@Service创建业务层对象，业务层对象可以加入事务功能，@Controller
+注解创建的对象可以作为处理器接收用户的请求。@Repository，@Service，@Controller 是对@Component注解的细化，标注不同层的对象。即持久层对象，业务层对象，控制层对象。
 
-这三个注解与\@Component 都可以创建对象，但这三个注解还有其他的含义，\@Service
-创建业务层对象，业务层对象可以加入事务功能，\@Controller
-注解创建的对象可以作为处理器接收用户的请求。
-
-\@Repository，\@Service，\@Controller 是对\@Component
-注解的细化，标注不同层的对象。即持久层对象，业务层对象，控制层对象。
-
->   \@Component 不指定 value 属性，bean 的 id 是类名的首字母小写。
+@Component 不指定 value 属性，bean 的 id 是类名的首字母小写。
 
 ![](media/248a55f3559aba760587c618465580a1.jpg)
 
 ![](media/da6c6b93d38bfd769006211b53f5fe22.jpg)
 
-### 2.4.2 简单类型属性注入\@Value(掌握) 
+### 2.4.2 简单类型属性注入@Value(掌握) 
 
->   需要在属性上使用注解\@Value，该注解的 value 属性用于指定要注入的值。
+需要在属性上使用注解@Value，该注解的 value 属性用于指定要注入的值。
 
-使用该注解完成属性注入时，类中无需 setter。当然，若属性有 setter，则也可将其加到
-setter 上。
+使用该注解完成属性注入时，类中无需 setter。当然，若属性有 setter，则也可将其加到setter 上。
 
->   举例：
+```java
+//注解参数中省略了value属性，该属性用于指定Bean的id
+public class Student{
+    @Value("zhangsan")
+    private String name;
+    @Value("21")
+    private String age;
+}
+```
 
-![](media/cdc416565c357dbdd0adc142efaf3951.jpg)
+### 2.4.3 byType 自动注入@Autowired(掌握) 
 
-### 2.4.3 byType 自动注入\@Autowired(掌握) 
+需要在引用属性上使用注解@Autowired，该注解默认使用按类型自动装配 Bean的方式。使用该注解完成属性注入时，类中无需 setter。当然，若属性有
+setter，则也可将其加到 setter 上。
 
-需要在引用属性上使用注解\@Autowired，该注解默认使用按类型自动装配 Bean
-的方式。使用该注解完成属性注入时，类中无需 setter。当然，若属性有
-setter，则也可将其加到 setter 上。举例：
+```java
+@Component("myStudent")
+public class Student{
+    @Value("zhangsan")
+    private String name;
+    @Value("21")
+    private String age;
+    @Autowired
+    private School school;
+}
+```
 
-![](media/cd287953e58dea7b6b26779171ea575a.jpg)
+### 2.4.4 byName 自动注入@Autowired 与@Qualifier(掌握) 
 
-### 2.4.4 byName 自动注入\@Autowired 与\@Qualifier(掌握) 
-
->   需要在引用属性上联合使用注解\@Autowired 与\@Qualifier。\@Qualifier 的 value
->   属性用
-
-于指定要匹配的 Bean 的 id 值。类中无需 set 方法，也可加到 set 方法上。
-
->   举例：
+需要在引用属性上联合使用注解@Autowired 与@Qualifier。@Qualifier 的 value属性用于指定要匹配的 Bean 的 id 值。类中无需 set 方法，也可加到 set 方法上。
 
 ![](media/2e94d6233a0deed6b2d6a9e302bef48c.png)
 
-\@Autowired 还有一个属性 required，默认值为
-true，表示当匹配失败后，会终止程序运行。若将其值设置为
-false，则匹配失败，将被忽略，未匹配的属性值为 null。
+@Autowired 还有一个属性 required，默认值为true，表示当匹配失败后，会终止程序运行。若将其值设置为false，则匹配失败，将被忽略，未匹配的属性值为 null。
 
 ![](media/20ebaf1b2f99ceac2dfa947fe5a994e3.jpg)
 
-### 2.4.5 JDK 注解\@Resource 自动注入(掌握) 
+### 2.4.5 JDK 注解@Resource 自动注入(掌握) 
 
-Spring 提供了对 jdk 中\@Resource 注解的支持。\@Resource 注解既可以按名称匹配
-Bean，也可以按类型匹配 Bean。默认是按名称注入。使用该注解，要求 JDK 必须是 6
-及以上版本。
+Spring 提供了对 jdk 中@Resource 注解的支持。@Resource 注解既可以按名称匹配Bean，也可以按类型匹配 Bean。默认是按名称注入。使用该注解，要求 JDK 必须是 6及以上版本。
 
-\@Resource 可在属性上，也可在 set 方法上。
+@Resource 可在属性上，也可在 set 方法上。
 
 **（**1**）** byType **注入引用类型属性**
 
-\@Resource 注解若不带任何参数，采用默认按名称的方式注入，按名称不能注入
-bean，则会按照类型进行 Bean 的匹配注入。
+@Resource 注解若不带任何参数，采用默认按名称的方式注入，按名称不能注入bean，则会按照类型进行 Bean 的匹配注入。
 
 >   举例：
 
@@ -742,8 +724,7 @@ bean，则会按照类型进行 Bean 的匹配注入。
 
 **（**2**）** byName **注入引用类型属性**
 
->   \@Resource 注解指定其 name 属性，则 name 的值即为按照名称进行匹配的 Bean 的
->   id。
+@Resource 注解指定其 name 属性，则 name 的值即为按照名称进行匹配的 Bean 的id。
 
 >   举例：
 
@@ -759,8 +740,7 @@ bean，则会按照类型进行 Bean 的匹配注入。
 
 -   高效（代码少，没有配置文件的书写那么复杂）。
 
->   其弊端也显而易见：以硬编码的方式写入到 Java
->   代码中，修改是需要重新编译代码的。
+其弊端也显而易见：以硬编码的方式写入到 Java代码中，修改是需要重新编译代码的。
 
 XML 方式优点是：
 
@@ -848,13 +828,9 @@ AOP 底层，就是采用动态代理模式实现的。采用了两种代理：J
 -   采用字节码增强框架 cglib，在运行时 创建目标类的子类，从而对目标类进行增强。
 -   导入jar包：
 
-
-
 不同的与优缺点：
 
 JDK 是基于接口实现，而 CGLIB 继承代理类
-
-
 
 通常建议使用jdk代理
 
@@ -890,8 +866,7 @@ spring-core..jar 已经整合以上两个内容
 ### （4） 目标对象（Target） 
 
 目标对象指将要被增强的对象。即包含主业务逻辑的类的对象。上例中的
-StudentServiceImpl
-的对象若被增强，则该类称为目标类，该类对象称为目标对象。当然，不被增强，也就无所谓目标不目标了。
+StudentServiceImpl的对象若被增强，则该类称为目标类，该类对象称为目标对象。当然，不被增强，也就无所谓目标不目标了。
 
 ### （5） 通知（Advice） 
 
@@ -904,11 +879,9 @@ Spring按照通知Advice在目标类方法的连接点位置，可以分为5类
 
 - 前置通知Before advice
 
-  在目标方法执行前实施增强
-
-  但这个通知不能阻止连接点前的执行。
-  ApplicationContext 中在\<aop:aspect>里面使用\<aop:before>元素进行声明。
-
+  在目标方法执行前实施增强，但这个通知不能阻止连接点前的执行。
+ApplicationContext 中在\<aop:aspect>里面使用\<aop:before>元素进行声明。
+  
 - 后置通知After advice
 
   在目标方法执行后实施增强(不论是正常返回还是异常退出)
@@ -924,11 +897,8 @@ ApplicationContext 中在\<aop:aspect>里面使用\<aop:after-returning>
 
 - 环绕通知 Around advice
 
-  包围一个连接点的通知，类似Web 中Servlet 规范
-  中的Filter 的doFilter 方法。可以在方法的调用前后完成自定义的行
-  为，也可以选择不执行。ApplicationContext 中在\<aop:aspect>里面
-  使用\<aop:around>元素进行声明。
-
+  包围一个连接点的通知，类似Web 中Servlet 规范中的Filter 的doFilter 方法。可以在方法的调用前后完成自定义的行为，也可以选择不执。ApplicationContext 中在\<aop:aspect>里面使用\<aop:around>元素进行声明。
+  
 -   异常抛出通知
 
     在方法抛出异常后实施增强
@@ -939,18 +909,13 @@ ApplicationContext 中在\<aop:aspect>里面使用\<aop:after-returning>
 
 ## 3.5 AspectJ 对 AOP 的实现(掌握) 
 
-对于 AOP 这种编程思想，很多框架都进行了实现。Spring
-就是其中之一，可以完成面向切面编程。然而，AspectJ 也实现了 AOP
-的功能，且其实现方式更为简捷，使用更为方便，而且还支持注解式开发。所以，Spring
-又将 AspectJ 的对于 AOP 的实现也引入到了自己的框架中。
-
-在 Spring 中使用 AOP 开发时，一般使用 AspectJ 的实现方式。
+对于 AOP 这种编程思想，很多框架都进行了实现。Spring就是其中之一，可以完成面向切面编程。然而，AspectJ 也实现了 AOP的功能，且其实现方式更为简捷，使用更为方便，而且还支持注解式开发。所以，Spring又将 AspectJ 的对于 AOP 的实现也引入到了自己的框架中。在 Spring 中使用 AOP 开发时，一般使用 AspectJ 的实现方式。
 
 ### 1：AspectJ 简介 
 
 AspectJ 是一个优秀面向切面的框架，它扩展了 Java 语言，提供了强大的切面实现。
 
-\@AspectJ 是AspectJ1.5新增功能，通过JDK5注解技术，允许直接在Bean类中定义切面
+@AspectJ 是AspectJ1.5新增功能，通过JDK5注解技术，允许直接在Bean类中定义切面
 
 新版本Spring框架，建议使用AspectJ方式来开发AOP
 
@@ -958,46 +923,54 @@ AspectJ 是一个优秀面向切面的框架，它扩展了 Java 语言，提供
 
 **AspetJ** 是 **Eclipse** 的开源项目，官网介绍如下：
 
-![](media/1966cbbaacc8f5bdedd4759418f25174.jpg)
-
 a seamless aspect-oriented extension to the Javatm programming
-language（一种基于 Java 平台
+language（一种基于 Java 平台的面向切面编程的语言）
 
-的面向切面编程的语言）
-
-Java platform compatible（兼容 Java 平台，可以无缝扩展） easy to learn and
-use（易学易用）
+Java platform compatible（兼容 Java 平台，可以无缝扩展） easy to learn and use（易学易用）
 
 ### 2： AspectJ 的通知类型(理解) 
 
->   AspectJ 中常用的通知有五种类型：
+AspectJ 中常用的通知有五种类型：
 
-before:前置通知(应用：各种校验)
+- before:前置通知(应用：各种校验)
+
 
 在方法执行前执行，如果通知抛出异常，阻止方法运行
 
-afterReturning:后置通知(应用：常规数据处理)
+- afterReturning:后置通知(应用：常规数据处理)
+
 
 方法正常返回后执行，如果方法中抛出异常，通知无法执行
 
 必须在方法执行后才执行，所以可以获得方法的返回值。
 
-around:环绕通知(应用：十分强大，可以做任何事情)
+- around:环绕通知(应用：十分强大，可以做任何事情)
+
 
 方法执行前后分别执行，可以阻止方法的执行
 
 必须手动执行目标方法
 
-afterThrowing:抛出异常通知(应用：包装异常信息)
+- afterThrowing:抛出异常通知(应用：包装异常信息)
+
 
 方法抛出异常后执行，如果方法没有抛出异常，无法执行
 
-after:最终通知(应用：清理现场)
+- after:最终通知(应用：清理现场)
 
 方法执行完毕后执行，无论方法中是否出现异常
 
-| 环绕 try{  //前置：before  //手动执行目标方法  //后置：afterRetruning } catch(){  //抛出异常 afterThrowing } finally{  //最终 after } |
-|---------------------------------------------------------------------------------------------------------------------------------------|
+```java
+环绕 try{  
+    //前置：before  
+    //手动执行目标方法  
+    //后置：afterRetruning 
+} catch(){  
+    //抛出异常 afterThrowing 
+} finally{  
+    //最终 after 
+} 
+```
 
 
 同一个aspect，不同advice的执行顺序：
@@ -1034,28 +1007,25 @@ java.lang.RuntimeException: 异常发生
 
 ### 3 ：AspectJ 的切入点表达(掌握) 
 
->   AspectJ 定义了专门的表达式用于指定切入点。表达式的原型是：
+AspectJ 定义了专门的表达式用于指定切入点。表达式的原型是：
 
 | execution(modifiers-pattern? ret-type-pattern                          |
 |------------------------------------------------------------------------|
 | declaring-type-pattern?name-pattern(param-pattern)   throws-pattern?)  |
 
->   解释：
+解释：
 
->   modifiers-pattern] 访问权限类型 ret-type-pattern 返回值类型
->   declaring-type-pattern 包名类名
+modifiers-pattern] 访问权限类型 ret-type-pattern 返回值类型 declaring-type-pattern 包名类名
 
->   name-pattern(param-pattern) 方法名(参数类型和参数个数) throws-pattern
->   抛出异常类型
+name-pattern(param-pattern) 方法名(参数类型和参数个数) throws-pattern 抛出异常类型
 
 ？表示可选的部分
 
->   以上表达式共 4 个部分。
+以上表达式共 4 个部分。
 
->   execution(访问权限 方法返回值 方法声明(参数) 异常类型)
+execution(访问权限 方法返回值 方法声明(参数) 异常类型)
 
-切入点表达式要匹配的对象就是目标方法的方法名。所以，execution
-表达式中明显就是方法的签名。注意，表达式中黑色文字表示可省略部分，各部分间用空格分开。在其中可以使用以下符号：
+切入点表达式要匹配的对象就是目标方法的方法名。所以，execution表达式中明显就是方法的签名。注意，表达式中黑色文字表示可省略部分，各部分间用空格分开。在其中可以使用以下符号：
 
 ![](media/c99a59dc73f328597c2a7162f1819ac6.jpg)
 
@@ -1065,42 +1035,23 @@ execution(public \* \*(..))  指定切入点为：任意公共方法。
 
 execution(\* set\*(..)) 指定切入点为：任何一个以“set”开始的方法。
 
-execution(\* com.xyz.service.\*.\*(..)) 指定切入点为：定义在 service
-包里的任意类的任意方法。
+execution(\* com.xyz.service.\*.\*(..)) 指定切入点为：定义在 service包里的任意类的任意方法。
 
-execution(\* com.xyz.service..\*.\*(..))
+execution(\* com.xyz.service..\*.\*(..))指定切入点为：定义在 service包或者子包里的任意类的任意方法。“..”出现在类名中时，后面必须跟“\*”，表示包、子包下的所有类。
 
-指定切入点为：定义在 service
-包或者子包里的任意类的任意方法。“..”出现在类名中时，后面必须跟“\*”，表示包、子包下的所有类。
+execution(\* \*..service.\*.\*(..))指定所有包下的 serivce 子包下所有类（接口）中所有方法为切入点
 
-execution(\* \*..service.\*.\*(..))
+execution(\*\*.service.\*.\*(..))指定只有一级包下的 serivce 子包下所有类（接口）中所有方法为切入点
 
-指定所有包下的 serivce 子包下所有类（接口）中所有方法为切入点 execution(\*
-\*.service.\*.\*(..))
+execution(\*\*.ISomeService.\*(..))指定只有一级包下的 ISomeSerivce 接口中所有方法为切入点
 
-指定只有一级包下的 serivce 子包下所有类（接口）中所有方法为切入点 execution(\*
-\*.ISomeService.\*(..))
+execution(\* \*..ISomeService.\*(..))指定所有包下的 ISomeSerivce 接口中所有方法为切入点
 
-指定只有一级包下的 ISomeSerivce 接口中所有方法为切入点
+execution(\* com.xyz.service.IAccountService.\*(..))指定切入点为：IAccountService 接口中的任意方法。
 
-execution(\* \*..ISomeService.\*(..))
+execution(\* com.xyz.service.IAccountService+.\*(..))指定切入点为：IAccountService若为接口，则为接口中的任意方法及其所有实现类中的任意方法；若为类，则为该类及其子类中的任意方法。
 
-指定所有包下的 ISomeSerivce 接口中所有方法为切入点
-
-execution(\* com.xyz.service.IAccountService.\*(..))
-指定切入点为：IAccountService 接口中的任意方法。
-
-execution(\* com.xyz.service.IAccountService+.\*(..))
-
-指定切入点为：IAccountService
-若为接口，则为接口中的任意方法及其所有实现类中的任意方法；若为类，则为该类及其子类中的任意方法。
-
-execution(\* joke(String,int)))
-
-指定切入点为：所有的 joke(String,int)方法，且 joke()方法的第一个参数是
-String，第二个参数是 int。如果方法中的参数类型是 java.lang
-包下的类，可以直接使用类名，否则必须使用全限定类名，如 joke( java.util.List,
-int)。
+execution(\* joke(String,int)))指定切入点为：所有的 joke(String,int)方法，且 joke()方法的第一个参数是String，第二个参数是 int。如果方法中的参数类型是 java.lang包下的类，可以直接使用类名，否则必须使用全限定类名，如 joke( java.util.List,int)。
 
 execution(\* joke(String,\*)))
 
@@ -1127,130 +1078,121 @@ ob)是，joke(String s)和 joke(User u)也是。
 
 ### 4： AspectJ 的开发环境(掌握) 
 
-**（**1**）** maven **依赖**
+(1） maven 依赖
 
-\<dependency\>
+```xml
+<dependency> 
+ <groupId>junit</groupId> 
+ <artifactId>junit</artifactId> 
+ <version>4.11</version> 
+ <scope>test</scope> 
+</dependency> 
+<dependency> 
+ <groupId>org.springframework</groupId> 
+ <artifactId>spring-context</artifactId> 
+ <version>5.2.5.RELEASE</version> 
+</dependency> 
+ 
+<dependency> 
+ <groupId>org.springframework</groupId> 
+ <artifactId>spring-aspects</artifactId> 
+ <version>5.2.5.RELEASE</version> 
+</dependency>  
+<build> 
+<plugins> 
+       <plugin> 
+            <artifactId>maven-compiler-plugin</artifactId> 
+            <version>3.1</version> 
+            <configuration> 
+                <source>1.8</source> 
+                <target>1.8</target> 
+            </configuration> 
+       </plugin> 
+</plugins> 
+</build> 
 
-\<groupId\>junit\</groupId\>
-
-\<artifactId\>junit\</artifactId\>
-
-\<version\>4.11\</version\>
-
-\<scope\>test\</scope\>
-
-\</dependency\>
-
-\<dependency\>
-
-\<groupId\>org.springframework\</groupId\>
-
-\<artifactId\>spring-context\</artifactId\>
-
-\<version\>5.2.5.RELEASE\</version\>
-
-\</dependency\>
-
-\<dependency\>
-
-\<groupId\>org.springframework\</groupId\>
-
-\<artifactId\>spring-aspects\</artifactId\>
-
-\<version\>5.2.5.RELEASE\</version\>
-
-\</dependency\>
-
-插件
-
->   \<build\>
-
->   \<plugins\>
-
-\<plugin\>
-
-\<artifactId\>maven-compiler-plugin\</artifactId\>
-
-\<version\>3.1\</version\>
-
-\<configuration\>
-
-\<source\>1.8\</source\>
-
-\<target\>1.8\</target\>
-
-\</configuration\>
-
-\</plugin\>
-
->   \</plugins\>
-
->   \</build\>
+```
 
 **（**2**） 引入** AOP **约束**
 
-在 AspectJ 实现 AOP 时，要引入 AOP 的约束。配置文件中使用的 AOP
-约束中的标签，均是 AspectJ 框架使用的，而非 Spring 框架本身在实现 AOP 时使用的。
+在 AspectJ 实现 AOP 时，要引入 AOP 的约束。配置文件中使用的 AOP约束中的标签，均是 AspectJ 框架使用的，而非 Spring 框架本身在实现 AOP 时使用的。
 
->   AspectJ 对于 AOP 的实现有注解和配置文件两种方式，常用是注解方式。
+AspectJ 对于 AOP 的实现有注解和配置文件两种方式，常用是注解方式。
 
 ### 5： AspectJ 基于注解的 AOP 实现(掌握) 
 
->   AspectJ 提供了以注解方式对于 AOP 的实现。
+AspectJ 提供了以注解方式对于 AOP 的实现。
 
 （1） 实现步骤
 
-**A**、 **Step1**：定义业务接口与实现类
+A、 Step1：定义业务接口与实现类
 
-![](media/b9e46781400dddce2930efb3d3a96aba.jpg)
+```java
+public class SomeServiceImpl implements SomService{
+    @Override
+    public void doSome(String name,int age){
+        System.out.println("执行doSome");
+    }
+}
+```
 
 B、 Step2：定义切面类
 
 类中定义了若干普通方法，将作为不同的通知方法，用来增强功能。
 
-![](media/1c8cc60df428d48a994e1f1c936f3d45.jpg)
+```java
+/**
+*/
+@Aspect
+public class MyAspect{
+    /**
+    * @Before:前置通知
+    * 属性：value切入点表达式，表示切面执行的位置
+    * 位置：方法的定义上面
+    */
+    @Before(value="execution(* com.xqc.SomeServiceImpl.doSome(..))")
+    public void myBefore(){
+        //就是切面代码的功能，例如日志的输出，事务的处理
+        System.out.println("前置通知：在目标方法之前先执行，例如输出日志")
+    }
+}
+```
 
-**C**、 **Step3**：声明目标对象切面类对象
+C、 Step3：声明目标对象切面类对象
 
-![](media/745f334cd228da12af2d999c8af159c7.jpg)
+```xml
+<!--声明目标类对象-->
+<bean id="someServcieTarget" class="com.xqc.SomeServiceImpl"></bean>
+<!--声明切面类对象-->
+<bean id="myAspect" class="com.xqc.MyAspect"></bean>
+```
 
 D、 Step4：注册 AspectJ 的自动代理
 
-在定义好切面 Aspect 后，需要通知 Spring 容器，让容器生成“目标类+
-切面”的代理对象。这个代理是由容器自动生成的。只需要在 Spring
-配置文件中注册一个基于 aspectj 的自动代理生成器，其就会自动扫描到\@Aspect
-注解，并按通知类型与切入点，将其织入，并生成代理。
+在定义好切面 Aspect 后，需要通知 Spring 容器，让容器生成“目标类+切面”的代理对象。这个代理是由容器自动生成的。只需要在 Spring配置文件中注册一个基于 aspectj 的自动代理生成器，其就会自动扫描到@Aspect注解，并按通知类型与切入点，将其织入，并生成代理。
 
 ![](media/42c70dce8fa39a844a59fa9dbf98f171.jpg)
 
-\<aop:aspectj-autoproxy/\>的底层是由 AnnotationAwareAspectJAutoProxyCreator
-实现的。从其类名就可看出，是基于 AspectJ 的注解适配自动代理生成器。
+\<aop:aspectj-autoproxy/\>的底层是由 AnnotationAwareAspectJAutoProxyCreator实现的。从其类名就可看出，是基于 AspectJ 的注解适配自动代理生成器。
 
-其工作原理是，\<aop:aspectj-autoproxy/\>通过扫描找到\@Aspect
-定义的切面类，再由切面类根据切入点找到目标类的目标方法，再由通知类型找到切入的时间点。
+其工作原理是，\<aop:aspectj-autoproxy/\>通过扫描找到@Aspect定义的切面类，再由切面类根据切入点找到目标类的目标方法，再由通知类型找到切入的时间点。
 
-**E**、 **Step5**：测试类中使用目标对象的 **id**
+E、 Step5：测试类中使用目标对象的 **id**
 
 ![](media/d8da1f26f27c7a6de1652b08685aaef3.jpg)
 
-**（**2**）** [**掌握**]\@Before **前置通知**-**方法有** JoinPoint **参数**
+（2） [掌握]@Before 前置通知-方法有 JoinPoint 参数
 
-在目标方法执行之前执行。被注解为前置通知的方法，可以包含一个 JoinPoint
-类型参数。该类型的对象本身就是切入点表达式。通过该参数，可获取切入点表达式、方法签名、目标对象等。
+在目标方法执行之前执行。被注解为前置通知的方法，可以包含一个 JoinPoint类型参数。该类型的对象本身就是切入点表达式。通过该参数，可获取切入点表达式、方法签名、目标对象等。
 
-不光前置通知的方法，可以包含一个 JoinPoint
-类型参数，所有的通知方法均可包含该参数。
+不光前置通知的方法，可以包含一个 JoinPoint类型参数，所有的通知方法均可包含该参数。
 
 ![](media/237729a621ced78459e088a0b2fa6463.jpg)
 
-**（**3**）** [**掌握**]\@AfterReturning **后置通知**-**注解有** returning
+（3）[掌握]@AfterReturning 后置通知-注解有 returning
 **属性**
 
->   在目标方法执行之后执行。由于是目标方法之后执行，所以可以获取到目标方法的返回值。该注解的
->   returning
->   属性就是用于指定接收方法返回值的变量名的。所以，被注解为后置通知的方法，除了可以包含
->   JoinPoint 参数外，还可以包含用于接收返回值的变量。该变量最好为 Object
->   类型，因为目标方法的返回值可能是任何类型。
+在目标方法执行之后执行。由于是目标方法之后执行，所以可以获取到目标方法的返回值。该注解的returning属性就是用于指定接收方法返回值的变量名的。所以，被注解为后置通知的方法，除了可以包含JoinPoint 参数外，还可以包含用于接收返回值的变量。该变量最好为 Object类型，因为目标方法的返回值可能是任何类型。
 
 接口增加方法：
 
@@ -1264,13 +1206,11 @@ D、 Step4：注册 AspectJ 的自动代理
 
 ![](media/f8430739b5d98b7a3129dc581730e3ba.jpg)
 
-**（**4**）** [**掌握**]\@Around **环绕通知**-**增强方法有** ProceedingJoinPoint
+（4） [掌握]@Around 环绕通知-增强方法有 ProceedingJoinPoint
 **参数**
 
-在目标方法执行之前之后执行。被注解为环绕增强的方法要有返回值，Object
-类型。并且方法可以包含一个 ProceedingJoinPoint 类型的参数。接口
-ProceedingJoinPoint 其有一个
-proceed()方法，用于执行目标方法。若目标方法有返回值，则该方法的返回值就是目标方法的返回值。最后，环绕增强方法将其返回值返回。该增强方法实际是拦截了目标方法的执行。
+在目标方法执行之前之后执行。被注解为环绕增强的方法要有返回值，Object类型。并且方法可以包含一个 ProceedingJoinPoint 类型的参数。接口
+ProceedingJoinPoint 其有一个proceed()方法，用于执行目标方法。若目标方法有返回值，则该方法的返回值就是目标方法的返回值。最后，环绕增强方法将其返回值返回。该增强方法实际是拦截了目标方法的执行。
 
 接口增加方法：
 
@@ -1284,11 +1224,10 @@ proceed()方法，用于执行目标方法。若目标方法有返回值，则�
 
 ![](media/a8332941a711ece9ecbdff882eec583a.jpg)
 
-**（**5**）** [**了解**]\@AfterThrowing **异常通知**-**注解中有** throwing
+（5）@AfterThrowing 异常通知-注解中有 throwing
 **属性**
 
-在目标方法抛出异常后执行。该注解的 throwing
-属性用于指定所发生的异常类对象。当然，被注解为异常通知的方法可以包含一个参数
+在目标方法抛出异常后执行。该注解的 throwing属性用于指定所发生的异常类对象。当然，被注解为异常通知的方法可以包含一个参数
 Throwable，参数名称为 throwing 指定的名称，表示发生的异常对象。
 
 增加业务方法：
@@ -1303,9 +1242,9 @@ Throwable，参数名称为 throwing 指定的名称，表示发生的异常对�
 
 ![](media/f5328f726ce459d11aa39b2587f1895e.jpg)
 
-**（**6**）** [**了解**]\@After **最终通知**
+**（**6**）** [**了解**]@After **最终通知**
 
->   无论目标方法是否抛出异常，该增强均会被执行。
+无论目标方法是否抛出异常，该增强均会被执行。
 
 增加方法：
 
@@ -1319,7 +1258,7 @@ Throwable，参数名称为 throwing 指定的名称，表示发生的异常对�
 
 ![](media/92258f4360ac77b1b010615ae8c8ea0c.jpg)
 
-**（**7**）** \@Pointcut **定义切入点**
+**（**7**）** @Pointcut **定义切入点**
 
 >   当较多的通知增强方法使用相同的 execution
 >   切入点表达式时，编写、维护均较为麻烦。
