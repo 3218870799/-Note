@@ -714,8 +714,7 @@ Properties 最后，相当于缺省值，只有 XML 没有配置时，dubbo.prop
 
 ## 2、重试次数
 
-失败自动切换，当出现失败，重试其它服务器，但重试会带来更长延迟。可通过
-retries="2" 来设置重试次数(不含第一次)。
+失败自动切换，当出现失败，重试其它服务器，但重试会带来更长延迟。可通过retries="2" 来设置重试次数(不含第一次)。
 
 重试次数配置如下：
 
@@ -732,10 +731,9 @@ retries="2" 来设置重试次数(不含第一次)。
 
 
 
-
 ## 3、超时时间
 
-由于网络或服务端不可靠，会导致调用出现一种不确定的中间状态（超时）。为了避免超时导致客户端资源（线程）挂起耗尽，必须设置超时时间。
+timeout由于网络或服务端不可靠，会导致调用出现一种不确定的中间状态（超时）。为了避免超时导致客户端资源（线程）挂起耗尽，必须设置超时时间。
 
 ### 1、Dubbo消费端 
 
@@ -833,21 +831,27 @@ dubbo推荐在Provider上尽量多配置Consumer端属性：
 
 服务提供者全部宕掉后，服务消费者应用将无法使用，并无限次重连等待服务提供者恢复系统不能提供服务的时间；
 
-## 2、集群下dubbo负载均衡配置
+## 2、集群负载均衡
 
 在集群负载均衡时，Dubbo 提供了多种均衡策略，缺省为 random 随机调用。
 
 负载均衡策略
 
-**Random LoadBalance** 随机，按权重设置随机概率。 在一个截面上碰撞的概率高，但调用量越大分布越均匀，而且按概率使用权重后也比较均匀，有利于动态调整提供者权重。
+**Random LoadBalance** ：随机，按权重设置随机概率。 在一个截面上碰撞的概率高，但调用量越大分布越均匀，而且按概率使用权重后也比较均匀，有利于动态调整提供者权重。
 
-**RoundRobin LoadBalance** 轮循，按公约后的权重设置轮循比率。 存在慢的提供者累积请求的问题，比如：第二台机器很慢，但没挂，当请求调到第二台时就卡在那，久而久之，所有请求都卡在调到第二台上。 
+**RoundRobin LoadBalance** ：轮循，按公约后的权重设置轮循比率。 存在慢的提供者累积请求的问题，比如：第二台机器很慢，但没挂，当请求调到第二台时就卡在那，久而久之，所有请求都卡在调到第二台上。 
 
-**LeastActive LoadBalance** 最少活跃调用数，相同活跃数的随机，活跃数指调用前后计数差。 使慢的提供者收到更少请求，因为越慢的提供者的调用前后计数差会越大。 **ConsistentHash LoadBalance** 一致性 Hash，相同参数的请求总是发到同一提供者。 当某一台提供者挂时，原本发往该提供者的请求，基于虚拟节点，平摊到其它提供者，不会引起剧烈变动。
+**LeastActive LoadBalance**： 最少活跃调用数，相同活跃数的随机，活跃数指调用前后计数差。 使慢的提供者收到更少请求，因为越慢的提供者的调用前后计数差会越大。 
 
-算法参见：http://en.wikipedia.org/wiki/Consistent_hashing 缺省只对第一个参数 Hash，如果要修改，请配置 <dubbo:parameter key="hash.arguments" value="0,1" /\> 
+**ConsistentHash LoadBalance** ：一致性 Hash，相同参数的请求总是发到同一提供者。 当某一台提供者挂时，原本发往该提供者的请求，基于虚拟节点，平摊到其它提供者，不会引起剧烈变动。
 
-缺省用 160 份虚拟节点，如果要修改，请配置 \<dubbo:parameter key="hash.nodes" value="320" /\> |
+算法参见：http://en.wikipedia.org/wiki/Consistent_hashing 缺省只对第一个参数 Hash，如果要修改，请配置
+
+ <dubbo:parameter key="hash.arguments" value="0,1" /\> 
+
+缺省用 160 份虚拟节点，如果要修改，请配置
+
+ \<dubbo:parameter key="hash.nodes" value="320" /\> |
 
 
 
@@ -893,6 +897,8 @@ registry.register(URL.valueOf("override://0.0.0.0/com.foo.BarService?category=co
     <dubbo:method name="findFoo" retries="2" />
 </dubbo:reference>
 ```
+
+Failover Cluster：失败自动切换，自动重试其他服务器（默认）
 
 **Failfast Cluster** 快速失败，只发起一次调用，失败立即报错。通常用于非幂等性的写操作，比如新增记录。
 
@@ -1066,15 +1072,51 @@ Netty基本原理：
 
 ### 3、服务暴露
 
+服务的暴露起始于 Spring IOC 容器刷新完毕之后，会根据配置参数组装成 URL， 然后根据 URL 的参数来进行本地或者远程调用。
+
+
+
+在第一次暴露的时候会调用 createServer 来创建 Server，默认是 NettyServer。
+
+然后将 export 得到的 exporter 存入一个 Map 中，供之后的远程调用查找，然后会向注册中心注册提供者的信息。
+
+
+
+Dubbo 会在 Spring 实例化完 bean 之后，在刷新容器最后一步发布 ContextRefreshEvent 事件的时候，通知实现了 ApplicationListener 的 ServiceBean 类进行回调 onApplicationEvent 事件方法，Dubbo 会在这个方法中调用 ServiceBean 父类 ServiceConfig 的 export 方法，而该方法真正实现了服务的（异步或者非异步）发布。
+
 ![](media/7c7328945b5463ae1ad37ad565d8dc02.jpeg)
 
+
+
 ### 4、服务引用
+
+引入时机有两种，一种饿汉式，一种懒汉式
+
+饿汉式就是加载会引入，懒汉式是只有这个服务被注入到其他类中时启动引入流程，默认是懒汉式
+
+
+
+会先根据配置参数组装URL，一般而言我们都会配置的注册中心，所以会构建RegistryDirectory
+
+向注册中心注册消费者的信息，并且订阅提供者，配置，路由等节点。
+
+
+
+得知提供者的信息之后会进入Dubbo协议的引入，创建invoker，期间会包含NettyClient来进行远程通信，最后通过Cluster来包装Invoker，默认是FailoverCluster,最终返回代理类。
 
 ![C:\\Users\\lfy\\Desktop\\dubbo-服务引用.jpg](media/bf7c1ff8b1c05cccdd06777aea026bc7.jpeg)
 
 ### 5、服务调用
 
+
+
+
+
 ![/dev-guide/images/dubbo-extension.jpg](media/ad3fed30b1e170746da376e75a768ecc.jpeg)
+
+### 6：序列化
+
+默认使用Hessian序列化，还有Duddo、FastJson、Java自带序列化。
 
 # 五：dubbo直连方式实现
 
