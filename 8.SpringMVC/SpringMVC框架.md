@@ -200,7 +200,7 @@ spring mvc的jar包就在 除了上面两个jar包之外，还需要拷贝spring
         http://www.springframework.org/schema/mvc/spring-mvc.xsd 
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"> 
         <!-- 配置创建spring容器要扫描的包 --> 
-        <context:component-scan base-package="com.itheima"></context:component-scan> 
+        <context:component-scan base-package="com.xqc"></context:component-scan> 
         <!-- 配置视图解析器 --> 
         <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"> 
         <property name="prefix" value="/WEB-INF/pages/"></property> 
@@ -871,7 +871,7 @@ class=*"org.springframework.context.support.ConversionServiceFactoryBean"*\>
 
 \<!-- 配置自定义类型转换器 --\>
 
-\<bean class=*"com.itheima.web.converter.StringToDateConverter"*\>\</bean\>
+\<bean class=*"com.xqc.web.converter.StringToDateConverter"*\>\</bean\>
 
 \</array\>
 
@@ -2364,8 +2364,7 @@ class=*"org.springframework.web.multipart.commons.CommonsMultipartResolver"*\>
 
 系统中异常包括两类：预期异常和运行时异常RuntimeException，前者通过捕获异常从而获取异常信息，后者主要通过规范代码开发、测试通过手段减少运行时异常的发生。
 
-系统的dao、service、controller出现都通过throws
-Exception向上抛出，最后由springmvc前端控制器交由异常处理器进行异常处理，如下图：
+系统的dao、service、controller出现都通过throwsException向上抛出，最后由springmvc前端控制器交由异常处理器进行异常处理，如下图：
 
 ![](media/04bb91d2a91d8bd56e2b3532fddd7beb.png)
 
@@ -2373,76 +2372,59 @@ Exception向上抛出，最后由springmvc前端控制器交由异常处理器�
 
 ### 3.2.1：编写异常类和错误页面
 
+```java
 //自定义异常
+public class CustomException extends Exception { 
+    private String message; 
+    public CustomException(String message) { 
+    	this.message = message; 
+    } 
+    public String getMessage() { 
+    	return message; 
+    } 
+} 
 
-**public class** CustomException **extends** Exception {
-
-**private** String message;
-
-**public** CustomException(String message) {
-
-**this**.message = message;
-
-}
-
-**public** String getMessage() {
-
-**return** message;
-
-}
-
-}
+```
 
 **jsp**页面：
 
-\<%\@ page language=*"java"* contentType=*"text/html; charset=UTF-8"*
-pageEncoding=*"UTF-8"*%\>
-
-\<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd"\>
-
-\<html\>
-
-\<head\>
-
-\<meta http-equiv=*"Content-Type"* content=*"text/html; charset=UTF-8"*\>
-
-\<title\>执行失败\</title\>
-
-\</head\>
-
-\<body\>
-
-执行失败！
-
-\${message }
-
-\</body\>
-
-\</html\>
+```html
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
+<html> 
+<head> 
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+<title>执行失败</title> 
+</head> 
+<body> 
+执行失败！ 
+${message } 
+</body> 
+</html> 
+```
 
 ### 3.2.2 自定义异常处理器 
 
 ```java
 public class CustomExceptionResolver implements HandlerExceptionResolver { 
-@Override 
-public ModelAndView resolveException(HttpServletRequest request, 
-HttpServletResponse response, Object handler, Exception ex) { 
- 
-ex.printStackTrace(); 
-CustomException customException = null; 
-//如果抛出的是系统自定义异常则直接转换 
-if(ex instanceof CustomException){ 
-customException = (CustomException)ex; 
-}else{ 
-//如果抛出的不是系统自定义异常则重新构造一个系统错误异常。 
-customException = new CustomException("系统错误，请与系统管理 员联系！"); 
-} 
-ModelAndView modelAndView = new ModelAndView(); 
-modelAndView.addObject("message", customException.getMessage()); 
-modelAndView.setViewName("error"); 
-return modelAndView; 
-} 
+    @Override 
+    public ModelAndView resolveException(HttpServletRequest request, 
+    HttpServletResponse response, Object handler, Exception ex) { 
+
+        ex.printStackTrace(); 
+        CustomException customException = null; 
+        //如果抛出的是系统自定义异常则直接转换 
+        if(ex instanceof CustomException){ 
+        	customException = (CustomException)ex; 
+        }else{ 
+        	//如果抛出的不是系统自定义异常则重新构造一个系统错误异常。 
+        	customException = new CustomException("系统错误，请与系统管理 员联系！"); 
+        } 
+        ModelAndView modelAndView = new ModelAndView(); 
+        modelAndView.addObject("message", customException.getMessage()); 
+        modelAndView.setViewName("error"); 
+        return modelAndView; 
+    } 
 } 
 ```
 
@@ -2454,7 +2436,7 @@ return modelAndView;
 
 \<bean id=*"handlerExceptionResolver"*
 
-class=*"com.itheima.exception.CustomExceptionResolver"*/\>
+class=*"com.xqc.exception.CustomExceptionResolver"*/\>
 
 **3.2.4** 运行结果：
 
@@ -2483,70 +2465,39 @@ Spring MVC的处理器拦截器类似于Servlet开发中的过滤器Filter，用
 
 **4.2.1** 第一步：编写一个普通类实现**HandlerInterceptor**接口
 
-
-
-
-
-
-
-
-
-**public class** HandlerInterceptorDemo1 **implements** HandlerInterceptor {
-
-\@Override
-
-**public boolean** preHandle(HttpServletRequest request, HttpServletResponse
-response, Object handler)
-
-**throws** Exception {
-
-System.**out**.println("preHandle拦截器拦截了");
-
-**return true**;
-
-}
-
-\@Override
-
-**public void** postHandle(HttpServletRequest request, HttpServletResponse
-response, Object handler,
-
-ModelAndView modelAndView) **throws** Exception {
-
-System.**out**.println("postHandle方法执行了");
-
-}
-
-\@Override
-
-**public void** afterCompletion(HttpServletRequest request, HttpServletResponse
-response, Object handler, Exception ex)
-
-**throws** Exception {
-
-System.**out**.println("afterCompletion方法执行了");
-
-}
-
-}
+```java
+public class HandlerInterceptorDemo1 implements HandlerInterceptor { 
+	@Override 
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) 
+    throws Exception { 
+        System.out.println("preHandle拦截器拦截了"); 
+        return true; 
+    } 
+    @Override 
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, 
+    ModelAndView modelAndView) throws Exception { 
+    	System.out.println("postHandle方法执行了"); 
+    } 
+    @Override 
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception { 
+    	System.out.println("afterCompletion方法执行了"); 
+    } 
+} 
+```
 
 **4.2.2** 第二步：配置拦截器
 
-\<!-- 配置拦截器 --\>
+```xml
+<!-- 配置拦截器 --> 
+<mvc:interceptors> 
+<mvc:interceptor> 
+<mvc:mapping path="/**"/> 
+<bean id="handlerInterceptorDemo1" 
+class="com.xqc.web.interceptor.HandlerInterceptorDemo1"></bean> 
+</mvc:interceptor> 
+</mvc:interceptors> 
 
-\<mvc:interceptors\>
-
-\<mvc:interceptor\>
-
-\<mvc:mapping path=*"/\*\*"*/\>
-
-\<bean id=*"handlerInterceptorDemo1"*
-
-class=*"com.itheima.web.interceptor.HandlerInterceptorDemo1"*\>\</bean\>
-
-\</mvc:interceptor\>
-
-\</mvc:interceptors\>
+```
 
 **4.2.3** 测试运行结果：
 
@@ -2560,89 +2511,49 @@ class=*"com.itheima.web.interceptor.HandlerInterceptorDemo1"*\>\</bean\>
 
 ### 4.3.2 拦截器中方法的说明 
 
-public interface HandlerInterceptor {
+```java
+public interface HandlerInterceptor { 
+/** 
+* 如何调用： 
+* 按拦截器定义顺序调用 
+* 何时调用： 
+* 只要配置了都会调用 
+* 有什么用： 
+* 如果程序员决定该拦截器对请求进行拦截处理后还要调用其他的拦截器，或者是业务处理器去 
+* 进行处理，则返回true。 
+* 如果程序员决定不需要再调用其他的组件去处理请求，则返回false。 
+*/ 
+default boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) 
+throws Exception { 
+return true; 
+} 
+/** 
+* 如何调用： 
+* 按拦截器定义逆序调用 
+* 何时调用： 
+* 在拦截器链内所有拦截器返成功调用 
+* 有什么用： 
+* 在业务处理器处理完请求后，但是DispatcherServlet向客户端返回响应前被调用， 
+* 在该方法中对用户请求request进行处理。 
+*/ 
+default void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, 
+@Nullable ModelAndView modelAndView) throws Exception { 
+} 
+/** 
+* 如何调用： 
+* 按拦截器定义逆序调用 
+* 何时调用： 
+* 只有preHandle返回true才调用 
+* 有什么用： 
+* 在 DispatcherServlet 完全处理完请求后被调用， 
+* 可以在该方法中进行一些资源清理的操作。 
+*/ 
+default void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, 
+@Nullable Exception ex) throws Exception { 
+} 
+} 
 
-/\*\*
-
-\* 如何调用：
-
-\* 按拦截器定义顺序调用
-
-\* 何时调用：
-
-\* 只要配置了都会调用
-
-\* 有什么用：
-
-\*
-如果程序员决定该拦截器对请求进行拦截处理后还要调用其他的拦截器，或者是业务处理器去
-
-\* 进行处理，则返回true。
-
-\* 如果程序员决定不需要再调用其他的组件去处理请求，则返回false。
-
-\*/
-
-default boolean preHandle(HttpServletRequest request, HttpServletResponse
-response, Object handler)
-
-throws Exception {
-
-return true;
-
-}
-
-/\*\*
-
-\* 如何调用：
-
-\* 按拦截器定义逆序调用
-
-\* 何时调用：
-
-\* 在拦截器链内所有拦截器返成功调用
-
-\* 有什么用：
-
-\* 在业务处理器处理完请求后，但是DispatcherServlet向客户端返回响应前被调用，
-
-\* 在该方法中对用户请求request进行处理。
-
-\*/
-
-default void postHandle(HttpServletRequest request, HttpServletResponse
-response, Object handler,
-
-\@Nullable ModelAndView modelAndView) throws Exception {
-
-}
-
-/\*\*
-
-\* 如何调用：
-
-\* 按拦截器定义逆序调用
-
-\* 何时调用：
-
-\* 只有preHandle返回true才调用
-
-\* 有什么用：
-
-\* 在 DispatcherServlet 完全处理完请求后被调用，
-
-\* 可以在该方法中进行一些资源清理的操作。
-
-\*/
-
-default void afterCompletion(HttpServletRequest request, HttpServletResponse
-response, Object handler,
-
-\@Nullable Exception ex) throws Exception {
-
-}
-
-}
+```
 
 思考：
 
@@ -2652,23 +2563,18 @@ response, Object handler,
 
 作用路径可以通过在配置文件中配置。
 
-\<!-- 配置拦截器的作用范围 --\>
+```xml
+<!-- 配置拦截器的作用范围 --> 
+<mvc:interceptors> 
+<mvc:interceptor> 
+<mvc:mapping path="/**" /><!-- 用于指定对拦截的url --> 
+<mvc:exclude-mapping path=""/><!-- 用于指定排除的url--> 
+<bean id="handlerInterceptorDemo1" 
+class="com.xqc.web.interceptor.HandlerInterceptorDemo1"></bean> 
+</mvc:interceptor> 
+</mvc:interceptors> 
 
-\<mvc:interceptors\>
-
-\<mvc:interceptor\>
-
-\<mvc:mapping path=*"/\*\*"* /\>\<!-- 用于指定对拦截的**url** --\>
-
-\<mvc:exclude-mapping path=*""*/\>\<!-- 用于指定排除的**url**--\>
-
-\<bean id=*"handlerInterceptorDemo1"*
-
-class=*"com.itheima.web.interceptor.HandlerInterceptorDemo1"*\>\</bean\>
-
-\</mvc:interceptor\>
-
-\</mvc:interceptors\>
+```
 
 ### 4.3.4 多个拦截器的执行顺序 
 
@@ -2676,74 +2582,63 @@ class=*"com.itheima.web.interceptor.HandlerInterceptorDemo1"*\>\</bean\>
 
 ## 4.4 正常流程测试 
 
-### 4.4.1 配置文件： 
+### 4.4.1 配置文件：
 
-\<!-- 配置拦截器的作用范围 --\>
+```xml
+<!-- 配置拦截器的作用范围 --> 
+<mvc:interceptors> 
+<mvc:interceptor> 
+<mvc:mapping path="/**" /><!-- 用于指定对拦截的url --> 
+<bean id="handlerInterceptorDemo1" class="com.xqc.web.interceptor.HandlerInterceptorDemo1"></bean> 
+</mvc:interceptor> 
+<mvc:interceptor> 
+<mvc:mapping path="/**" /> 
+<bean id="handlerInterceptorDemo2" class="com.xqc.web.interceptor.HandlerInterceptorDemo2"></bean> 
+</mvc:interceptor> 
+</mvc:interceptors> 
 
-\<mvc:interceptors\>
-
-\<mvc:interceptor\>
-
-\<mvc:mapping path=*"/\*\*"* /\>\<!-- 用于指定对拦截的url --\>
-
-\<bean id=*"handlerInterceptorDemo1"*
-class=*"com.itheima.web.interceptor.HandlerInterceptorDemo1"*\>\</bean\>
-
-\</mvc:interceptor\>
-
-\<mvc:interceptor\>
-
-\<mvc:mapping path=*"/\*\*"* /\>
-
-\<bean id=*"handlerInterceptorDemo2"*
-class=*"com.itheima.web.interceptor.HandlerInterceptorDemo2"*\>\</bean\>
-
-\</mvc:interceptor\>
-
-\</mvc:interceptors\>
+```
 
 ### 4.4.2 拦截器1的代码： 
 
 ```java
 public class HandlerInterceptorDemo1 implements HandlerInterceptor { 
-@Override 
-public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) 
-throws Exception { 
-System.out.println("拦截器1：preHandle拦截器拦截了"); 
-return true; 
-} 
-@Override 
-public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, 
-ModelAndView modelAndView) throws Exception { 
-System.out.println("拦截器1：postHandle方法执行了"); 
-} 
-@Override 
-public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) 
-throws Exception { 
-System.out.println("拦截器1：afterCompletion方法执行了"); 
-} 
+    @Override 
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) 
+    throws Exception { 
+        System.out.println("拦截器1：preHandle拦截器拦截了"); 
+        return true; 
+    } 
+    @Override 
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, 
+    ModelAndView modelAndView) throws Exception { 
+    	System.out.println("拦截器1：postHandle方法执行了"); 
+    } 
+    @Override 
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception { 
+    	System.out.println("拦截器1：afterCompletion方法执行了"); 
+    } 
 ```
 
 ### 4.4.3 拦截器2的代码： 
 
 ```java
 public class HandlerInterceptorDemo2 implements HandlerInterceptor { 
-@Override 
-public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) 
-throws Exception { 
-System.out.println("拦截器2：preHandle拦截器拦截了"); 
-return true; 
-} 
-@Override 
-public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, 
-ModelAndView modelAndView) throws Exception { 
-System.out.println("拦截器2：postHandle方法执行了"); 
-} 
-@Override 
-public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) 
-throws Exception { 
-System.out.println("拦截器2：afterCompletion方法执行了"); 
-} 
+    @Override 
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) 
+    throws Exception { 
+    	System.out.println("拦截器2：preHandle拦截器拦截了"); 
+    	return true; 
+    } 
+    @Override 
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, 
+    ModelAndView modelAndView) throws Exception { 
+    	System.out.println("拦截器2：postHandle方法执行了"); 
+    } 
+    @Override 
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception { 
+    	System.out.println("拦截器2：afterCompletion方法执行了"); 
+    } 
 } 
 ```
 
@@ -2765,7 +2660,7 @@ System.out.println("拦截器2：afterCompletion方法执行了");
 
 \<bean id=*"handlerInterceptorDemo1"*
 
-class=*"com.itheima.web.interceptor.HandlerInterceptorDemo1"*\>\</bean\>
+class=*"com.xqc.web.interceptor.HandlerInterceptorDemo1"*\>\</bean\>
 
 \</mvc:interceptor\>
 
@@ -2775,7 +2670,7 @@ class=*"com.itheima.web.interceptor.HandlerInterceptorDemo1"*\>\</bean\>
 
 \<bean id=*"handlerInterceptorDemo2"*
 
-class=*"com.itheima.web.interceptor.HandlerInterceptorDemo2"*\>\</bean\>
+class=*"com.xqc.web.interceptor.HandlerInterceptorDemo2"*\>\</bean\>
 
 \</mvc:interceptor\>
 
@@ -2853,86 +2748,54 @@ System.out.println("拦截器2：afterCompletion方法执行了");
 
 3.2、如果用户未登录，跳转到登录页面
 
-### 4.6.2 控制器代码 
+### 4.6.2 控制器代码
 
-//登陆页面
+```java
+//登陆页面 
+@RequestMapping("/login") 
+public String login(Model model)throws Exception{ 
+	return "login"; 
+} 
+//登陆提交 
+//userid：用户账号，pwd：密码 
+@RequestMapping("/loginsubmit") 
+public String loginsubmit(HttpSession session,String userid,String pwd)throws Exception{ 
+    //向session记录用户身份信息 
+    session.setAttribute("activeUser", userid); 
+    return "redirect:/main.jsp"; 
+}
+//退出 
+@RequestMapping("/logout") 
+public String logout(HttpSession session)throws Exception{ 
+    //session过期 
+    session.invalidate(); 
+    return "redirect:index.jsp"; 
+} 
 
-\@RequestMapping("/login")
+```
 
-**public** String login(Model model)**throws** Exception{
+### 4.6.3 拦截器代码
 
-**return** "login";
-
+```java
+public class LoginInterceptor implements HandlerInterceptor{ 
+    @Override 
+    Public boolean preHandle(HttpServletRequest request, 
+    HttpServletResponse response, Object handler) throws Exception { 
+        //如果是登录页面则放行 
+        if(request.getRequestURI().indexOf("login.action")>=0){ 
+        	return true; 
+        } 
+        HttpSession session = request.getSession(); 
+        //如果用户已登录也放行 
+        if(session.getAttribute("user")!=null){ 
+        	return true; 
+        } 
+        //用户没有登录挑战到登录页面 
+        request.getRequestDispatcher("/WEB-INF/jsp/login.jsp").forward(request, response); 
+        	return false; 
+    } 
 }
 
-//登陆提交
-
-//userid：用户账号，pwd：密码
-
-\@RequestMapping("/loginsubmit")
-
-**public** String loginsubmit(HttpSession session,String userid,String
-pwd)**throws** Exception{
-
-//向session记录用户身份信息
-
-session.setAttribute("activeUser", userid);
-
-**return** "redirect:/main.jsp";
-
-}
-
-//退出
-
-\@RequestMapping("/logout")
-
-**public** String logout(HttpSession session)**throws** Exception{
-
-//session过期
-
-session.invalidate();
-
-**return** "redirect:index.jsp";
-
-}
-
-### 4.6.3 拦截器代码 
-
-**public class** LoginInterceptor **implements** HandlerInterceptor{
-
-\@Override
-
-**Public boolean** preHandle(HttpServletRequest request,
-
-HttpServletResponse response, Object handler) **throws** Exception {
-
-//如果是登录页面则放行
-
-**if**(request.getRequestURI().indexOf("login.action")\>=0){
-
-**return true**;
-
-}
-
-HttpSession session = request.getSession();
-
-//如果用户已登录也放行
-
-**if**(session.getAttribute("user")!=**null**){
-
-**return true**;
-
-}
-
-//用户没有登录挑战到登录页面
-
-request.getRequestDispatcher("/WEB-INF/jsp/login.jsp").forward(request,
-response);
-
-**return false**;
-
-}
-
-}
+```
 
 # 第九章:整合
