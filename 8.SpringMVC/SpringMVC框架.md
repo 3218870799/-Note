@@ -1,4 +1,4 @@
-# 第1章 ：SpringMVC的基本概念 
+﻿第1章 ：SpringMVC的基本概念 
 
 ## 1.1 关于三层架构和MVC 
 
@@ -488,17 +488,6 @@ System.**out**.println("查询了账户。。。。"+accountId+","+accountName);
 
 实体类代码：
 
-/\*\*
-
-\* 账户信息
-
-\* **\@author** 黑马程序员
-
-\* **\@Company** http://www.ithiema.com
-
-\* **\@Version** 1.0
-
-\*/
 
 **public class** Account **implements** Serializable {
 
@@ -514,17 +503,6 @@ System.**out**.println("查询了账户。。。。"+accountId+","+accountName);
 
 }
 
-/\*\*
-
-\* 地址的实体类
-
-\* **\@author** 黑马程序员
-
-\* **\@Company** http://www.ithiema.com
-
-\* **\@Version** 1.0
-
-\*/
 
 **public class** Address **implements** Serializable {
 
@@ -581,18 +559,6 @@ System.**out**.println("保存了账户。。。。"+account);
 **3.1.4.3 POJO**类中包含集合类型参数
 
 实体类代码：
-
-/\*\*
-
-\* 用户实体类
-
-\* **\@author** 黑马程序员
-
-\* **\@Company** http://www.ithiema.com
-
-\* **\@Version** 1.0
-
-\*/
 
 **public class** User **implements** Serializable {
 
@@ -847,17 +813,6 @@ T convert(S source);
 
 }
 
-/\*\*
-
-\* 自定义类型转换器
-
-\* **\@author** 黑马程序员
-
-\* **\@Company** http://www.ithiema.com
-
-\* **\@Version** 1.0
-
-\*/
 
 **public class** StringToDateConverter **implements** Converter\<String, Date\>
 {
@@ -1835,17 +1790,6 @@ type：用于指定存入的数据类型。
 
 控制器中的代码：
 
-/\*\*
-
-\* SessionAttribute注解的使用
-
-\* **\@author** 黑马程序员
-
-\* **\@Company** http://www.ithiema.com
-
-\* **\@Version** 1.0
-
-\*/
 
 \@Controller("sessionAttributeController")
 
@@ -2144,17 +2088,6 @@ id=*"testJson"*/\>
 
 控制器中的代码：
 
-/\*\*
-
-\* 响应json数据的控制器
-
-\* **\@author** 黑马程序员
-
-\* **\@Company** http://www.ithiema.com
-
-\* **\@Version** 1.0
-
-\*/
 
 \@Controller("jsonController")
 
@@ -2260,91 +2193,46 @@ bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
 **2.2.2.3** 第三步：编写控制器
 
-/\*\*
+```java
+@Controller("fileUploadController") 
+public class FileUploadController { 
+/** 
+* 文件上传 
+*/ 
+@RequestMapping("/fileUpload") 
+public String testResponseJson(String picname,MultipartFile uploadFile,HttpServletRequest request) throws Exception{ 
+//定义文件名 
+String fileName = ""; 
+//1.获取原始文件名 
+String uploadFileName = uploadFile.getOriginalFilename(); 
+//2.截取文件扩展名 
+String extendName = uploadFileName.substring(uploadFileName.lastIndexOf(".")+1, uploadFileName.length()); 
+//3.把文件加上随机数，防止文件重复 
+String uuid = UUID.randomUUID().toString().replace("-", "").toUpperCase(); 
+//4.判断是否输入了文件名 
+if(!StringUtils.isEmpty(picname)) { 
+fileName = uuid+"_"+picname+"."+extendName; 
+}else { 
+fileName = uuid+"_"+uploadFileName; 
+} 
+System.out.println(fileName); 
+//2.获取文件路径 
+ServletContext context = request.getServletContext(); 
+String basePath = context.getRealPath("/uploads"); 
+//3.解决同一文件夹中文件过多问题 
+String datePath = new SimpleDateFormat("yyyy-MM-dd").format(new Date()); 
+//4.判断路径是否存在 
+File file = new File(basePath+"/"+datePath); 
+if(!file.exists()) { 
+file.mkdirs(); 
+} 
+//5.使用MulitpartFile接口中方法，把上传的文件写到指定位置 
+uploadFile.transferTo(new File(file,fileName)); 
+return "success";
 
-\* 文件上传的的控制器
+```
 
-\* **\@author** 黑马程序员
 
-\* **\@Company** http://www.ithiema.com
-
-\* **\@Version** 1.0
-
-\*/
-
-\@Controller("fileUploadController")
-
-**public class** FileUploadController {
-
-/\*\*
-
-\* 文件上传
-
-\*/
-
-\@RequestMapping("/fileUpload")
-
-**public** String testResponseJson(String picname,MultipartFile
-uploadFile,HttpServletRequest request) **throws** Exception{
-
-//定义文件名
-
-String fileName = "";
-
-//1.获取原始文件名
-
-String uploadFileName = uploadFile.getOriginalFilename();
-
-//2.截取文件扩展名
-
-String extendName = uploadFileName.substring(uploadFileName.lastIndexOf(".")+1,
-uploadFileName.length());
-
-//3.把文件加上随机数，防止文件重复
-
-String uuid = UUID.*randomUUID*().toString().replace("-", "").toUpperCase();
-
-//4.判断是否输入了文件名
-
-**if**(!StringUtils.*isEmpty*(picname)) {
-
-fileName = uuid+"_"+picname+"."+extendName;
-
-}**else** {
-
-fileName = uuid+"_"+uploadFileName;
-
-}
-
-System.**out**.println(fileName);
-
-//2.获取文件路径
-
-ServletContext context = request.getServletContext();
-
-String basePath = context.getRealPath("/uploads");
-
-//3.解决同一文件夹中文件过多问题
-
-String datePath = **new** SimpleDateFormat("yyyy-MM-dd").format(**new** Date());
-
-//4.判断路径是否存在
-
-File file = **new** File(basePath+"/"+datePath);
-
-**if**(!file.exists()) {
-
-file.mkdirs();
-
-}
-
-//5.使用MulitpartFile接口中方法，把上传的文件写到指定位置
-
-uploadFile.transferTo(**new** File(file,fileName));
-
-**return** "success";
-
-}
 
 **2.2.2.4** 第四步：配置文件解析器
 
@@ -2398,90 +2286,47 @@ class=*"org.springframework.web.multipart.commons.CommonsMultipartResolver"*\>
 
 在我们负责处理文件上传的项目中拷贝文件上传的必备jar包
 
-### 2.3.4 编写控制器实现上传图片 
+### 2.3.4 编写控制器实现上传图片
 
-/\*\*
+```java
+@Controller("fileUploadController2") 
+public class FileUploadController2 { 
+public static final String FILESERVERURL = "http://localhost:9090/day06_spring_image/uploads/"; 
+/** 
+* 文件上传，保存文件到不同服务器 
+*/ 
+@RequestMapping("/fileUpload2") 
+public String testResponseJson(String picname,MultipartFile uploadFile) throws 
+Exception{ 
+//定义文件名 
+String fileName = ""; 
+//1.获取原始文件名 
+String uploadFileName = uploadFile.getOriginalFilename(); 
+//2.截取文件扩展名 
+String extendName = uploadFileName.substring(uploadFileName.lastIndexOf(".")+1, uploadFileName.length()); 
+//3.把文件加上随机数，防止文件重复 
+String uuid = UUID.randomUUID().toString().replace("-", "").toUpperCase(); 
+//4.判断是否输入了文件名 
+if(!StringUtils.isEmpty(picname)) { 
+fileName = uuid+"_"+picname+"."+extendName; 
+}else { 
+fileName = uuid+"_"+uploadFileName; 
+} 
+System.out.println(fileName); 
+//5.创建sun公司提供的jersey包中的Client对象 
+Client client = Client.create(); 
+//6.指定上传文件的地址，该地址是web路径 
+WebResource resource = client.resource(FILESERVERURL+fileName); 
+//7.实现上传 
+String result = resource.put(String.class,uploadFile.getBytes()); 
+System.out.println(result); 
+return "success"; 
+} 
+} 
 
-\* 响应json数据的控制器
+```
 
-\* **\@author** 黑马程序员
 
-\* **\@Company** http://www.ithiema.com
-
-\* **\@Version** 1.0
-
-\*/
-
-\@Controller("fileUploadController2")
-
-**public class** FileUploadController2 {
-
-**public static final** String **FILESERVERURL** =
-"http://localhost:9090/day06_spring_image/uploads/";
-
-/\*\*
-
-\* 文件上传，保存文件到不同服务器
-
-\*/
-
-\@RequestMapping("/fileUpload2")
-
-**public** String testResponseJson(String picname,MultipartFile uploadFile)
-**throws**
-
-Exception{
-
-//定义文件名
-
-String fileName = "";
-
-//1.获取原始文件名
-
-String uploadFileName = uploadFile.getOriginalFilename();
-
-//2.截取文件扩展名
-
-String extendName = uploadFileName.substring(uploadFileName.lastIndexOf(".")+1,
-uploadFileName.length());
-
-//3.把文件加上随机数，防止文件重复
-
-String uuid = UUID.*randomUUID*().toString().replace("-", "").toUpperCase();
-
-//4.判断是否输入了文件名
-
-**if**(!StringUtils.*isEmpty*(picname)) {
-
-fileName = uuid+"_"+picname+"."+extendName;
-
-}**else** {
-
-fileName = uuid+"_"+uploadFileName;
-
-}
-
-System.**out**.println(fileName);
-
-//5.创建sun公司提供的jersey包中的Client对象
-
-Client client = Client.*create*();
-
-//6.指定上传文件的地址，该地址是web路径
-
-WebResource resource = client.resource(**FILESERVERURL**+fileName);
-
-//7.实现上传
-
-String result = resource.put(String.**class**,uploadFile.getBytes());
-
-System.**out**.println(result);
-
-**return** "success";
-
-}
-
-}
 
 ### 2.3.5 编写jsp页面 
 
@@ -2578,56 +2423,30 @@ pageEncoding=*"UTF-8"*%\>
 
 ### 3.2.2 自定义异常处理器 
 
-/\*\*
+```java
+public class CustomExceptionResolver implements HandlerExceptionResolver { 
+@Override 
+public ModelAndView resolveException(HttpServletRequest request, 
+HttpServletResponse response, Object handler, Exception ex) { 
+ 
+ex.printStackTrace(); 
+CustomException customException = null; 
+//如果抛出的是系统自定义异常则直接转换 
+if(ex instanceof CustomException){ 
+customException = (CustomException)ex; 
+}else{ 
+//如果抛出的不是系统自定义异常则重新构造一个系统错误异常。 
+customException = new CustomException("系统错误，请与系统管理 员联系！"); 
+} 
+ModelAndView modelAndView = new ModelAndView(); 
+modelAndView.addObject("message", customException.getMessage()); 
+modelAndView.setViewName("error"); 
+return modelAndView; 
+} 
+} 
+```
 
-\* 自定义异常处理器
 
-\* **\@author** 黑马程序员
-
-\* **\@Company** http://www.ithiema.com
-
-\* **\@Version** 1.0
-
-\*/
-
-**public class** CustomExceptionResolver **implements** HandlerExceptionResolver
-{
-
-\@Override
-
-**public** ModelAndView resolveException(HttpServletRequest request,
-
-HttpServletResponse response, Object handler, Exception ex) {
-
-ex.printStackTrace();
-
-CustomException customException = **null**;
-
-//如果抛出的是系统自定义异常则直接转换
-
-**if**(ex **instanceof** CustomException){
-
-customException = (CustomException)ex;
-
-}**else**{
-
-//如果抛出的不是系统自定义异常则重新构造一个系统错误异常。
-
-customException = **new** CustomException("系统错误，请与系统管理 员联系！");
-
-}
-
-ModelAndView modelAndView = **new** ModelAndView();
-
-modelAndView.addObject("message", customException.getMessage());
-
-modelAndView.setViewName("error");
-
-**return** modelAndView;
-
-}
-
-}
 
 ### 3.2.3 配置异常处理器 
 
@@ -2645,43 +2464,32 @@ class=*"com.itheima.exception.CustomExceptionResolver"*/\>
 
 ## 4.1 拦截器的作用 
 
-Spring MVC
-的处理器拦截器类似于Servlet开发中的过滤器Filter，用于对处理器进行预处理和后处理。
+Spring MVC的处理器拦截器类似于Servlet开发中的过滤器Filter，用于对处理器进行预处理和后处理。用户可以自己定义一些拦截器来实现特定的功能。
 
-用户可以自己定义一些拦截器来实现特定的功能。
+拦截器链（InterceptorChain）。拦截器链就是将拦截器按一定的顺序联结成一条链。在访问被拦截的方法或字段时，拦截器链中的拦截器就会按其之前定义的顺序被调用。
 
-谈到拦截器，还要向大家提一个词——拦截器链（Interceptor
-Chain）。拦截器链就是将拦截器按一定的顺序联结成一条链。在访问被拦截的方法或字段时，拦截器链中的拦截器就会按其之前定义的顺序被调用。
+**拦截器与过滤器的区别：**
 
-说到这里，可能大家脑海中有了一个疑问，这不是我们之前学的过滤器吗？是的它和过滤器是有几分相似，但是也有区别，接下来我们就来说说他们的区别：
+- 过滤器是servlet规范中的一部分，任何java web工程都可以使用。拦截器是SpringMVC框架自己的，只有使用了SpringMVC框架的工程才能用。
 
-过滤器是servlet规范中的一部分，任何java web工程都可以使用。
 
-拦截器是SpringMVC框架自己的，只有使用了SpringMVC框架的工程才能用。
+- 过滤器在url-pattern中配置了 `/*` 之后，可以对所有要访问的资源拦截。拦截器它是只会拦截访问的控制器方法，如果访问的是jsp，html,css,image或者js是不会进行拦截的。
 
-过滤器在url-pattern中配置了**/\***之后，可以对所有要访问的资源拦截。
 
-拦截器它是只会拦截访问的控制器方法，如果访问的是jsp，html,css,image或者js是不会进行拦截的。
+- 自定义拦截器， 要求必须实现：**HandlerInterceptor**接口。
 
-它也是AOP思想的具体应用。
-
-我们要想自定义拦截器， 要求必须实现：**HandlerInterceptor**接口。
 
 ## 4.2 自定义拦截器的步骤 
 
 **4.2.1** 第一步：编写一个普通类实现**HandlerInterceptor**接口
 
-/\*\*
 
-\* 自定义拦截器
 
-\* **\@author** 黑马程序员
 
-\* **\@Company** http://www.ithiema.com
 
-\* **\@Version** 1.0
 
-\*/
+
+
 
 **public class** HandlerInterceptorDemo1 **implements** HandlerInterceptor {
 
@@ -2896,107 +2704,48 @@ class=*"com.itheima.web.interceptor.HandlerInterceptorDemo2"*\>\</bean\>
 
 ### 4.4.2 拦截器1的代码： 
 
-/\*\*
-
-\* 自定义拦截器
-
-\* **\@author** 黑马程序员
-
-\* **\@Company** http://www.ithiema.com
-
-\* **\@Version** 1.0
-
-\*/
-
-**public class** HandlerInterceptorDemo1 **implements** HandlerInterceptor {
-
-\@Override
-
-**public boolean** preHandle(HttpServletRequest request, HttpServletResponse
-response, Object handler)
-
-**throws** Exception {
-
-System.**out**.println("拦截器1：preHandle拦截器拦截了");
-
-**return true**;
-
-}
-
-\@Override
-
-**public void** postHandle(HttpServletRequest request, HttpServletResponse
-response, Object handler,
-
-ModelAndView modelAndView) **throws** Exception {
-
-System.**out**.println("拦截器1：postHandle方法执行了");
-
-}
-
-\@Override
-
-**public void** afterCompletion(HttpServletRequest request, HttpServletResponse
-response, Object handler, Exception ex)
-
-**throws** Exception {
-
-System.**out**.println("拦截器1：afterCompletion方法执行了");
-
-}
+```java
+public class HandlerInterceptorDemo1 implements HandlerInterceptor { 
+@Override 
+public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) 
+throws Exception { 
+System.out.println("拦截器1：preHandle拦截器拦截了"); 
+return true; 
+} 
+@Override 
+public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, 
+ModelAndView modelAndView) throws Exception { 
+System.out.println("拦截器1：postHandle方法执行了"); 
+} 
+@Override 
+public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) 
+throws Exception { 
+System.out.println("拦截器1：afterCompletion方法执行了"); 
+} 
+```
 
 ### 4.4.3 拦截器2的代码： 
 
-/\*\*
-
-\* 自定义拦截器
-
-\* **\@author** 黑马程序员
-
-\* **\@Company** http://www.ithiema.com
-
-\* **\@Version** 1.0
-
-\*/
-
-**public class** HandlerInterceptorDemo2 **implements** HandlerInterceptor {
-
-\@Override
-
-**public boolean** preHandle(HttpServletRequest request, HttpServletResponse
-response, Object handler)
-
-**throws** Exception {
-
-System.**out**.println("拦截器2：preHandle拦截器拦截了");
-
-**return true**;
-
-}
-
-\@Override
-
-**public void** postHandle(HttpServletRequest request, HttpServletResponse
-response, Object handler,
-
-ModelAndView modelAndView) **throws** Exception {
-
-System.**out**.println("拦截器2：postHandle方法执行了");
-
-}
-
-\@Override
-
-**public void** afterCompletion(HttpServletRequest request, HttpServletResponse
-response, Object handler, Exception ex)
-
-**throws** Exception {
-
-System.**out**.println("拦截器2：afterCompletion方法执行了");
-
-}
-
-}
+```java
+public class HandlerInterceptorDemo2 implements HandlerInterceptor { 
+@Override 
+public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) 
+throws Exception { 
+System.out.println("拦截器2：preHandle拦截器拦截了"); 
+return true; 
+} 
+@Override 
+public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, 
+ModelAndView modelAndView) throws Exception { 
+System.out.println("拦截器2：postHandle方法执行了"); 
+} 
+@Override 
+public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) 
+throws Exception { 
+System.out.println("拦截器2：afterCompletion方法执行了"); 
+} 
+} 
+```
 
 ### 4.4.4 运行结果：
 
@@ -3032,111 +2781,53 @@ class=*"com.itheima.web.interceptor.HandlerInterceptorDemo2"*\>\</bean\>
 
 \</mvc:interceptors\>
 
-### 4.5.2 拦截器1的代码： 
+### 4.5.2 拦截器1的代码：
 
-/\*\*
+```java
+public class HandlerInterceptorDemo1 implements HandlerInterceptor { 
+@Override 
+public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) 
+throws Exception { 
+System.out.println("拦截器1：preHandle拦截器拦截了"); 
+return true; 
+} 
+@Override 
+public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, 
+ModelAndView modelAndView) throws Exception { 
+System.out.println("拦截器1：postHandle方法执行了"); 
+} 
+@Override 
+public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) 
+throws Exception { 
+System.out.println("拦截器1：afterCompletion方法执行了"); 
+} 
+} 
+```
 
-\* 自定义拦截器
 
-\* **\@author** 黑马程序员
-
-\* **\@Company** http://www.ithiema.com
-
-\* **\@Version** 1.0
-
-\*/
-
-**public class** HandlerInterceptorDemo1 **implements** HandlerInterceptor {
-
-\@Override
-
-**public boolean** preHandle(HttpServletRequest request, HttpServletResponse
-response, Object handler)
-
-**throws** Exception {
-
-System.**out**.println("拦截器1：preHandle拦截器拦截了");
-
-**return true**;
-
-}
-
-\@Override
-
-**public void** postHandle(HttpServletRequest request, HttpServletResponse
-response, Object handler,
-
-ModelAndView modelAndView) **throws** Exception {
-
-System.**out**.println("拦截器1：postHandle方法执行了");
-
-}
-
-\@Override
-
-**public void** afterCompletion(HttpServletRequest request, HttpServletResponse
-response, Object handler, Exception ex)
-
-**throws** Exception {
-
-System.**out**.println("拦截器1：afterCompletion方法执行了");
-
-}
-
-}
 
 ### 4.5.3 拦截器2的代码： 
 
-/\*\*
-
-\* 自定义拦截器
-
-\* **\@author** 黑马程序员
-
-\* **\@Company** http://www.ithiema.com
-
-\* **\@Version** 1.0
-
-\*/
-
-**public class** HandlerInterceptorDemo2 **implements** HandlerInterceptor {
-
-\@Override
-
-**public boolean** preHandle(HttpServletRequest request, HttpServletResponse
-response, Object handler)
-
-**throws** Exception {
-
-System.**out**.println("拦截器2：preHandle拦截器拦截了");
-
-**return false**;
-
-}
-
-\@Override
-
-**public void** postHandle(HttpServletRequest request, HttpServletResponse
-response, Object handler,
-
-ModelAndView modelAndView) **throws** Exception {
-
-System.**out**.println("拦截器2：postHandle方法执行了");
-
-}
-
-\@Override
-
-**public void** afterCompletion(HttpServletRequest request, HttpServletResponse
-response, Object handler, Exception ex)
-
-**throws** Exception {
-
-System.**out**.println("拦截器2：afterCompletion方法执行了");
-
-}
-
-}
+```java
+public class HandlerInterceptorDemo2 implements HandlerInterceptor { 
+@Override 
+public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) 
+throws Exception { 
+System.out.println("拦截器2：preHandle拦截器拦截了"); 
+return false; 
+} 
+@Override 
+public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, 
+ModelAndView modelAndView) throws Exception { 
+System.out.println("拦截器2：postHandle方法执行了"); 
+} 
+@Override 
+public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) 
+throws Exception { 
+System.out.println("拦截器2：afterCompletion方法执行了"); 
+} 
+} 
+```
 
 ### 4.5.4 运行结果： 
 
