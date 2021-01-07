@@ -107,13 +107,13 @@ var app = new Vue({
 
 ## 1.1：Vue 核心
 
-### 1.1.1 Vue 的基本认识
+1.1.1 Vue 的基本认识
 
 1) 英文官网: https://vuejs.org/
 
 2) 中文官网: https://cn.vuejs.org/
 
-### 1.1.2. 介绍描述
+1.1.2. 介绍描述
 
 1) 渐进式 JavaScript 框架：需要什么加什么库
 
@@ -121,7 +121,7 @@ var app = new Vue({
 
 3) 作用: 动态构建用户界面
 
-### 1.1.3. Vue 的特点
+1.1.3. Vue 的特点
 
 1) 遵循 MVVM 模式
 
@@ -129,15 +129,13 @@ var app = new Vue({
 
 3) 它本身只关注 UI, 可以轻松引入 vue 插件或其它第三库开发项目
 
-### 1.1.4. 与其它前端JS框架的关联
+1.1.4. 与其它前端JS框架的关联
 
 1) 借鉴 angular 的模板和数据绑定 数据绑定技术
 
 2) 借鉴 react 的组件化和虚拟DOM 技术
 
- 
-
-### 1.1.5. Vue 扩展插件
+1.1.5. Vue 扩展插件
 
 1) vue-cli: vue 脚手架2
 
@@ -155,9 +153,63 @@ var app = new Vue({
 
 8) element-ui: 基于 vue 的 UI 组件库(PC 端)
 
+
+
+响应式数据原理：
+
+对象内部通过defineReactive方法，使用Object.defineProperty将属性进行劫持（只会劫持已经存在的属性）数组则是通过重写数组方式来实现的
+
+initData：初始化用户传入的data数据
+
+new Observer：将数据进行观测
+
+this.walk(value)：进行对象的处理
+
+defineReactive：循环对象属性定义响应式变化
+
+Objet.defineProperty：使用Object.defineProperty重新定义数据
+
+
+
+
+
+
+
+### 理解MVVM
+
+![image-20201113165540355](media/image-20201113165540355.png)
+
+
+
+省略了原本MVC中的Controller，VUE帮忙做了
+
+页面——————VM——————data
+
+MVVM：
+
+Model模型，数据对象
+
+View：视图，模板对象
+
+viewModel：视图模型（Vue的实例）
+
+vue在Augular和React的基础上实现的。实现了双向的数据绑定，利用虚拟DOM实现快速渲染。
+
+
+
+
+
+
+
+![image-20201212114646188](media/image-20201212114646188.png)
+
+
+
+
+
 ## 1.2：Vue的基本使用
 
-![image-20201113165438466](VueJs.assets/image-20201113165438466.png)
+![image-20201113165438466](media/image-20201113165438466.png)
 
 ```vue
 <div id="app">
@@ -179,110 +231,11 @@ var app = new Vue({
 
 Vue插件工具
 
-### 1.2.3 理解Vue的MVVM
 
- ![image-20201113165540355](VueJs.assets/image-20201113165540355.png)
-
-省略了原本MVC中的Controller，VUE帮忙做了
-
-页面——————VM——————data
-
-MVVM：
-
-Model模型，数据对象
-
-View：视图，模板对象
-
-viewModel：视图模型（Vue的实例）
-
-vue在Augular和React的基础上实现的。实现了双向的数据绑定，利用虚拟DOM实现快速渲染。
-
-
-
-### 条件渲染
-
-vue隐藏组件
-
-v-if
-
-用于条件性地渲染一块内容，确保条件快内的事件监听器和子组件适当的被销毁和重建
-
-v-else
-
-v-if与v-else之间不能有其他元素
-
-
-
-v-show
-
-元素始终会被渲染保留在DOM中，只是通过v-show的取值是true还是false简单的切换元素的CSS属性display
-
-反复切换的内容使用v-show
-
-只是渲染一次的用v-if
-
-
-
-绑定点击事件
-
-```vue
-<button @click="showPanel"></button>
-……
-	methods:{
-		showPane:function(e){
-			
-		}
-	}
-……
-```
-
-
-
-### 列表渲染
-
-v-for
-
-![image-20201212114103976](media/image-20201212114103976.png)
-
-![image-20201212114646188](media/image-20201212114646188.png)
-
-
-
-
-
-### 模板方法
-
-v-once
-
-只插入一次，不再修改
-
-v-html
-
-插入html代码
-
-不能插入脚本
-
-xss攻击，利用这种进行xss攻击
-
-
-
-v-bind:id=“tname”
-
-可以省略为:id = "tname"
-
- 模板语言表达式应用
-
-{{firstname + lastname}}
-
-
-
-v-on绑定事件
-
-v-on:@click等同与@click
 
 ## 1.3模板语法
 
-### 1.3.1. 双大括号表达式
+1.3.1. 双大括号表达式
 
 1) 语法: {{exp}}
 
@@ -290,7 +243,7 @@ v-on:@click等同与@click
 
 3) 可以调用对象的方法
 
-### 1.3.2.指令一: 强制数据绑定
+1.3.2.指令一: 强制数据绑定
 
 1) 功能: 指定变化的属性值
 
@@ -298,7 +251,7 @@ v-on:@click等同与@click
 
 3) 简洁写法: :xxx='yyy'
 
-### 1.3.3. 指令二: 绑定事件监听
+1.3.3. 指令二: 绑定事件监听
 
 1) 功能: 绑定指定事件名的回调函数
 
@@ -346,7 +299,7 @@ import { mapState } from 'vuex'
 
 ## 1.4：计算属性和监视
 
-### 1.4.1计算属性
+1.4.1计算属性
 
 在computed属性对象中定义计算属性的方法。在页面中使用{{方法名}}来显示计算的结果
 
@@ -379,21 +332,17 @@ return this.firstname + this.lastname
 
 
 
-
-
-
-
-### 1.4.3侦听器
+1.4.3侦听器
 
 通过通过vm对象的$watch()或watch配置来监视指定的属性。当属性变化时，回调函数自动调用，在函数内部进行计算
 
 
 
-### 内联操作
+内联操作
 
 
 
-### 事件绑定
+事件绑定
 
 事件传参
 
@@ -411,7 +360,7 @@ prevent：阻止默认的事件
 
 
 
-### 1.4.4计算属性高级
+### 计算属性高级
 
 通过gette r/setter实现对属性数据的显示和监视
 
@@ -483,9 +432,87 @@ vm.$watch(’firstName’，function (val){
 	font一size:20px;
 }
 ```
+## 1.6:条件渲染
+
+vue隐藏组件
+
+v-if
+
+用于条件性地渲染一块内容，确保条件快内的事件监听器和子组件适当的被销毁和重建
+
+v-else
+
+v-if与v-else之间不能有其他元素
 
 
- <h2>1. class绑定::class='xxx'</h2>
+
+v-show
+
+元素始终会被渲染保留在DOM中，只是通过v-show的取值是true还是false简单的切换元素的CSS属性display
+
+反复切换的内容使用v-show
+
+只是渲染一次的用v-if
+
+
+
+绑定点击事件
+
+```vue
+<button @click="showPanel"></button>
+……
+	methods:{
+		showPane:function(e){
+			
+		}
+	}
+……
+```
+
+## 1.7：列表渲染
+
+v-for
+
+![image-20201212114103976](media/image-20201212114103976.png)
+
+
+
+
+
+## 模板方法
+
+v-once
+
+只插入一次，不再修改
+
+v-html
+
+插入html代码
+
+不能插入脚本
+
+xss攻击，利用这种进行xss攻击
+
+
+
+v-bind:id=“tname”
+
+可以省略为:id = "tname"
+
+ 模板语言表达式应用
+
+{{firstname + lastname}}
+
+
+
+v-on绑定事件
+
+v-on:@click等同与@click
+
+
+
+
+class绑定::class='xxx'
 
   <p class="classB" :class="a">表达式是字符串:'classA'</p>
 
@@ -543,15 +570,15 @@ update(){
 
 })
 
-## 1.6条件渲染
 
- 
+
+
 
  
 
 ## 1.10 vue的生命周期
 
-![Vue 实例生命周期](media/lifecycle.png)
+<img src="media/lifecycle.png" alt="Vue 实例生命周期" style="zoom:25%;" />
 
  
 
@@ -575,140 +602,6 @@ mounted之前是拿不到dom对象的
 
 一般在初始化页面完成以后，在对dom夜店进行相关的操作。
 
-
-
-
-
-
-
-更新状态:th is.xxx二value
-
-*beforeUpdate()
-
-*updated()
-
-销毁vu。实例:vm.$destory()
-
-*beforeDestory()
-
-*d estoryed ()
-
- 
-
- 
-
-created()/mounted():发送ajax请求，启动定时器等异步任卖
-
-beforeDestory():做收尾工作，如:清除定时器
-
- 
-
- 
-
-<div>
-
- <button @click="destoryVue">destory vue</button>
-
-  <p v-show="isshowing">{{msg}}</p>
-
-</div>
-
-<script type="text/javascript" src=”../js/vue .js"></script>
-
-<script type="text/javascript">
-
-var vue=new Vue({
-
- e1:’d1V’，
-
- data:{
-
-  msg:’尚硅谷IT教育·，
-
-  isshowing:true,
-
-  persons:[]
-
- }，
-
- beforeCreate(){
-
-console.log(’beforeCreate()msg=’+this.msg)
-
- 
-
-created(){
-
-console.log(’created()msg二’+this.msg)
-
-this.intervalId
-
- console.log(’
-
-=setInterval(()=>{
-
- this.isshowing=
-
-}，1000)
-
-!this.isshowing
-
-}，
-
- 
-
-beforeMount(){
-
-console.log(’beforeMount()msg=’+this.msg)
-
-}，
-
-mounted(){
-
-console.log(’mounted()msg二’+this.msg)
-
-}，
-
-beforeUpdate(){
-
- console.log(’beforeUpdate is5howing二’+this.isshowing)
-
-}，
-
-updated(){
-
- console.log(’updated is5howing=’+this.isshowing)
-
-}，
-
-beforeDestroy(){
-
- console.log(’beforeDestroy()msg=’+this.msg)
-
-clearInterval(this.intervalId)
-
-}，
-
-destroyed(){
-
-console.log(’destroyed()msg=’+this.msg)
-
-}，
-
-methods:{
-
- destoryVue(){
-
-  vue.$destroy()
-
- }
-
-}
-
-})
-
-</script>
-
  
 
 ## 1.11动画
@@ -719,229 +612,7 @@ methods:{
 
 3)过渡的相关类名
 
-  xxx-e n to r-a ct ive:指定显示的transition
 
-  xxx-I ea ve-a ct ive:指定隐藏的transition
-
-xxx-a nte r/xxx-I eave-to:指定隐藏时的样式
-
- 
-
-1)在目标元素外包裹<<transition name="xxx">
-
-2)定义。lass样式
-
-指定过渡样式:transition
-
-指定隐藏时的样式:opacity/其它
-
- 
-
-<style>
-
- .fade一enter一active,.fade一leave一active{
-
-transition:opacity .5s
-
-}
-
-.fade一enter, .fade一leave一to{
-
-opacity: 0
-
-}
-
-可州 l}i岁价协灸脸边入和,Y万动u*/
-
-/*
-
-.slide一fade一enter一active{
-
-transition:all .3s ease;
-
-}
-
-.slide一fade一leave一active
-
-{
-
-transition:all .8s cubic一bezier(1.0, 0.5, 0.8, 1.0);
-
-}
-
-.slide一fade一enter,.slide一fade一leave一to{
-
-transform:translateX(10px);
-
-opacity: 0;
-
-}
-
-</style>
-
-<div id二”demol">
-
- <button @click="show二!show">
-
-  Togglel
-
- </button>
-
- <transition name="fade">
-
-    <p v一if="show">hello</p>
-
- </transition>
-
-</div>
-
-<div id二”demo2">
-
- <button @click="show二!show">
-
-  Toggle2
-
- </button>
-
- <transition name="slide一fade">
-
-    <p v一if="show">hello</p>
-
- </transition>
-
-</div>
-
-<script type="text/javascript"
-
-<script type="text/javascript">
-
-Sr仁二
-
-”二/js/vue .js"></script>
-
-new
-
-e1
-
-Vue({
-
-:’#demol’，
-
-data:{
-
-show: true
-
-}
-
-})
-
-new
-
-e1
-
-Vue({
-
-:’#demo2’，
-
-data:{
-
-show: true
-
-}
-
- })
-
-</scriot>
-
- 
-
- 
-
-动画2
-
-<style>
-
- .bounce一enter一active{
-
-animation:bounce一in .5s
-
-}
-
-.bounce一leave一active{
-
-animation:bounce一in .5s reverse;
-
-}
-
-@keyframes bounce一in{
-
- e冤{
-
- transform:
-
-}
-
-50}{
-
- transform:
-
-}
-
-100{
-
- transform:
-
-}
-
-scale(。);
-
-scale(1.5);
-
-scale(1);
-
-}
-
-</style>
-
-<div id二”test2">
-
-<button @click="show二!show">Toggle show</button>
-
-<br>
-
-<transition name="bounce">
-
-<p v一if="show" style二”display: inline一block">Look at me!</p>
-
- </transition>
-
-</div>
-
-<script type="text/javascript"
-
-<script>
-
-Sr仁二
-
-”二/js/vue .js"></script>
-
-new
-
-e1
-
-Vue({
-
-:’#test2’，
-
-data:{
-
-show: true
-
-}
-
- })
-
-</script>
 
  
 
@@ -1140,11 +811,129 @@ https://cn.vuejs.org/v2/guide/forms.html
 
 3.1常用的2个ajax库
 
-1.Vue-resource
+## vue-resource
 
-Axios
+## axios
 
  
+
+
+
+# 第四章：vue UI组件库
+
+## Mint UI
+
+饿了么开源移动端
+
+
+
+Elment
+
+饿了么开源PC端
+
+
+
+
+
+# 第五章：vue-route
+
+VueRouter(): 用于创建路由器的构建函数
+
+new VueRouter({
+
+// 多个配置项
+
+})
+
+
+
+路由配置
+
+```js
+routes:[
+    {
+        //一般路由
+        path：'/about',
+        component:about
+    },
+    {
+        //自动跳转路由
+        path:'/',
+        redirect:'/about'
+    }
+]
+```
+
+注册路由器
+
+```js
+import router from './routter'
+new vue({
+    router
+})
+```
+
+
+
+
+
+# 第六章：VUEX
+
+对 vue 应用中多个组件的共享状态进行集中式的管理(读/写)
+
+
+
+状态自管理应用
+
+1）state 驱动应用的数据源
+
+2）view：以声明的方式将state映射到视图中
+
+3）action：响应在view上的用户输出导致的状态变化（包含n个更新状态的方法）
+
+
+
+## 核心概念
+
+### state
+
+vuex管理的状态对象
+
+他是唯一的
+
+
+
+### mutations
+
+包含多个更新state的方法（回调函数）的对象
+
+谁来触发action中的commit('mutation:名称')
+
+只能包含同步的代码，不能写一部代码
+
+
+
+### action
+
+包含多个事件回调函数的对象
+
+通过执行：commit()来触发mutation的调用，间接更新state
+
+谁来触发：组件中：$store.dispatch('action:名称'，data1)
+
+可以包含异步代码
+
+
+
+### getters
+
+包含多个计算属性（get）的对象
+
+
+
+### store
+
+
 
 
 
@@ -1160,7 +949,15 @@ async/await
 
 
 
-# vue-route路由
+# 
+
+
+
+
+
+
+
+
 
 
 
@@ -1169,4 +966,3 @@ async/await
 
 
 # vuex状态管理
-
