@@ -1531,23 +1531,13 @@ TreeMap：适用于按自然顺序或自定义顺序遍历键（key)。
 
 HashMap通常比TreeMap快一点（树和哈希表的数据结构使然），建议多使用HashMap,在需要排序的Map时候才用TreeMap.
 
-2：HashMap与HashTable的区别
+**2：HashMap与HashTable的区别**
 
-1：他们都可以存储key-value型数据，都实现了Map接口，
-
-2：
-
-HashMap是线程不安全的效率高，
-
-HashTable是线程安全的，效率低
-
-Hashtable是同步的，而HashMap不是。
-
-因此，HashMap更适合于单线程环境，而Hashtable适合于多线程环境。
+- HashMap是线程不安全的，HashTable是线程安全的，效率低。因此，HashMap更适合于单线程环境，而Hashtable适合于多线程环境。
+- Hashtable的方法是Synchronize的，而HashMap不是
+- HashMap是可以把null作为key或者value的，但是HashTable不行
 
 要想既安全又效率高就用ConcurrentHashMap
-
-3：HashMap是可以把null作为key或者value的，但是HashTable不行
 
 
 
