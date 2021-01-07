@@ -4,7 +4,7 @@ SonarQube是一个开源的代码质量管理系统，用于检测代码中的�
 
 
 
-安装：
+# 安装：
 
 1：环境准备
 
@@ -76,7 +76,7 @@ SonarQube是一个开源的代码质量管理系统，用于检测代码中的�
 
 
 
-项目分析
+# 项目分析
 
 
 
@@ -157,4 +157,42 @@ Maven项目可以使用Sonar-Scanner工具，也可以使用Maven的方式进行
 方式二：Maven方式
 
 ![image-20210106210815215](media/image-20210106210815215.png)
+
+
+
+
+
+# 常见审查提示
+
+
+
+### 认知复杂度过高
+
+认知复杂度是衡量一个方法的控制流程有多困难去理解。具有高认知复杂度的方法将难以维护。sonar要求复杂度要在15以下
+
+Cognitve Complexity的计算：
+
+  （1）&&、||  条件判断符号 +1
+
+  （2）if、else if、else、switch  分支语句+1
+
+  （3）for、while、do while  循环语句+1
+
+  （4）catch  捕获异常语句+1
+
+  （5）break、continue  中断语句+1
+
+  （6）如果if、for、while、do while、catch存在嵌套时，里层的语句相对于外层+1。
+
+
+
+修改思路：
+
+  1.减少if、for、while、do while、catch关键字嵌套，可以把深层次的代码抽象成方法。
+
+  2.如果大量相似的if-else语句可以考虑用switch代替
+
+  3.没啥规律就看见if、for等关键字提成方法
+
+
 
