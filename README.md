@@ -4,6 +4,8 @@
 <center><img src="https://img.shields.io/badge/Note-grow-green"></img><img src="https://img.shields.io/github/repo-size/3218870799/-Note?style=plastic"></img><img src="https://img.shields.io/badge/role-qcxiao-red"></img></center>
 ------
 
+​                      ![github](https://img.shields.io/badge/Note-grow-green)      ![github](https://img.shields.io/github/repo-size/3218870799/-Note?style=plastic)    ![github](https://img.shields.io/badge/role-qcxiao-red)
+
 ## >> 说明
 
 :a:本项目是个人学习的笔记，包含一些工具的安装与使用，基础的知识点的整理，以及工作学习中的经验。
