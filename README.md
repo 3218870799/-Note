@@ -1,4 +1,10 @@
-# 说明
+<center><h1>程序猿成长笔记</h1></center>
+
+------
+<center><img src="https://img.shields.io/badge/Note-grow-green"></img><img src="https://img.shields.io/github/repo-size/3218870799/-Note?style=plastic"></img><img src="https://img.shields.io/badge/role-qcxiao-red"></img></center>
+------
+
+## >> 说明
 
 :a:本项目是个人学习的笔记，包含一些工具的安装与使用，基础的知识点的整理，以及工作学习中的经验。
 
@@ -36,63 +42,36 @@
 
 
 
-## 知识总述
+## 目录大纲
 
-| 序号  | 标题                      | 说明                                                         | 子章节 |
-| ----- | ------------------------- | ------------------------------------------------------------ | ------ |
-| 0.0   | 数据结构与算法:baby:      | 以Java描述的常用数据结构与基本算法的操作，常见刷题笔记       |        |
-| 0.1   | 计算机网络                |                                                              |        |
-| 0.2   | 操作系统                  |                                                              |        |
-| 1.1   | 版本控制工具:baby_bottle: | git与Github的使用，SVN的使用，工具小乌龟                     |        |
-| 1.2   | 开发工具:baby_chick:      | 主要针对Java开发的工具使用技巧                               |        |
-| 2.0.0 | 正则表达式:baby_symbol:   |                                                              |        |
-| 2.0   | Java语言基础:balloon:     | java的基础知识，源码探索以及对新版本的实验研究               |        |
-| 2.1   | 前端                      | 由于本人不是专业前端，对前端的学习不是很多，只是部分自己用到的 |        |
-| 2.2   | JavaWeb开发               |                                                              |        |
-| 2.3   | 服务器Tomact 与Nginx      |                                                              |        |
-| 3     | JVM:beer:                 |                                                              |        |
-| 4     | 项目管理工具              | Maven，Gradle，Nexus使用                                     |        |
-| 6     | 关系型数据库:dancer:      | MYSQL与Oracle                                                |        |
-| 7     | 非关系型数据库            | Redis，Ehcahce，Mongdb                                       |        |
-| 8     | SpringMVC                 |                                                              |        |
-| 9     | Spring                    |                                                              |        |
-| 10    | Mybatis                   |                                                              |        |
-| 11    | Hibernate                 |                                                              |        |
-| 12    | SpringBoot                |                                                              |        |
-| 13    | Dubbo                     |                                                              |        |
-| 14    | SpringCloud               |                                                              |        |
-| 14.1  | SpringCloudAlibaba        | 由于原本项目停更，目标代替SpringCloud                        |        |
-| 14    | 消息队列                  | rabbitMQ，Kafka，RocketMQ                                    |        |
-| 15    | Zookeeper                 |                                                              |        |
-| 16    | Linux                     |                                                              |        |
-| 17.1  | Lucene全文检索            |                                                              |        |
-| 17.2  | solr全文检索服务器        |                                                              |        |
-| 17.2  | ElasticSearch             | 全文检索，基于Lucene的                                       |        |
-| 17.3  | shiro安全验证             |                                                              |        |
-| 17.4  | 业务流程管理Activiti      |                                                              |        |
-| 17.5  | 统计分析                  |                                                              |        |
-| 17.6  | 作业调度Quartz            |                                                              |        |
-| 17.7  | Netty:shaved_ice:         | 异步事件驱动的网络应用程序框架                               |        |
-| 17.8  | 单点登录                  |                                                              |        |
-| 18    | 接口相关                  | webservice，Swagger，JApiDocs，                              |        |
-| 19    | Hadoop                    |                                                              |        |
-| 20    | HBase                     |                                                              |        |
-| 21    | Hive                      |                                                              |        |
-| 22    | Spark                     |                                                              |        |
-| 23    | 网络安全                  |                                                              |        |
-| 24    | 设计模式                  | 常用设计模式的基本概念与常见应用                             |        |
-| 25    | 机器学习概述              |                                                              |        |
-| 26    | Python基础                |                                                              |        |
-| 27    | 自动代码生成              |                                                              |        |
-| 31    | SpringSession             |                                                              |        |
-| 33    | 项目管理                  |                                                              |        |
-| 34    | Go语言基础                |                                                              |        |
-| 35    | 环境搭建                  |                                                              |        |
-| 36    | VMware                    |                                                              |        |
-| 37    | 持续集成Jenkins           |                                                              |        |
-| 40    | 架构设计                  |                                                              |        |
-| 48    | 代码审查                  | SonarQube的安装与集成使用                                    |        |
-|       | 我的博客                  |                                                              |        |
+| 目录                        | 子目录                                                       | 说明                                                         |
+| --------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 数据结构与算法👶             | 1：数据结构与算法<br />2：LeetCode分类题解与常见算法题       | 以Java描述的常用数据结构与基本算法的操作，常见刷题笔记       |
+| 👆计算机网络                 |                                                              |                                                              |
+| 😗操作系统                   |                                                              |                                                              |
+| 🍼版本控制工具               | 1：Git<br />2：SVN<br />3：GitHub使用技巧                    | git与Github的使用，SVN的使用，工具小乌龟                     |
+| 🐤开发工具                   | 1：IDEA<br />2：Eclipse                                      | 选一即可，本人是从Eclipse换到IDEA的，故Eclipse笔记也很久没更新了。 |
+| 🚼正则表达式                 |                                                              |                                                              |
+| 🎈Java基础:                  |                                                              | java的基础知识，源码探索以及对新版本的实验研究               |
+| 🌵前端的基础知识             | 1：ES6<br />2：VUE                                           | 由于本人不是专业前端，对前端的学习不是很多，只是部分自己用到的 |
+| 🤳服务器                     | 1：Tomact<br />2：Nginx                                      |                                                              |
+| 🍺 JVM                       |                                                              |                                                              |
+| 💃项目管理工具               | 1：Maven<br />2：Nexus搭建<br />3：Gradle                    |                                                              |
+| 👯关系型数据库               | 1：Mysql<br />2：Oracle                                      |                                                              |
+| 👊非关系型数据库             | 1：Redis<br />2：Ehcahce<br />3：MongoDB                     |                                                              |
+| 🥇Java主流框架               | 1：SpringMVC<br />2：Spring<br />3：Mybatis<br />            |                                                              |
+| 👆分布式应用                 | 1：SpringBoot<br />2：消息队列<br />Kafka<br />RabbitMQ<br /><br />3：Zookeeper<br />4：Dubbo<br />5：SpringCloud<br />6：SpringCloudAlibaba |                                                              |
+| 🥉Linux                      |                                                              |                                                              |
+| 🌴项目开发中你一定用过的组件 | 安全验证，搜索，……                                           | 内容较多，详情请看具体目录内容                               |
+| 📫接口                       | 1：Webservice<br />2：Swagger<br />3：JApiDocs               |                                                              |
+| ✌️大数据                     | 1：Hadoop<br />2：HBase<br />3：Hive<br />4：Spark           |                                                              |
+| 网络安全                    |                                                              |                                                              |
+| 🙊设计模式                   |                                                              | 常用设计模式的基本概念与常见应用                             |
+| 🐍Python                     |                                                              |                                                              |
+| Ⓜ️机器学习                   |                                                              |                                                              |
+| 🐭Go                         |                                                              |                                                              |
+| 📦项目管理                   | 1：Jenkins<br />2：SonarQube                                 |                                                              |
+| 我的博客                    |                                                              |                                                              |
 
 
 
