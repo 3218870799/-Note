@@ -1,10 +1,10 @@
-<center><h1>程序猿成长笔记</h1></center>
+<center><font size="6">程序猿成长笔记</font></center>
 
 ------
 <center><img src="https://img.shields.io/badge/Note-grow-green"></img><img src="https://img.shields.io/github/repo-size/3218870799/-Note?style=plastic"></img><img src="https://img.shields.io/badge/role-qcxiao-red"></img></center>
 ------
 
-​                      ![github](https://img.shields.io/badge/Note-grow-green)      ![github](https://img.shields.io/github/repo-size/3218870799/-Note?style=plastic)    ![github](https://img.shields.io/badge/role-qcxiao-red)
+![github](https://img.shields.io/badge/Note-grow-green)![github](https://img.shields.io/github/repo-size/3218870799/-Note?style=plastic)![github](https://img.shields.io/badge/role-qcxiao-red)
 
 ## >> 说明
 
