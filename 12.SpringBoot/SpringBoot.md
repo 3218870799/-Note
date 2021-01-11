@@ -822,13 +822,11 @@ public class DBConfig {
 
 
 
-## 8、自动配置原理
-
-配置文件到底能写什么？[配置文件能配置的属性参照](https://docs.spring.io/spring-boot/docs/1.5.9.RELEASE/reference/htmlsingle/#common-application-properties)
-
-### 1、自动配置原理：
+## 8、自动配置
 
 Spring 查看（CLASSPATH 上可用的框架）已存在的应用程序的配置。在此基础上，Spring Boot 提供了配置应用程序和框架所需要的基本配置。这就是自动配置。
+
+### 1、自动配置原理
 
 1）、SpringBoot启动的时候加载主配置类，开启了自动配置功能 @EnableAutoConfiguration
 
@@ -1421,7 +1419,11 @@ xxxxProperties:配置类来封装配置文件的内容；
 
 
 
-## 2、SpringBoot对静态资源的映射规则；
+## 2、静态资源
+
+在源文件夹下，创建一个名为 static 的文件夹。然后，你可以把你的静态的内容放在这里面。
+
+
 
 ```java
 @ConfigurationProperties(prefix = "spring.resources", ignoreUnknownFields = false)
@@ -3946,7 +3948,13 @@ public class HelloServiceAutoConfiguration {
 
 
 
-# Thymeleaf
+# 九：Thymeleaf
+
+Thymeleaf 是新一代 Java 模板引擎，Thymeleaf 支持 HTML 原型。它既可以让前端工程师在浏览器中直接打开查看样式，也可以让后端工程师结合真实数据查看显示效果，同时，SpringBoot 提供了 Thymeleaf 自动化配置解决方案，因此在 SpringBoot 中使用 Thymeleaf 非常方便。
+
+## 语法
+
+### 简单表达式
 
 变量表达式：${……}
 
@@ -3964,13 +3972,126 @@ public class HelloServiceAutoConfiguration {
 
 ![img](media\clip_image006.jpg)
 
-# 更多SpringBoot整合示例
+**`~{...}`**
 
-https://github.com/spring-projects/spring-boot/tree/master/spring-boot-samples
+片段表达式是 Thymeleaf 的特色之一，细粒度可以达到标签级别，这是 JSP 无法做到的。片段表达式拥有三种语法：
+
+- `~{ viewName }`：表示引入完整页面
+- `~{ viewName ::selector}`：表示在指定页面寻找片段，其中 selector 可为片段名、jquery选择器等
+- `~{ ::selector}`：表示在当前页寻找
+
+### 字面量
+
+这些是一些可以直接写在表达式中的字符，主要有如下几种：
+
+- 文本字面量：'one text', 'Another one!',…
+- 数字字面量：0, 34, 3.0, 12.3,…
+- 布尔字面量：true, false
+- Null字面量：null
+- 字面量标记：one, sometext, main,…
+
+
+
+### 文本运算
+
+文本可以使用 `+` 进行拼接。
+
+如果字符串中包含变量，也可以使用另一种简单的方式，叫做字面量置换，用 `|` 代替 `'...' + '...'`，如下：
+
+```html
+<div th:text="|hello ${user.username}|"></div>
+<div th:text="'hello '+${user.username}+' '+|Go ${user.address}|"></div>
+```
+
+
+
+比较与相等
+
+表达式里的值可以使用 `>`, `<`, `>=` 和 `<=` 符号比较。`==` 和 `!=` 运算符用于检查相等（或者不相等）。注意 `XML`规定 `<` 和 `>` 标签不能用于属性值，所以应当把它们转义为 `<` 和 `>`。
+
+如果不想转义，也可以使用别名：gt (>)；lt (<)；ge (>=)；le (<=)；not (!)。还有 eq (==), neq/ne (!=)。
+
+
+
+```html
+<div th:with="age=(99*99/99+99-1)">
+    <div th:text="${age} eq 197"></div>
+    <div th:text="${age} ne 197"></div>
+    <div th:text="${age} ge 197"></div>
+    <div th:text="${age} gt 197"></div>
+    <div th:text="${age} le 197"></div>
+    <div th:text="${age} lt 197"></div>
+</div>
+```
+
+
+
+### 内置对象
+
+基本内置对象：
+
+- \#ctx：上下文对象。
+- \#vars: 上下文变量。
+- \#locale：上下文区域设置。
+- \#request：（仅在 Web 上下文中）HttpServletRequest 对象。
+- \#response：（仅在 Web 上下文中）HttpServletResponse 对象。
+- \#session：（仅在 Web 上下文中）HttpSession 对象。
+- \#servletContext：（仅在 Web 上下文中）ServletContext 对象。
+
+```html
+<div th:text='${#session.getAttribute("name")}'></div>
+```
+
+
+
+### 遍历
+
+数组/集合/Map/Enumeration/Iterator 等的遍历也算是一个非常常见的需求，Thymeleaf 中通过 th:each 来实现遍历，像下面这样：
+
+```html
+<table border="1">
+    <tr th:each="u : ${users}">
+        <td th:text="${u.username}"></td>
+        <td th:text="${u.address}"></td>
+    </tr>
+</table>
+```
 
 
 
 
+
+
+
+使用：
+
+添加依赖：
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+```
+
+当然，Thymeleaf 不仅仅能在 Spring Boot 中使用，也可以使用在其他地方，只不过 Spring Boot 针对 Thymeleaf 提供了一整套的自动化配置方案，这一套配置类的属性在 `org.springframework.boot.autoconfigure.thymeleaf.ThymeleafProperties` 中
+
+
+
+
+
+
+
+
+
+
+# 监视器Actuator
+
+是 spring 启动框架中的重要功能之一。Spring boot 监视器可帮助您访问生产环境中正在运行的应用程序的当前状态。有几个指标必须在生产环境中进行检查和监控。即使一些外部应用程序可能正在使用这些服务来向相关人员触发警报消息。监视器模块公开了一组可直接作为 HTTP URL 访问的REST 端点来检查状态。
 
 
 
