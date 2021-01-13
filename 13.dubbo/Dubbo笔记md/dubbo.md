@@ -203,9 +203,9 @@ wget https://archive.apache.org/dist/zookeeper/zookeeper-3.4.11/zookeeper-3.4.11
 
 3、移动到指定位置并改名为zookeeper 
 
-![image-20201023163502564](dubbo.assets/image-20201023163502564.png)
+![image-20201023163502564](media/image-20201023163502564.png)
 
-![image-20201023163508711](dubbo.assets/image-20201023163508711.png)
+![image-20201023163508711](media/image-20201023163508711.png)
 
 #### 3、开机启动zookeeper
 
@@ -317,15 +317,15 @@ restart)
 
   ;; esac
 
-4、注册服务&添加权限 ![image-20201023165300416](dubbo.assets/image-20201023165300416.png)
+4、注册服务&添加权限 ![image-20201023165300416](media/image-20201023165300416.png)
 
-![](dubbo.assets/image-20201023165316185.png)
+![](media/image-20201023165316185.png)
 
 5、启动服务&访问tomcat测试 
 
-![image-20201023165350741](dubbo.assets/image-20201023165350741.png)
+![image-20201023165350741](media/image-20201023165350741.png)
 
-![image-20201023165356406](dubbo.assets/image-20201023165356406.png)
+![image-20201023165356406](media/image-20201023165356406.png)
 
 
 
@@ -389,7 +389,7 @@ spring
 不建议使用过于抽象的通用接口，如：Map
 query(Map)，这样的接口没有明确语义，会给后期维护带来不便。
 
-![image-20201023170343469](dubbo.assets/image-20201023170343469.png)
+![image-20201023170343469](media/image-20201023170343469.png)
 
 ### 4.3）、创建模块
 
@@ -418,7 +418,7 @@ UserService
 public List<UserAddress> getUserAddressList(String userId)
 ```
 
-![e60f227d93880dbb8d33526822dc2122](dubbo.assets/e60f227d93880dbb8d33526822dc2122.png)
+![e60f227d93880dbb8d33526822dc2122](media/e60f227d93880dbb8d33526822dc2122.png)
 
 2、gmall-user：用户模块（对用户接口的实现）
 
@@ -626,7 +626,7 @@ public class OrderController {
 
 | 1、下载 dubbo-ops <https://github.com/apache/incubator-dubbo-ops> |
 | ------------------------------------------------------------ |
-| 2、修改配置指定注册中心地址 进入 dubbo-monitor-simple\\src\\main\\resources\\conf 修改 dubbo.properties文件 ![media/b1da6263c78438bb7adbc681bfd5f512.png](dubbo.assets/b1da6263c78438bb7adbc681bfd5f512.png) |
+| 2、修改配置指定注册中心地址 进入 dubbo-monitor-simple\\src\\main\\resources\\conf 修改 dubbo.properties文件 ![media/b1da6263c78438bb7adbc681bfd5f512.png](media/b1da6263c78438bb7adbc681bfd5f512.png) |
 | 3、打包dubbo-monitor-simple mvn clean package -Dmaven.test.skip=true |
 | 4、解压 tar.gz 文件，并运行start.bat ![media/b8fb6e187c3b3583ba6a8431fda6dd22.png](media/b8fb6e187c3b3583ba6a8431fda6dd22.png) 如果缺少servlet-api，自行导入servlet-api再访问监控中心 |
 | 5、启动访问8080 ![media/b6a249c1e5079eadb6883883ae32f440.png](media/b6a249c1e5079eadb6883883ae32f440.png) |
@@ -702,7 +702,7 @@ dubbo.protocol.name=dubbo
 
 ## 1、配置原则
 
-![properties-override](dubbo.assets/f41bf11c25691eb94c3bcd0b4e79cd51.jpeg)
+![properties-override](media/f41bf11c25691eb94c3bcd0b4e79cd51.jpeg)
 
 JVM 启动 -D
 参数优先，这样可以使用户在部署和启动时进行参数重写，比如在启动时需改变协议的端口。
@@ -1068,7 +1068,7 @@ Netty基本原理：
 
 ### 2、启动解析、加载配置信息 
 
-![](dubbo.assets/71c303042b6bf2c9db97561da2332c59.png)
+![](media/71c303042b6bf2c9db97561da2332c59.png)
 
 ### 3、服务暴露
 
