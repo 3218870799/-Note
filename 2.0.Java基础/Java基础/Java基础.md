@@ -1035,12 +1035,6 @@ List是元素有序并且可以重复的集合，被称为序列
 
 List可以精确的控制每个元素的插入位置，或删除某个位置元素
 
-JDK1.7 ：ArrayList像饿汉式，直接创建一个初始容量为10的数组
-
-JDK1.8
-ArrayList像懒汉式，一开始创建个长度为0的数组，当添加第一个元素时再创建一个始容量10
-的数组
-
 方法
 
 - `public void add(int index, E element)`: 将指定的元素，添加到该集合中的指定位置上。
@@ -1050,7 +1044,11 @@ ArrayList像懒汉式，一开始创建个长度为0的数组，当添加第一�
 
 ### ArrayList
 
-元素增删慢，查找快，
+JDK1.7 ：ArrayList像饿汉式，直接创建一个初始容量为10的数组
+
+JDK1.8：ArrayList像懒汉式，一开始创建个长度为0的数组，当添加第一个元素时再创建一个始容量10的数组
+
+
 
 动态数组，
 
@@ -3004,37 +3002,74 @@ final修饰，且应在构造器中为其赋值。私有化构造器，保证不
 
 ![](media/5de93b4622394f69cbcf34af5cfbf292.png)
 
-## 4：注解
+## 4：注解Annotation
 
 在代码中嵌入注解，再通过反射拿到
 
-在编译时进行格式检查(JDK内置的三个基本注解)
+### 类型
 
-\@Override: 限定重写父类方法, 该注解只能用于方法
+内置注解：JDK内置的三个基本注解)
 
-\@Deprecated: 用于表示所修饰的元素(类, 方法等)已过时。通常是因为
-所修饰的结构危险或存在更好的选择
+- @Override: 限定重写父类方法, 该注解只能用于方法
 
-\@SuppressWarnings: 抑制编译器警告
 
-自定义注解
+- @Deprecated: 用于表示所修饰的元素(类, 方法等)已过时。通常是因为所修饰的结构危险或存在更好的选择
 
-利用反射获取注解信息
+- @SuppressWarnings: 抑制编译器警告
 
-当一个 Annotation Annotation Annotation Annotation 类型被定义为运行时 Annotation
-Annotation Annotation Annotation 后，该注解 才是 运行时 可见 , 当 class class
-文件被载入时保存在 class class 文件中的 Annotation Annotation Annotation
-Annotation 才会被虚拟 机读取
+元注解：负责解释其他注解
 
-程序可以 调用 AnnotatedElement AnnotatedElementAnnotatedElement
-AnnotatedElement 对象 的如下方法来访问 Annotation Annotation Annotation
-Annotation 信
+- @Target：用于描述注解的使用范围，即：被描述的注解可以在什么地方使用
 
-JDK1.8 JDK1.8 JDK1.8 之后，关于元注解 \@Target\@Target\@Target\@Target
-\@Target\@Target的参数类型 ElementType ElementTypeElementType ElementType
-ElementTypeElementTypeElementType枚举值多了两个：
+JDK1.8以后参数ElementType多了两个枚举值为TYPE_PARAMETER，USE
 
-TYPE_PARAMETER,USE。
+- @Retention：表示需要什么保存该注释信息，用于描述注解的生命周期
+  - 级别范围：Source < Class < Runtime
+- @Document：说明该注解被包含在java doc中
+- @Inherited：说明子类可以集成父类中的注解
+
+
+
+```java
+/**
+ * 定义一个注解
+ */
+@Target(value={ElementType.METHOD, ElementType.TYPE})  // target表示我们注解应用的范围，在方法上，和类上有效
+@Retention(RetentionPolicy.RUNTIME)   // Retention：表示我们的注解在什么时候还有效，运行时候有效
+@Documented   // 表示说我们的注解是否生成在java doc中
+@Inherited   // 表示子类可以继承父类的注解
+@interface MyAnnotation {
+}
+```
+
+
+
+自定义注解：使用 `@interface`自定义注解
+
+```java
+/**
+ * 定义一个注解
+ */
+@Target(value={ElementType.METHOD, ElementType.TYPE})  // target表示我们注解应用的范围，在方法上，和类上有效
+@Retention(RetentionPolicy.RUNTIME)   // Retention：表示我们的注解在什么时候还有效，运行时候有效
+@Documented   // 表示说我们的注解是否生成在java doc中
+@Inherited   // 表示子类可以继承父类的注解
+@interface MyAnnotation {
+
+    // 注解的参数：参数类型 + 参数名()
+    // 通过default来申明参数的默认值
+    String name() default "";
+
+    int age() default 0;
+
+    // 如果默认值为-1，代表不存在
+    int id() default -1;
+
+    String[] schools();
+}
+```
+
+
 
 ## 5：泛型
 
