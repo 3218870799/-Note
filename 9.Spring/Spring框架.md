@@ -1,6 +1,6 @@
 ﻿
 
-{;第1章 Spring 概述
+# 第1章 Spring 概述
 
 ## 1.1 简介
 
@@ -398,55 +398,125 @@ ThreadLocal和线程同步机制都是为了解决多线程中相同变量的访
 
 ### 2.3.4生命周期
 
-Servlet生命周期：实例化，初始化init，接收请求service，销毁destroy
+![image-20200614155732584](media/image-20200614155732584.png)
 
-Bean的生命周期：实例化bean，设置对象属性（DI依赖注入），处理Aware接口，
+Spring容器启动扫描，把BeanName变成BeanDefinition存到BeanDefinitionMap中，然后进行遍历，遍历完成之后。对Spring的BeanDefinition做一系列的验证(是否单例，是否抽象，是否懒加载等等)，验证完成，接着实例化之前，去单例池中看这个bean是否已经被创建，如果没有被创建，再查看是否在二级缓存中，看有没有被提前暴露，如果都没有，则继续执行，创建X对象，然后对对象做一些初始化工作，（填充属性，在填充属性的过程中，他发现X依赖了Y，就会继续走Y的生命周期，）
 
-（1）实例化Bean：
 
-对于BeanFactory容器，当客户向容器请求一个尚未初始化的bean时，或初始化bean的时候需要注入另一个尚未初始化的依赖时，容器就会调用createBean进行实例化。对于ApplicationContext容器，当容器启动结束后，通过获取BeanDefinition对象中的信息，实例化所有的bean。
 
-（2）设置对象属性（依赖注入）：
+**（1）实例化Bean：在堆中开辟空间**
 
-实例化后的对象被封装在BeanWrapper对象中，紧接着，Spring根据BeanDefinition中的信息
-以及 通过BeanWrapper提供的设置属性的接口完成依赖注入。
+对于BeanFactory容器，当客户向容器请求一个尚未初始化的bean时，或初始化bean的时候需要注入另一个尚未初始化的依赖时，容器就会调用createBean进行实例化。
 
-（3）处理Aware接口：
+对于ApplicationContext容器，当容器启动结束后，通过获取BeanDefinition对象中的信息，实例化所有的bean。
 
-接着，Spring会检测该对象是否实现了xxxAware接口，并将相关的xxxAware实例注入给Bean：
+**（2）设置对象属性（依赖注入）：**
 
-①如果这个Bean已经实现了BeanNameAware接口，会调用它实现的setBeanName(String
-beanId)方法，此处传递的就是Spring配置文件中Bean的id值；
+实例化后的对象被封装在BeanWrapper对象中，紧接着，Spring根据BeanDefinition中的信息以及 通过BeanWrapper提供的设置属性的接口完成依赖注入。
+
+**（3）处理Aware接口：一些需要的属性**
+
+接着，Spring会检测该对象是否实现了xxxAware接口，并将相关的xxxAware实例set给Bean：
+
+①如果这个Bean已经实现了BeanNameAware接口，会调用它实现的setBeanName(StringbeanId)方法，此处传递的就是Spring配置文件中Bean的id值；
 
 ②如果这个Bean已经实现了BeanFactoryAware接口，会调用它实现的setBeanFactory()方法，传递的是Spring工厂自身。
 
 ③如果这个Bean已经实现了ApplicationContextAware接口，会调用setApplicationContext(ApplicationContext)方法，传入Spring上下文；
 
-（4）BeanPostProcessor：
+**（4）BeanPostProcessor：：后置处理器（增强器）**
 
-如果想对Bean进行一些自定义的处理，那么可以让Bean实现了BeanPostProcessor接口，那将会调用postProcessBeforeInitialization(Object
-obj, String s)方法。
+两个方法，一个初始化之前的方法，一个初始化之后的方法
 
-（5）InitializingBean 与 init-method：
+如果想对Bean进行一些自定义的处理，那么可以让Bean实现了BeanPostProcessor接口，那将会调用postProcessBeforeInitialization(Object obj, String s)方法。
 
-如果Bean在Spring配置文件中配置了 init-method
-属性，则会自动调用其配置的初始化方法。
+**（5）InitializingBean 与 init-method：对属性进行赋值**
 
-（6）如果这个Bean实现了BeanPostProcessor接口，将会调用postProcessAfterInitialization(Object
-obj, String
-s)方法；由于这个方法是在Bean初始化结束时调用的，所以可以被应用于内存或缓存技术；
+如果Bean在Spring配置文件中配置了 init-method属性，则会自动调用其配置的初始化方法。
+
+（6）如果这个Bean实现了BeanPostProcessor接口，将会调用**postProcessAfterInitialization(Object obj, String s)方法**；由于这个方法是在Bean初始化结束时调用的，所以可以被应用于内存或缓存技术；
 
 以上几个步骤完成后，Bean就已经被正确创建了，之后就可以使用这个Bean了。
 
-（7）DisposableBean：
+**（7）DisposableBean：**
 
 当Bean不再需要时，会经过清理阶段，如果Bean实现了DisposableBean这个接口，会调用其实现的destroy()方法；
 
-（8）destroy-method：
+**（8）destroy-method：**
 
 最后，如果这个Bean的Spring配置中配置了destroy-method属性，会自动调用其配置的销毁方法。
 
-## 2.3 基于 XML 的 DI 
+### 2.3.5：循环依赖
+
+1：什么是循环依赖？
+
+A依赖B，B依赖A，Spring容器启动时会创建对象时就会产生循环依赖。
+
+
+
+2：循环依赖怎么解决？
+
+给B中A赋值的方法：set方法和构造器的方法，当使用构造器是不能解决的，当使用set的方法时可以使用三级缓存解决。
+
+
+
+3：Spring中为什么要使用三级缓存解决循环依赖
+
+
+
+**源码分析循环依赖的创建过程**
+
+在项目启动时refresh方法，创建对象
+
+源码中：
+
+singletonObjects
+
+earlySingletonObjects
+
+singletonFactories
+
+分别代表一二三级缓存
+
+
+
+获取单例实例
+
+先从一级缓存中是否有对象，如果该对象正在创建（发生了循环依赖）
+
+一级缓存没有，调三级缓存singletonFactory
+
+<img src="media/image-20210114161822547.png" alt="image-20210114161822547"  />
+
+三级缓存的类型是ObjectFactory
+
+![image-20210114162006289](media/image-20210114162006289.png)
+
+
+
+先实例化A放到三级缓存，给A注入实例化B，放到三级缓存，给B赋值从三级缓存获取A，此时发现A没有注入完成，将放入二级缓存，然后将三级缓存中的A清除掉，直接返回给B，使B完成初始化，此时B还在三级缓存，
+
+![image-20210114164037272](media/image-20210114164037272.png)
+
+然后将B放入到一级缓存，然后将三级缓存中的B清除掉，然后再初始化注入A，
+
+为什么使用构造器不能解决循环依赖问题？
+
+此方式是通过实例化和初始化的方式，使用构造器必须使用构造方法，就必须将实例化与初始化搞到一起，
+
+为什么二级缓存不能解决循环依赖问题？
+
+不能，在三个级别的缓存中放的对象是有区别的，一级放的是实例化初始化的对象，二级放的是实例化未初始化的，三级缓存放实例化和匿名内部类，如果只有一级缓存，并发环境下就有可能取到实例化未初始化的值；
+
+三级缓存的匿名内部类，这个匿名内部类可能是代理类，也可能是普通的实例对象，而使用三级缓存就保证了不管是否都能保证使用的是一个对象，而不会出现前面使用bean，后面使用代理类的情况
+
+
+
+## 2.3 基于 XML 的 DI
+
+property注入属性，还有构造方法注入属性，还有map，list等数据结构注入的方式又是什么？P命名空间注入
+
+不再写 `<bean>` 标签，使用注解方式
 
 ### 2.3.1 注入分类 
 
@@ -491,11 +561,46 @@ Spring 配置文件：
 
 ![](media/ac9a4ef8eca9d6408aa68fe23a15975d.jpg)
 
+C、特殊类型
+
+使用![CDATA[]]注入特殊字符><=等符号
+
+注入list
+
+```xml
+<property name="list">
+    <list>
+        <value>篮球</value>
+    </list>
+</property>
+```
+
+注入set类似
+
+注入map
+
+```xml
+<property>
+    <map>
+        <entry>
+            <key>
+                <value>football</value>
+            </key>
+            <value>足球</value>
+        </entry>
+    </map>
+</property>
+```
+
+注入Properties
+
 #### （2） 构造注入(理解) 
 
 构造注入是指，在构造调用者实例的同时，完成被调用者的实例化。即，使用构造器设置依赖关系。
 
 举例 1：
+
+如果有了有参构造，那默认的无参构造器就失效了，尽量还是要把无参的写出来
 
 ![](media/5a8ddbaeb317024a76770ebb675fdb04.jpg)
 
@@ -504,9 +609,9 @@ Spring 配置文件：
 \<constructor-arg /\>标签中用于指定参数的属性有：
 
 -   name：指定参数名称。
+-   index：指明该参数对应着构造器的第几个参数，从 0开始。不过，该属性不要也行，但要注意，若参数类型相同，或之间有包含关系，则需要保证赋值顺序要与构造器中的参数顺序一致。
 
--   index：指明该参数对应着构造器的第几个参数，从 0
-    开始。不过，该属性不要也行，但要注意，若参数类型相同，或之间有包含关系，则需要保证赋值顺序要与构造器中的参数顺序一致。
+必须与构造方法的一样的参数数量，不够灵活。
 
 举例 2：使用构造注入创建一个系统类 **File** 对象
 
@@ -516,11 +621,22 @@ Spring 配置文件：
 
 ![](media/bbe27d2f0a03b05066eb907202f8e65e.jpg)
 
+#### （3）P命名空间注入
+
+其实还是依赖的setter方法注入
+
+```xml
+<bean id = "user3" class = "com,xqc.entity.User"
+      p:userName = "娃娃" p:age = "20" p:gender="男">
+</bean>
+<!--如果是一个外部类，使用p:gender-ref = ""-->
+```
+
+
+
 ### 2.3.2 引用类型属性自动注入 
 
-对于引用类型属性的注入，也可不在配置文件中显示的注入。可以通过为\<bean/\>标签设置
-autowire
-属性值，为引用类型属性进行隐式自动注入（默认是不自动注入引用类型属性）。根据自动注入判断标准的不同，可以分为两种：
+对于引用类型属性的注入，也可不在配置文件中显示的注入。可以通过为\<bean/\>标签设置autowire属性值，为引用类型属性进行隐式自动注入（默认是不自动注入引用类型属性）。根据自动注入判断标准的不同，可以分为两种：
 byName：根据名称自动注入  byType： 根据类型自动注入
 
 #### **（**1**）** byName **方式自动注入** 
@@ -578,7 +694,7 @@ spring-\*.xml 的格式，即不能起名为 spring-total.xml。
 
 自动装配：在spring中，对象无需自己查找或创建与其关联的其他对象，由容器负责把需要相互协作的对象引用赋予各个对象，使用autowire来配置自动装载模式。
 
-在Spring框架xml配置中共有5种自动装配：
+在Spring框架xml配置中共有5种**自动装配：**
 
 （1）no：默认的方式是不进行自动装配的，通过手工设置ref属性来进行装配bean。
 
@@ -683,7 +799,7 @@ public class Student{
 
 ### 2.4.3 byType 自动注入@Autowired(掌握) 
 
-需要在引用属性上使用注解@Autowired，该注解默认使用按类型自动装配 Bean的方式。使用该注解完成属性注入时，类中无需 setter。当然，若属性有
+需要在引用属性上使用注解@Autowired，该注解**默认使用按类型自动装配** Bean的方式。使用该注解完成属性注入时，类中无需 setter。当然，若属性有
 setter，则也可将其加到 setter 上。
 
 ```java
@@ -710,7 +826,7 @@ public class Student{
 
 ### 2.4.5 JDK 注解@Resource 自动注入(掌握) 
 
-Spring 提供了对 jdk 中@Resource 注解的支持。@Resource 注解既可以按名称匹配Bean，也可以按类型匹配 Bean。默认是按名称注入。使用该注解，要求 JDK 必须是 6及以上版本。
+Spring 提供了对 jdk 中@Resource 注解的支持。**@Resource** 注解既可以按名称匹配Bean，也可以按类型匹配 Bean。**默认是按名称注入**。使用该注解，要求 JDK 必须是 6及以上版本。
 
 @Resource 可在属性上，也可在 set 方法上。
 
@@ -1272,269 +1388,6 @@ AspectJ 提供了\@Pointcut 注解，用于定义 execution 切入点表达式�
 
 ![](media/7b2a84ce0a9c9da48f8271c354a72b0c.jpg)
 
-# 第**4**章 **Spring** 集成 **MyBatis** 
-
-将 MyBatis 与 Spring 进行整合，主要解决的问题就是将 SqlSessionFactory 对象交由
-Spring 来管理。所以，该整合，只需要将 SqlSessionFactory 的对象生成器
-SqlSessionFactoryBean 注册在 Spring 容器中，再将其注入给 Dao
-的实现类即可完成整合。实现 Spring 与 MyBatis 的整合常用的方式：扫描的 Mapper
-动态代理
-
-Spring 像插线板一样，mybatis 框架是插头，可以容易的组合到一起。插线板 spring
-插上 mybatis，两个框架就是一个整体。
-
-## 4.1.1 MySQL 创建数据库 springdb,新建表 Student 
-
-![](media/8cd6da9e09775199be2ed7eedffed4df.jpg)
-
-## 4.1.2 maven 依赖 pom.xml 
-
->   \<dependency\>
-
-\<groupId\>junit\</groupId\>
-
-\<artifactId\>junit\</artifactId\>
-
-\<version\>4.11\</version\>
-
-\<scope\>test\</scope\>
-
-\</dependency\>
-
-\<dependency\>
-
-\<groupId\>org.springframework\</groupId\>
-
-\<artifactId\>spring-context\</artifactId\>
-
-\<version\>5.2.5.RELEASE\</version\>
-
-\</dependency\>
-
-\<dependency\>
-
-\<groupId\>org.springframework\</groupId\>
-
-\<artifactId\>spring-tx\</artifactId\>
-
-\<version\>5.2.5.RELEASE\</version\>
-
-\</dependency\>
-
-\<dependency\>
-
-\<groupId\>org.springframework\</groupId\>
-
-\<artifactId\>spring-jdbc\</artifactId\>
-
-\<version\>5.2.5.RELEASE\</version\>
-
-\</dependency\>
-
-\<dependency\>
-
-\<groupId\>org.mybatis\</groupId\>
-
-\<artifactId\>mybatis\</artifactId\>
-
-\<version\>3.5.1\</version\>
-
-\</dependency\>
-
-\<dependency\>
-
-\<groupId\>org.mybatis\</groupId\>
-
-\<artifactId\>mybatis-spring\</artifactId\>
-
-\<version\>1.3.1\</version\>
-
-\</dependency\>
-
-\<dependency\>
-
-\<groupId\>mysql\</groupId\>
-
-\<artifactId\>mysql-connector-java\</artifactId\>
-
-\<version\>5.1.9\</version\>
-
-\</dependency\>
-
-\<dependency\>
-
-\<groupId\>com.alibaba\</groupId\>
-
-\<artifactId\>druid\</artifactId\>
-
-\<version\>1.1.12\</version\>
-
-\</dependency\>
-
->   插件：
-
->   \<build\>
-
->   \<resources\>
-
->   \<resource\>
-
->   \<directory\>src/main/java\</directory\>\<!--所在的目录--\>
-
->   \<includes\>\<!--包括目录下的.properties,.xml文件都会扫描到--\>
-
->   \<include\>\*\*/\*.properties\</include\>
-
->   \<include\>\*\*/\*.xml\</include\>
-
->   \</includes\>
-
->   \<filtering\>false\</filtering\>
-
->   \</resource\>
-
->   \</resources\>
-
->   \<plugins\>
-
->   \<plugin\>
-
->   \<artifactId\>maven-compiler-plugin\</artifactId\>
-
->   \<version\>3.1\</version\>
-
->   \<configuration\>
-
->   \<source\>1.8\</source\>
-
->   \<target\>1.8\</target\>
-
->   \</configuration\>
-
->   \</plugin\>
-
->   \</plugins\>
-
->   \</build\>
-
-## 4.1.3 定义实体类 Student 
-
-![](media/448fd00c62736bf0f8178eb1d9aa1cc0.jpg)
-
-## 4.1.4 定义 StudentDao 接口 
-
-![](media/c3be9f734c21460b48d5433f1e619541.jpg)
-
-## 4.1.5 定义映射文件 mapper 
-
-在 Dao 接口的包中创建 MyBatis 的映射文件 mapper，命名与接口名相同，本例为
-StudentDao.xml。mapper 中的 namespace 取值也为 Dao 接口的全限定性名。
-
-![](media/4fc8e7bbcf5e2174f7649966bee40b5f.jpg)
-
-## 4.1.6 定义 Service 接口和实现类 
-
-接口定义：
-
-![](media/7c1bb1ce551ba0430efecdacd7eaead9.jpg)
-
-实现类定义：
-
-![](media/18ebe1c1d6bb7c9ca68cb959dc9beb1e.jpg)
-
-## 4.1.7 定义 MyBatis 主配置文件 
-
-在 src 下定义 MyBatis 的主配置文件，命名为 mybatis.xml。
-
-这里有两点需要注意：
-
-1.  主配置文件中不再需要数据源的配置了。因为数据源要交给 Spring 容器来管理了。
-
-2.  这里对 mapper 映射文件的注册，使用\<package/\>标签，即只需给出 mapper
-    映射文件所在的包即可。因为 mapper 的名称与 Dao
-    接口名相同，可以使用这种简单注册方式。这种方式的好处是，若有多个映射文件，这里的配置也是不用改变的。当然，也可使用原来的
-
-\<resource/\>标签方式。
-
-![](media/f9fe9dfef519a80fdce4f0ed2614b5be.jpg)
-
-## 4.1.8 修改 Spring 配置文件 
-
-（1） 数据源的配置(掌握)
-
-使用 JDBC 模板，首先需要配置好数据源，数据源直接以 Bean 的形式配置在 Spring 配
-
-置文件中。根据数据源的不同，其配置方式不同：
-
-Druid 数据源 DruidDataSource
-
-Druid 是阿里的开源数据库连接池。是 Java 语言中最好的数据库连接池。Druid
-能够提供强大的监控和扩展功能。Druid 与其他数据库连接池的最大区别是提供数据库的
-
-官网[：](https://github.com/alibaba/druidhttps://github.com/alibaba/druid)
-[](https://github.com/alibaba/druid)使用地址：https://github.com/alibaba/druid/wiki/常见问题
-
-配置连接池：
-
-![](media/75e1bb9b1bd0735d8226cddbc596f1b2.jpg)
-
-Spring 配置文件：
-
-![](media/e4acf663605db9e6c67929a308e1917f.jpg)
-
-（2） 从属性文件读取数据库连接信息
-
-为了便于维护，可以将数据库连接信息写入到属性文件中，使 Spring
-配置文件从中读取数据。
-
-属性文件名称自定义，但一般都是放在 src 下。
-
-![](media/491a90b3ae518899248e51bff0bd5f89.jpg)
-
-Spring 配置文件从属性文件中读取数据时，需要在\<property/\>的 value 属性中使用\${
-}，将在属性文件中定义的 key 括起来，以引用指定属性的值。
-
-![](media/d3ef0277fcae8c2e11c70120d83e070b.jpg)
-
-该属性文件若要被 Spring
-配置文件读取，其必须在配置文件中进行注册。使用\<context\>
-
-标签。
-
-**\<context:property-placeholder/\>**方式**(**掌握**)**
-
-该方式要求在 Spring 配置文件头部加入 spring-context.xsd 约束文件
-
-\<context:property-placeholder/\>标签中有一个属性
-location，用于指定属性文件的位置。
-
-![](media/bdefbf600aae79cc9c125d1a4c4d3d1f.jpg)
-
-（3） 注册 SqlSessionFactoryBean
-
-![](media/34afd8d374c0ea6340bdb1f53883c4d5.jpg)
-
-（4） 定义 Mapper 扫描配置器 MapperScannerConfigurer
-
-Mapper 扫描配置器 MapperScannerConfigurer 会自动生成指定的基本包中 mapper
-的代理对象。该 Bean 无需设置 id 属性。basePackage 使用分号或逗号设置多个包。
-
-![](media/20fc262db0e829d863a7736ec0d19f0e.jpg)
-
-## 4.1.9 向 Service 注入接口名 
-
->   向 Service 注入 Mapper 代理对象时需要注意，由于通过 Mapper 扫描配置器
-
-MapperScannerConfigurer 生成的 Mapper 代理对象没有名称，所以在向 Service 注入
-Mapper 代理时，无法通过名称注入。但可通过接口的简单类名注入，因为生成的是这个
-Dao 接口的对象。
-
-![](media/58e7ed28afe00fd389f7d8175a3bb751.jpg)
-
-## 4.1.10 Spring 配置文件全部配置 
-
-![](media/baa908009f6a1810306b01e7135cf164.jpg)
-
 # 第**5**章 **Spring** 事务 
 
 ## 回顾
@@ -1656,9 +1509,8 @@ RuntimeException 的子类，那么定义的就是受查异常。
 
 >   这些常量均是以 ISOLATION_开头。即形如 ISOLATION_XXX。
 
--   DEFAULT(isolation_default)：采用 DB 默认的事务隔离级别。MySql 的默认为
-    REPEATABLE_READ； Oracle 默认为 READ_COMMITTED。
-
+-   DEFAULT(isolation_default)：采用 DB 默认的事务隔离级别。MySql 的默认为REPEATABLE_READ； Oracle 默认为 READ_COMMITTED。
+    
 -   READ_UNCOMMITTED（isolation_read_uncommitted）：读未提交。未解决任何并发问题。
     **允许另外一个事务可以看到这个事务未提交的数据。**
 
@@ -1695,7 +1547,7 @@ PROPAGATION\_ 开头，形如 PROPAGATION_XXX。
 
 a**、** PROPAGATION_REQUIRED （propagation_required）
 
-指定的方法必须在事务内执行。若当前存在事务，就加入到当前事务中；若当前没有事务，则创建一个新事务。这种传播行为是最常见的选择，也是
+指定的方法必须在事务内执行。**若当前存在事务，就加入到当前事务中；若当前没有事务，则创建一个新事务**。这种传播行为是最常见的选择，也是
 Spring 默认的事务传播行为。如该传播行为加在 doOther()方法上。若
 doSome()方法在调用 doOther()方法时就是在事务内运行的，则
 doOther()方法的执行也加入到该事务内执行。若 doSome()方法在调用
@@ -1715,14 +1567,13 @@ c**、** PROPAGATION_REQUIRES_NEW (propagation_requires_new)
 
 ![](media/4df275eef6022f7608416d922e3deda0.jpg)
 
-**D：PROPAGATION_MANDATORY：支持当前事务，如果当前存在事务，就加入该事务，如果当前不存在事务，就抛出异常。**
+**D：PROPAGATION_MANDATORY（propagation_mandatory）：支持当前事务，如果当前存在事务，就加入该事务，如果当前不存在事务，就抛出异常。**
 
-**E:
-PROPAGATION_NOT_SUPPORTED：以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。**
+**E:PROPAGATION_NOT_SUPPORTED（Propagation_not_supported）：以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。**
 
-**F:** PROPAGATION_NEVER：**以非事务方式执行，如果当前存在事务，则抛出异常。**
+**F:** PROPAGATION_NEVER(propagation_never)：**以非事务方式执行，如果当前存在事务，则抛出异常。**
 
-**G：PROPAGATION_NESTED：如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则按REQUIRED属性执行。**
+**G：PROPAGATION_NESTED(propagation_nested)：如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则按REQUIRED属性执行。**
 
 #### **C**、 默认事务超时时限 
 
@@ -1738,7 +1589,7 @@ PROPAGATION_NOT_SUPPORTED：以非事务方式执行操作，如果当前存在�
 
 实现步骤：
 
-#### **Step0**：创建数据库表 
+**Step0**：创建数据库表 
 
 创建两个数据库表 sale , goods sale 销售表
 
@@ -1752,7 +1603,7 @@ PROPAGATION_NOT_SUPPORTED：以非事务方式执行操作，如果当前存在�
 
 ![](media/e0c9b8437746e4505f0e64d2a49465d3.jpg)
 
-#### **Step1: maven** 依赖 **pom.xml** 
+**Step1: maven** 依赖 **pom.xml** 
 
 >   \<dependency\>
 
@@ -1882,19 +1733,19 @@ PROPAGATION_NOT_SUPPORTED：以非事务方式执行操作，如果当前存在�
 
 >   \</build\>
 
-#### **Step2**：创建实体类 
+**Step2**：创建实体类 
 
 创建实体类 Sale 与 Goods
 
 ![](media/2e81e820ff99b9d7f5265081176be24b.jpg)
 
-#### **Step3**：定义 **dao** 接口 
+**Step3**：定义 **dao** 接口 
 
 >   定义两个 dao 的接口 SaleDao , GoodsDao
 
 ![](media/1ac9ec3fbf3308f7173b923dfc0918b1.jpg)
 
-#### **Step4**：定义 **dao** 接口对应的 **sql** 映射文件 
+**Step4**：定义 **dao** 接口对应的 **sql** 映射文件 
 
 SaleDao.xml
 
@@ -1904,19 +1755,19 @@ SaleDao.xml
 
 ![](media/5292f0bd23523c1ba7720b7382e4816c.jpg)
 
-#### **Step5**：定义异常类 
+**Step5**：定义异常类 
 
 定义 service 层可能会抛出的异常类 NotEnoughException
 
 ![](media/d2412910c9655dbf9ba811bd76e9f805.jpg)
 
-#### **Step6**：定义 **Service** 接口 
+**Step6**：定义 **Service** 接口 
 
 定义 Service 接口 BuyGoodsService
 
 ![](media/4b3e2a719a60602a1f6c6b78b22615f8.jpg)
 
-#### **Step7**：定义 **service** 的实现类 
+**Step7**：定义 **service** 的实现类 
 
 定义 service 层接口的实现类 BuyGoodsServiceImpl
 
@@ -1932,7 +1783,7 @@ SaleDao.xml
 
 ![](media/ccfcda355297cd19d12eb068c4db533b.jpg)
 
-#### **Step8**：修改 **Spring** 配置文件内容 
+**Step8**：修改 **Spring** 配置文件内容 
 
 声明 **Mybatis** 对象
 
@@ -1942,7 +1793,7 @@ SaleDao.xml
 
 ![](media/7732e60058711a1af73a5739d23d176c.jpg)
 
-#### **Step9**：定义测试类 
+**Step9**：定义测试类 
 
 定义测试类 MyTest。现在就可以在无事务代理的情况下运行了。
 
@@ -2261,3 +2112,6 @@ Spring 容器对象：getRequiredWebApplicationContext(ServletContext sc)
 Spring 容器均为同一个对象。
 
 ![](media/4015353aeb5991dc66b1793a36858473.jpg)
+
+
+
