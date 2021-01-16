@@ -21,6 +21,14 @@
 
 ### 概述
 
+体系
+
+![image-20210104092014718](media/image-20210104092014718.png)
+
+
+
+
+
 **日志门面**
 
 日志门面定义了一组日志的接口规范，它并不提供底层具体的实现逻辑。`Apache Commons Logging` 和 `Slf4j` 就属于这一类。
@@ -112,7 +120,7 @@ JCL
 
 
 
-SLF4j
+### SLF4j
 
 意思为如果你想用slf4j作为日志门面的话，你如何去配合使用其他日志实现组件，这里说明一下（注意jar包名缺少了版本号，在找版本时也要注意版本之间是否兼容）
 
@@ -120,6 +128,24 @@ SLF4j
 - slf4j + log4j`slf4j-api.jar` + `slf4j-log4j12.jar` + `log4j.jar`
 - slf4j + jul`slf4j-api.jar` + `slf4j-jdk14.jar`
 - 也可以只用slf4j无日志实现`slf4j-api.jar` + `slf4j-nop.jar`
+
+以后开发的时候，日志记录方法的调用，不应该来直接调用日志的实现类，而是调用日志抽象层里面的方法；
+
+给系统里面导入slf4j的jar和  logback的实现jar
+
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class HelloWorld {
+  public static void main(String[] args) {
+    Logger logger = LoggerFactory.getLogger(HelloWorld.class);
+    logger.info("Hello World");
+  }
+}
+```
+
+
 
 
 
