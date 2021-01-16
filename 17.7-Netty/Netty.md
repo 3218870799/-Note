@@ -259,6 +259,18 @@ Netty架构设计
 
 ### 零拷贝
 
+netty提供了零拷贝的buffer，在传输数据时，最终处理的数据会需要对单个传输的报文，进行组合和拆分，Nio原生的ByteBuffer无法做到，netty通过提供的Composite(组合)和Slice(拆分)两种buffer来实现零拷贝；
+
+![image-20210116162454049](media/image-20210116162454049.png)
+
+
+
+
+
+
+
+
+
 
 
 ## 模块组件
