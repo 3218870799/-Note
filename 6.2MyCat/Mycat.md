@@ -1,4 +1,4 @@
-# 认识Mycat
+# Mycat
 
 ## Mycat背景
 
