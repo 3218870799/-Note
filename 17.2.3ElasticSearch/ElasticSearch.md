@@ -175,9 +175,9 @@ http://202.193.56.222:9200/
 
 如果你在启动的时候，遇到过问题，那么请参考下面的错误分析~
 
-## 错误分析
+错误分析
 
-### 错误情况1
+错误情况1
 
 如果出现下面的错误信息
 
@@ -204,7 +204,7 @@ For complete error details, refer to the log at /soft/elsearch/logs/elasticsearc
 su - elsearch
 ```
 
-### 错误情况2
+错误情况2
 
 ```bash
 [1]:max file descriptors [4096] for elasticsearch process is too low, increase to at least[65536]
@@ -222,7 +222,7 @@ vi /etc/security/limits.conf
 * hard nproc 4096
 ```
 
-### 错误情况3
+错误情况3
 
 ```bash
 [2]: max number of threads [1024] for user [elsearch] is too low, increase to at least
@@ -240,7 +240,7 @@ vi /etc/security/limits.d/90-nproc.conf
 * soft nproc 4096
 ```
 
-### 错误情况4
+错误情况4
 
 ```bash
 [3]: system call filters failed to install; check the logs and fix your configuration
@@ -256,7 +256,7 @@ bootstrap.system_call_filter: false
 bootstrap.memory_lock: false
 ```
 
-### 错误情况5
+错误情况5
 
 ```bash
 [elsearch@e588039bc613 bin]$ Exception in thread "main" org.elasticsearch.bootstrap.BootstrapException: java.nio.file.AccessDeniedException: /soft/elsearch/config/elasticsearch.keystore
@@ -291,7 +291,7 @@ Likely root cause: java.nio.file.AccessDeniedException: /soft/elsearch/config/el
 chown elsearch:elsearch elasticsearch.keystore
 ```
 
-### 错误情况6
+错误情况6
 
 ```bash
 [1]: the default discovery settings are unsuitable for production use; at least one of [discovery.seed_hosts, discovery.seed_providers, cluster.initial_master_nodes] must be configured
@@ -2248,3 +2248,92 @@ public class ESHightApi {
 }
 ```
 
+# 第九章：ES的基本原理
+
+## ES写数据过程
+
+- 客户端选择一个 node 发送请求过去，这个 node 就是 `coordinating node`（协调节点）。
+
+- `coordinating node` 对 document 进行**路由** ，将请求转发给对应的 node（有 primary shard）。
+
+- 实际的 node 上的 `primary shard` 处理请求，然后将数据同步到 `replica node`。
+
+- ```
+  coordinating node
+  ```
+
+  如果发现
+
+  ```
+  primary node
+  ```
+
+  和所有
+
+  ```
+  replica node
+  ```
+
+  都搞定之后，就返回响应结果给客户端。
+
+## es 读数据过程
+
+可以通过 `doc id` 来查询，会根据 `doc id` 进行 hash，判断出来当时把 `doc id` 分配到了哪个 shard 上面去，从那个 shard 去查询。
+
+- 客户端发送请求到**任意** 一个 node，成为 `coordinate node`。
+- `coordinate node` 对 `doc id` 进行哈希路由，将请求转发到对应的 node，此时会使用 `round-robin` **随机轮询算法** ，在 `primary shard` 以及其所有 replica 中随机选择一个，让读请求负载均衡。
+- 接收请求的 node 返回 document 给 `coordinate node`。
+- `coordinate node` 返回 document 给客户端。
+
+## es 搜索数据过程
+
+es 最强大的是做全文检索，就是比如你有三条数据：
+
+```
+java真好玩儿啊
+java好难学啊
+j2ee特别牛
+```
+
+你根据 `java` 关键词来搜索，将包含 `java`的 `document` 给搜索出来。es 就会给你返回：java真好玩儿啊，java好难学啊。
+
+- 客户端发送请求到一个 `coordinate node`。
+- 协调节点将搜索请求转发到**所有** 的 shard 对应的 `primary shard` 或 `replica shard`，都可以。
+- query phase：每个 shard 将自己的搜索结果（其实就是一些 `doc id`）返回给协调节点，由协调节点进行数据的合并、排序、分页等操作，产出最终结果。
+- fetch phase：接着由协调节点根据 `doc id` 去各个节点上**拉取实际** 的 `document` 数据，最终返回给客户端。
+
+## 倒排索引
+
+在搜索引擎中，每个文档都有一个对应的文档 ID，文档内容被表示为一系列关键词的集合。例如，文档 1 经过分词，提取了 20 个关键词，每个关键词都会记录它在文档中出现的次数和出现位置。
+
+那么，倒排索引就是**关键词到文档** ID 的映射，每个关键词都对应着一系列的文件，这些文件中都出现了关键词。
+
+有以下文档：
+
+| DocId | Doc                                            |
+| :---- | :--------------------------------------------- |
+| 1     | 谷歌地图之父跳槽 Facebook                      |
+| 2     | 谷歌地图之父加盟 Facebook                      |
+| 3     | 谷歌地图创始人拉斯离开谷歌加盟 Facebook        |
+| 4     | 谷歌地图之父跳槽 Facebook 与 Wave 项目取消有关 |
+| 5     | 谷歌地图之父拉斯加盟社交网站 Facebook          |
+
+对文档进行分词之后，得到以下**倒排索引** 。
+
+| WordId | Word     | DocIds    |
+| :----- | :------- | :-------- |
+| 1      | 谷歌     | 1,2,3,4,5 |
+| 2      | 地图     | 1,2,3,4,5 |
+| 3      | 之父     | 1,2,4,5   |
+| 4      | 跳槽     | 1,4       |
+| 5      | Facebook | 1,2,3,4,5 |
+| 6      | 加盟     | 2,3,5     |
+| 7      | 创始人   | 3         |
+| 8      | 拉斯     | 3,5       |
+| 9      | 离开     | 3         |
+| 10     | 与       | 4         |
+| ..     | ..       | ..        |
+
+另外，实用的倒排索引还可以记录更多的信息，比如文档频率信息，表示在文档集合中有多少个文档包含某个单词。
+
+那么，有了倒排索引，搜索引擎可以很方便地响应用户的查询。比如用户输入查询 `Facebook`，搜索系统查找倒排索引，从中读出包含这个单词的文档，这些文档就是提供给用户的搜索结果。
