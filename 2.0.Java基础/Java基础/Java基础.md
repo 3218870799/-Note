@@ -408,6 +408,18 @@ FlyAble f = new FlyAble(){
 当一个类，既继承一个父类，又实现若干个接口时，父类中的成员方法与接口中的默认方法重名，子类就近选择执
 行父类的成员方法。
 
+
+
+继承一个抽象类，实现多个接口
+
+
+
+Java为什么只能单继承？
+
+多继承的菱形继承问题
+
+<img src="media/image-20210117214212583.png" alt="image-20210117214212583" style="zoom:33%;" />
+
 ## 5：方法
 
 ### 5.1：构造方法
@@ -1558,9 +1570,9 @@ System.out.println("通过Map.values()遍历所有的value，但不能遍历key"
 
 
 
-
-
 ## 7：位集合类BitSet
+
+
 
 
 
@@ -2665,9 +2677,7 @@ Block IO：jdk最早抽象出的IO体系，jdk1.0的io体系是阻塞的。
 
 ## 11：NIO
 
-Java NIO (New IO，Non-Blocking IO)是从Java 1.4版本开始引入的一套新的IO
-API，可以替代标准的Java IO
-API。NIO与原来的IO有同样的作用和目的，但是使用的方式完全不同，NIO支持面向缓冲区的(IO是面向流的)、基于通道的IO操作。NIO将以更加高效的方式进行文件的读写操作。
+Java NIO (New IO，Non-Blocking IO)是从Java 1.4版本开始引入的一套新的IO API，可以替代标准的Java IO API。NIO与原来的IO有同样的作用和目的，但是使用的方式完全不同，NIO支持面向缓冲区的(IO是面向流的)、基于通道的IO操作。NIO将以更加高效的方式进行文件的读写操作。
 
 Java API中提供了两套NIO，一套是针对标准输入输出NIO，另一套就是网络编程NIO。
 
