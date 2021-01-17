@@ -1,5 +1,3 @@
-Git&GitHub
-
 # 一： 版本控制工具应该具备的功能
 
 -   协同修改
@@ -309,14 +307,15 @@ git log --pretty=oneline
 
     git checkout [分支名]
 
--   合并分支
+- 合并分支
 
-    -   第一步：切换到接受修改的分支（被合并，增加新内容）上 git checkout
-        [被合并分支名]
+  -   第一步：切换到接受修改的分支（被合并，增加新内容）上
+      
+   git checkout [被合并分支名]
+      
+  -   第二步：执行 merge 命令
 
-    -   第二步：执行 merge 命令
-
-        git merge [有新内容分支名]
+      git merge [有新内容分支名]
 
 -   解决冲突
 
@@ -335,6 +334,17 @@ git log --pretty=oneline
             -   第四步：git commit -m "日志信息"
 
                 注意：此时 commit 一定不能带具体文件名
+
+### rebase
+
+采用merger和rebase后，git log的区别：
+
+**merge命令不会保留merge的分支的commit**：
+
+处理冲突的方式：
+
+- （一股脑）使用`merge`命令合并分支，解决完冲突，执行`git add .`和`git commit -m'fix conflict'`。这个时候会产生一个commit。
+- （交互式）使用`rebase`命令合并分支，解决完冲突，执行`git add .`和`git rebase --continue`，不会产生额外的commit。这样的好处是，‘干净’，分支上不会有无意义的解决分支的commit；坏处，如果合并的分支中存在多个`commit`，需要重复处理多次冲突。
 
 # 五：Git 基本原理
 
@@ -686,8 +696,7 @@ git log --pretty=oneline
 
 ### **8.2.2 GitFlow** 工作流
 
->   Gitflow
->   工作流通过为功能开发、发布准备和维护设立了独立的分支，让发布迭代过程更流畅。严格的分支模型也为大型项目提供了一些非常必要的结构。
+>   Gitflow工作流通过为功能开发、发布准备和维护设立了独立的分支，让发布迭代过程更流畅。严格的分支模型也为大型项目提供了一些非常必要的结构。
 
 ![](media/33fc9540104ae3882bd6bf55ce6723a5.png)
 
@@ -849,3 +858,12 @@ gitlab-**c**e 当前步骤完成后重启。
 ![](media/62ea2218faa90a35b9dc8981349e30fb.png)
 
 3：推送到远程库
+
+
+
+# 十二：问题
+
+
+
+
+
