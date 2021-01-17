@@ -3401,6 +3401,18 @@ String[] str = fun.apply(20);
 System.out.println(str.length);
 ```
 
+**lambda表达式与方法引用的取舍？**
+
+优先使用lambdas表达式而不是匿名类
+
+优先使用方法引用而不是lambdas
+
+lambdas表达式能做到方法引用做不到的？？
+
+lambdas表达式可以捕获外围词法的变量，但是方法引用不行，方法引用只能将其传进去。
+
+方法引用更短更清楚的时候使用方法引用，，否则使用lambdas表示
+
 
 
 ## 2：Stream
