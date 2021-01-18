@@ -2,108 +2,81 @@
 
 ### 1.1、SQL概述 
 
-SQL，一般发音为sequel，SQL的全称Structured Query
-Language)，SQL用来和数据库打交道，完成和数据库的通信，SQL是一套标准。但是每一个数据库都有自己的特性别的数据库没有,当使用这个数据库特性相关的功能,这时SQL语句可能就不是标准了.(90%以上的SQL都是通用的)
+SQL，一般发音为sequel，SQL的全称Structured QueryLanguage)，SQL用来和数据库打交道，完成和数据库的通信，SQL是一套标准。但是每一个数据库都有自己的特性别的数据库没有,当使用这个数据库特性相关的功能,这时SQL语句可能就不是标准了.(90%以上的SQL都是通用的)
 
 ### 1.2、什么是数据库 
 
-数据库，通常是一个或一组文件，保存了一些符合特定规格的数据,数据库对应的英语单词是DataBase,简称:DB,数据库软件称为数据库管理系统（DBMS），全称为DataBase
-Management System，如：Oracle、SQL
-Server、MySql、Sybase、informix、DB2、interbase、PostgreSql 。
+数据库，通常是一个或一组文件，保存了一些符合特定规格的数据,数据库对应的英语单词是DataBase,简称:DB,数据库软件称为数据库管理系统（DBMS），全称为DataBase Management System，如：Oracle、SQLServer、MySql、Sybase、informix、DB2、interbase、PostgreSql 。
 
 ### 1.3、MySql概述 
 
-MySQL最初是由“MySQL AB”公司开发的一套关系型数据库管理系统（RDBMS-Relational
-Database Mangerment System）。
+MySQL最初是由“MySQL AB”公司开发的一套关系型数据库管理系统（RDBMS-RelationalDatabase Mangerment System）。
 
 MySQL不仅是最流行的开源数据库，而且是业界成长最快的数据库，每天有超过7万次的下载量，其应用范围从大型企业到专有的嵌入应用系统。
 
-MySQL AB是由两个瑞典人和一个芬兰人：David Axmark、Allan Larsson和Michael “Monty”
-Widenius在瑞典创办的。
+MySQL AB是由两个瑞典人和一个芬兰人：David Axmark、Allan Larsson和Michael “Monty” Widenius在瑞典创办的。
 
-在2008年初，Sun Microsystems收购了MySQL
-AB公司。在2009年，Oracle收购了Sun公司，使MySQL并入Oracle的数据库产品线。
+在2008年初，Sun Microsystems收购了MySQL AB公司。在2009年，Oracle收购了Sun公司，使MySQL并入Oracle的数据库产品线。
 
-### 1.4、MySql的安装 
+### 1.4、MySql的安装
+
+最新版MYSQL下载的是压缩包，详细安装步骤见博客：
+
+https://www.cnblogs.com/puhongjun/p/10076039.html
+
+一下是老版本的
 
 >   打开下载的mysql安装文件mysql-essential-5.0.22-win32.msi，双击运行，出现如下界面
 
 ![](media/d9b5d7ed73765b554fd470c22fa02061.jpeg)
 
->   20080115010355372
-
 按“Next”继续
 
 ![](media/dc25b48dcceff8d643d20a6da009a212.jpeg)
-
->   20080115010355153
 
 选择安装类型，有“Typical（默认）”、“Complete（完全）”、“Custom（用户自定义）”三个选项，我们选择“Custom”，有更多的选项，也方便熟悉安装过程
 
 ![](media/7c50862392de5663c389b19445052c90.png)
 
-上一步选择了 Custom 安装，这里将设定 MySQL 的组件包和安装路径，设定好之后，单击
-Next 继续安装。
+上一步选择了 Custom 安装，这里将设定 MySQL 的组件包和安装路径，设定好之后，单击Next 继续安装。
 
 ![20080115010355600](media/0193af786ae7c4ad2bc49e8ab9bfbf1e.jpeg)
 
-现在软件安装完成了，出现上面的界面，将 “Configure the Mysql Server
-now”前面的勾打上，点“Finish”结束软件的安装并启动mysql配置向导。
+现在软件安装完成了，出现上面的界面，将 “Configure the Mysql Server now”前面的勾打上，点“Finish”结束软件的安装并启动mysql配置向导。
 
 mysql配置向导启动界面，按“Next”继续。
 
 ![20080115010355579](media/15bcc5a3b7875a8b90c0f5726db28092.jpeg)
 
-选择配置方式，“Detailed Configuration（手动精确配置）”、“Standard
-Configuration（标准配置）”，我们选择“Detailed Configuration”，方便熟悉配置过程。
+选择配置方式，“Detailed Configuration（手动精确配置）”、“StandardConfiguration（标准配置）”，我们选择“Detailed Configuration”，方便熟悉配置过程。
 
 ![20080115010355938](media/623c8ace1e8ea69275024ac9a66b5edd.jpeg)
 
-选择服务器类型，“Developer Machine（开发测试类，mysql占用很少资源）”、“Server
-Machine（服务器类型，mysql占用较多资源）”、“Dedicated MySQL Server
-Machine（专门的数据库服务器，mysql占用所有可用资源）”，大家根据自己的类型选择了，一般选“Server
-Machine”，不会太少，也不会占满。
+选择服务器类型，“Developer Machine（开发测试类，mysql占用很少资源）”、“Server Machine（服务器类型，mysql占用较多资源）”、“Dedicated MySQL ServerMachine（专门的数据库服务器，mysql占用所有可用资源）”，大家根据自己的类型选择了，一般选“ServerMachine”，不会太少，也不会占满。
 
 ![20080115010355638](media/2ad23e6f8d3e318f9ead1d1a6202e280.jpeg)
 
-选择mysql数据库的大致用途，“Multifunctional
-Database（通用多功能型，能很好的支持InnoDB与MyISAM存储引擎）”、“Transactional
-Database Only（服务器类型，专注于事务处理，一般）”、“Non-Transactional Database
-Only（非事务处理型，较简单，主要做一些监控、记数用，对MyISAM数据类型的支持仅限于non-transactional），随自己的用途而选择了，我这里选择“Multifunctional
-Database”， 按“Next”继续。
+选择mysql数据库的大致用途，“MultifunctionalDatabase（通用多功能型，能很好的支持InnoDB与MyISAM存储引擎）”、“TransactionalDatabase Only（服务器类型，专注于事务处理，一般）”、“Non-Transactional DatabaseOnly（非事务处理型，较简单，主要做一些监控、记数用，对MyISAM数据类型的支持仅限于non-transactional），随自己的用途而选择了，我这里选择“MultifunctionalDatabase”， 按“Next”继续。
 
 ![20080115010355786](media/5d049a2cd0da5323ecad28944bd78076.jpeg)
 
-对InnoDB Tablespace进行配置，就是为InnoDB
-数据库文件选择一个存储空间，如果修改了，要记住位置，重装的时候要选择一样的地方，否则可能会造成数据库损坏，当然，对数据库做个备份就没问题了，这里不详述。我这里没有修改，使用用默认位置，直接按“Next”继续。
+对InnoDB Tablespace进行配置，就是为InnoDB数据库文件选择一个存储空间，如果修改了，要记住位置，重装的时候要选择一样的地方，否则可能会造成数据库损坏，当然，对数据库做个备份就没问题了，这里不详述。我这里没有修改，使用用默认位置，直接按“Next”继续。
 
 ![20080115010355159](media/39e41414402aacd9e1bc2cd2c389d8e0.jpeg)
 
-选择您的网站的一般mysql访问量，同时连接的数目，“Decision
-Support(DSS)/OLAP（20个左右）”、“Online Transaction
-Processing(OLTP)（500个左右）”、“Manual
-Setting（手动设置，自己输一个数）”，我这里选“Decision
-Support(DSS)/OLAP)”，按“Next”继续
+选择您的网站的一般mysql访问量，同时连接的数目，“DecisionSupport(DSS)/OLAP（20个左右）”、“Online TransactionProcessing(OLTP)（500个左右）”、“ManualSetting（手动设置，自己输一个数）”，我这里选“DecisionSupport(DSS)/OLAP)”，按“Next”继续
 
 ![20080115010355668](media/24d6c98ec8981376b85e3bc51ca1c79f.jpeg)
 
-是否启用TCP/IP连接，设定端口，如果不启用，就只能在自己的机器上访问mysql数据库了，我这里启用，把前面的勾打上，Port
-Number：3306，在这个页面上，您还可以选择“启用标准模式”（Enable Strict
-Mode），按“Next”继续。
+是否启用TCP/IP连接，设定端口，如果不启用，就只能在自己的机器上访问mysql数据库了，我这里启用，把前面的勾打上，PortNumber：3306，在这个页面上，您还可以选择“启用标准模式”（Enable StrictMode），按“Next”继续。
 
 ![I:\\其他\\截屏\\Mysql.png](media/5c71cba95e587a570c0aee1fff47ae5e.png)
 
-这个比较重要，就是对mysql默认数据库语言编码进行设置，第一个是西文编码，我们要设置的是utf8编码，按
-“Next”继续。
+这个比较重要，就是对mysql默认数据库语言编码进行设置，第一个是西文编码，我们要设置的是utf8编码，按“Next”继续。
 
 ![20080115010355703](media/fc50b7b797cdfab4f2c3b9fa5018b51e.jpeg)
 
-选择是否将mysql安装为windows服务，还可以指定Service
-Name（服务标识名称），是否将mysql的bin目录加入到Windows
-PATH（加入后，就可以直接使用bin下的文件，而不用指出目录名，比如连接，“mysql.exe
--uusername
--ppassword;”就可以了，不用指出mysql.exe的完整地址，很方便），我这里全部打上了勾，Service
-Name不变。按“Next”继续。
+选择是否将mysql安装为windows服务，还可以指定ServiceName（服务标识名称），是否将mysql的bin目录加入到WindowsPATH（加入后，就可以直接使用bin下的文件，而不用指出目录名，比如连接，“mysql.exe-uusername-ppassword;”就可以了，不用指出mysql.exe的完整地址，很方便），我这里全部打上了勾，ServiceName不变。按“Next”继续。
 
 ![20080115010355856](media/2d03ecdde597e3e882debf0d343c0951.jpeg)
 
@@ -115,9 +88,7 @@ Name不变。按“Next”继续。
 
 ![20080115010355829](media/8ca1e55ddaa6f8327d3ebe0946680378.jpeg)
 
-设置完毕，按“Finish”结束mysql的安装与配置
-
-可以通过服务管理器管理 MYSQL 的服务。
+设置完毕，按“Finish”结束mysql的安装与配置 可以通过服务管理器管理 MYSQL 的服务。
 
 通过命令调用服务管理器:services.msc
 
@@ -139,17 +110,7 @@ Name不变。按“Next”继续。
 
 ![](media/ed8bb6a5820e413a3935a190e49a7e4e.png)
 
-### 1.5、表
-
-表(table)是一种**结构化的文件**，可以用来存储特定类型的数据，如：学生信息，课程信息，都可以放到表中。另外表都有特定的名称，而且不能重复。表中具有几个概念：列、行、主键。
-列叫做字段(Column),行叫做表中的记录,每一个字段都有:字段名称/字段数据类型/字段约束/字段长度
-
->   学生信息表
-
-| 学号（主键） | 姓名 | 性别 | 年龄 |
-|--------------|------|------|------|
-| 00001        | 张三 | 男   | 20   |
-| 00002        | 李四 | 女   | 20   |
+### 1.5：客户端SQLyog的安装
 
 ### 1.6、SQL的分类
 
@@ -172,69 +133,6 @@ Name不变。按“Next”继续。
 >   数据控制语言(DCL-Data Control Language)
 
 >   代表关键字:grant,revoke.
-
-### 1.7、导入演示数据
-
->   使用MySQL命令行客户端来装载数据库。
-
-1.  连接MySql
-
-    ![](media/9bda28a8750828a9680f82d83e9d6cf6.png)
-
-2.  创建“bjpowernode”数据库
-
-    mysql\> create database bjpowernode;
-
-3.  选择数据库
-
-    mysql\> use bjpowernode
-
-4.  导入数据
-
-    mysql\>source D:\\ bjpowernode.sql
-
-5.  删除数据库(这里不要做!)
-
-    mysql\> drop database bjpowernode;
-
-### 1.8、表结构描述
-
-表名称：dept
-
-描述：部门信息表
-
-| 英文字段名称 | 中文描述 | 类型        |
-|--------------|----------|-------------|
-| DEPTNO       | 部门编号 | INT(2)      |
-| DNAME        | 部门名称 | VARCHAR(14) |
-| LOC          | 位置     | VARCHAR(13) |
-
-表名称：emp
-
-描述：员工信息表
-
-| 英文字段名称 | 中文描述 | 类型         |
-|--------------|----------|--------------|
-| EMPNO        | 员工编号 | INT (4)      |
-| ENAME        | 员工姓名 | VARCHAR(10)  |
-| JOB          | 工作岗位 | VARCHAR(9)   |
-| MGR          | 上级领导 | INT (4)      |
-| HIREDATE     | 入职日期 | DATE         |
-| SAL          | 薪水     | DOUBLE(7,2)  |
-| COMM         | 津贴     | DOUBLE (7,2) |
-| DEPTNO       | 部门编号 | INT(2)       |
-
-注：DEPTNO字段是外键，DEPTNO的值来源于dept表的主键，起到了约束的作用
-
-表名称：salgrade
-
-描述：薪水等级信息表
-
-| 英文字段名称 | 中文描述 | 类型 |
-|--------------|----------|------|
-| GRADE        | 等级     | INT  |
-| LOSAL        | 最低薪水 | INT  |
-| HISAL        | 最高薪水 | INT  |
 
 # 第二部分、常用命令
 
@@ -1493,6 +1391,14 @@ select 字段 from 表名 where ……. group by …….. having …….(就是�
 
 ## 9、连接查询
 
+left join ，right join ，all join
+
+
+
+
+
+
+
 ### 9.1、SQL92语法
 
 连接查询：也可以叫跨表查询，需要关联多个表进行查询
@@ -1724,7 +1630,7 @@ select \* from emp where job='MANAGER' union select \* from emp where job='SALES
 
 
 
-union 与union all的区别：
+**union 与union all的区别：**
 
 union all只是合并查询结果，并不会进行去重和排序操作，在没有去重的前提下，使用union all的执行效率要比union高
 
@@ -2268,9 +2174,9 @@ MyISAM提供了大量的特性，包括全文索引、压缩、空间函数(GIS)
 
 ### 14.3、选择合适的存储引擎
 
--   MyISAM表最适合于大量的数据读而少量数据更新的混合操作。MyISAM表的另一种适用情形是使用压缩的只读表。
+-   MyISAM表最适合于**大量的数据读**而少量数据更新的混合操作。MyISAM表的另一种适用情形是使用压缩的只读表。
 
--   如果查询中包含较多的数据更新操作，应使用InnoDB。其行级锁机制和多版本的支持为数据读取和更新的混合操作提供了良好的并发机制。
+-   如果查询中包含**较多的数据更新操作，应使用InnoDB**。其行级锁机制和多版本的支持为数据读取和更新的混合操作提供了良好的并发机制。
 
 -   可使用MEMORY存储引擎来存储非永久需要的数据，或者是能够从基于磁盘的表中重新生成的数据。
 
@@ -2414,15 +2320,15 @@ show variables like '%auto%'; -- 查看变量状态
 
 当多个客户端并发地访问同一个表时，可能出现下面的一致性问题：
 
-（1）脏读取（Dirty Read）
-
-一个事务开始读取了某行数据，但是另外一个事务已经更新了此数据但没有能够及时提交，这就出现了脏读取。
+（1）脏读取（Dirty Read）：事务A读到了事务B未提交的数据。
 
 （2）不可重复读（Non-repeatable Read）
 
-在同一个事务中，同一个读操作对同一个数据的前后两次读取产生了不同的结果，这就是不可重复读。
+事务A第一次查询得到一行记录row1，事务B提交修改后，事务A第二次查询得到row1，但列内容发生了变化。
 
 （3）幻像读（Phantom Read）
+
+事务A第一次查询得到一行记录row1，事务B提交修改后，事务A第二次查询得到两行记录row1和row2。
 
 InnoDB引擎，可重复读隔离级别，，使用**当前读**时。
 
@@ -2451,10 +2357,6 @@ InnoDB引擎，可重复读隔离级别，，使用**当前读**时。
 
 - 将两行记录间的空隙加上锁，阻止新记录的插入；这个锁称为**间隙锁**。
 - 间隙锁与间隙锁之间没有冲突关系。跟间隙锁存在冲突关系的，是**往这个间隙中插入一个记录**这个操作。
-
-
-
-
 
 #### 15.4.2、四个隔离级别
 
@@ -2610,6 +2512,36 @@ mysql\> SELECT \@\@global.tx_isolation;
 | s1\>commit;                                                  |                        |
 |                                                              | s2\>select \* from tx; |
 
+
+
+### 15.5MVCC
+
+Multi-Version Concurrency Control，多版本并发控制
+
+大多数情况下可以代替行级锁，降低系统开销
+
+InnoDB使用的是行锁。而InnoDB的事务分为四个隔离级别，其中默认的隔离级别REPEATABLE READ需要两个不同的事务相互之间不能影响，而且还能支持并发，这点悲观锁是达不到的，所以REPEATABLE READ采用的就是乐观锁，而乐观锁的实现采用的就是MVCC。正是因为有了MVCC，才造就了InnoDB强大的事务处理能力。
+
+因为有行id，事务id
+
+
+
+redo日志和undo日志
+
+用于回滚，先redo在undo
+
+undo日志记录操作之前的数据
+
+redo是
+
+
+
+mysql的删除并不是物理上的删除，而是标记……
+
+
+
+
+
 ## 16、索引
 
 ### 16.1、索引简介
@@ -2708,23 +2640,31 @@ order by salary desc
 
 我们平常所说的索引，如果没有特别指明，都是指B树(多路搜索树，并不一定是二叉的)结构组织的索引。
 
-其中聚集索引，次要索引，覆盖索引，
-
-复合索引，前缀索引，唯一索引默认都是使用B+树索引，统称索引。
+其中聚集索引，次要索引，覆盖索引，复合索引，前缀索引，唯一索引默认都是使用B+树索引，统称索引。
 
 当然，除了B+树这种类型的索引之外，还有哈稀索引(hash index)等。
 
 1：B树索引——Myisam
 
-2：B+树索引——innodb
+2：B+树索引——Innodb
 
 B+树叶子节点中只有关键字和指向下一个节点的索引，记录只放在叶子节点中。(一次查询可能进行两次i/o操作)
+
+
+
+Innodb每张表都会有一个聚簇索引：每次进来都会有一个如果有主键就会根据主键生成索引，只会有一个聚簇索引，使用B+数，
+
+叶子节点之间使用单链表
+
+
 
 3：对比
 
 在内存有限的情况下，B+TREE 永远比 B-TREE好。无限内存则后者方便
 
 在B-树中，越靠近根节点的记录查找时间越快，只要找到关键字即可确定记录的存在；
+
+
 
 而B+树中每个记录的查找时间基本是一样的，都需要从根节点走到叶子节点，而且在叶子节点中还要再比较关键字。
 
@@ -2797,6 +2737,129 @@ Where条件里用不到的字段不创建索引
 使用EXPLAIN关键字可以模拟优化器执行SQL查询语句，从而知道MySQL是
 
 如何处理你的SQL语句的。分析你的查询语句或是表结构的性能瓶颈
+
+
+
+一般用来查看索引是否起作用了，查询了多少行记录，
+
+执行计划：
+
+执行流程
+
+#### 字段
+
+**ID**
+
+id列的编号是 select 的序列号，有几个 select 就有几个id，并且id的顺序是按 select 出现的顺序增长的。
+
+**select_type**
+
+查询的类型，主要是用于区分普通查询（simple）、联合查询、子查询等复杂的查询
+
+simple：简单的select查询，查询中不包含子查询或者union ;
+
+primary：查询中包含任何复杂的子部分，最外层查询则被标记为primary=》复杂查询中最外层的 select 
+
+例
+
+```sql
+explain select * from (select * from t3 where id=3952602) a ;
+```
+
+subquery：在select 或 where列表中包含了子查询=》含在 select 中的子查询（不在 from 子句中） ;
+
+simple：表示不需要union操作或者不包含子查询的简单select查询。有连接查询时，外层的查询为simple，且只有一个。
+
+primary：一个需要union操作或者含有子查询的select，位于最外层的单位查询的select_type即为primary。且只有一个。
+
+subquery\**\**：除了from\**字句中包含的子查询外，其他地方出现的子查询都可能是subquery*
+
+dependentsubquery\**\**：与dependent union\**类似，表示这个subquery的查询要受到外部表查询的影响。
+
+derive：from\**字句中出现的子查询，也叫做派生表，其他数据库中可能叫做内联视图或嵌套select。
+
+union：union\**连接的两个select查询，第一个查询是dervied派生表，除了第一个表外，第二个以后的表select_type都是union*
+
+dependentunion：与union\**一样，出现在union 或union all语句中，但是这个查询要受到外部查询的影
+
+unionresult*：包含union\**的结果集，在union和union all语句中,因为它不需要参与查询，所以id字段为null。
+
+
+
+
+
+**table**
+
+表示 explain 的一行正在访问哪个表。
+
+
+
+**type**
+
+表示关联类型或访问类型，即MySQL决定如何查找表中的行。
+
+访问类型，sql查询优化中一个很重要的指标，结果值从好到坏依次是：
+
+依次从最优到最差分别为：system >const > eq_ref > ref > fulltext > ref_or_null > index_merge >unique_subquery > index_subquery > range > index > ALL
+
+从最好到最差的连接类型为const、eq_reg、ref、range、indexhe和ALL 
+
+**一般来说，好的sql查询至少达到range级别，最好能达到ref**
+
+
+
+**possible_keys**
+
+显示查询可能使用哪些索引来查找。 
+
+
+
+**Key**
+
+显示mysql实际采用哪个索引来优化对该表的访问。
+
+果没有使用索引，则该列是 NULL。如果想强制mysql使用或忽视possible_keys列中的索引，在查询中使用 force index、ignore index。
+查询中如果使用了覆盖索引，则该索引仅出现在key列表中
+
+
+
+**Key_Len**
+
+
+
+**ref**
+
+显示索引的那一列被使用了，如果可能，是一个常量const。
+
+这一列显示了在key列记录的索引中，表查找值所用到的列或常量，常见的有：const（常量），func，NULL，字段名（例：film.id）
+
+
+
+**rows**
+
+根据表统计信息及索引选用情况，大致估算出找到所需的记录所需要读取的行数
+
+**Extra**
+
+
+
+**Case**
+
+
+
+id，表（真实表），可能索引
+
+index
+
+
+
+
+
+
+
+
+
+
 
 ### 16.6：查询优化
 
