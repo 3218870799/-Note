@@ -936,6 +936,8 @@ AOP 底层，就是采用动态代理模式实现的。采用了两种代理：J
 
 ## 3.3动态代理
 
+在Spring中，当Bean实现接口时，Spring就会用JDK的动态代理，没有实现接口，就会使用cglib的动态代理
+
 1：JDK动态代理
 
 2：CGLIB动态代理
@@ -946,9 +948,9 @@ AOP 底层，就是采用动态代理模式实现的。采用了两种代理：J
 
 不同的与优缺点：
 
-JDK 是基于接口实现，而 CGLIB 继承代理类
+- JDK 是基于接口实现，而 CGLIB 继承代理类，通常建议使用jdk代理
+- CGLib不能对声明为final的方法进行代理
 
-通常建议使用jdk代理
 
 自己导包（了解）：
 
@@ -1912,9 +1914,11 @@ Step6：修改测试类
 
 # 第**6**章 **Spring** 与 **Web** 
 
-在 Web 项目中使用 Spring 框架，首先要解决在 web 层（这里指 Servlet）中获取到
-Spring 容器的问题。只要在 web 层获取到了 Spring 容器，便可从容器中获取到 Service
-对象。
+在 Web 项目中使用 Spring 框架，首先要解决在 web 层（这里指 Servlet）中获取到Spring 容器的问题。只要在 web 层获取到了 Spring 容器，便可从容器中获取到 Service对象。
+
+
+
+
 
 ## 6.1 Web 项目使用 Spring 的问题(了解) 
 
