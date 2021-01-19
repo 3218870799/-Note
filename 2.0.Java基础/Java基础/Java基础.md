@@ -8,8 +8,6 @@
 标识符不能以数字开头。
 标识符不能是关键字。
 
-
-
 ### 1.1：关键字
 
 类与接口的声明：class（类）,extends（继承）,implements（实现）,interface
@@ -17,8 +15,6 @@
 流程控制：if.else,switch,do,while,case,break,continue,return,default,for
 
 异常处理：try,catch,finally,throw,throws,
-
-
 
 - #### final
 
@@ -39,6 +35,12 @@ Synchronized：保证在同一时刻，只有一个线程可以执行某个方�
 可以修饰代码块，方法，静态方法，类
 
 - #### volatile
+
+  Volatile是Java虚拟机提供的`轻量级`的同步机制（三大特性）
+
+  - 保证可见性
+  - 不保证原子性
+  - 禁止指令重排
 
 保证可见性，有序性（指令重排），保证单次读写的原子性
 保证了不同线程对这个变量进行操作时的可见性，即一个线程修改了某个变量的值，这新值对其他线程来说是立即可见的。（实现可见性）
@@ -389,10 +391,6 @@ FlyAble f = new FlyAble(){
     }
 };
 ```
-
-
-
-
 
 ## 5：抽象与接口
 
@@ -1072,6 +1070,28 @@ JDK1.8：ArrayList像懒汉式，一开始创建个长度为0的数组，当添�
 
 6、ArrayList是非线程安全的，Vector是线程安全的。
 
+
+
+Q：怎么实现线程安全呢？
+
+A：方法一：使用Vector，Vector是线程安全的，它在方法上加了synchronized
+
+方法二：使用Collections集合工具类，在ArrayList外面包装一层同步机制
+
+```java
+List<String> list = Collections.synchronizedList(new ArrayList<>());
+```
+
+方法三：采用JUC中的CopyOnWriteArrayList
+
+写时复制，CopyOnWrite容器即写时复制的容器，往一个容器中添加元素的时候，不直接往当前容器Object[]添加，而是先将Object[]进行copy，复制出一个新的容器object[] newElements，然后新的容器Object[] newElements里添加原始，添加元素完后，在将原容器的引用指向新的容器 setArray(newElements)；这样做的好处是可以对copyOnWrite容器进行并发的度，而不需要加锁，因为当前容器不需要添加任何元素。所以CopyOnWrite容器也是一种读写分离的思想，读和写不同的容器
+
+就是写的时候，把ArrayList扩容一个出来，然后把值填写上去，在通知其他的线程，ArrayList的引用指向扩容后的
+
+
+
+
+
 1：array与ArrayList的区别
 
 Array可以包含基本类型和对象类型，ArrayList只能包含对象类型。
@@ -1116,6 +1136,16 @@ HashSet不能保证元素的排列顺序，HashSet不是线程安全的，集合
 简单的来说，哈希表是由数组+链表+红黑树（JDK1.8增加了红黑树部分）实现的
 
 ![哈希流程图](media/哈希流程图.png)
+
+HashSet线程不安全，同样也可以使用CopyOnWriteArraySet，其底层依然还是使用CopyOnWriteArrayList实现的。
+
+
+
+
+
+
+
+
 
 ### LinkedHashSet
 
@@ -1358,11 +1388,15 @@ HashMap在进行扩容时，使用的rehash方式非常巧妙，因为每次扩�
 
 
 
-boolean isEmpty() 长度为0返回true否则false
+Q：HashMap也是线程不安全的，怎么解决呢？
 
-boolean containsKey(Object key) 判断集合中是否包含指定的key
+方法一：使用Collections的方法，给外层套一个：Collections.synchronizedMap(new HashMap<>());
 
-boolean containsValue(Object value) 判断集合中是否包含指定的value
+方法二：使用 ConcurrentHashMap
+
+
+
+
 
 ### ConcurrentHashMap
 
@@ -3419,8 +3453,6 @@ Lambda表达式的标准格式为：
 \-\> 是新引入的语法格式，代表指向动作。
 
 大括号内的语法与传统方法体要求基本一致。相当于对抽象方法的实现，函数式接口，只有一个抽象方法。
-
-![image-20201122134603482](media/image-20201122134603482.png)
 
 ### 1.1：Lambda语法糖
 
