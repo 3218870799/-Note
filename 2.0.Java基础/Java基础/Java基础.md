@@ -2534,6 +2534,56 @@ ReentrantLock和NonReentrantLock都继承父类AQS，其父类AQS中维护了一
 
 
 
+### AQS
+
+AbstractQueuedSynchronizer   抽象队列同步器
+
+ ReentrantLock、CountDownLatch、CycleBarrier 底层都是通过AQS来实现的
+
+**AQS的核心思想**：如果被请求的共享资源空闲，则将当前请求的资源的线程设置为有效的工作线程，并将共享资源设置为锁定状态，如果被请求的共享资源被占用，那么就需要一套线程阻塞等待以及唤醒时锁分配的机制，这个AQS是用CLH队列锁实现的，即将暂时获取不到的锁的线程加入到队列中。CLH队列是一个虚拟的双向队列，虚拟的双向队列即不存在队列的实例，仅存在节点之间的关联关系。
+
+AQS是将每一条请求共享资源的线程封装成一个CLH锁队列的一个结点（Node），来实现锁的分配
+
+AQS就是基于CLH队列，用volatile修饰共享变量state，线程通过CAS去改变状态符，成功则获取锁成功，失败则进入等待队列，同时等待被唤醒。
+
+注意：AQS是自旋锁，在等待唤醒的时候，经常会使用自旋的方式，不断的尝试获取锁，直到被其它线程获取成功
+
+实现了AQS的锁有：自旋锁、互斥锁、读写锁、条件变量、信号量、栅栏都是AQS的衍生物，具体实现如下
+
+![image-20200717210530013](media/image-20200717210530013.png)
+
+如上图所示，AQS维护了一个volatile int state的变量 和 一个FIFO线程等待队列，多线程争用资源被阻塞的时候，就会进入这个队列中。state就是共享资源，其访问方式有如下三种：
+
+- getState()
+- setState()
+- compareAndSetState()
+
+AQS定义了两种资源共享方式
+
+- Exclusive：独占，只有一个线程能执行，如ReentrantLock
+- Share：共享，多个线程可以同时执行，如Semaphore、CountDownLatch、ReadWriteLock、CycleBarrier
+
+不同的自定义同步器争用共享资源的方式也不同
+
+ReentrantLock
+
+以ReentrantLock（可重入独占式锁）为例，state初始化为0，表示未锁定状态，A线程lock()时，会调用tryAcquire()独占锁，并将state + 1，之后其它线程在想通过tryAcquire的时候就会失败，知道A线程unlock() 到 state = 0 为止，其它线程才有机会获取到该锁。A释放锁之前，自己也是可以重复获取此锁（state累加），这就是可重入的概念。
+
+> 注意：获取多少次锁就需要释放多少次锁，保证state是能够回到0
+
+CountDownLatch
+
+以CountDownLatch为例，任务分N个子线程执行，state就初始化为N，N个线程并行执行，每个线程执行完之后 countDown() 一次，state 就会CAS减1，当N子线程全部执行完毕，state = 0,hui unpark() 主调动线程，主调用线程就会从await()函数返回，继续之后的动作。
+
+
+
+一般来说，自定义同步器要么独占方式，要么共享方式，他们也需要实现 tryAcquire 和 tryRelease、  tryAcquireShared 和 tryReleaseShared中的一种即可。但AQS也支持自定义同步器实现独占和共享两种方式，比如ReentrantLockReadWriteLock。
+
+- acquire() 和 acquireShared() 两种方式下，线程在等待队列中都是忽略中断的
+- acquireInterruptibly() 和 acquireSharedInterruptibly() 是支持响应中断的
+
+
+
 ## 5.6：线程协作
 
 ​	**1，CountDownLatch**
