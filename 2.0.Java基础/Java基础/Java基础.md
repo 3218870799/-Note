@@ -1837,18 +1837,6 @@ CopyOnWriteArraySet基于CopyOnWriteArrayList实现，其唯一的不同是在ad
 
 
 
-
-
-#### ThreadLocal
-
-线程变量
-
-ThreadLocal提供了线程内存储变量的能力，这些变量不同之处在于每一个线程读取的变量是对应的互相独立的。通过get和set方法就可以得到当前线程对应的值。
-
-
-
-
-
 ## 5.1：原理/方法机制
 
 多线程执行时，在栈内存中，其实每一个执行线程都有一片自己所属的栈内存空间。进行方法的压栈和弹栈。
@@ -1912,6 +1900,118 @@ volatile
 - public void run() :此线程要执行的任务在此处定义代码。
 - public static void sleep(long millis) :使当前正在执行的线程以指定的毫秒数暂停（暂时停止执行）。
 - public static Thread currentThread() :返回对当前正在执行的线程对象的引用。
+
+
+
+## 5.2：ThreadLocal
+
+线程变量
+
+ThreadLocal提供了线程内存储变量的能力，这些变量不同之处在于每一个线程读取的变量是对应的互相独立的。通过get和set方法就可以得到当前线程对应的值。ThreadLocal实例通常来说都是private static类型的，用于关联线程和线程上下文。
+
+好处：
+
+- 传递数据：保存每个线程绑定的数据，在需要的地方可以直接获取，避免参数直接传递带来的代码耦合问题
+- 线程隔离：各线程之间的数据相互隔离却又具备并发性，避免同步方式带来的性能损失
+
+使用举例：
+
+```java
+public class MyDemo01 {
+    // 变量
+    private String content;
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public static void main(String[] args) {
+        MyDemo01 myDemo01 = new MyDemo01();
+        ThreadLocal<String> threadLocal = new ThreadLocal<>();
+        for (int i = 0; i < 5; i++) {
+            new Thread(() -> {
+                threadLocal.set(Thread.currentThread().getName() + "的数据");
+                System.out.println("-----------------------------------------");
+                System.out.println(Thread.currentThread().getName() + "\t  " + threadLocal.get());
+            }, String.valueOf(i)).start();
+        }
+    }
+}
+```
+
+输出
+
+```
+4	  4的数据
+-----------------------------------------
+3	  3的数据
+-----------------------------------------
+2	  2的数据
+-----------------------------------------
+1	  1的数据
+0	  0的数据
+```
+
+
+
+ThreadLocal与Synchronized的区别：
+
+虽然ThreadLocal模式与Synchronized关键字都用于处理多线程并发访问变量的问题，不过两者处理问题的角度和思路不同。
+
+|        | Synchronized                                                 | ThreadLocal                                                  |
+| ------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 原理   | 同步机制采用 以空间换时间 的方式，只提供了一份变量，让不同的线程排队访问 | ThreadLocal采用以空间换时间的概念，为每个线程都提供一份变量副本，从而实现同时访问而互不干扰 |
+| 侧重点 | 多个线程之间访问资源的同步                                   | 多线程中让每个线程之间的数据相互隔离                         |
+
+总结：在刚刚的案例中，虽然使用ThreadLocal和Synchronized都能解决问题，但是使用ThreadLocal更为合适，因为这样可以使程序拥有更高的并发性。
+
+在JDK8中 ThreadLocal的设计是：每个Thread维护一个ThreadLocalMap，这个Map的key是ThreadLocal实例本身，value 才是真正要存储的值object。具体的过程是这样的：
+
+- 每个Thread线程内部都有一个Map（ThreadLocalMap）
+- Map里面存储ThreadLocal对象（key）和线程的变量副本（value）
+- Thread内部的Map是由ThreadLocal维护的，由ThreadLocal负责向map获取和设置线程的变量值。
+- 对于不同的线程，每次获取副本值时，别的线程并不能获取到当前线程的副本值，形成了副本的隔离，互不干扰。
+
+![image-20210118133335687](media/image-20210118133335687.png)
+
+面这张图详细的揭示了ThreadLocal和Thread以及ThreadLocalMap三者的关系。
+
+1、Thread中有一个map，就是ThreadLocalMap
+
+2、ThreadLocalMap的key是ThreadLocal，值是我们自己设定的。
+
+3、ThreadLocal是一个**弱引用**，当为null时，会被当成垃圾回收
+
+**4、重点来了，突然我们ThreadLocal是null了，也就是要被垃圾回收器回收了，但是此时我们的ThreadLocalMap生命周期和Thread的一样，它不会回收，这时候就出现了一个现象。那就是ThreadLocalMap的key没了，但是value还在，这就造成了内存泄漏。**
+
+**解决办法：使用完ThreadLocal后，执行remove操作，避免出现内存溢出情况。**
+
+
+
+### 核心源码
+
+除了构造方法之外，ThreadLocal对外暴露的方法有以下4个
+
+| 方法声明                   | 描述                         |
+| -------------------------- | ---------------------------- |
+| protected T initialValue() | 返回当前线程局部变量的初始值 |
+| public void set(T value)   | 返回当前线程绑定的局部变量   |
+| public T get()             | 获取当前线程绑定的局部变量   |
+| public void remove()       | 移除当前线程绑定的局部变量   |
+
+以下是这4个方法的详细源码分析
+
+了解到ThreadLocal的操作实际上是围绕ThreadLocalMap展开的。ThreadLocalMap的源码相对比较复杂，我们从以下三个方面进行讨论。
+
+1：基本结构
+
+ThreadLocalMap是ThreadLocal的内部类，没有实现Map接口，用独立的方式实现了Map的功能，其内部的Entry也是独立实现。
+
+存储结果Entry
 
 
 
@@ -2245,24 +2345,6 @@ FIFO
 - 信号量Semaphore：信号量是一个计数器，可以用来控制多个进程对共享资源的访问。它常作为一种锁机制，防止某进程正在访问共享资源时，其他进程也访问该资源。因此，主要作为进程间以及同一进程内不同线程之间的同步手段。
 - 套接字Socket：套解口也是一种进程间通信机制，与其他通信机制不同的是，它可用于不同及其间的进程通信。
 - 信号sinal： 信号是一种比较复杂的通信方式，用于通知接收进程某个事件已经发生
-
-
-
-ThreadLocal
-
-![image-20210118133335687](media/image-20210118133335687.png)
-
-面这张图详细的揭示了ThreadLocal和Thread以及ThreadLocalMap三者的关系。
-
-1、Thread中有一个map，就是ThreadLocalMap
-
-2、ThreadLocalMap的key是ThreadLocal，值是我们自己设定的。
-
-3、ThreadLocal是一个弱引用，当为null时，会被当成垃圾回收
-
-**4、重点来了，突然我们ThreadLocal是null了，也就是要被垃圾回收器回收了，但是此时我们的ThreadLocalMap生命周期和Thread的一样，它不会回收，这时候就出现了一个现象。那就是ThreadLocalMap的key没了，但是value还在，这就造成了内存泄漏。**
-
-**解决办法：使用完ThreadLocal后，执行remove操作，避免出现内存溢出情况。**
 
 
 
