@@ -2340,22 +2340,21 @@ RejectedExecutionHandler接口，自定义饱和策略，如记录日志或持�
 
 ### 3：其他创建线程池的方法
 
-1：new  SingleThreadExecutor()：只创建唯一的工作者线程来执行任务。线程数目唯一，队列顺序执行
-
-2：new  CachedThreadPool()：创建一个可缓存线程池，如果线程池长度超过处理需求，可灵活回收空闲线程，若无可回收这创建新新线程。
-
-处理大量短时间工作任务的线程池，他会缓存线程并重用，无缓存线程时，就会创建新线程，闲置超过60秒则会被移出缓存，其内部使用
-SynchronousQueue 作为工作队列；
-
-3：new  FixedThreadPool(int  nThreads)：创建一个制定工作线程数量的线程池，任何时候最多有 nThreads个工作线程是活动的
-
-4：new  SingleThreadScheduledExecutor()：创建单线程池，返回ScheduledExecutorService，可以进行定时或周期性的工作调度；
-
-5：new  ScheduledThreadPool(int  corePoolSize)：创建一个定长的线程池，可以进行定时或周期性的工作调度，区别在于单一工作线程还是多个工作线程
-
-6：new  WorkStealingPool(int parallelism)： Java 8才加入这个创建方法，其内部会构建ForkJoinPool，利用Work-Stealing算法，并行地处理任务，不保证处理顺序；
-
-7：ThreadPoolExecutor()：是最原始的线程池创建，上面1-3创建方式都是对ThreadPoolExecutor的封装。
+- Executors.newFixedThreadPool(int nThreads) ：创建一个拥有 i 个线程的线程池
+  - 执行长期的任务，性能好很多
+  - 创建一个定长线程池，可控制线程数最大并发数，超出的线程会在队列中等待
+- Executors.newSingleThreadExecutor：创建一个只有1个线程的 单线程池
+  - 一个任务一个任务执行的场景
+  - 创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序执行
+- Executors.newCacheThreadPool();  创建一个可扩容的线程池
+  - 执行很多短期异步的小程序或者负载教轻的服务器
+  - 创建一个可缓存线程池，如果线程长度超过处理需要，可灵活回收空闲线程，如无可回收，则新建新线程
+  - 处理大量短时间工作任务的线程池，他会缓存线程并重用，无缓存线程时，就会创建新线程，闲置超过60秒则会被移出缓存，其内部使用
+    SynchronousQueue 作为工作队列；
+- Executors.newScheduledThreadPool(int corePoolSize)：线程池支持定时以及周期性执行任务，创建一个corePoolSize为传入参数，最大线程数为整形的最大数的线程池
+- newSingleThreadScheduledExecutor()：创建单线程池，返回ScheduledExecutorService，可以进行定时或周期性的工作调度；new  ScheduledThreadPool(int  corePoolSize)：创建一个定长的线程池，可以进行定时或周期性的工作调度，区别在于单一工作线程还是多个工作线程
+- new  WorkStealingPool(int parallelism)： Java 8才加入这个创建方法，其内部会构建ForkJoinPool，利用Work-Stealing算法，并行地处理任务，不保证处理顺序；
+- ThreadPoolExecutor()：是最原始的线程池创建，上面1-3创建方式都是对ThreadPoolExecutor的封装。
 
 ### 4：方法
 
@@ -2377,7 +2376,9 @@ getActiveCount（）：当前线程池中正在执行任务的线程数量
 
 
 
-### 原理：
+### 5：原理：
+
+ThreadPoolExecutor执行execute()流程：
 
 当一个任务提交至线程池之后，
 
@@ -2387,17 +2388,33 @@ getActiveCount（）：当前线程池中正在执行任务的线程数量
 
 3.判断**线程池里的线程是否都在执行任务**。如果不是，则创建一个新的工作线程来执行。如果线程池满了，则交给饱和策略来处理任务。
 
-ThreadPoolExecutor执行execute()流程：
-
-当一个任务提交至线程池之后，
-
-1.线程池首先当前运行的线程数量是否少于corePoolSize。如果是，则创建一个新的工作线程来执行任务。如果都在执行任务，则进入2.
-
-2.判断BlockingQueue是否已经满了，倘若还没有满，则将线程放入BlockingQueue。否则进入3.
-
-3.如果创建一个新的工作线程将使当前运行的线程数量超过maximumPoolSize，则交给RejectedExecutionHandler来处理任务。
 
 
+### 6：自定义线程池
+
+实际开发中，上诉线程池我们一个否不用，都是自己自定义的
+
+- 线程资源必须通过线程池提供，不允许在应用中自行显式创建线程
+  - 使用线程池的好处是减少在创建和销毁线程上所消耗的时间以及系统资源的开销，解决资源不足的问题，如果不使用线程池，有可能造成系统创建大量同类线程而导致消耗完内存或者“过度切换”的问题
+- 线程池不允许使用Executors去创建，而是通过ThreadToolExecutors的方式，这样的处理方式让写的同学更加明确线程池的运行规则，规避资源耗尽的风险
+  - Executors返回的线程池对象弊端如下：
+    - FixedThreadPool和SingleThreadPool：
+      - 运行的请求队列长度为：Integer.MAX_VALUE，可能会堆积大量的请求，从而导致OOM
+    - CacheThreadPool和ScheduledThreadPool
+      - 运行的请求队列长度为：Integer.MAX_VALUE，可能会堆积大量的请求，从而导致OOM
+
+线程池的合理参数
+
+生产环境中如何配置 corePoolSize 和 maximumPoolSize。这个是根据具体业务来配置的，分为CPU密集型和IO密集型。性质不同的任务可用使用不同规模的线程池分开处理：  
+
+- CPU密集型：尽可能少的线程，Ncpu+1  
+- IO密集型：尽可能多的线程, Ncpu\*2，比如数据库连接池 
+
+参考公式：CPU核数 / (1 - 阻塞系数)      阻塞系数在0.8 ~ 0.9左右
+
+例如：8核CPU：8/ (1 - 0.9) = 80个线程数
+
+- 混合型：CPU密集型的任务与IO密集型任务的执行时间差别较小，拆分为两个线程池；否则没有必要拆分。
 
 
 
@@ -2431,14 +2448,6 @@ Shutdown shutdownNow tryTerminate 清空工作队列，终止线程池中各个�
 Wait方法：只能在同步代码块中调用，wait会释放掉对象锁，等待nitify唤醒
 
 Notify方法：
-
-### 5：配置线程池的因素
-
-性质不同的任务可用使用不同规模的线程池分开处理：  
-- CPU密集型：尽可能少的线程，Ncpu+1  
-- IO密集型：尽可能多的线程, Ncpu\*2，比如数据库连接池  
--
-混合型：CPU密集型的任务与IO密集型任务的执行时间差别较小，拆分为两个线程池；否则没有必要拆分。
 
 ### 6：线程池中遇到的问题
 
