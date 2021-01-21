@@ -2338,7 +2338,7 @@ mybatis第三天实现多表操作时，我们使用了resultMap来实现一对�
 
 \* \<p\>Description: 账户的持久层接口\</p\>
 
-\* \<p\>Company: http://www.itheima.com/ \</p\>
+\* \<p\>Company: http://www.xqc.com/ \</p\>
 
 \*/
 
@@ -2366,7 +2366,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd"\>
 
-\<mapper namespace=*"com.itheima.dao.IAccountDao"*\>
+\<mapper namespace=*"com.xqc.dao.IAccountDao"*\>
 
 \<!-- 建立对应关系 --\>
 
@@ -2382,7 +2382,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 \<association property=*"user"* javaType=*"user"*
 
-select=*"com.itheima.dao.IUserDao.findById"*
+select=*"com.xqc.dao.IUserDao.findById"*
 
 column=*"uid"*\>
 
@@ -2410,7 +2410,7 @@ select \* from account
 
 \* \<p\>Description: 用户的业务层接口\</p\>
 
-\* \<p\>Company: http://www.itheima.com/ \</p\>
+\* \<p\>Company: http://www.xqc.com/ \</p\>
 
 \*/
 
@@ -2430,7 +2430,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd"\>
 
-\<mapper namespace=*"com.itheima.dao.IUserDao"*\>
+\<mapper namespace=*"com.xqc.dao.IUserDao"*\>
 
 \<!-- 根据id查询 --\>
 
@@ -2468,7 +2468,7 @@ select \* from user where id = \#{uid}
 
 \* \<p\>Description: 一对多账户的操作\</p\>
 
-\* \<p\>Company: http://www.itheima.com/ \</p\>
+\* \<p\>Company: http://www.xqc.com/ \</p\>
 
 \*/
 
@@ -2556,7 +2556,7 @@ in.close();
 
 \* \<p\>Description: 用户的实体类\</p\>
 
-\* \<p\>Company: http://www.itheima.com/ \</p\>
+\* \<p\>Company: http://www.xqc.com/ \</p\>
 
 \*/
 
@@ -2709,7 +2709,7 @@ column是用于指定使用哪个字段的值作为条件查询
 
 \<collection property=*"accounts"* ofType=*"account"*
 
-select=*"com.itheima.dao.IAccountDao.findByUid"*
+select=*"com.xqc.dao.IAccountDao.findByUid"*
 
 column=*"id"*\>
 
@@ -2757,7 +2757,7 @@ select \* from account where uid = \#{uid}
 
 \* \<p\>Description: 一对多的操作\</p\>
 
-\* \<p\>Company: http://www.itheima.com/ \</p\>
+\* \<p\>Company: http://www.xqc.com/ \</p\>
 
 \*/
 
@@ -2870,7 +2870,7 @@ User findById(Integer userId);
 <!DOCTYPE mapper 
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
-<mapper namespace="com.itheima.dao.IUserDao"> 
+<mapper namespace="com.xqc.dao.IUserDao"> 
 <!-- 根据id查询 --> 
 <select id="findById" resultType="UsEr" parameterType="int" useCache="true"> 
 select * from user where id = #{uid} 
@@ -2886,7 +2886,7 @@ select * from user where id = #{uid}
 * 
 * <p>Title: MybastisCRUDTest</p> 
 * <p>Description: 一对多的操作</p> 
-* <p>Company: http://www.itheima.com/ </p> 
+* <p>Company: http://www.xqc.com/ </p> 
 */ 
 public class UserTest { 
 private InputStream in ; 
@@ -2943,6 +2943,8 @@ in.close();
 如果sqlSession去执行commit操作（执行插入、更新、删除），清空SqlSession中的一级缓存，这样做的目的为了让缓存中存储的是最新的信息，避免脏读。
 
 第二次发起查询用户id为1的用户信息，先去找缓存中是否有id为1的用户信息，缓存中有，直接从缓存中获取用户信息。
+
+MyBatis 的一级缓存是默认开启的，不需要任何的配置。
 
 ### 1.3 测试一级缓存的清空 
 
@@ -3010,6 +3012,29 @@ System.out.println(user1 == user2);
 
 当执行sqlSession.close()后，再次获取sqlSession并查询id=41的User对象时，又重新执行了sql语句，从数据库进行了查询操作。
 
+### 1.4：总结
+
+MyBatis 的一级缓存是默认开启的，不需要任何的配置。
+
+一级缓存的生命周期有多长？
+
+1. MyBatis在开启一个数据库会话时，会 创建一个新的SqlSession对象，SqlSession对象中会有一个新的Executor对象，Executor对象中持有一个新的PerpetualCache对象；当会话结束时，SqlSession对象及其内部的Executor对象还有PerpetualCache对象也一并释放掉。
+2. 如果SqlSession调用了close()方法，会释放掉一级缓存PerpetualCache对象，一级缓存将不可用；
+3. 如果SqlSession调用了clearCache()，会清空PerpetualCache对象中的数据，但是该对象仍可使用；
+4. SqlSession中执行了任何一个update操作(update()、delete()、insert()) ，都会清空PerpetualCache对象的数据，但是该对象可以继续使用；
+
+
+
+一级缓存的不足：
+
+　　使用一级缓存的时候，因为缓存不能跨会话共享，不同的会话之间对于相同的数据可能有不一样的缓存。在有多个会话或者分布式环境下，会存在脏数据的问题。如果要解决这个问题，就要用到二级缓存。MyBatis 一级缓存（MyBaits 称其为 Local Cache）无法关闭，但是有两种级别可选：
+
+- session 级别的缓存，在同一个 sqlSession 内，对同样的查询将不再查询数据库，直接从缓存中。
+
+- statement 级别的缓存，避坑： 为了避免这个问题，可以将一级缓存的级别设为 statement 级别的，这样每次查询结束都会清掉一级缓存。
+
+
+
 ## 2 Mybatis二级缓存 
 
 二级缓存是mapper映射级别的缓存，多个SqlSession去操作同一个Mapper映射的sql语句，多个SqlSession可以共用二级缓存，二级缓存是跨SqlSession的。
@@ -3048,12 +3073,44 @@ sqlSession2去查询与sqlSession1相同的用户信息，首先会去缓存中�
 <!DOCTYPE mapper 
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
-<mapper namespace="com.itheima.dao.IUserDao"> 
+<mapper namespace="com.xqc.dao.IUserDao"> 
 <!-- 开启二级缓存的支持 --> 
-<cache></cache> 
+<cache type="org.apache.ibatis.cache.impl.PerpetualCache"
+    size="1024"
+eviction="LRU"
+flushInterval="120000"
+readOnly="false"/>
 </mapper> 
 
 ```
+
+这个简单语句的效果如下:
+
+- 映射语句文件中的所有 select 语句的结果将会被缓存。
+- 映射语句文件中的所有 insert、update 和 delete 语句会刷新缓存。
+- 缓存会使用最近最少使用算法（LRU, Least Recently Used）算法来清除不需要的缓存。
+- 缓存不会定时进行刷新（也就是说，没有刷新间隔）。
+- 缓存会保存列表或对象（无论查询方法返回哪种）的 1024 个引用。
+- 缓存会被视为读/写缓存，这意味着获取到的对象并不是共享的，可以安全地被调用者修改，而不干扰其他调用者或线程所做的潜在修改。
+
+可用的清除策略有：
+
+- `LRU` – 最近最少使用：移除最长时间不被使用的对象。
+- `FIFO` – 先进先出：按对象进入缓存的顺序来移除它们。
+- `SOFT` – 软引用：基于垃圾回收器状态和软引用规则移除对象。
+- `WEAK` – 弱引用：更积极地基于垃圾收集器状态和弱引用规则移除对象。
+
+默认的清除策略是 LRU。
+
+
+
+flushInterval（刷新间隔）属性可以被设置为任意的正整数，设置的值应该是一个以毫秒为单位的合理时间量。 默认情况是不设置，也就是没有刷新间隔，缓存仅仅会在调用语句时刷新。
+
+size（引用数目）属性可以被设置为任意正整数，要注意欲缓存对象的大小和运行环境中可用的内存资源。默认值是 1024。
+
+readOnly（只读）属性可以被设置为 true 或 false。只读的缓存会给所有调用者返回缓存对象的相同实例。 因此这些对象不能被修改。这就提供了可观的性能提升。而可读写的缓存会（通过序列化）返回缓存对象的拷贝。 速度上会慢一些，但是更安全，因此默认值是 false。
+
+
 
 第三步：配置**statement**上面的**useCache**属性
 
@@ -3111,7 +3168,7 @@ System.out.println(user1 == user2);
 
 经过上面的测试，我们发现执行了两次查询，并且在执行第一次查询后，我们关闭了一级缓存，再去执行第二次查询时，我们发现并没有对数据库发出sql语句，所以此时的数据就只能是来自于我们所说的二级缓存。
 
-### 2.4 二级缓存注意事项 
+### 2.4：总结
 
 当我们在使用二级缓存时，所缓存的类一定要实现java.io.Serializable接口，这种就可以使用序列化方式来保存对象。
 
@@ -3120,6 +3177,29 @@ public class User implements Serializable {
 }
 
 ```
+
+如果你的MyBatis使用了二级缓存，并且你的Mapper和select语句也配置使用了二级缓存，那么在执行select查询的时候，MyBatis会先从二级缓存中取输入，其次才是一级缓存，即MyBatis查询数据的顺序是：二级缓存  —> 一级缓存 —> 数据库。
+
+在什么情况下才有必要去开启二级缓存？
+
+1. 因为所有的增删改都会刷新二级缓存，导致二级缓存失效，所以适合在查询为主的应用中使用，比如历史交易、历史订单的查询。否则缓存就失去了意义。
+2. 如果多个namespace 中有针对于同一个表的操作，比如Blog 表，如果在一个namespace 中刷新了缓存，另一个namespace 中没有刷新，就会出现读到脏数据的情况。所以，推荐在一个Mapper 里面只操作单表的情况使用。
+
+　　如果要让多个namespace 共享一个二级缓存，应该怎么做？跨namespace 的缓存共享的问题，可以使用<cache-ref>来解决：
+
+```
+<cache-ref namespace="com.wuzz.crud.dao.DepartmentMapper" />
+```
+
+　　cache-ref 代表引用别的命名空间的Cache 配置，两个命名空间的操作使用的是同一个Cache。在关联的表比较少，或者按照业务可以对表进行分组的时候可以使用。
+
+　　注意：在这种情况下，多个Mapper 的操作都会引起缓存刷新，缓存的意义已经不大了.
+
+
+
+第三方缓存做二级缓存
+
+　　除了MyBatis 自带的二级缓存之外，我们也可以通过实现Cache 接口来自定义二级缓存。
 
 
 
@@ -3213,7 +3293,7 @@ List\<User\> findAll();
 
 \* \<p\>Description: 用户的实体类\</p\>
 
-\* \<p\>Company: http://www.itheima.com/ \</p\>
+\* \<p\>Company: http://www.xqc.com/ \</p\>
 
 \*/
 
@@ -3262,7 +3342,7 @@ userBirthday=" + userBirthday + ", userSex="
 
 \* \<p\>Description: 用户的持久层接口\</p\>
 
-\* \<p\>Company: http://www.itheima.com/ \</p\>
+\* \<p\>Company: http://www.xqc.com/ \</p\>
 
 \*/
 
@@ -3410,7 +3490,7 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 
 \<typeAliases\>
 
-\<package name=*"com.itheima.domain"*/\>
+\<package name=*"com.xqc.domain"*/\>
 
 \</typeAliases\>
 
@@ -3456,7 +3536,7 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 
 \--\>
 
-\<package name=*"com.itheima.dao"*/\>
+\<package name=*"com.xqc.dao"*/\>
 
 \</mappers\>
 
@@ -3472,7 +3552,7 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 
 \* \<p\>Description: mybatis的注解crud测试\</p\>
 
-\* \<p\>Company: http://www.itheima.com/ \</p\>
+\* \<p\>Company: http://www.xqc.com/ \</p\>
 
 \*/
 
@@ -3738,7 +3818,7 @@ fetchType会覆盖全局的配置参数lazyLoadingEnabled。。
 
 \* \<p\>Description: 用户的实体类\</p\>
 
-\* \<p\>Company: http://www.itheima.com/ \</p\>
+\* \<p\>Company: http://www.xqc.com/ \</p\>
 
 \*/
 
@@ -3781,7 +3861,7 @@ userBirthday=" + userBirthday + ", userSex="
 
 \* \<p\>Description: 账户的实体类\</p\>
 
-\* \<p\>Company: http://www.itheima.com/ \</p\>
+\* \<p\>Company: http://www.xqc.com/ \</p\>
 
 \*/
 
@@ -3817,7 +3897,7 @@ userBirthday=" + userBirthday + ", userSex="
 
 \* \<p\>Description: 账户的持久层接口\</p\>
 
-\* \<p\>Company: http://www.itheima.com/ \</p\>
+\* \<p\>Company: http://www.xqc.com/ \</p\>
 
 \*/
 
@@ -3845,7 +3925,7 @@ value= {
 
 \@Result(column="uid", property="user",
 
-one=\@One(select="com.itheima.dao.IUserDao.findById",
+one=\@One(select="com.xqc.dao.IUserDao.findById",
 
 fetchType=FetchType.**LAZY**)
 
@@ -3867,7 +3947,7 @@ List\<Account\> findAll();
 
 \* \<p\>Description: 用户的持久层接口\</p\>
 
-\* \<p\>Company: http://www.itheima.com/ \</p\>
+\* \<p\>Company: http://www.xqc.com/ \</p\>
 
 \*/
 
@@ -3919,7 +3999,7 @@ User findById(Integer userId);
 
 \* \<p\>Description: 账户的测试类\</p\>
 
-\* \<p\>Company: http://www.itheima.com/ \</p\>
+\* \<p\>Company: http://www.xqc.com/ \</p\>
 
 \*/
 
