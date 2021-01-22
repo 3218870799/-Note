@@ -4,8 +4,6 @@
 <center><img src="https://img.shields.io/badge/Note-grow-green"></img><img src="https://img.shields.io/github/repo-size/3218870799/-Note?style=plastic"></img><img src="https://img.shields.io/badge/role-qcxiao-red"></img></center>
 ------
 
-![github](https://img.shields.io/badge/Note-grow-green)![github](https://img.shields.io/github/repo-size/3218870799/-Note?style=plastic)![github](https://img.shields.io/badge/role-qcxiao-red)
-
 ## >> 说明
 
 :a:本项目是个人学习的笔记，包含一些工具的安装与使用，基础的知识点的整理，以及工作学习中的经验。
@@ -29,6 +27,16 @@
 ------
 
 入手 GitHub 很早，但不够专业，排版什么也没有遵循 GFM 规范，也没有搞图床。从以后开始注意，但是以前的工程量太大，我也不打算进行修改了。
+
+------
+
+有我认识的他们说学的太多觉得很杂乱无章，但是我觉得很多东西需要多了解了解，比如选择消息队列一样，几种消息队列你都要熟悉，然后选择其中一种在自己的项目中进行使用，如果自己都不了解，人云亦云的选择了某种消息队列，到时候无法满足自己的项目需求。这是很不合理的。
+
+广度方面的了解很重要，深度更加重要，需要对自己常用的比如JVM，数据库等必须深入了解其底层原理以及实现。
+
+只有广度没有深度你啥也做不了，只有深度没有广度，你只能当一颗螺丝钉。
+
+在我的观念里，你不管到任何一个项目组，担任任何角色，你都必须担任起项目经理的角色！！
 
 ------
 
@@ -424,25 +432,3 @@ VMware
 架构设计
 
 
-
-
-
-> > :cactus:已迁移整理至Github项目-Note，欢迎浏览提出建议
-
-> >:dancer:[https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md](https://github.com/3218870799/-Note/blob/main/2.0.Java基础/Java基础/Java基础.md)
-
-> >:athletic_shoe:建议下载使用Typora软件进行查看与编辑，效果更佳哦！
-
-
-
-https://github.com/3218870799/-Note/blob/main/0.0%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95.md
-
-> > :haircut:**由于个人原因，工作后不如在学校的时间充裕，对于博客的排版等问题精力不足，**
-
-> > **故将自己的学习笔记整理成Word文档和MD方式上传至GitHub，**
-
-> > :dancing_women:**博客如果有什么新奇的想法依然还是会找时间更新的，毕竟园友还是很神通的都。**
-
-
-
-> > :cake:**个人笔记项目地址：https://github.com/3218870799/-Note**
