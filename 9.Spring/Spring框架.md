@@ -1,4 +1,4 @@
-﻿
+﻿ 
 
 # 第1章 Spring 概述
 
@@ -872,7 +872,7 @@ XML 方式优点是：
 
 面向切面编程，就是将交叉业务逻辑封装成切面，利用 AOP容器的功能将切面织入到主业务逻辑中。所谓交叉业务逻辑是指，通用的、与主业务逻辑无关的代码，如安全检查、事务、日志、缓存等。
 
-
+AOP实现的关键就在于AOP框架自动创建的AOP代理，AOP代理则可分为静态代理和动态代理两大类，其中静态代理是指使用AOP框架提供的命令进行编译，从而在编译阶段就可生成 AOP 代理类，因此也称为编译时增强；而动态代理则在运行时借助于JDK动态代理、CGLIB等在内存中“临时”生成AOP动态代理类，因此也被称为运行时增强。
 
 ## 3.1 简介 
 
@@ -936,7 +936,7 @@ AOP 底层，就是采用动态代理模式实现的。采用了两种代理：J
 
 ## 3.3动态代理
 
-在Spring中，当Bean实现接口时，Spring就会用JDK的动态代理，没有实现接口，就会使用cglib的动态代理
+SpringAOP就是使用动态代理实现的，当Bean实现接口时，Spring就会用JDK的动态代理，没有实现接口，就会使用cglib的动态代理。JDK动态代理通过反射来接受被代理的类，但是被代理的类必须实现接口，核心是InvocationHandler类和Proxy类，cglib动态代理的类一般是没有实现接口的类，cglib是一个代码生成的类库，可以在运行时动态生成某个类的紫烈，所以，GBLIB是通过集成的方式做的动态代理，因此如果某各类被标记为final，那么他是无法使用cglib做动态代理的。
 
 1：JDK动态代理
 
@@ -949,7 +949,14 @@ AOP 底层，就是采用动态代理模式实现的。采用了两种代理：J
 不同的与优缺点：
 
 - JDK 是基于接口实现，而 CGLIB 继承代理类，通常建议使用jdk代理
+
 - CGLib不能对声明为final的方法进行代理
+
+- JDK动态代理只能对实现了接口的类生成代理，而不能针对类。
+
+- CGLIB是针对类实现代理，主要是对指定的类生成一个子类，覆盖其中的方法，并覆盖其中方法实现增强，但是因为采用的是继承，所以该类或方法最好不要声明成final， 对于final类或方法，是无法继承的
+
+  使用CGLib实现动态代理，CGLib底层采用ASM字节码生成框架，使用字节码技术生成代理类，在jdk6之前比使用Java反射效率要高。唯一需要注意的是，CGLib不能对声明为final的方法进行代理，因为CGLib原理是动态生成被代理类的子类
 
 
 自己导包（了解）：
@@ -1041,8 +1048,7 @@ AspectJ 是一个优秀面向切面的框架，它扩展了 Java 语言，提供
 
 **AspetJ** 是 **Eclipse** 的开源项目，官网介绍如下：
 
-a seamless aspect-oriented extension to the Javatm programming
-language（一种基于 Java 平台的面向切面编程的语言）
+a seamless aspect-oriented extension to the Javatm programminglanguage（一种基于 Java 平台的面向切面编程的语言）
 
 Java platform compatible（兼容 Java 平台，可以无缝扩展） easy to learn and use（易学易用）
 
@@ -1126,12 +1132,6 @@ java.lang.RuntimeException: 异常发生
 ### 3 ：AspectJ 的切入点表达(掌握) 
 
 AspectJ 定义了专门的表达式用于指定切入点。表达式的原型是：
-
-| execution(modifiers-pattern? ret-type-pattern                          |
-|------------------------------------------------------------------------|
-| declaring-type-pattern?name-pattern(param-pattern)   throws-pattern?)  |
-
-解释：
 
 modifiers-pattern] 访问权限类型 ret-type-pattern 返回值类型 declaring-type-pattern 包名类名
 
@@ -1390,6 +1390,40 @@ AspectJ 提供了\@Pointcut 注解，用于定义 execution 切入点表达式�
 
 ![](media/7b2a84ce0a9c9da48f8271c354a72b0c.jpg)
 
+## AspectJ和Spring AOP的区别？
+
+Spring AOP
+
+1、基于动态代理来实现，默认如果使用接口的，用JDK提供的动态代理实现，如果是方法则使用CGLIB实现
+
+2、Spring AOP需要依赖IOC容器来管理，并且只能作用于Spring容器，使用纯Java代码实现
+
+3、在性能上，由于Spring AOP是基于动态代理来实现的，在容器启动时需要生成代理实例，在方法调用上也会增加栈的深度，使得Spring AOP的性能不如AspectJ的那么好
+
+AspectJ
+
+AspectJ属于静态织入，通过修改代码来实现，有如下几个织入的时机：
+
+ 1、编译期织入（Compile-time weaving）： 如类 A 使用 AspectJ 添加了一个属性，类 B 引用了它，这个场景就需要编译期的时候就进行织入，否则没法编译类 B。
+
+ 2、编译后织入（Post-compile weaving）： 也就是已经生成了 .class 文件，或已经打成 jar 包了，这种情况我们需要增强处理的话，就要用到编译后织入。
+
+3、类加载后织入（Load-time weaving）： 指的是在加载类的时候进行织入，要实现这个时期的织入，有几种常见的方法。
+
+- 自定义类加载器来干这个，这个应该是最容易想到的办法，在被织入类加载到 JVM 前去对它进行加载，这样就可以在加载的时候定义行为了。
+- 在 JVM 启动的时候指定 AspectJ 提供的 agent：`-javaagent:xxx/xxx/aspectjweaver.jar`。
+
+
+AspectJ可以做Spring AOP干不了的事情，它是AOP编程的完全解决方案，Spring AOP则致力于解决企业级开发中最普遍的AOP（方法织入）。而不是成为像AspectJ一样的AOP方案
+
+因为AspectJ在实际运行之前就完成了织入，所以说它生成的类是没有额外运行时开销的
+
+
+
+![image-20210128170405226](media/image-20210128170405226.png)
+
+
+
 # 第**5**章 **Spring** 事务 
 
 ## 回顾
@@ -1509,57 +1543,51 @@ RuntimeException 的子类，那么定义的就是受查异常。
 
 #### A、 五个事务隔离级别常量(掌握) 
 
->   这些常量均是以 ISOLATION_开头。即形如 ISOLATION_XXX。
+这些常量均是以 ISOLATION_开头。即形如 ISOLATION_XXX。
 
--   DEFAULT(isolation_default)：采用 DB 默认的事务隔离级别。MySql 的默认为REPEATABLE_READ； Oracle 默认为 READ_COMMITTED。
-    
--   READ_UNCOMMITTED（isolation_read_uncommitted）：读未提交。未解决任何并发问题。
-    **允许另外一个事务可以看到这个事务未提交的数据。**
+isolation_default：采用 DB 默认的事务隔离级别。MySql 的默认为REPEATABLE_READ； Oracle 默认为 READ_COMMITTED
 
--   READ_COMMITTED（isolation_read_committed）：读已提交。解决脏读，存在不可重复读与幻读。保证一个事务修改的数据提交后才能被另一事务读取，而且能看到该事务对已有记录的更新。
+isolation_read_uncommitted：读未提交。未解决任何并发问题。允许另外一个事务可以看到这个事务未提交的数据。
 
-➢ REPEATABLE_READ：可重复读。解决脏读、不可重复读，存在幻读.
-保证一个事务修改的数据提交后才能被另一事务读取，但是不能看到该事务对已有记录的更新。
+isolation_read_committed：读已提交。解决脏读，存在不可重复读与幻读。保证一个事务修改的数据提交后才能被另一事务读取，而且能看到该事务对已有记录的更新。
 
-➢ SERIALIZABLE（isolation_serializable）：串行化。不存在并发问题。
+ repeatable_read：可重复读。解决脏读、不可重复读，存在幻读。保证一个事务修改的数据提交后才能被另一事务读取，但是不能看到该事务对已有记录的更新。
+
+solation_serializable：串行化。不存在并发问题。
 **一个事务在执行的过程中完全看不到其他事务对数据库所做的更新。**
 
 #### B、 七个事务传播行为常量(掌握) 
 
-spring事务的传播行为说的是，当多个事务同时存在的时候，spring如何处理这些shi事务的行为。
+spring事务的传播行为说的是，当多个事务同时存在的时候，spring如何处理这些事务的行为。
 
-所谓事务传播行为是指，处于不同事务中的方法在相互调用时，执行期间事务的维护情况。如，A
-事务中的方法 doSome()调用 B 事务中的方法
-doOther()，在调用执行期间事务的维护情况，就称为事务传播行为。事务传播行为是加在方法上的。事务传播行为常量都是以
-PROPAGATION\_ 开头，形如 PROPAGATION_XXX。
+所谓事务传播行为是指，处于不同事务中的方法在相互调用时，执行期间事务的维护情况。如，A事务中的方法 doSome()调用 B 事务中的方法doOther()，在调用执行期间事务的维护情况，就称为事务传播行为。事务传播行为是加在方法上的。事务传播行为常量都是以
+PROPAGATION\_ 开头，形如 PROPAGATION_XXX
 
->   **PROPAGATION_REQUIRED**
+>   propagation_required
 
->   **PROPAGATION_REQUIRES_NEW**
+>   propagation_requires_new
 
->   **PROPAGATION_SUPPORTS**
+>   propagation_supports
 
->   PROPAGATION_MANDATORY
+>   propagation_mandatory
 
->   PROPAGATION_NESTED
+>   propagation_nested
 
->   PROPAGATION_NEVER
+>   propagation_never
 
->   PROPAGATION_NOT_SUPPORTED
+>   Propagation_not_supported
 
 a**、** PROPAGATION_REQUIRED （propagation_required）
 
-指定的方法必须在事务内执行。**若当前存在事务，就加入到当前事务中；若当前没有事务，则创建一个新事务**。这种传播行为是最常见的选择，也是
-Spring 默认的事务传播行为。如该传播行为加在 doOther()方法上。若
-doSome()方法在调用 doOther()方法时就是在事务内运行的，则
-doOther()方法的执行也加入到该事务内执行。若 doSome()方法在调用
-doOther()方法时没有在事务内执行，则 doOther()方法会创建一个事务，并在其中执行。
+指定的方法必须在事务内执行。**若当前存在事务，就加入到当前事务中；若当前没有事务，则创建一个新事务**。这种传播行为是最常见的选择，也是Spring 默认的事务传播行为。如该传播行为加在 doOther()方法上。
+
+若doSome()方法在调用 doOther()方法时就是在事务内运行的，则doOther()方法的执行也加入到该事务内执行。若 doSome()方法在调用doOther()方法时没有在事务内执行，则 doOther()方法会创建一个事务，并在其中执行。
 
 ![](media/3423cd9525d1c27494b80123d46e3904.jpg)
 
 b**、** PROPAGATION_SUPPORTS （propagation_supports）
 
->   指定的方法支持当前事务，但若当前没有事务，也可以以非事务方式执行。
+指定的方法支持当前事务，但若当前没有事务，也可以以非事务方式执行。
 
 ![](media/be02e5bd7fb603ca136b043339e071f3.jpg)
 
@@ -1801,12 +1829,11 @@ SaleDao.xml
 
 ![](media/5788c89f82c30b74315f2cfad3a53673.jpg)
 
-## 5.4 使用 Spring 的事务注解管理事务(掌握) 
+## 5.4 注解@Transactional
 
->   通过\@Transactional 注解方式，可将事务织入到相应 public
->   方法中，实现事务管理。
+通过@Transactional 注解方式，可将事务织入到相应 public方法中，实现事务管理。
 
-\@Transactional 的所有可选属性如下所示：
+@Transactional 的所有可选属性如下所示：
 
 -   propagation：用于设置事务传播属性。该属性类型为 Propagation 枚举，默认值为
     Propagation.REQUIRED。
@@ -1835,12 +1862,10 @@ SaleDao.xml
 -   noRollbackForClassName：指定不需要回滚的异常类类名。类型为
     String[]，默认值为空数组。当然，若只有一个异常类时，可以不使用数组。
 
-需要注意的是，\@Transactional 若用在方法上，只能用于 public 方法上。对于其他非
-public 方法，如果加上了注解\@Transactional，虽然 Spring
-不会报错，但不会将指定事务织入到该方法中。因为 Spring 会忽略掉所有非 public
-方法上的\@Transaction 注解。
+需要注意的是，@Transactional 若用在方法上，只能用于 public 方法上。对于其他非public 方法，如果加上了注解@Transactional，虽然 Spring不会报错，但不会将指定事务织入到该方法中。因为 Spring 会忽略掉所有非 public
+方法上的@Transaction 注解。
 
->   若\@Transaction 注解在类上，则表示该类上所有的方法均将在执行时织入事务。
+若@Transaction 注解在类上，则表示该类上所有的方法均将在执行时织入事务。
 
 实现注解的事务步骤：
 
@@ -1859,6 +1884,12 @@ transaction-manager：事务管理器 bean 的 id
 1.  业务层 **public** 方法加入事务属性
 
 ![](media/b35cedaa72d64060801bf873acffda83.jpg)
+
+#### 实现原理：
+
+主要是通过反射获取bean的注解信息，利用AOP对编程式事务进行封装实现。
+
+注解的属性先加入到Spring容器中，通过Cglib动态代理将注解加入到拦截链中，
 
 ## 5.5 使用 AspectJ 的 AOP 配置管理事务(掌握) 
 
@@ -1915,10 +1946,6 @@ Step6：修改测试类
 # 第**6**章 **Spring** 与 **Web** 
 
 在 Web 项目中使用 Spring 框架，首先要解决在 web 层（这里指 Servlet）中获取到Spring 容器的问题。只要在 web 层获取到了 Spring 容器，便可从容器中获取到 Service对象。
-
-
-
-
 
 ## 6.1 Web 项目使用 Spring 的问题(了解) 
 
