@@ -1,4 +1,4 @@
-# 一：JVM内存结构
+#  一：JVM内存结构
 
 Java虚拟机在运行时，会把内存空间分为若干个区域。Java虚拟机所管理的内存区域分为如下部分：方法区、堆内存、虚拟机栈、本地方法栈、程序计数器。
 
@@ -6,8 +6,7 @@ Java虚拟机在运行时，会把内存空间分为若干个区域。Java虚拟
 
 ## 1、类装载器ClassLoader
 
-负责加载class文件，class文件在文件开头有特定的文件标识，并且ClassLoader只负责class文件的加载，至于它是否
-可以运行，则是由执行引擎（Execution Engine）决定。
+负责加载class文件，class文件在文件开头有特定的文件标识，并且ClassLoader只负责class文件的加载，至于它是否可以运行，则是由执行引擎（Execution Engine）决定。
 
 虚拟机自带的加载器：
 
@@ -95,8 +94,7 @@ Jmap：查看堆内存占用情况 jmap - heap 进程id
 
 ## 6、本地方法栈
 
-虚拟机栈执行的是Java方法，本地方法栈执行的是本地方法（Native
-Method）,其他基本上一致
+虚拟机栈执行的是Java方法，本地方法栈执行的是本地方法（NativeMethod）,其他基本上一致
 
 ## 7：元空间
 
@@ -130,8 +128,7 @@ Method）,其他基本上一致
 
 ### （2）可达性分析算法
 
-了解可达性分析算法之前先了解一个概念——GC Roots，垃圾收集的起点，可以作为GC
-Roots的有虚拟机栈中本地变量表中引用的对象、方法区中静态属性引用的对象、方法区中常量引用的对象、本地方法栈中JNI（Native方法）引用的对象。
+了解可达性分析算法之前先了解一个概念——GC Roots，垃圾收集的起点，可以作为GCRoots的有虚拟机栈中本地变量表中引用的对象、方法区中静态属性引用的对象、方法区中常量引用的对象、本地方法栈中JNI（Native方法）引用的对象。
 
 当一个对象到GC Roots没有任何引用链相连（GCRoots到这个对象不可达）时，就说明此对象是不可用的，是死对象。如下图：object1、object2、object3、object4和GC
 Roots之间有可达路径，这些对象不会被回收，但object5、object6、object7到GC
@@ -147,14 +144,16 @@ Roots之间没有可达路径，这些对象就被判了死刑。
 当内存空间不足，Java虚拟机宁愿抛出OutOfMemoryError错误，使程序异常终止，也不会靠随意回收具有强引用的对象来解决内存不足的问题。
 
 （2） 软引用（SoftReference）
-仅有软引用引用该对象时，在垃圾回收后，内存仍不足时会再次出发垃圾回收，回收软引用对象 可以配合引用队列来释放软引用自身。
+仅有软引用引用该对象时，在垃圾回收后，内存仍不足时会再次出发垃圾回收，回收软引用对象 可以配合引用队列来释放软引用自身。适合做缓存。缓存个图片。
 
 （3） 弱引用（WeakReference）
 仅有弱引用引用该对象时，在垃圾回收时，无论内存是否充足，都会回收弱引用对象
+
 可以配合引用队列来释放弱引用自身
 
 （4） 虚引用（PhantomReference） 必须配合引用队列使用，主要配合 ByteBuffer
 使用，被引用对象回收时，会将虚引用入队， 由 Reference Handler
+
 线程调用虚引用相关方法释放直接内存
 
 ### （3）方法区回收
@@ -195,6 +194,8 @@ Roots之间没有可达路径，这些对象就被判了死刑。
 
 ![](media/db6b2a662ec97012c842142b042851e1.png)
 
+缺点：效率会低
+
 ### （4）分代收集算法
 
 把堆内存分为新生代和老年代，新生代又分为Eden区、From Survivor和To Survivor。
@@ -210,9 +211,7 @@ Roots之间没有可达路径，这些对象就被判了死刑。
 新生代空间不足时，触发 minor gc，伊甸园和 from 存活的对象使用 copy 复制到 to
 中，存活的 对象年龄加 1并且交换 from to
 
-minor gc 会引发 stop the
-world，暂停其它用户的线程，等垃圾回收结束，用户线程才恢复运行
-当对象寿命超过阈值时，会晋升至老年代，最大寿命是15（4bit）
+minor gc 会引发 stop theworld，暂停其它用户的线程，等垃圾回收结束，用户线程才恢复运行，当对象寿命超过阈值时，会晋升至老年代，最大寿命是15（4bit）
 
 当老年代空间不足，会先尝试触发 minor gc，如果之后空间仍不足，那么触发 full
 gc，STW的时 间更长
@@ -233,9 +232,17 @@ gc，STW的时 间更长
 
 堆内存垃圾收集器：G1
 
-![](media/d84c1fe2212bb6683da991ec770e4496.png)
+![image-20210129160812436](media/image-20210129160812436.png)
+
+前六种叫做分代模型，G1逻辑分代，物理不分代，ZGC逻辑物理都不分，Epsilon是啥也不做
 
 图中展示了7种作用于不同分代的收集器，如果两个收集器之间存在连线，则说明它们可以搭配使用。虚拟机所处的区域则表示它是属于新生代还是老年代收集器。
+
+查看命令：java -XX:+PrintCommandLineFlags -version
+
+1.8默认的是Paralle
+
+1.9默认的是G1
 
 ## （1）串行Serial
 
@@ -250,7 +257,13 @@ gc，STW的时 间更长
 - 新生代采用复制算法，Stop-The-World
 - 老年代采用标记-整理算法，Stop-The-World
 
-## （2）吞吐量优先——并行
+随着内存越来越大，STW时间越来越长
+
+
+
+## （2）并行
+
+花费了大量时间在进程调度上。
 
 \-XX:+UseParallelGC \~ -XX:+UseParallelOldGC
 
@@ -266,6 +279,42 @@ gc，STW的时 间更长
 - 老年代采用标记-整理算法，Stop-The-World
 
 停顿时间和吞吐量不可能同时调优。
+
+## （5）CMS(并发标记清除)垃圾收集器
+
+老年代收集器
+
+以获取最短回收停顿时间
+
+“Concurrent”并发是指垃圾收集的线程和用户执行的线程是可以同时执行的。
+
+CMS是基于“标记-清除”算法实现的，整个过程分为4个步骤：
+1、初始标记（CMS initial mark）：找到根对象
+2、并发标记（CMS concurrent mark）：过滤对象树，可能产生错误标记，已经标记为垃圾，又被连上了
+3、重新标记（CMS remark）：修正错标，CMS和G1都采用的三色标记，CMS采用增量更新，G1使用快照的方式。ZGC采用颜色指针。
+4、并发清除（CMS concurrent sweep）。
+
+![89af7bbc-5331-4c62-ab7e-18e93350f826](media/641601-20150915141621148-1908245224.png)
+
+
+
+上图中，初始标记和重新标记时，需要stop the world。整个过程中耗时最长的是并发标记和并发清除，这两个过程都可以和用户线程一起工作。
+
+缺点：
+
+1、CMS收集器对CPU资源非常敏感。
+
+2、CMS收集器无法处理浮动垃圾（Floating Garbage，就是指在之前判断该对象不是垃圾，由于用户线程同时也是在运行过程中的，所以会导致判断不准确的， 可能在判断完成之后在清除之前这个对像已经变成了垃圾对象，所以有可能本该此垃圾被回收但是没有被回收，只能等待下一次GC再将该对象回收，所以这种对像就是浮动垃圾）可能出现“Concurrent Mode Failure”失败而导致另一次Full GC的产生
+
+
+
+
+
+
+
+
+
+
 
 ## （3）响应时间优先
 
@@ -329,27 +378,7 @@ G1
 
 老年代内存不足
 
-## （5）CMS(并发标记清除)垃圾收集器
 
-老年代收集器
-
-以获取最短回收停顿时间
-
-“Concurrent”并发是指垃圾收集的线程和用户执行的线程是可以同时执行的。
-
-CMS是基于“标记-清除”算法实现的，整个过程分为4个步骤：
-1、初始标记（CMS initial mark）。
-2、并发标记（CMS concurrent mark）。
-3、重新标记（CMS remark）。
-4、并发清除（CMS concurrent sweep）。
-
-![89af7bbc-5331-4c62-ab7e-18e93350f826](media/641601-20150915141621148-1908245224.png)
-
-上图中，初始标记和重新标记时，需要stop the world。整个过程中耗时最长的是并发标记和并发清除，这两个过程都可以和用户线程一起工作。
-
-缺点：
-1、CMS收集器对CPU资源非常敏感。
-2、CMS收集器无法处理浮动垃圾（Floating Garbage，就是指在之前判断该对象不是垃圾，由于用户线程同时也是在运行过程中的，所以会导致判断不准确的， 可能在判断完成之后在清除之前这个对像已经变成了垃圾对象，所以有可能本该此垃圾被回收但是没有被回收，只能等待下一次GC再将该对象回收，所以这种对像就是浮动垃圾）可能出现“Concurrent Mode Failure”失败而导致另一次Full GC的产生
 
 https://www.cnblogs.com/webor2006/p/11055468.html
 
@@ -427,6 +456,10 @@ https://www.cnblogs.com/webor2006/p/11055468.html
 
 # 三：类加载与字节码技术
 
+
+
+
+
 ## 1. 类文件结构 
 
 执行 javac -parameters -d . HellowWorld.java
@@ -487,6 +520,16 @@ https://www.cnblogs.com/webor2006/p/11055468.html
 ## 2. 字节码指令 
 
 ## 3. 编译期处理 
+
+## 类加载机制
+
+Java虚拟机把描述类的数据从Class文件加载到内存，并对数据进行校验、转换解析和初始化，最终形成可以被虚拟机直接使用的Java类型，这就是虚拟机的加载机制。
+
+类从被加载到虚拟机内存中开始，到卸载出内存为止，它的整个生命周期包括了：加载（Loading）、验证（Verification）、准备（Preparation）、解析（Resolution）、初始化（Initialization）、使用（using）、和卸载（Unloading）七个阶段。其中验证、准备和解析三个部分统称为连接（Linking）
+
+![img](media/695890-20180302174748402-1201972789.png)
+
+JVM就是按照上面的顺序一步一步的将字节码文件加载到内存中并生成相应的对象的。首先将字节码加载到内存中，然后对字节码进行连接，连接阶段包括了验证准备解析这3个步骤，连接完毕之后再进行初始化工作。
 
 ## 4. 类加载阶段
 
@@ -566,7 +609,7 @@ https://www.cnblogs.com/webor2006/p/11055468.html
 
 
 
-#### 分类
+#### 分类及关系
 
 类加载器分为如下几种：启动类加载器（Bootstrap ClassLoader）、扩展类加载器（Extension ClassLoader）、应用程序类加载器（Application ClassLoader）和自定义类加载器（User ClassLoader），其中启动类加载器属于JVM的一部分，其他类加载器都用java实现，并且最终都继承自java.lang.ClassLoader。
 
@@ -578,7 +621,7 @@ https://www.cnblogs.com/webor2006/p/11055468.html
 
 ④ 自定义类加载器（User ClassLoader），JVM提供的类加载器只能加载指定目录的类（jar和class），如果我们想从其他地方甚至网络上获取class文件，就需要自定义类加载器来实现，自定义类加载器主要都是通过继承ClassLoader或者它的子类来实现，但无论是通过继承ClassLoader还是它的子类，最终自定义类加载器的父加载器都是应用程序类加载器，因为不管调用哪个父类加载器，创建的对象都必须最终调用java.lang.ClassLoader.getSystemClassLoader()作为父加载器，getSystemClassLoader()方法的返回值是sun.misc.Launcher.AppClassLoader即应用程序类加载器。
 
-
+![image-20210125211302444](media/image-20210125211302444.png)
 
 #### 双亲委派
 
@@ -611,8 +654,8 @@ java.lang.SecurityException:Prohibited package name: java.lang
 2. 基础类无法调用类加载器加载用户提供的代码。
    双亲委派很好地解决了各个类加载器的基础类的统一问题（越基础的类由越上层的加载器进行加载），但如果基础类又要调用用户的代码，例如 JNDI 服务，JNDI 现在已经是 Java 的标准服务，它的代码由启动类加载器去加载（在 JDK 1.3 时放进去的 rt.jar ），但 JNDI 的目的就是对资源进行集中管理和查找，它需要调用由独立厂商实现并部署在应用程序的 ClassPath 下的 JNDI 接口提供者（SPI,Service Provider Interface，例如 JDBC 驱动就是由 MySQL 等接口提供者提供的）的代码，但启动类加载器只能加载基础类，无法加载用户类。
 
-> 为此 Java 引入了线程上下文类加载器（Thread Context ClassLoader）。这个类加载器可以通过 `java.lang.Thread.setContextClassLoaser()` 方法进行设置，如果创建线程时还未设置，它将会从父线程中继承一个，如果在应用程序的全局范围内都没有设置过的话，那这个类加载器默认就是应用程序类加载器。
-> 如此，JNDI 服务使用这个线程上下文类加载器去加载所需要的 SPI 代码，也就是父类加载器请求子类加载器去完成类加载的动作，这种行为实际上就是打通了双亲委派模型的层次结构来逆向使用类加载器，实际上已经违背了双亲委派模型的一般性原则，但这也是无可奈何的事情。Java 中所有涉及 SPI 的加载动作基本上都采用这种方式，例如 JNDI、JDBC、JCE、JAXB 和 JBI 等。
+为此 Java 引入了线程上下文类加载器（Thread Context ClassLoader）。这个类加载器可以通过 `java.lang.Thread.setContextClassLoaser()` 方法进行设置，如果创建线程时还未设置，它将会从父线程中继承一个，如果在应用程序的全局范围内都没有设置过的话，那这个类加载器默认就是应用程序类加载器。
+如此，JNDI 服务使用这个线程上下文类加载器去加载所需要的 SPI 代码，也就是父类加载器请求子类加载器去完成类加载的动作，这种行为实际上就是打通了双亲委派模型的层次结构来逆向使用类加载器，实际上已经违背了双亲委派模型的一般性原则，但这也是无可奈何的事情。Java 中所有涉及 SPI 的加载动作基本上都采用这种方式，例如 JNDI、JDBC、JCE、JAXB 和 JBI 等。
 
 1. 用户对程序动态性的追求。
    代码热替换（HotSwap）、模块热部署（Hot Deployment）等，OSGi 实现模块化热部署的关键则是它自定义的类加载器机制的实现。每一个程序模块（Bundle）都有一个自己的类加载器，当需要更换一个 Bundle 时，就把 Bundle 连同类加载器一起换掉以实现代码的热替换。
@@ -626,6 +669,10 @@ java.lang.SecurityException:Prohibited package name: java.lang
 > 6）否则，查找 Dynamic Import 列表的 Bundle，委派给对应 Bundle 的类加载器加载。
 > 7）否则，类查找失败。
 > 上面的查找顺序中只有开头两点仍然符合双亲委派规则，其余的类查找都是在平级的类加载器中进行的。OSGi 的 Bundle 类加载器之间只有规则，没有固定的委派关系。
+
+#### 全盘委托机制
+
+   当一个类运行时,可能有其他的类,这时由应用类加载器委托给扩展类加载器是否加载这些类,扩展类加载器再次向上委托引导类加载器是否加载这些类,引导类加载器判断后将有的类进行加载向内存中返回class对象后,再由扩展类加载器中有的类进行加载返回class对象,剩下全部有应用类加载器进行加载.
 
 #### 自定义类加载器
 
@@ -674,6 +721,12 @@ Thread.currentThread().setContextClassLoader(loader);
 3. **设定默认值。** 成员变量值都需要设定为默认值， 即各种不同形式的零值。
 4. **设置对象头。**设置新对象的哈希码、 GC 信息、锁信息、对象所属的类元信息等。这个过程的具体设置方式取决于 JVM 实现。
 5. **执行 init 方法。** 初始化成员变量，执行实例化代码块，调用类的构造方法，并把堆内对象的首地址赋值给引用变量。
+
+
+
+首先尝试在栈上进行分配（效率高，对象少），如果对象很大，直接分配到老年代，否则，就先分配到Eden区，
+
+
 
 ## 6. 运行期优化
 
@@ -800,7 +853,16 @@ JMM是一个抽象的概念，并不是真实的存在，它涵盖了缓冲区�
 
 由于Volatile的MESI缓存一致性协议，需要不断的从主内存嗅探和CAS循环，无效的交互会导致总线带宽达到峰值。因此不要大量使用volatile关键字，至于什么时候使用volatile、什么时候用锁以及Syschonized都是需要根据实际场景的。
 
+**内存屏障**
 
+
+
+如何保证CPU上述重排序动作不会导致一致性的问题呢：内存屏障(memory barriers)：
+
+- 写屏障（store barrier）：在执行屏障之后的指令之前，先执行所有已经在存储缓冲中保存的指令。
+- 读屏障（load barrier）：在执行任何的加载指令之前，先应执行所有已经在失效队列中的指令。
+
+有了内存屏障，就可以保证缓存的一致性了。
 
 ## 通信
 
@@ -837,10 +899,10 @@ JMM是一个抽象的概念，并不是真实的存在，它涵盖了缓冲区�
 ### 1：简介
 
 1、内存泄漏memory leak
-:是指程序在申请内存后，无法释放已申请的内存空间，一次内存泄漏似乎不会有大的影响，但内存泄漏堆积后的后果就是内存溢出。
+是指程序在申请内存后，无法释放已申请的内存空间，一次内存泄漏似乎不会有大的影响，但内存泄漏堆积后的后果就是内存溢出。
 
 2、内存溢出 out of memory
-:指程序申请内存时，没有足够的内存供申请者使用，或者说，给了你一块存储int类型数据的存储空间，但是你却存储long类型的数据，那么结果就是内存不够用，此时就会报错OOM,即所谓的内存溢出。
+指程序申请内存时，没有足够的内存供申请者使用，或者说，给了你一块存储int类型数据的存储空间，但是你却存储long类型的数据，那么结果就是内存不够用，此时就会报错OOM,即所谓的内存溢出。
 
 ### 2：为什么会发生内存泄露？
 
@@ -1146,17 +1208,15 @@ IDEA设置
 
 ##  5.2：堆的分配参数
 
-#### 1、-Xmx –Xms
+#### 1、-Xmx –Xms，-Xss
 
-指定最大堆和最小堆
+指定最大堆和最小堆，指定栈空间
 
 
 
 #### 2、-Xmn、-XX:NewRatio、-XX:SurvivorRatio：
 
-- -Xmn
-
-　　　　**设置新生代大小**
+- -Xmn**设置新生代大小**
 
 - -XX:NewRatio
 
@@ -1225,8 +1285,8 @@ IDEA设置
 
 **1、Xss：**
 
-> 设置栈空间的大小。通常只有几百K
->
+设置栈空间的大小。通常只有几百K
+
 > 　　决定了函数调用的深度
 >
 > 　　每个线程都有独立的栈空间
@@ -1274,19 +1334,123 @@ public class TestStackDeep {
 
 意味着函数调用的次数太深，像这种递归调用就是个典型的例子。
 
+
+
+### GC常用参数
+
+* -Xmn -Xms -Xmx -Xss
+  年轻代 最小堆 最大堆 栈空间
+* -XX:+UseTLAB
+  使用TLAB，默认打开
+* -XX:+PrintTLAB
+  打印TLAB的使用情况
+* -XX:TLABSize
+  设置TLAB大小
+* -XX:+DisableExplictGC
+  System.gc()不管用 ，FGC
+* -XX:+PrintGC
+* -XX:+PrintGCDetails
+* -XX:+PrintHeapAtGC
+* -XX:+PrintGCTimeStamps
+* -XX:+PrintGCApplicationConcurrentTime (低)
+  打印应用程序时间
+* -XX:+PrintGCApplicationStoppedTime （低）
+  打印暂停时长
+* -XX:+PrintReferenceGC （重要性低）
+  记录回收了多少种不同引用类型的引用
+* -verbose:class
+  类加载详细过程
+* -XX:+PrintVMOptions
+* -XX:+PrintFlagsFinal  -XX:+PrintFlagsInitial
+  必须会用
+* -Xloggc:opt/log/gc.log
+* -XX:MaxTenuringThreshold
+  升代年龄，最大值15
+* 锁自旋次数 -XX:PreBlockSpin 热点代码检测参数-XX:CompileThreshold 逃逸分析 标量替换 ... 
+  这些不建议设置
+
+### Parallel常用参数
+
+* -XX:SurvivorRatio
+* -XX:PreTenureSizeThreshold
+  大对象到底多大
+* -XX:MaxTenuringThreshold
+* -XX:+ParallelGCThreads
+  并行收集器的线程数，同样适用于CMS，一般设为和CPU核数相同
+* -XX:+UseAdaptiveSizePolicy
+  自动选择各区大小比例
+
+### CMS常用参数
+
+* -XX:+UseConcMarkSweepGC
+* -XX:ParallelCMSThreads
+  CMS线程数量
+* -XX:CMSInitiatingOccupancyFraction
+  使用多少比例的老年代后开始CMS收集，默认是68%(近似值)，如果频繁发生SerialOld卡顿，应该调小，（频繁CMS回收）
+* -XX:+UseCMSCompactAtFullCollection
+  在FGC时进行压缩
+* -XX:CMSFullGCsBeforeCompaction
+  多少次FGC之后进行压缩
+* -XX:+CMSClassUnloadingEnabled
+* -XX:CMSInitiatingPermOccupancyFraction
+  达到什么比例时进行Perm回收
+* GCTimeRatio
+  设置GC时间占用程序运行时间的百分比
+* -XX:MaxGCPauseMillis
+  停顿时间，是一个建议时间，GC会尝试用各种手段达到这个时间，比如减小年轻代
+
+### G1常用参数
+
+* -XX:+UseG1GC
+* -XX:MaxGCPauseMillis
+  建议值，G1会尝试调整Young区的块数来达到这个值
+* -XX:GCPauseIntervalMillis
+  ？GC的间隔时间
+* -XX:+G1HeapRegionSize
+  分区大小，建议逐渐增大该值，1 2 4 8 16 32。
+  随着size增加，垃圾的存活时间更长，GC间隔更长，但每次GC的时间也会更长
+  ZGC做了改进（动态区块大小）
+* G1NewSizePercent
+  新生代最小比例，默认为5%
+* G1MaxNewSizePercent
+  新生代最大比例，默认为60%
+* GCTimeRatio
+  GC时间建议比例，G1会根据这个值调整堆空间
+* ConcGCThreads
+  线程数量
+* InitiatingHeapOccupancyPercent
+  启动G1的堆空间占用比例
+
+
+
 # 六：VisualVM的使用
 
-Window基本指令：
+## 命令
 
 jps：查看Java进程概述，安装了java就有
 
-jconsole：图形化查看内存线程等信息
 
-![image-20201223174711205](media/image-20201223174711205.png)
 
-选择需要查看的进程进行连接
+Jinfo pi ：查看指定pid的所有JVM信息
 
-![image-20201223174928623](media/image-20201223174928623.png)
+- jinfo -flags pid 查询虚拟机运行参数信息。
+- jinfo -flag name pid，查询具体参数信息，如jinfo -flag UseSerialGC 42324，查看是否启用UseSerialGC
+
+![image-20210128160226475](media/image-20210128160226475.png)
+
+jmap
+
+　　1）jmap -heap pid：输出堆内存设置和使用情况（JDK11使用jhsdb jmap --heap --pid pid）
+
+　　2）jmap -histo pid：输出heap的直方图，包括类名，对象数量，对象占用大小
+
+　　3）jmap -histo:live pid：同上，只输出存活对象信息
+
+　　4）jmap -clstats pid：输出加载类信息
+
+　　5）jmap -help：jmap命令帮助信息
+
+​		6）jmap -dump:file=a 10340：jmap下载堆信息文件，查看信息需要下载专门的工具
 
 jstat 每个一定时间监控内存使用情况
 
@@ -1304,19 +1468,19 @@ jstack 命令
 
 打印线程信息
 
+jconsole：图形化查看内存线程等信息
+
+![image-20201223174711205](media/image-20201223174711205.png)
+
+选择需要查看的进程进行连接
+
+![image-20201223174928623](media/image-20201223174928623.png)
 
 
-jmap下载堆信息文件
-
-jmap -dump:file=a 10340
-
-查看信息需要下载专门的工具
 
 
 
-直接打印堆上的内存信息
 
-jmap -heap 10340
 
 
 
@@ -1511,3 +1675,172 @@ JVM配置方面，一般情况可以先用默认配置（基本的一些初始�
 - 可以在合适的场景（如实现缓存）采用软引用、弱引用，比如用软引用来为ObjectA分配实例：SoftReference objectA=new SoftReference(); 在发生内存溢出前，会将objectA列入回收范围进行二次回收，如果这次回收还没有足够内存，才会抛出内存溢出的异常。 
   避免产生死循环，产生死循环后，循环体内可能重复产生大量实例，导致内存空间被迅速占满。
 - 尽量避免长时间等待外部资源（数据库、网络、设备资源等）的情况，缩小对象的生命周期，避免进入老年代，如果不能及时返回结果可以适当采用异步处理的方式等。
+
+# 七：HotSpot
+
+hotspot与openJDK是JVM的具体实现，JVM相当于一种规范。
+
+new一个对象
+
+申请内存——初始化默认值——构造方法，设置值——建立关联
+
+```java
+class T{
+    int m = 8;
+}
+T t = new T();
+
+汇编代码
+    new #2<T>      申请内存
+    dup            复制一份
+    invokespecial #3 <T.<init>>  调用构造方法，初始化为8
+    astore_1                    将t与内存中的T对象建立关联
+    return
+```
+
+
+
+对象在内存中的存储布局
+
+普通对象 new XX() 
+
+markword标记字，class pointer类型指针，instance data 实例对象，padding对齐
+
+其中markword和class point一起称为对象头
+
+如果前三个一个没有满足8个字节，用padding补齐
+
+
+
+数组
+
+int[] a = new int[4]
+
+T[] a = new T[5]
+
+markword,class poniter,length(数组长度 4字节) ，instance data 实例对象，padding
+
+
+
+对象头主要包括的就是锁的信息，现在的synchronized是一个锁升级的过程
+
+先上偏向锁，自旋锁（无锁，轻量级锁），重量级锁，
+
+偏向锁：坑上贴个名片，如果你来就可以直接进入
+
+当发生竞争时，使用CAS算法往坑上贴名片。
+
+
+
+对象是怎么定位的？
+
+句柄方式，直接指针
+
+![image-20210129140832918](media/image-20210129140832918.png)
+
+
+
+
+
+# 八：JVM调优
+
+有JVM调优经验
+
+根据需求进行JVM规划和预调优：
+
+优化运行JVM运行环境（慢，卡顿）：
+
+解决JVM运行过程中出现的各种问题（OOM）
+
+
+
+命令：
+
+java -X非标参数
+
+java -XX:+PrintFlagFinal -version
+
+
+
+定位
+
+我的CPU是100%，怎么定位？频繁FGC三秒一次怎么定位？
+
+问题一：频繁FGC，但是没有OOM
+
+监控，报警——运维的人——
+
+top命令查看使用情况
+
+模拟 
+
+```shell
+# 将最大堆和最小堆设置一样，防止抖动，资源应该给客户服务，而不应该浪费在扩容上
+# PrintGC ：打印GC信息
+java -Xms20M -Xmx20M -XX:PrintGC com.xqc.demol
+```
+
+![image-20210129195644731](media/image-20210129195644731.png)
+
+每次只回收了1K，回收不掉，内存有泄漏，全占满了。
+
+图像化检测软件：
+
+上线了必须开放端口这些远程工具才能连上，增加了不安全性
+
+arthas安装：阿里开源的
+
+命令：dashboard
+
+
+
+面试题一：如果一个Java进程，平时也就50%，但是突然暴涨90%，如何定位？
+
+阿里规约，线程的名称要有意义
+
+命令：Thread pid
+
+
+
+jmap -histo 1778 | head -20
+
+![image-20210129205629700](media/image-20210129205629700.png)
+
+这些对象在吃内存
+
+当然生产上不能用jmap，除非测试环境中，或则高可用隔离其中一台，用其中一台给他测试，或则配置参数
+
+-XX:+HeapDumpOnOutOfMermoryError
+
+发生了OOM产生了堆存储文件
+
+使用VisualVm查看哪些类
+
+
+
+
+
+实例一：
+
+OOM产生的原因多种多样，有些程序未必产生OOM，不断FGC(CPU飙高，但内存回收特别少) （上面案例）
+
+1. 硬件升级系统反而卡顿的问题（见上）
+
+2. 线程池不当运用产生OOM问题（见上）
+   不断的往List里加对象（实在太LOW）
+
+3. smile jira问题
+   实际系统不断重启
+   解决问题 加内存 + 更换垃圾回收器 G1
+   真正问题在哪儿？不知道
+
+4. tomcat http-header-size过大问题（Hector）
+
+
+
+实例二：
+
+finalize（）方法：
+
+C++需要手动释放内存，Java不需要，如果重写finalize（）方法，进行释放，Java操作会很耗时，导致内存溢出。
+
