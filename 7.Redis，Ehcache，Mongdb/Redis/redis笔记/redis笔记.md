@@ -91,13 +91,53 @@ Sanfilippo将Redis开源发布，并开始和Redis的另一名主要的代码贡
 
 # 第二章：redis安装
 
+## 1：Window安装
+
+安装包地址：[https://github.com/microsoftarchive/redis](https://links.jianshu.com/go?to=https%3A%2F%2Fgithub.com%2Fmicrosoftarchive%2Fredis) 
+
+（1）进入安装包地址，选择 releases
+
+（2）在 releases 页面下载最新版
+
+msi是可执行文件，按安装步骤安装即可。zip直接解压就可以了。
+
+![image-20210124203236202](media/image-20210124203236202.png)
+
+端口号可保持默认的6379，并选择防火墙例外，从而保证外部可以正常访问Redis服务。
+
+以服务方式启动
+
+以非服务方式启动
+
+进入CMD，进入redis的目录，执行如下命令
+
+redis-server redis.windows.conf
+
+
+
+设置密码
+
+在redis目录中找到redis.windows-service.conf 和 redis.windows.conf 两个文件
+
+都打开找到requirepass，加一行：requirepass 123456，123456是密码，保存重新运行redis，访问redis就需要密码了。
+
+CMD并进入redis目录，执行如下命令，执行前请保证redis服务已启动
+
+redis-cli -h localhost -p 6379 -a 123456 
+
+
+
+
+
+
+
+## 2：Linux安装
+
 ## 2.1：redis下载
 
 官网地址：<http://redis.io/>
 
 下载地址：<http://download.redis.io/releases/redis-3.0.0.tar.gz>
-
-![](media/2090f96fd809f382e5e3e46e6a4a0cab.png)
 
 ## 2.2：redis的安装
 
