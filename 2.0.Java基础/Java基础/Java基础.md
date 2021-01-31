@@ -398,6 +398,8 @@ class Car { //外部类
 外部类名.内部类名 对象名 = new 外部类型().new 内部类型()；
 ```
 
+非静态内部类依赖于外部类的实例，也就是说需要先创建外部类实例，才能用这个实例去创建非静态内部类。而静态内部类不需要。静态内部类不能访问外部类的非静态的变量和方法。
+
 ### 4.4：匿名内部类
 
 ```java
@@ -562,6 +564,16 @@ Java语言中的根类，即所有类的父类。它中描述的所有方法子�
 
 如果希望进行对象的内容比较，即所有或指定的部分成员变量相同就判定两个对象相同，则可以覆盖重写equals方法。
 
+- ` hashCode() ` ：返回哈希值，
+
+散列值相同的两个对象不一定等价
+
+-  ` clone() ` ：克隆
+
+浅拷贝 ：拷贝对象和原始对象的引用类型引用同一个对象。
+
+深拷贝 ：拷贝对象和原始对象的引用类型引用不同对象。
+
 ### 1：Scanner类
 
 ```java
@@ -676,7 +688,33 @@ StringBuild线程不安全，StringBuffer线程安全
 - `public StringBuilder append(...)`：添加任意类型数据的字符串形式，并返回当前对象自身。
 - `public String toString()`：将当前StringBuilder对象转换为String对象。
 
+# 锁消除 lock eliminate
 
+```java
+public void add(String str1,String str2){
+         StringBuffer sb = new StringBuffer();
+         sb.append(str1).append(str2);
+}
+```
+
+我们都知道 StringBuffer 是线程安全的，因为它的关键方法都是被 synchronized 修饰过的，但我们看上面这段代码，我们会发现，sb 这个引用只会在 add 方法中使用，不可能被其它线程引用（因为是局部变量，栈私有），因此 sb 是不可能共享的资源，JVM 会自动消除 StringBuffer 对象内部的锁。
+
+# 锁粗化 lock coarsening
+
+```java
+public String test(String str){
+       
+       int i = 0;
+       StringBuffer sb = new StringBuffer():
+       while(i < 100){
+           sb.append(str);
+           i++;
+       }
+       return sb.toString():
+}
+```
+
+JVM 会检测到这样一连串的操作都对同一个对象加锁（while 循环内 100 次执行 append，没有锁粗化的就要进行 100  次加锁/解锁），此时 JVM 就会将加锁的范围粗化到这一连串的操作的外部（比如 while 虚幻体外），使得这一连串操作只需要加一次锁即可。
 
 ### 6：Math类
 
@@ -1513,8 +1551,6 @@ public ConcurrentHahsMap(int initialCapacity){
 
 - 如果添加成功就调用addCount（）方法统计size，并且检查是否需要扩容
 
-
-
 **2：添加安全**
 
 Put—调用putVal方法，不允许空值空键
@@ -1846,127 +1882,6 @@ catch 尽可能进行区分异常类型，再做对应的异常处理。给出�
 并行：多个cpu实例或者多台机器同时执行一段处理逻辑，是真正的同时。 
 并发：通过cpu调度算法，让用户看上去同时执行，实际上从cpu操作层面不是真正的同时。
 
-## 1：concurrent并发包
-
-JUC包增加了并发编程中常用的工具类，用于定义类似于线程的自定义子 系统，包括线程池、异步 IO 和轻量级任务框架。提供可调的、灵活的线程池。还提供了设计用于多线程上下文中的 Collection 实现等。
-
-- #### synchronized
-
-synchronized：保证在同一时刻，只有一个线程可以执行某个方法或某个代码块
-
-同时synchronized可以保证一个线程的变化可见（可见性），即可以代替volatile。
-
-可以修饰代码块，方法，静态方法，类
-
-- #### volatile
-
-  Volatile是Java虚拟机提供的`轻量级`的同步机制（三大特性）
-
-  - 保证可见性
-  - 不保证原子性
-  - 禁止指令重排
-
-保证可见性，有序性（指令重排），保证单次读写的原子性
-保证了不同线程对这个变量进行操作时的可见性，即一个线程修改了某个变量的值，这新值对其他线程来说是立即可见的。（实现可见性）
-
-禁止进行指令重排序。（实现有序性）
-
-volatile 只能保证对单次读/写的原子性。i++ 这种操作不能保证原子性。
-
-
-
-Q：**synchronized 和 volatile 的区别是什么？**
-
-- volatile 是变量修饰符；synchronized 是修饰类、方法、代码段。
-
-
-- volatile 仅能实现变量的修改可见性，不能保证原子性；而 synchronized则可以保证变量的修改可见性和原子性。
-
-
-- volatile 不会造成线程的阻塞；synchronized 可能会造成线程的阻塞。
-
-**Q：synchronized和lock有什么区别？**
-
-- synchronized属于JVM层面的，Lock是API层面的
-- synchronized不需要手动释放锁，Lock需要主动释放，否则可能出现死锁
-- synchronized不可中断，除非抛出异常或则正常运行完成，ReetrantLock可以中断，可以设置超时方法。
-
-
-
-2：原子变量与CAS算法
-
-标量原子变量类 AtomicInteger，AtomicLong和AtomicBoolean类分别支持对原始数据类型int，long和boolean的操作。当引用变量需要以原子方式更新时，AtomicReference类用于处理引用数据类型。
-
-原子数组类 有三个类称为AtomicIntegerArray，AtomicLongArray和AtomicReferenceArray，它们表示一个int，long和引用类型的数组，其元素可以进行原子性更新。
-
-
-
-CAS（比较交换）是一种无锁非阻塞的算法实现
-
-CAS会导致ABA问题，线程1准备用CAS将变量的值由A替换为B，在此之前，线程2将变量的值由A替换为C，又由C替换为A，然后线程1执行CAS时发现变量的值仍然为A，所以CAS成功。但实际上这时的现场已经和最初不同了，尽管CAS成功，但可能存在潜藏的问题。
-
-
-
-3：ConcurrentHashMap
-
-见前
-
-
-
-4：CountDownLatch（闭锁）
-
-一个同步辅助类，在完成一组正在其他线程中执行的操作之前，它允许一个或多个线程一直等待。
-
-**CountDownLatch最重要的方法是countDown()——倒数 和 await()，前者主要是倒数一次，后者是等待倒数到0，如果没有到达0，就只有阻塞等待了。**
-
-
-
-5：Lock同步锁
-
-
-
-6：Condition 控制线程通信
-
-
-
-
-
-7：**ReadWriteLock 读写锁**
-
-
-
-8：**线程8锁**
-
-
-
-
-
-
-
-**AbstractQueuedSynchronizer (AQS)**
-
-提供了一个基于FIFO队列
-
- **6.1 ConcurrentHashMap**
-
-**6.2 ReentrantLock**
-
-**6.3 Condition**
-
-**6.4 CopyOnWriteArrayList**
-
- CopyOnWriteArrayList是一个线程安全、并且在读操作时无锁的ArrayList
-
-**6.5 CopyOnWriteArraySet**
-
-CopyOnWriteArraySet基于CopyOnWriteArrayList实现，其唯一的不同是在add时调用的是CopyOnWriteArrayList的addIfAbsent方法。保证了无重复元素，但在add时每次都要进行数组的遍历，因此性能会略低于上个。
-
-**6.6 ArrayBlockingQueue**
-
-**6.7 ThreadPoolExecutor**
-
-
-
 ## 5.1：原理/方法机制
 
 多线程执行时，在栈内存中，其实每一个执行线程都有一片自己所属的栈内存空间。进行方法的压栈和弹栈。
@@ -2143,7 +2058,7 @@ ThreadLocalMap是ThreadLocal的内部类，没有实现Map接口，用独立的�
 
 存储结果Entry
 
-
+## 5.2：
 
 ## 5.3：线程实现方式
 
@@ -2465,25 +2380,7 @@ Notify方法：
 　　　　　　　b）假如是业务时间长集中在计算操作上，也就是计算密集型任务，这个就没办法了，和（1）一样吧，线程池中的线程数设置得少一些，减少线程上下文的切换
 　　　　3）并发高、业务执行时间长，解决这种类型任务的关键不在于线程池而在于整体架构的设计，看看这些业务里面某些数据是否能做缓存是第一步，增加服务器是第二步，至于线程池的设置，设置参考 2）。最后，业务执行时间长的问题，也可能需要分析一下，看看能不能使用中间件对任务进行拆分和解耦。
 
-## 2：进程间通信
-
-管道pipe：管道是一种半双工的通信方式，数据只能单向流动，而且只能在具有亲缘关系的进程间使用。进程的亲缘关系通常是指父子进程关系。
-
-FIFO
-
-消息队列
-
-信号量
-
-共享内存
-
-- 高级管道popen：将另一个程序当做一个新的进程在当前程序进程中启动，则它算是当前程序的子进程，这种方式我们成为高级管道方式。
-- 有名管道named pipe ：有名管道也是半双工的通信方式，但是它允许无亲缘关系进程间的通信。
-- 消息队列MessageQueue：消息队列是由消息的链表，存放在内核中并由消息队列标识符标识。消息队列克服了信号传递信息少、管道只能承载无格式字节流以及缓冲区大小受限等缺点。
-- 共享存储SharedMemory：共享内存就是映射一段能被其他进程所访问的内存，这段共享内存由一个进程创建，但多个进程都可以访问。共享内存是最快的 IPC 方式，它是针对其他进程间通信方式运行效率低而专门设计的。它往往与其他通信机制，如信号两，配合使用，来实现进程间的同步和通信。
-- 信号量Semaphore：信号量是一个计数器，可以用来控制多个进程对共享资源的访问。它常作为一种锁机制，防止某进程正在访问共享资源时，其他进程也访问该资源。因此，主要作为进程间以及同一进程内不同线程之间的同步手段。
-- 套接字Socket：套解口也是一种进程间通信机制，与其他通信机制不同的是，它可用于不同及其间的进程通信。
-- 信号sinal： 信号是一种比较复杂的通信方式，用于通知接收进程某个事件已经发生
+## 5.4：线程间通信
 
 
 
@@ -2518,6 +2415,12 @@ synchronized(同步锁){
 	需要同步操作的代码
 }
 ```
+
+作用在非静态方法上：非静态方法是只能提供类的实例进行调用，所以实际上就是对调用方法的对象加锁，俗称对象锁
+
+作用在静态方法上：静态方法是可以通过类名直接调用，所以实际上就是对调用方法的类加锁，俗称类锁
+
+作用在代码块：根据传入的是类对象或类实例判断加锁方式
 
 ### 同步方法
 
@@ -2716,14 +2619,6 @@ rwLock.readLock().unlock();
 
 这里的读锁和写锁的区别在于，写锁一次只能一个线程进入，执行写操作，而读锁是多个线程能够同时进入，进行读取的操作
 
-
-
-
-
-
-
-
-
 ### AQS
 
 AbstractQueuedSynchronizer   抽象队列同步器
@@ -2776,6 +2671,183 @@ CountDownLatch
 
 ## 5.6：线程协作
 
+当多个线程可以一起工作去解决某个问题时，如果某些部分必须在其它部分之前完成，那么就需要对线程进行协调。
+
+### join()
+
+在线程中调用另一个线程的 join() 方法，会将当前线程挂起，而不是忙等待，直到目标线程结束。最后能够保证 a 线程的输出先于 b 线程的输出。
+
+### wait() notify() notifyAll()
+
+调用 wait() 使得线程等待某个条件满足，线程在等待时会被挂起，当其他线程的运行使得这个条件满足时，其它线程会调用 notify() 或者 notifyAll() 来唤醒挂起的线程。
+
+它们都属于 Object 的一部分，而不属于 Thread。
+
+只能用在同步方法或者同步控制块中使用，否则会在运行时抛出 IllegalMonitorStateException。
+
+使用 wait() 挂起期间，线程会释放锁。这是因为，如果没有释放锁，那么其它线程就无法进入对象的同步方法或者同步控制块中，那么就无法执行 notify() 或者 notifyAll() 来唤醒挂起的线程，造成死锁。
+
+**wait() 和 sleep() 的区别**  
+
+- wait() 是 Object 的方法，而 sleep() 是 Thread 的静态方法；
+- wait() 会释放锁，sleep() 不会。
+
+
+
+### await() signal() signalAll()
+
+java.util.concurrent 类库中提供了 Condition 类来实现线程之间的协调，可以在 Condition 上调用 await() 方法使线程等待，其它线程调用 signal() 或 signalAll() 方法唤醒等待的线程。
+
+相比于 wait() 这种等待方式，await() 可以指定等待的条件，因此更加灵活。
+
+## 5.7：concurrent并发包
+
+JUC包增加了并发编程中常用的工具类，用于定义类似于线程的自定义子 系统，包括线程池、异步 IO 和轻量级任务框架。提供可调的、灵活的线程池。还提供了设计用于多线程上下文中的 Collection 实现等。
+
+#### synchronized
+
+JDK早期，synchronized 叫做重量级锁， 因为申请锁资源必须通过kernel, 系统调用
+
+synchronized：保证在同一时刻，只有一个线程可以执行某个方法或某个代码块
+
+同时synchronized可以保证一个线程的变化可见（可见性），即可以代替volatile。
+
+可以修饰代码块，方法，静态方法，类
+
+锁升级的过程：
+
+无锁 - 偏向锁 - 轻量级锁 （自旋锁，自适应自旋）- 重量级锁
+
+
+
+#### volatile
+
+Volatile是Java虚拟机提供的`轻量级`的同步机制（三大特性）
+
+- 保证可见性
+- 不保证原子性
+- 禁止指令重排
+
+**实现机制**：相比于没加 volatile 关键字，汇编代码会加入一个lock 前缀指令，相当于一个**内存屏障**。此时
+
+（1）会将当前处理器缓存行的数据立即写会系统主存
+
+（2）这个写回内存的操作会引起在其他cpu里缓存了该内存地址的数据无效（MES协议）
+
+线程2将initFlag的值store到主内存时要通过总线，**cpu总线嗅探机制**监听到initFlag值被修改，线程1的initFlag失效，线程1需要重新read initFlag的值。
+
+
+
+Q：**synchronized 和 volatile 的区别是什么？**
+
+- volatile 是变量修饰符；synchronized 是修饰类、方法、代码段。
+
+
+- volatile 仅能实现变量的修改可见性，不能保证原子性；而 synchronized则可以保证变量的修改可见性和原子性。
+
+
+- volatile 不会造成线程的阻塞；synchronized 可能会造成线程的阻塞。
+
+**Q：synchronized和lock有什么区别？**
+
+- synchronized属于JVM层面的，Lock是API层面的
+- synchronized不需要手动释放锁，Lock需要主动释放，否则可能出现死锁
+- synchronized不可中断，除非抛出异常或则正常运行完成，ReetrantLock可以中断，可以设置超时方法。
+
+### 原子类
+
+对于Java中的运算操作，例如自增或自减，若没有进行额外的同步操作，在多线程环境下就是线程不安全的。num++解析为num=num+1，明显，这个操作不具备原子性，多线程并发共享这个变量时必然会出现问题。就算加上 volatile也不能保证其原子性。只有将其声明为原子类
+
+其底层是使用的CAS算法，Unsafe
+
+原子类一览：将普通变量升级为原子变量，主要是AtomicIntegerFieldUpdater<T>，在高并发情况下，LongAdder(累加器)比AtomicLong原子操作效率更高，LongAdder累加器是java8新加入的
+
+![image-20210125215805643](media/image-20210125215805643.png)
+
+2：原子变量与CAS算法
+
+标量原子变量类 AtomicInteger，AtomicLong和AtomicBoolean类分别支持对原始数据类型int，long和boolean的操作。当引用变量需要以原子方式更新时，AtomicReference类用于处理引用数据类型。
+
+原子数组类 有三个类称为AtomicIntegerArray，AtomicLongArray和AtomicReferenceArray，它们表示一个int，long和引用类型的数组，其元素可以进行原子性更新。
+
+### CAS
+
+CAS（比较交换）是一种无锁非阻塞的算法实现
+
+CAS会导致ABA问题，线程1准备用CAS将变量的值由A替换为B，在此之前，线程2将变量的值由A替换为C，又由C替换为A，然后线程1执行CAS时发现变量的值仍然为A，所以CAS成功。但实际上这时的现场已经和最初不同了，尽管CAS成功，但可能存在潜藏的问题。
+
+解决办法（版本号 AtomicStampedReference），基础类型简单值不需要版本号
+
+unsafe类是CAS的核心类，Java无法直接访问底层操作系统，而是通过本地native方法来访问，尽管如此，JVM还是开了一个后门：Unsafe它提供了硬件级别的原子操作。在底层调用汇编指令`cmpxchg`指令，这是一条汇编指令，所以CPU一次通过，是原子操作。
+
+3：ConcurrentHashMap
+
+见前
+
+
+
+4：CountDownLatch（闭锁）
+
+一个同步辅助类，在完成一组正在其他线程中执行的操作之前，它允许一个或多个线程一直等待。
+
+**CountDownLatch最重要的方法是countDown()——倒数 和 await()，前者主要是倒数一次，后者是等待倒数到0，如果没有到达0，就只有阻塞等待了。**
+
+
+
+5：Lock同步锁
+
+
+
+6：Condition 控制线程通信
+
+
+
+
+
+7：**ReadWriteLock 读写锁**
+
+
+
+8：**线程8锁**
+
+
+
+
+
+
+
+**AbstractQueuedSynchronizer (AQS)**
+
+提供了一个基于FIFO队列
+
+ **6.1 ConcurrentHashMap**
+
+**6.2 ReentrantLock**
+
+**6.3 Condition**
+
+**6.4 CopyOnWriteArrayList**
+
+ CopyOnWriteArrayList是一个线程安全、并且在读操作时无锁的ArrayList
+
+**6.5 CopyOnWriteArraySet**
+
+CopyOnWriteArraySet基于CopyOnWriteArrayList实现，其唯一的不同是在add时调用的是CopyOnWriteArrayList的addIfAbsent方法。保证了无重复元素，但在add时每次都要进行数组的遍历，因此性能会略低于上个。
+
+**6.6 ArrayBlockingQueue**
+
+**6.7 ThreadPoolExecutor**
+
+### ReentrantLock
+
+与synchronized的区别？
+
+都是可重入锁，阻塞的，
+
+synchronized是java关键字，是JVM层面的，而ReentrantLock是API层面的。
+
+
+
 ### 1，CountDownLatch
 
 让一些线程阻塞直到另一些线程完成一系列操作才被唤醒
@@ -2786,7 +2858,7 @@ CountDownLatch主要有两个方法，当一个或多个线程调用await方法�
 
 与CountDownLatch相反，这个类是为了帮助猿友们方便的实现多个线程一起启动的场景，就像赛跑一样，只要大家都准备好了，那就开始一起冲。也就是做加法。
 
-CyclicBarrier的字面意思就是可循环（cyclic）使用的屏障（Barrier）。它要求做的事情是，让一组线程到达一个屏障（也可以叫同步点）时被阻塞，直到最后一个线程到达屏障时，屏障才会开门，所有被屏障拦截的线程才会继续干活，线程进入屏障通过CyclicBarrier的await方法
+CyclicBarrier的字面意思就是可循环（cyclic）使用的屏障（Barrier）。它要求做的事情是，让一组线程到达一个屏障（也可以叫同步点）时被阻塞，直到最后一个线程到达屏障时，屏障才会开门，所有被屏障拦截的线程才会继续干活，线程进入屏障通过CyclicBarrier的await方法。都是通过维护计数器来实现的。线程执行 await() 方法之后计数器会减 1，
 
 ### 3，Semaphore信号量
 
@@ -2797,7 +2869,41 @@ CyclicBarrier的字面意思就是可循环（cyclic）使用的屏障（Barrier
 
 ### 4，Exchanger
 
-　　这个类是为了帮助猿友们方便的实现两个线程交换数据的场景，使用起来非常简单，看看下面这段代码
+这个类是为了帮助猿友们方便的实现两个线程交换数据的场景，
+
+### 5：FutureTask
+
+在介绍 Callable 时我们知道它可以有返回值，返回值通过 Future\<V\> 进行封装。FutureTask 实现了 RunnableFuture 接口，该接口继承自 Runnable 和 Future\<V\> 接口，这使得 FutureTask 既可以当做一个任务执行，也可以有返回值。
+
+Future：未来会产生的结果，异步执行。
+
+future.get();还是阻塞的，虽然那时异步的，但是这还是阻塞，根本没啥用。
+
+谷歌的guava类库使用监听者模式，监听一个装饰者的线程池，于是JDK抄了一个CompleteListener
+
+### 6：BlockingQueue
+
+java.util.concurrent.BlockingQueue 接口有以下阻塞队列的实现：
+
+-   **FIFO 队列**  ：LinkedBlockingQueue、ArrayBlockingQueue（固定长度）
+-   **优先级队列**  ：PriorityBlockingQueue
+-   DelayQueue：使用优先级队列实现的延迟无界阻塞队列
+-   SynchronousQueue：不存储元素的阻塞队列，也即单个元素的队列
+    - 生产一个，消费一个，不存储元素，不消费不生产
+-   LinkedTransferQueue：由链表结构组成的无界阻塞队列
+-   LinkedBlockingDeque：由链表结构组成的双向阻塞队列
+
+提供了阻塞的 take() 和 put() 方法：如果队列为空 take() 将阻塞，直到队列中有内容；如果队列为满 put() 将阻塞，直到队列有空闲位置
+
+![image-20200316154442756](media/image-20200316154442756.png)
+
+### 7：ForkJoin
+
+主要用于并行计算中，和 MapReduce 原理类似，都是把大的计算任务拆分成多个小任务并行计算。
+
+
+
+
 
 # 六：IO与NIO
 
@@ -3022,42 +3128,52 @@ Block IO：jdk最早抽象出的IO体系，jdk1.0的io体系是阻塞的。
 
 ![](media/0e7a42d815d00161b1e2aa4913b78d9d.png)
 
+
+
+
+
 ## 11：NIO
 
 Java NIO (New IO，Non-Blocking IO)是从Java 1.4版本开始引入的一套新的IO API，可以替代标准的Java IO API。NIO与原来的IO有同样的作用和目的，但是使用的方式完全不同，NIO支持面向缓冲区的(IO是面向流的)、基于通道的IO操作。NIO将以更加高效的方式进行文件的读写操作。
 
-Java API中提供了两套NIO，一套是针对标准输入输出NIO，另一套就是网络编程NIO。
+Java API中提供了两套NIO，一套是针对标准输入输出NIO，另一套就是网络编程NIO。
 
-\|-----java.nio.channels.Channel
+\|-----java.nio.channels.Channel
 
-\|-----FileChannel:处理本地文件
+\|-----FileChannel:处理本地文件
 
-\|-----SocketChannel：TCP网络编程的客户端的Channel
+\|-----SocketChannel：TCP网络编程的客户端的Channel
 
-\|-----ServerSocketChannel:TCP网络编程的服务器端的Channel
+\|-----ServerSocketChannel:TCP网络编程的服务器端的Channel
 
-\|-----DatagramChannel：UDP网络编程中发送端和接收端的Channel
+\|-----DatagramChannel：UDP网络编程中发送端和接收端的Channel
 
 Path、Paths和Files核心API
 
-早期的Java只提供了一个File类来访问文件系统，但File类的功能比较有限，所提供的方法性能也不高。而且，大多数方法在出错时仅返回失败，并不会提供异常信息。
+早期的Java只提供了一个File类来访问文件系统，但File类的功能比较有限，所提供的方法性能也不高。而且，大多数方法在出错时仅返回失败，并不会提供异常信息。
 
-NIO.
-2为了弥补这种不足，引入了Path接口，代表一个平台无关的平台路径，描述了目录结构中文件的位置。Path可以看成是File类的升级版本，实际引用的资源也可以不存在。
+NIO.2为了弥补这种不足，引入了Path接口，代表一个平台无关的平台路径，描述了目录结构中文件的位置。Path可以看成是File类的升级版本，实际引用的资源也可以不存在。
 
 在以前IO操作都是这样写的:
 
+```java
 import java.io.File;
-
 File file = new File("index.html");
+```
 
 但在Java7 中，我们可以这样写：
 
+```java
 import java.nio.file.Path;
 
 import java.nio.file.Paths;
 
 Path path = Paths.get("index.html");
+```
+
+
+
+
 
 ![](media/6576973a0f025294435c5aa8f553c38f.png)
 
