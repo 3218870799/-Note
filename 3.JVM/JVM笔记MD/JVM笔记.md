@@ -892,6 +892,74 @@ JMM是一个抽象的概念，并不是真实的存在，它涵盖了缓冲区�
 - 如果一个变量事先没有被lock操作锁定，则不允许对它执行unlock操作；也不允许去unlock一个被其他线程锁定的变量。
 - 对一个变量执行unlock操作之前，必须先把此变量同步到主内存中（执行store和write操作）。
 
+## 对象内存存储布局
+
+由于Java面向对象的思想，在JVM中需要大量存储对象，存储时为了实现一些额外的功能，需要在对象中添加一些标记字段用于增强对象功能，这些标记字段组成了对象头。
+
+普通对象 new XX() 
+
+markword标记字，class pointer类型指针，instance data 实例对象，padding对齐
+
+其中markword和class point一起称为对象头
+
+如果前三个一个没有满足8个字节，用padding补齐
+
+
+
+数组
+
+int[] a = new int[4]
+
+T[] a = new T[5]
+
+markword,class poniter,length(数组长度 4字节) ，instance data 实例对象，padding
+
+### markWord标记字
+
+`markWord`的位长度为JVM的一个Word大小，也就是说32位JVM的`Mark word`为32位，64位JVM为64位。
+
+为了让一个字大小存储更多的信息，JVM将字的最低两个位设置为标记位，不同标记位下的Mark Word示意如下：
+
+lock:2位的锁状态标记位，由于希望用尽可能少的二进制位表示尽可能多的信息，所以设置了lock标记。该标记的值不同，整个mark word表示的含义不同。
+
+![image-20210201112020443](media/image-20210201112020443.png)
+
+biased_lock：对象是否启用偏向锁标记，只占1个二进制位。为1时表示对象启用偏向锁，为0时表示对象没有偏向锁。
+
+age：4位的Java对象年龄。在GC中，如果对象在Survivor区复制一次，年龄增加1。当对象达到设定的阈值时，将会晋升到老年代。默认情况下，并行GC的年龄阈值为15，并发GC的年龄阈值为6。由于age只有4位，所以最大值为15，这就是`-XX:MaxTenuringThreshold`选项最大值为15的原因。
+
+identity_hashcode：25位的对象标识Hash码，采用延迟加载技术。调用方法`System.identityHashCode()`计算，并会将结果写到该对象头中。当对象被锁定时，该值会移动到管程Monitor中。
+
+thread：持有偏向锁的线程ID。
+
+epoch：偏向时间戳。
+
+ptr_to_lock_record：指向栈中锁记录的指针。
+
+ptr_to_heavyweight_monitor：指向管程Monitor的指针。
+
+### ClassPoint类型指针
+
+指针的位长度为JVM的一个字大小，即32位的JVM为32位，64位的JVM为64位。
+
+如果应用的对象过多，使用64位的指针将浪费大量内存，统计而言，64位的JVM将会比32位的JVM多耗费50%的内存。为了节约内存可以使用选项`+UseCompressedOops`开启指针压缩，
+
+### ArrayLength
+
+如果对象是一个数组，那么对象头中还需要有额外的空间存储数组的长度。
+
+### Instance Data实例数据
+
+它是对象**真正存储的有效信息**，包括程序代码中定义的各种字段类型(包括从父类继承下来的和自己本身拥有的字段)，注意这里有一些规则：**相同宽度的字段总是被分配在一起，父类中定义的变量会出现在子类之前**，因为父类的加载是优先于子类加载的
+
+
+
+### 对象的访问方式
+
+句柄方式
+
+直接指针
+
 
 
 ## 内存泄露与溢出
