@@ -138,6 +138,37 @@ mysql配置向导启动界面，按“Next”继续。
 
 ## 1：基本操作
 
+mysql的启动和关闭
+
+在cmd命令行
+
+```cmd
+# 1.Windows下
+# 启动服务
+mysqld --console　　
+# 或　　
+net start mysql　　
+
+关闭服务
+mysqladmin -uroot shudown　　
+或　　
+net stop mysql　　
+
+2.Linux下
+启动服务
+service mysql start　　　
+
+关闭服务
+service mysql stop　　
+
+重启服务
+service restart stop
+```
+
+
+
+
+
 ```sql
 -- 查看mysql版本
 mysql --version
@@ -314,26 +345,15 @@ alter table t_student add contact_tel varchar(40);
  alter table t_student modify student_name varchar(100) ; 
 ```
 
-
-
-
-![](med
-
-如sex字段名称感觉不好，想用gender那么就需要更爱列的名称
-
-![](m
+如sex字段名称感觉不好，想用gender那么就需要更改列的名称
 
 13.2.3、删除字段
 
 如：删除联系电话字段
 
+```sql
 alter table t_student drop contact_tel; 
-
-
-
-
-
-
+```
 
 
 ### 13.3、添加、修改和删除
@@ -344,7 +364,7 @@ alter table t_student drop contact_tel;
 
 -   Insert语法格式
 
-| Insert into 表名(字段，。。。。) values(值,………..) |
+Insert into 表名(字段，。。。。) values(值,………..) |
 
 
 -   省略字段的插入
@@ -353,17 +373,11 @@ insert into emp values(9999,'zhangsan','MANAGER', null, null,3000, 500, 10);
 
 
 
-
-![](m
-
 不建议使用此种方式，因为当数据库表中的字段位置发生改变的时候会影响到insert语句
 
 -   指定字段的插入(建议使用此种方式)
 
 insert into emp (empno,ename,job,mgr,hiredate,sal,comm,deptno) values(9999,'zhangsan','MANAGER', null, null,3000, 500, 10); 
-
-
-![](m
 
 出现了主键重复的错误，主键表示了记录的唯一性，不能重复
 
@@ -374,9 +388,6 @@ insert into emp (empno,ename,job,mgr,hiredate,sal,comm,deptno) values(9999,'zhan
 第一种方法，插入的日期格式和显示的日期格式一致
 
 insert into emp(empno, ename, job, mgr, hiredate, sal, comm, deptno) values(9997,'zhangsan','MANAGER', null, '1981-06-12',3000, 500, 10); 
-
-
-![
 
 第二种方法，采用str_to_date
 
@@ -389,19 +400,9 @@ insert into emp(empno, ename, job, mgr, hiredate, sal, comm, deptno) valu es(999
 
 insert into emp(empno, ename, job, mgr, hiredate, sal, comm, deptno) values(9995,'zhangsan','MANAGER',null,now() ,3000, 500, 10); 
 
-
-![]
-
-![](media
-
 -   表复制
 
 | create table emp_bak as select empno,ename,sal from emp; 
-
-
-!
-
-![](
 
 以上方式，会自动创建表，将符合查询条件的数据自动复制到创建的表中
 
@@ -499,9 +500,9 @@ create table t_student(
 
 -   我们可以查看一下约束
 
-mysql\> use information_schema;
-
-mysql\> select \* from table_constraints where table_name = 't_student';
+```sql
+select * from table_constraints where table_name='t_student';
+```
 
 
 
@@ -509,33 +510,52 @@ mysql\> select \* from table_constraints where table_name = 't_student';
 
 以上约束的名称我们也可以自定义。
 
+```java
+drop table if exists t_student;  
+create table t_student(  
+    student_id int(10),  
+    student_name varchar(20) not null,  
+    sex char(2) default 'm',  
+    birthday date,   
+    email varchar(30) ,  
+    classes_id int(3) , 
+    constraint email_unique unique(email) 
+) 
+```
 
 
-| drop table if exists t_student;  create table t_student(  student_id int(10),  student_name varchar(20) not null,  sex char(2) default 'm',  birthday date,   email varchar(30) ,  classes_id int(3) , constraint email_unique unique(email)/\*表级约束\*/ ) 
 
 13.4.3、主键约束，primary key
 
 每个表应该具有主键，主键可以标识记录的唯一性，主键分为单一主键和复合（联合）主键，单一主键是由一个字段构成的，复合（联合）主键是由多个字段构成的
 
+```sql
 drop table if exists t_student; 
+create table t_student()  
+	student_id int(10) primary key,
+	\*列级约束*/  
+	student_name varchar(20) not null,  
+	sex char(2) default 'm', 
+	 birthday date,   
+	email varchar(30) , 
+	classes_id int(3)
+) 
 
- create table t_student()  
-
-student_id int(10) primary key,
-
-/\*列级约束\*/  
-
-student_name varchar(20) not null,  
-
-sex char(2) default 'm', 
-
- birthday date,   
-
-email varchar(30) , 
-
-classes_id int(3)  ) 
-
-insert into t_student(student_id, student_name , sex, birthday, email, classes_id)  values (1001,'zhangsan','m', '1988-01-01', 'qqq\@163.com', 10) 
+insert into t_student(
+    student_id, 
+    student_name , 
+    sex, birthday, 
+    email, 
+    classes_id
+)  values (
+    1001,
+    'zhangsan',
+    'm', 
+    '1988-01-01', 
+    'qqq@163.com', 
+    10
+) 
+```
 
 
 向以上表中加入学号为1001的两条记录，出现如下错误，因为加入了主键约束
@@ -783,7 +803,7 @@ Like中%和下划线的差别？
 
 Like 中的表达式必须放到单引号中\|双引号中，以下写法是错误的：
 
-| select \* from emp where ename like \_A% 
+select \* from emp where ename like \_A% 
 
 ## 6、排序数据
 
@@ -811,11 +831,11 @@ select * from emp order by job,sal;
 
 -   手动指定按照薪水由小到大排序
 
-| select \* from emp order by sal asc; 
+select \* from emp order by sal asc; 
 
 -   手动指定按照薪水由大到小排序
 
-| select \* from emp order by sal desc; 
+select \* from emp order by sal desc; 
 
 
 
@@ -833,10 +853,7 @@ select \* from emp order by job desc, sal desc;
 
 -   按照薪水升序
 
-| select \* from emp order by 6; 
-
-
-![](media1/d74
+select \* from emp order by 6; 
 
 不建议使用此种方式，采用数字含义不明确，程序不健壮
 
@@ -886,14 +903,14 @@ sum
 
 -   取得薪水的合计
 
-| select sum(sal) from emp; 
+select sum(sal) from emp; 
 
 
 
 
 -   取得津贴的合计
 
-| select sum(comm) from emp; 
+select sum(comm) from emp; 
 
 
 
@@ -902,7 +919,7 @@ null会被忽略
 
 -   取得薪水的合计（sal+comm）
 
-| select sum(sal+comm) from emp; 
+ select sum(sal+comm) from emp; 
 
 
 
@@ -1318,9 +1335,6 @@ select e.empno, e.ename from emp e join (select distinct mgr from emp where mgr 
 
 | select \* from emp where job in('MANAGER', 'SALESMAN'); 
 
-
-![]
-
 2、采用union来合并
 
 select \* from emp where job='MANAGER' union select \* from emp where job='SALESMAN' 
@@ -1445,25 +1459,19 @@ MyISAM提供了大量的特性，包括全文索引、压缩、空间函数(GIS)
 
 -   InnoDB存储引擎是MySQL的缺省引擎。
 
--   **支持行锁和表锁**
+-   **支持行锁和表锁**，支持事务
 
 -   它管理的表具有下列主要特征：
 
     -   每个InnoDB表在数据库目录中以.frm格式文件表示
-
-    -   InnoDB表空间tablespace被用于存储表的内容
-
+-   InnoDB表空间tablespace被用于存储表的内容
     -   提供一组用来记录事务性活动的日志文件
-
-    -   用COMMIT(提交)、SAVEPOINT及ROLLBACK(回滚)支持事务处理
-
+-   用COMMIT(提交)、SAVEPOINT及ROLLBACK(回滚)支持事务处理
     -   提供全ACID兼容
-
-    -   在MySQL服务器崩溃后提供自动恢复
-
+-   在MySQL服务器崩溃后提供自动恢复
     -   多版本（MVCC）和行级锁定
-
-    -   支持外键及引用的完整性，包括级联删除和更新
+-   支持外键及引用的完整性，包括级联删除和更新
+    -   默认隔离级别为可重复读
 
 #### 14.2.3、MEMORY存储引擎
 
@@ -1830,11 +1838,43 @@ mysql\> SELECT \@\@global.tx_isolation;
 | s1\>commit;                                                  |                        |
 |                                                              | s2\>select \* from tx; |
 
+### 底层实现
 
 
-### 15.5MVCC
+
+redolog：重做日志，保证了事务的持久性。事务开启后，只要开始改变数据信息就会持续写入redo buffer中，具体落盘可以指定不同的策略。在数据库发生意外故障时，尚有修改的数据未写入磁盘，在重启mysql服务的时候，根据redo log恢复事务修改后的新数据。
+
+Redo buffer 持久化到Redo log的策略有三种：
+取值 0 每秒一次进行提交持久化[可能丢失一秒内 的事务数据]
+取值 1 默认值，每次事务提交执行Redo buffer --> Redo log OS cache -->flush cache to disk [最安全，性能最差的方式]
+取值 2 每次事务提交到系统缓存OS cache，再每一秒从系统缓存中执行持久化 操作
+
+
+
+undolog：回滚日志，用于记录数据被修改前的信息，实现事务的原子性。update操作会将当前数据加入到undolog中，然后使用行中的隐藏字段DB_ROLL——PTR回滚字段执行的前一个版本的数据。
+
+
+
+
+
+#### MVCC
 
 Multi-Version Concurrency Control，多版本并发控制
+
+通过在每行记录的后边保存两个隐藏的列来实现。这两个列， 一个保存了行的创建时间，一个保存了行的过期时间， 当然存储的并不是实际的时间值，而是系统版本号。
+
+- **undo log** :undo log 中记录某行数据的多个版本的数据。
+- **read view** :用来判断当前版本数据的可见性
+
+**MVCC的实现，是通过保存数据在某个时间点的快照来实现的**。也就是说，不管需要执行多长时间，每个事务看到的数据是一致的。**根据事务开始的时间不同，每个事务对同一张表，同一时刻看到的数据可能是不一样的**。不同存储引擎的MVCC实现是不同的，典型的有乐观（optimistic）并发控制和悲观（pessimistic）并发控制。
+
+新增：会给行数据添加两个隐藏列，数据版本号和删除版本号。数据版本号值为插入时的事务id，删除版本号默认为null。
+
+删除：会给行数据的删除版本号设一个当前事务id值。
+
+修改：会先拷贝一份行数据，再把原先行数据的删除版本号设值，再修改拷贝的数据，并改变数据版本号值。
+
+查询：必须保证当前事务ID大于等于该行数据的数据版本号，并且删除版本号必须为null或者大于当前事务ID值。
 
 大多数情况下可以代替行级锁，降低系统开销
 
@@ -1875,85 +1915,6 @@ Search），这就是为什么性能能得到本质上的提高。MYISAM和INNOD
 
 一般来说索引本身也很大，不可能全部存储在内存中，因此索引往往以索引文件的形式存储的磁盘上
 
-1. 聚集索引（主键索引）：在数据库里面，所有行数都会按照主键索引进行排序。
-
-2. 非聚集索引：就是给普通字段加上索引。
-
-   表student中两个字段age,name加了索引
-
-| 1 2 | key 'idx_age' ('age'), key 'idx_name' ('name') |
-
-
->   1.Like这种就是%在前面的不走索引，在后面的走索引
-
-| 1 2 | A:select \* from student where 'name' like '王%' B:select \* from student where 'name' like '%小' |
-
-
->   A走索引，B不走索引
-
->   2.用索引列进行计算的，不走索引
-
-| 1 2 | A:select \* from student where age = 10+8 B:select \* from student where age + 8 = 18 |
-
-
->   A走索引，B不走索引
-
->   3.对索引列用函数了，不走索引
-
-| 1 2 | A:select \* from student where concat('name','哈') ='王哈哈'; B:select \* from student where name = concat('王哈','哈'); 
-
-
->   A不走索引，B走索引
-
->   4. 索引列用了!= 不走索引,如下：
-
-| 1 | select \* from student where age != 18 |
-
-
-1.  联合索引：就是好几个字段组成的索引，称为联合索引。
-
-联合索引遵循最左缀原则：
-
-| A:select \* from student where age = 16 and name = '小张' 
-
-B:select \* from student where name = '小张' and sex = '男'
-
-C:select \* from student where name = '小张' and sex = '男' and age = 18 
-
-D:select \* from student where age \> 20 and name = '小张' 
-
-E:select \* from student where age != 15 and name = '小张' F:select \* from student where age = 15 and name != '小张' |
-
-
-A遵从最左匹配原则，age是在最左边，所以A走索引；
-
-B直接从name开始，没有遵从最左匹配原则，所以不走索引；
-
-C虽然从name开始，但是有索引最左边的age，mysql内部会自动转成where age = '18' and
-name = '小张' and sex = '男' 这种，所以还是遵从最左匹配原则；
-
-D这个是因为age\>20是范围，范围字段会结束索引对范围后面索引字段的使用，所以只有走了age这个索引；
-
-E这个虽然遵循最左匹配原则，但是不走索引，因为!= 不走索引；
-
-F这个只走age索引，不走name索引，原因如上；
-
-获取当天的日期：sysdata
-
-select emp_name,salary
-
-from emp
-
-where sex='女'
-
-and dept_id in (select dept_id
-
-from dept
-
-where dept_name ='人力资源部')
-
-order by salary desc
-
 ## 16.2、索引的结构
 
 我们平常所说的索引，如果没有特别指明，都是指B树(多路搜索树，并不一定是二叉的)结构组织的索引。
@@ -1965,6 +1926,8 @@ order by salary desc
 1：B树索引——Myisam
 
 2：B+树索引——Innodb
+
+### B+数索引
 
 B+树叶子节点中只有关键字和指向下一个节点的索引，记录只放在叶子节点中。(一次查询可能进行两次i/o操作)
 
@@ -2194,6 +2157,16 @@ Why:提高了查询速度，同时却会降低更新表的速度，如对表进�
 
 id列的编号是 select 的序列号，有几个 select 就有几个id，并且id的顺序是按 select 出现的顺序增长的。
 
+id值相同，从上往下顺序执行
+
+表的执行顺序，因数量的个数改变而改变，数据量小的优先查询。
+
+嵌套子查询时，先查内层，再查内层。 
+
+id不同，id越大越优先查询，2>1
+
+
+
 **select_type**
 
 查询的类型，主要是用于区分普通查询（simple）、联合查询、子查询等复杂的查询
@@ -2218,17 +2191,17 @@ subquery\**\**：除了from\**字句中包含的子查询外，其他地方出�
 
 dependentsubquery\**\**：与dependent union\**类似，表示这个subquery的查询要受到外部表查询的影响。
 
-derive：from\**字句中出现的子查询，也叫做派生表，其他数据库中可能叫做内联视图或嵌套select。
+derive：衍生查询，使用到了临时表，from字句中出现的子查询，也叫做派生表，其他数据库中可能叫做内联视图或嵌套select。
 
-union：union\**连接的两个select查询，第一个查询是dervied派生表，除了第一个表外，第二个以后的表select_type都是union*
+```sql
+explain select cr.name from (select * from course where tid in (1,2)) cr;
+```
+
+union：union连接的两个select查询，第一个查询是dervied派生表，除了第一个表外，第二个以后的表select_type都是union
 
 dependentunion：与union\**一样，出现在union 或union all语句中，但是这个查询要受到外部查询的影
 
 unionresult*：包含union\**的结果集，在union和union all语句中,因为它不需要参与查询，所以id字段为null。
-
-
-
-
 
 **table**
 
@@ -2246,15 +2219,37 @@ unionresult*：包含union\**的结果集，在union和union all语句中,因为
 
 从最好到最差的连接类型为const、eq_reg、ref、range、indexhe和ALL 
 
-**一般来说，好的sql查询至少达到range级别，最好能达到ref**
+**一般来说，好的sql查询至少达到range级别，最好能达到ref**,system和const基本达不到。
+
+system：只有一条数据的系统表，或：衍生表只有一条数据的主查询。新版的也查不到了
+
+const：仅仅能查到一条数据，用于主键或唯一索引。
+
+eq_ref：唯一性索引，对于每个索引建的查询，返回匹配唯一行数据（有且只有一个，不能多，不能0）
+
+```sql
+select …… from …… where name = ……常见于唯一索引和主键索引
+```
+
+以上可预不可求。
+
+ref：非唯一性索引，对于每个索引建的查询，返回匹配的所有行（0，多）
+
+range：检索指定范围的行，where后面是一个范围查询（between，in，> ,<，>=，但是in有时候会失效变成all）
+
+index：查询全部索引树中数据
+
+```sql
+explain select id from teacher
+```
+
+all：查询所有表的数据
 
 
 
 **possible_keys**
 
 显示查询可能使用哪些索引来查找。 
-
-
 
 **Key**
 
@@ -2267,11 +2262,23 @@ unionresult*：包含union\**的结果集，在union和union all语句中,因为
 
 **Key_Len**
 
+索引的长度，用于判断符合索引是否被完全使用，比如a,b,c都是char(20),查询时key_len为60，
 
+如果索引字段可以为null，则会使用一个字节用于标识。
+
+如果是varchar可变长度，则会增加两个字节用于标识。
 
 **ref**
 
-显示索引的那一列被使用了，如果可能，是一个常量const。
+作用：指明当前表所参考的字段，
+
+```sql
+select …… from where a.c = b.x
+```
+
+其中b.x可以是常量，此时就是const
+
+null代表没有给列添加索引
 
 这一列显示了在key列记录的索引中，表查找值所用到的列或常量，常见的有：const（常量），func，NULL，字段名（例：film.id）
 
@@ -2279,9 +2286,72 @@ unionresult*：包含union\**的结果集，在union和union all语句中,因为
 
 **rows**
 
+被优化查询的数据个数(实际通过索引查到的数据个数)
+
 根据表统计信息及索引选用情况，大致估算出找到所需的记录所需要读取的行数
 
+
+
 **Extra**
+
+(1）：using filesort：性能消耗比较大，需要额外一次排序（查询）
+
+排序：先查询，根据年龄排序，先查出年龄，再根据排序
+
+```sql
+explain select * from test02 where a1 = '' order by a2;
+```
+
+复合索引：不能跨列，（最左匹配原则）
+
+对(a1,a2,a3)建立复合索引
+
+```sql
+select * from test02 where a1 = '' order by a2;---此时不会出现using filesort
+select * from test02 where a1 = '' order by a3; -- 会出现，性能不如上一个好
+```
+
+
+
+（2）：using temporary ：性能耗损大，用到了临时表，一般出现在group by语句中
+
+```sql
+explain select a1 from test02 where a1 in ('1','2','3') group by a2;
+```
+
+这条语句会先根据a1查询出a1的记录，再查一遍a2，放到临时表进行分组。
+
+
+
+解析过程：
+
+from on join where groupby  having  select distinct order by limit
+
+
+
+（3）：using index ：性能提升，索引覆盖。不读取源文件，只从索引文件中查询。不需要回表查询。只要索引都在索引表中
+
+```sql
+select a1 from test where a1 = '1'; 
+```
+
+复合索引（a1，a2）
+
+```sql
+select a1,a2 from test where a1 = '' or a2 = '';
+```
+
+索引覆盖对possible key和key有影响，如果没有where ，则索引只出现在key中，如果有where ，则索引出现在key和possible key中
+
+
+
+（4）using where；需要回表查询，
+
+（5）impossible where ：where 子句永远为false
+
+```sql
+select * from where a1 = '' and a1 = 'test';
+```
 
 
 
@@ -2295,6 +2365,9 @@ index
 
 
 
+#### 分析
+
+索引的使用顺序和建立索引的顺序一致，但是可能自己没遵循，但是优化器会帮助你进行优化。
 
 
 
@@ -2303,7 +2376,82 @@ index
 
 
 
-## 16.6：查询优化
+
+
+
+
+
+## 16.6：优化
+
+### 单表优化
+
+
+
+### 多表优化
+
+左连接
+
+```sql
+select * from teacher t left join course c 
+on t.cid = c.cid where c.cname = 'java' 
+```
+
+1：加索引
+
+小表驱动大表，将小表放左边，大表放右边，
+
+一般情况对于左外连接给左表加索引，左表使用频繁，右外连接给右表加索引。
+
+
+
+避免索引失效：
+
+（1）：复合索引：不要跨列使用，尽量使用全索引匹配。
+
+（2）：不要在索引上进行任何操作，否则索引失效。
+
+（3）：复合索引不能使用不等于或`is null ` ,否则自身以及右侧所有索引全部失效。
+
+（4）：复合索引中如果有>,则自身和右侧索引失效
+
+优化时SQL优化器会影响我们的优化，导致一些概率性的出现。
+
+补救：使用索引覆盖
+
+(5)：like以` % ` 开头，失效
+
+
+
+2：exist和in
+
+如果主查询的数据集大，则使用In。如果子查询的数据量大，则使用exist
+
+```sql
+select …… from table where exist (子查询);
+select …… from table where 字段 in (子查询);
+```
+
+
+
+3：order by 
+
+using filesort 有两种算法：双路排序和单路排序（根据IO的次数）
+
+MYSQL4.1之后默认使用单路排序，只读取一次（全部字段），在Buffer中进行排序。但是它有可能不是真的单次IO，如果数据量特别大，Buffer是放不开的。调整Buffer大小：set max_leng_for_sort_data
+
+提高order by 的策略：
+
+（1）选择单路，双路；
+
+（2）调整buffer 的容量大小，
+
+（3）避免select * 
+
+（4）保证全升或全降
+
+
+
+
 
 1：使用索引
 
@@ -2329,6 +2477,82 @@ select kcdz form t_mall_sku where id in( 3,4,5,6,8 )  **group by kcdz**
 **
 
 能够利用到索引**
+
+### 慢查询日志
+
+默认关闭，开发调优时打开日志，部署时关闭。
+
+检查是否开启了慢查询日志
+
+```sql
+show variables like '%slow_query_log%';
+```
+
+开启慢查询日志
+
+```sql
+-- 临时开启，退出关闭服务即关闭
+set global slow_query_log = 1;
+
+--永久开启，一般不用
+/etc/my.cnf中追加配置
+slow_query_log = 1
+slow_query_log_file= /var/lib/mysql/localhost-slow.log
+```
+
+慢查询默认阈值为10秒，修改慢查询阀值
+
+```sql
+-- 设置临时阈值
+set global long_query_time = 5;
+
+--永久开启，一般不用
+/etc/my.cnf中追加配置
+long_query_time = 3;
+```
+
+查询超过慢查询阈值的命令
+
+```sql
+show global status like '%slow_querise%';--只显示有几条，具体是哪条查看日志文件
+```
+
+通过工具查看
+
+mysqldumpslow – help
+
+
+
+### 分析海量数据
+
+存储过程，没有返回值，存储过程，有返回
+
+模拟创建海量数据
+
+（1）分析
+
+```sql
+show profiles;--默认是关闭的,会记录所有profiling打开之后的全部SQL查询语句所花费的时间
+show variables like '%profiling%';
+set profiling = on;--开启
+show profiles;
+```
+
+（2）SQL诊断：上述缺点：不够精确，不能分别显示IO等，可以使用进行SQL诊断
+
+```sql
+show profile all for query 2;--2代表profiles中的SQL序号
+show profile cpu,blockio for query;--显示cpu占用时间和IO响应时间
+```
+
+（3）全局查询日志：记录开启后，全部SQL语句。
+
+```sql
+show variables like '%general_log%';
+set global general_log = 1;--开启全局日志
+```
+
+
 
 
 
@@ -2695,6 +2919,96 @@ mysqldump bjpowernode\>D:\\bjpowernode.sql -uroot  -p123
 
 登录MYSQL数据库管理系统之后执行：source D:\\ bjpowernode.sql
 
+# 第十章：MySQL锁机制
+
+解决因资源共享，而照成的并发问题
+
+## 1：分类
+
+（1）按对数据操作：
+
+读锁（共享锁）：多个读操作可以同时进行，互不干扰
+
+写锁（互斥锁）：如果当前写操作没有完毕，则无法进行其他读操作和写操作。
+
+（2）按粒度分：表锁和行锁
+
+表锁：
+
+偏小myisam存储引擎，开销小，无死锁，容易发生锁冲突，并发度低。
+
+lock table 表名字1 read(write)，表名字2 read(write)，其它
+
+行锁
+
+偏向innodb,开销大，支持事务
+
+4：间隙锁：
+
+当我们用范围条件而不是相等条件检索数据，并请求共享或排他锁时，InnoDB会给符合条件的已有数据记录的索引项加锁；对于键值在条件范围内但并不存在的记录，叫做“间隙（GAP)”，
+InnoDB也会对这个“间隙”加锁，这种锁机制就是所谓的间隙锁（GAP Lock）。
+
+因为Query执行过程中通过过范围查找的话，他会锁定整个范围内所有的索引键值，即使这个键值并不存在。
+间隙锁有一个比较致命的弱点，就是当锁定一个范围键值之后，即使某些不存在的键值也会被无辜的锁定，而造成在锁定的时候无法插入锁定键值范围内的任何数据。在某些场景下这可能会对性能造成很大的危害
+
+```sql
+--查看哪些表加了锁
+show open tables;--1代表被加了锁
+--分析表锁定的严重程度
+show status like 'table%'
+参数：Table_locks_immediate:即可能获取到的锁数
+参数：Table_waited:需要等待的表锁数，该值越大锁竞争越大
+```
+
+
+
+## mysql是如何实现悲观锁与乐观锁的？
+
+一锁二查三更新”即指的是使用悲观锁。通常来讲在数据库上的悲观锁需要数据库本身提供支持，即通过常用的select … for update操作来实现悲观锁。
+
+当数据库执行select for update时会获取被select中的数据行的行锁，因此其他并发执行的select for update如果试图选中同一行则会发生排斥（需要等待行锁被释放），因此达到锁的效果。select for update获取的行锁会在当前事务结束时自动释放，因此必须在事务中使用。
+
+**mysql还有个问题是select... for update语句执行中，如果数据表没有添加索引或主键，所有扫描过的行都会被锁上，这一点很容易造成问题。因此如果在mysql中用悲观锁务必要确定走了索引，而不是全表扫描。**
+
+**要使用悲观锁，我们必须关闭mysql数据库的自动提交属性，因为MySQL默认使用autocommit模式，也就是说，当你执行一个更新操作后，MySQL会立刻将结果进行提交。**
+
+乐观锁的三种实现方式：
+
+1：使用数据版本（Version）记录机制实现，这是乐观锁最常用的一种实现方式。何谓数据版本？即为数据增加一个版本标识，一般是通过为数据库表增加一个数字类型的 “version” 字段来实现。当读取数据时，将version字段的值一同读出，数据每更新一次，对此version值加一。当我们提交更新的时候，判断数据库表对应记录的当前版本信息与第一次取出来的version值进行比对，如果数据库表当前版本号与第一次取出来的version值相等，则予以更新，否则认为是过期数据，
+
+2：使用时间戳（timestamp）, 和上面的version类似，也是在更新提交的时候检查当前数据库中数据的时间戳和自己更新前取到的时间戳进行对比，如果一致则OK，否则就是版本冲突。
+
+|              | **悲观锁**                                             | **乐观锁**                               |
+| ------------ | ------------------------------------------------------ | ---------------------------------------- |
+| **概念**     | **查询时直接锁住记录使得其它事务不能查询，更不能更新** | **提交更新时检查版本或者时间戳是否符合** |
+| **语法**     | **select ... for update**                              | **使用 version 或者 timestamp 进行比较** |
+| **实现者**   | **数据库本身**                                         | **开发者**                               |
+| **适用场景** | **并发量大**                                           | **并发量小**                             |
+| **类比Java** | **Synchronized关键字**                                 | **CAS 算法**                             |
+
+实这种版本号的方法并不是适用于所有的乐观锁场景。举个例子，当电商抢购活动时，大量并发进入，如果仅仅使用版本号或者时间戳，就会出现大量的用户查询出库存存在，但是却在扣减库存时失败了，而这个时候库存是确实存在的。想象一下，版本号每次只会有一个用户扣减成功，不可避免的人为造成失败。这种时候就需要我们的第二种场景的乐观锁方法。
+
+```sql
+UPDATE t_goods
+SET num = num - #{buyNum} 
+WHERE
+    id = #{id} 
+AND num - #{buyNum} >= 0 
+AND STATUS = 1
+```
+
+说明：num-#{buyNum}>=0 ，这个情景适合不用版本号，只更新是做数据安全校验，适合库存模型，扣份额和回滚份额，性能更高。这种模式也是目前我用来锁产品库存的方法，十分方便实用。
+
+**更新操作，最好用主键或者唯一索引来更新,这样是行锁，否则更新时会锁表**
+
+
+
+# 第十一章：SQL优化
+
+官网：
+
+explain
+
 
 
 # 19：服务器级常用sql语句
@@ -2854,23 +3168,7 @@ select
 
 **第二种设计方案：外键唯一**
 
-## 20：MySQL锁机制
 
-1：分类
-
-按对数据操作：读锁和写锁
-
-按粒度分：表锁和行锁
-
-2：表锁
-
-偏小myisam存储引擎，开销小，
-
-lock table 表名字1 read(write)，表名字2 read(write)，其它
-
-3：行锁
-
-偏向innodb,开销大，支持事务
 
 # 22：MySQL配置参数
 
@@ -3060,26 +3358,3 @@ mysql使用PrepareStatement
 
 
 
-## mysql是如何实现悲观锁与乐观锁的？
-
-一锁二查三更新”即指的是使用悲观锁。通常来讲在数据库上的悲观锁需要数据库本身提供支持，即通过常用的select … for update操作来实现悲观锁。
-
-当数据库执行select for update时会获取被select中的数据行的行锁，因此其他并发执行的select for update如果试图选中同一行则会发生排斥（需要等待行锁被释放），因此达到锁的效果。select for update获取的行锁会在当前事务结束时自动释放，因此必须在事务中使用。
-
-**mysql还有个问题是select... for update语句执行中，如果数据表没有添加索引或主键，所有扫描过的行都会被锁上，这一点很容易造成问题。因此如果在mysql中用悲观锁务必要确定走了索引，而不是全表扫描。**
-
-**要使用悲观锁，我们必须关闭mysql数据库的自动提交属性，因为MySQL默认使用autocommit模式，也就是说，当你执行一个更新操作后，MySQL会立刻将结果进行提交。**
-
-乐观锁的两种实现方式：
-
-1：使用数据版本（Version）记录机制实现，这是乐观锁最常用的一种实现方式。何谓数据版本？即为数据增加一个版本标识，一般是通过为数据库表增加一个数字类型的 “version” 字段来实现。当读取数据时，将version字段的值一同读出，数据每更新一次，对此version值加一。当我们提交更新的时候，判断数据库表对应记录的当前版本信息与第一次取出来的version值进行比对，如果数据库表当前版本号与第一次取出来的version值相等，则予以更新，否则认为是过期数据，
-
-2：使用时间戳（timestamp）, 和上面的version类似，也是在更新提交的时候检查当前数据库中数据的时间戳和自己更新前取到的时间戳进行对比，如果一致则OK，否则就是版本冲突。
-
-|              | **悲观锁**                                             | **乐观锁**                               |
-| ------------ | ------------------------------------------------------ | ---------------------------------------- |
-| **概念**     | **查询时直接锁住记录使得其它事务不能查询，更不能更新** | **提交更新时检查版本或者时间戳是否符合** |
-| **语法**     | **select ... for update**                              | **使用 version 或者 timestamp 进行比较** |
-| **实现者**   | **数据库本身**                                         | **开发者**                               |
-| **适用场景** | **并发量大**                                           | **并发量小**                             |
-| **类比Java** | **Synchronized关键字**                                 | **CAS 算法**                             |
