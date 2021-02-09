@@ -33,22 +33,15 @@
 
 ## 2.1版本控制
 
->   工程设计领域中使用版本控制管理工程蓝图的设计过程。在 IT
->   开发过程中也可以使用版本控制思想管理代码的版本迭代。
+工程设计领域中使用版本控制管理工程蓝图的设计过程。在 IT开发过程中也可以使用版本控制思想管理代码的版本迭代。
 
 ## 2.2版本控制工具
 
->   思想：版本控制实现：版本控制工具
-
->   集中式版本控制工具：
-
->   CVS、**SVN**、VSS……
+版本控制工具集中式版本控制工具：CVS、**SVN**、VSS……
 
 ![](media/7c16de1db872a3f12d2fa3af8fa3100d.jpg)
 
->   分布式版本控制工具：
-
->   **Git**、Mercurial、Bazaar、Darcs……
+分布式版本控制工具：Git、Mercurial、Bazaar、Darcs……
 
 ![](media/2ec04fe48f2c5902c34baeda67618cb6.jpg)
 
@@ -60,11 +53,7 @@
 
 ## 3.2Git 官网和 Logo
 
->   官网地址：https://git-scm.com/
-
->   Logo：
-
-![](media/ba3deb1bb987d850c6f8940bee2d2257.png)
+官网地址：https://git-scm.com/
 
 ## 3.3Git 的优势
 
@@ -96,7 +85,7 @@
 
 ## 3.6Git 和代码托管中心
 
->   代码托管中心的任务：维护远程库
+代码托管中心的任务：维护远程库
 
 -   局域网环境下
 
@@ -175,43 +164,45 @@
 
 ## 4.3基本操作
 
-### **4.3.1** 状态查看 git status
+### 查看
 
->   查看工作区、暂存区状态
+ 查看工作区、暂存区状态
 
-### 4.3.2 添加
+ git status
 
->   git add [file name]
+添加：将工作区的“新建/修改”添加到暂存区
 
->   将工作区的“新建/修改”添加到暂存区
+git add [file name]
 
-### 4.3.3 提交
+提交：将暂存区的内容提交到本地库
 
->   git commit -m "commit message" [file name]
+git commit -m "commit message" [file name]
 
->   将暂存区的内容提交到本地库
+查看历史记录 
 
-### **4.3.4** 查看历史记录 
+git log
 
->   git log
+多屏显示控制方式：
 
-![](media/896214d7e8d731456de52a0e0a092f0c.jpg)
+空格向下翻页 
 
->   多屏显示控制方式：空格向下翻页 b 向上翻页 q 退出
+b 向上翻页 
+
+q 退出
 
 git log --pretty=oneline
 
 ![](media/7eceb0d37a6e0c96dd14b5821489e039.jpg)
 
->   git log --oneline
+git log --oneline
 
 ![](media/1dba0b9ba6946f842e8e906b293e4971.jpg)
 
->   git reflog
+git reflog
 
 ![](media/fda56192a405866a3b5cbe641f417330.jpg)
 
->   HEAD\@{移动到当前版本需要多少步}
+HEAD\@{移动到当前版本需要多少步}
 
 ### 4.3.5 前进后退
 
@@ -273,11 +264,11 @@ git log --pretty=oneline
 
 -   git diff [文件名]
 
-    将工作区中的文件和暂存区进行比较
+    将工作区中的文件和暂存区进行比较
 
 -   git diff [本地库中历史版本] [文件名]
 
-    将工作区中的文件和本地库历史记录比较
+    将工作区中的文件和本地库历史记录比较
 
 -   不带文件名比较多个文件
 
@@ -311,6 +302,7 @@ git log --pretty=oneline
 
   -   第一步：切换到接受修改的分支（被合并，增加新内容）上
       
+
    git checkout [被合并分支名]
       
   -   第二步：执行 merge 命令
@@ -346,44 +338,104 @@ git log --pretty=oneline
 - （一股脑）使用`merge`命令合并分支，解决完冲突，执行`git add .`和`git commit -m'fix conflict'`。这个时候会产生一个commit。
 - （交互式）使用`rebase`命令合并分支，解决完冲突，执行`git add .`和`git rebase --continue`，不会产生额外的commit。这样的好处是，‘干净’，分支上不会有无意义的解决分支的commit；坏处，如果合并的分支中存在多个`commit`，需要重复处理多次冲突。
 
+
+
+## 其他操作
+
+1：没有commit就回退的，导致暂存区的数据丢失。恢复方法：
+
+```shell
+# 列出最近的60个提交的文件
+find .git/objects -type f | xargs ls -lt | sed 60q
+输出：
+-r--r--r-- 1 xiao4er xiao4er      848 Jun 14 11:40 .git/objects/e2/a9e0a491c21b06f029fdbe96a8f40934de6ff9
+……
+
+# 获取响应编号的文件内容输出
+git cat-file -p  e2a9e0a491c21b06f029fdbe96a8f40934de6ff9 > ResultFile.md
+其中ID为文件编号后边的两个去掉中间的 / 
+```
+
+2：删除没有使用的大文件
+
+```shell
+# 查出已删除的大文件前3名的commit SHA值
+git verify-pack -v .git/objects/pack/pack-*.idx | sort -k 3 -n | tail -3
+
+# SHA值查出文件路径
+git rev-list --objects --all |grep a283535d282b3437773cd1a7a16e1ae8cca3c498
+git rev-list --objects --all |grep 0c53c451a47688c9bfa65e1cd856f2083828f7fb
+
+# 查出文件提交commit记录
+git log --pretty=oneline --branches -- 0.0数据结构与算法/数据结构与算法.docx
+
+# 遍历所有提交： commit多了会比较慢
+git filter-branch --force --prune-empty --index-filter 'git rm -rf --cached --ignore-unmatch 0.0数据结构与算法/数据结构与算法.docx' --tag-name-filter cat -- --all
+git filter-branch --force --prune-empty --index-filter 'git rm -rf --cached --ignore-unmatch 1.1版本控制/1.Git/Git/media/137ab5ef17d3a9b579bc777612860f31.png' --tag-name-filter cat -- --all
+
+# 如果没出问题可以不执行
+git stash
+
+# 回收内存
+rm -rf .git/refs/original/
+   #  修剪早于指定时间的条目。
+git reflog expire --expire=now --all
+  #   清理不必要的文件并优化本地存储库
+git gc --prune=now
+
+# 强制提交的远程
+git push --force --all
+```
+
+其中：
+
+```shell
+ # 强制
+ -f 或则 --force
+ 
+```
+
+
+
+
+
 # 五：Git 基本原理
 
 ## 5.1哈希
 
 ![](media/350068a52e3f2ae0e4cacdbf664f8df8.png)
 
->   哈希是一个系列的加密算法，各个不同的哈希算法虽然加密强度不同，但是有以下几个共同点：
+哈希是一个系列的加密算法，各个不同的哈希算法虽然加密强度不同，但是有以下几个共同点：
 
->   ①不管输入数据的数据量有多大，输入同一个哈希算法，得到的加密结果长度固定。
+①不管输入数据的数据量有多大，输入同一个哈希算法，得到的加密结果长度固定。
 
->   ②哈希算法确定，输入数据确定，输出数据能够保证不变
+②哈希算法确定，输入数据确定，输出数据能够保证不变
 
->   ③哈希算法确定，输入数据有变化，输出数据一定有变化，而且通常变化很大
+③哈希算法确定，输入数据有变化，输出数据一定有变化，而且通常变化很大
 
->   ④哈希算法不可逆
+④哈希算法不可逆
 
->   Git 底层采用的是 SHA-1 算法。
+Git 底层采用的是 SHA-1 算法。
 
->   哈希算法可以被用来验证文件。原理如下图所示：
+哈希算法可以被用来验证文件。原理如下图所示：
 
 ![](media/a63c98b124dad701fcf4253984344565.png)
 
->   Git 就是靠这种机制来从根本上保证数据完整性的。
+Git 就是靠这种机制来从根本上保证数据完整性的。
 
 ## 5.2Git 保存版本的机制
 
 ### **5.2.1** 集中式版本控制工具的文件管理机制
 
->   以文件变更列表的方式存储信息。这类系统将它们保存的信息看作是一组基本文件和每个文件随时间逐步累积的差异。
+以文件变更列表的方式存储信息。这类系统将它们保存的信息看作是一组基本文件和每个文件随时间逐步累积的差异。
 
 ![](media/442cc182b3b63c5f305413169c0c25e2.jpg)
 
 ### 5.2.2 Git 的文件管理机制
 
->   Git 把数据看作是小型文件系统的一组快照。每次提交更新时 Git
->   都会对当前的全部文件制作一个快照并保存这个快照的索引。为了高效，如果文件没有修改，
->   Git 不再重新存储该文件，而是只保留一个链接指向之前存储的文件。所以 Git
->   的工作方式可以称之为快照流。
+Git 把数据看作是小型文件系统的一组快照。每次提交更新时 Git都会对当前的全部文件制作一个快照并保存这个快照的索引。为了高效，如果文件没有修改，
+Git 不再重新存储该文件，而是只保留一个链接指向之前存储的文件。所以 Git
+的工作方式可以称之为快照流。
 
 ![](media/35dd2fd0764def1a724c0d8c76f9f351.jpg)
 
@@ -411,15 +463,6 @@ git log --pretty=oneline
 
 # 六：GitHub
 
-## 6.1账号信息
-
->   GitHub 首页就是注册页面：https://github.com/
-
-| [media/b136305f3c3df88d63fd596e954deac5.jpg](media/b136305f3c3df88d63fd596e954deac5.jpg) | Email 地址：atguigu2018ybuq\@aliyun.com GitHub 账号：atguigu2018ybuq |
-|------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
-| [media/b2239247784949249c38a9ce3a332a42.jpg](media/b2239247784949249c38a9ce3a332a42.jpg) | Email 地址：atguigu2018lhuc\@aliyun.com GitHub 账号：atguigu2018lhuc |
-| [media/53bffb3bf379d64cc1132b816b7ff701.jpg](media/53bffb3bf379d64cc1132b816b7ff701.jpg) | Email 地址：atguigu2018east\@aliyun.com GitHub 账号：atguigu2018east |
-
 ## 6.2创建远程库
 
 ![](media/7fbfe2c491edefa355ea41fd10894202.jpg)
@@ -428,13 +471,13 @@ git log --pretty=oneline
 
 ## 6.3创建远程库地址别名
 
->   git remote -v 查看当前所有远程地址别名 git remote add [别名] [远程地址]
+git remote -v 查看当前所有远程地址别名 git remote add [别名] [远程地址]
 
 ![](media/aac3745d4b6ea3e954b277f2db3e4492.jpg)
 
 ## 6.4推送
 
->   git push [别名] [分支名]
+git push [别名] [分支名]
 
 ![](media/6dc755589193831e029f8a45370a05cf.jpg)
 
@@ -462,8 +505,7 @@ git log --pretty=oneline
 
 ![](media/b5669df6f421d777f0f07e89e0cf6e21.png)
 
->   “岳不群”其他方式把邀请链接发送给“令狐冲”，“令狐冲”登录自己的 GitHub
->   账号，访问邀请链接。
+“岳不群”其他方式把邀请链接发送给“令狐冲”，“令狐冲”登录自己的 GitHub账号，访问邀请链接。
 
 ![](media/53a313785821e046178ef7cd142cffe9.jpg)
 
@@ -596,11 +638,10 @@ git log --pretty=oneline
 
 -   为什么要忽略 Eclipse 特定文件呢？
 
-    同一个团队中很难保证大家使用相同的 IDE 工具，而 IDE
-    工具不同时，相关工程特定文件就有可能不同。如果这些文件加入版本控制，那么开发时很可能需要为了这些文件解决冲突。
-
-    ![](media/eb863231dc92ee99fabc78bbdc0df61d.png)
-
+    同一个团队中很难保证大家使用相同的 IDE 工具，而 IDE工具不同时，相关工程特定文件就有可能不同。如果这些文件加入版本控制，那么开发时很可能需要为了这些文件解决冲突。
+    
+![](media/eb863231dc92ee99fabc78bbdc0df61d.png)
+    
 -   GitHub 官网样例文件
 
     https://github.com/github/gitignore
@@ -608,11 +649,6 @@ git log --pretty=oneline
     https://github.com/github/gitignore/blob/master/Java.gitignore
 
 -   编辑本地忽略配置文件，文件名任意
-
-| Java.gitignore                                                                                                                                                                                                      |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| \# Compiled class file \*.class \# Log file \*.log \# BlueJ files \*.ctxt \# Mobile Tools for Java (J2ME) .mtj.tmp/                                                                                                 |
-| \# Package Files \# \*.jar \*.war \*.nar \*.ear \*.zip \*.tar.gz \*.rar \# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml hs_err_pid\* .classpath .project .settings target |
 
 -   在\~/.gitconfig 文件中引入上述文件
 
@@ -630,51 +666,9 @@ git log --pretty=oneline
 
 ![](media/547539688719987d61fb596b49784a79.jpg)
 
-## 7.4Oxygen Eclipse 克隆工程操作
-
--   Import...导入工程
-
-    ![](media/aa328800bdaa4557bac711714f4a5657.jpg)
-
-    ![](media/d63d0f96fcfbac1c2f67f92361239ef7.jpg)
-
--   到远程库复制工程地址
-
-    ![](media/5fa64f0e0bddde9dd34d2b78f519ce54.jpg)
-
-    ![](media/4b0a962f6d52dec13c8d76ed9163790b.jpg)
-
-    ![](media/b40aea66adcb0fc808d3385725163183.jpg)
-
--   指定工程的保存位置
-
-    ![](media/3262e3a38e177f6e09c401b5362a2d1d.png)
-
--   指定工程导入方式，这里只能用：Import as general project
-
-    ![](media/5634ab81adcaeb14c05db1bed96fb4f1.jpg)
-
--   转换工程类型
-
-    ![](media/b7a34edce41ae7a0e9d1bfddca4d7b24.jpg)
-
--   最终效果
-
-    ![](media/e6c3344beed899bc878a946059bbc266.jpg)
-
-## 7.5Kepler Eclipse 克隆工程操作
-
--   问题：不能保存到当前 Eclipse 工作区目录
-
-    ![](media/3e1458d0172d875e75ff728ceffd2a58.jpg)
-
--   正确做法：保存到工作区以外的目录中
-
-    ![](media/54a10d921a505e732d8f0757406c3083.jpg)
-
 ## 7.6解决冲突
 
->   冲突文件→右键→Team→Merge Tool 修改完成后正常执行 add/commit 操作即可
+冲突文件→右键→Team→Merge Tool 修改完成后正常执行 add/commit 操作即可
 
 # 八：Git 工作流
 
@@ -686,24 +680,21 @@ git log --pretty=oneline
 
 ### **8.2.1** 集中式工作流
 
->   像 SVN
->   一样，集中式工作流以中央仓库作为项目所有修改的单点实体。所有修改都提交到
->   Master 这个分支上。
+像 SVN一样，集中式工作流以中央仓库作为项目所有修改的单点实体。所有修改都提交到Master 这个分支上。
 
->   这种方式与 SVN 的主要区别就是开发人员有本地库。Git 很多特性并没有用到。
+这种方式与 SVN 的主要区别就是开发人员有本地库。Git 很多特性并没有用到。
 
 ![](media/7e85a8463a89ea8692e42a3d2032272b.png)
 
 ### **8.2.2 GitFlow** 工作流
 
->   Gitflow工作流通过为功能开发、发布准备和维护设立了独立的分支，让发布迭代过程更流畅。严格的分支模型也为大型项目提供了一些非常必要的结构。
+Gitflow工作流通过为功能开发、发布准备和维护设立了独立的分支，让发布迭代过程更流畅。严格的分支模型也为大型项目提供了一些非常必要的结构。
 
 ![](media/33fc9540104ae3882bd6bf55ce6723a5.png)
 
 ### **8.2.3 Forking** 工作流
 
->   Forking 工作流是在 GitFlow 基础上，充分利用了 Git 的 Fork 和 pull request
->   的功能以达到代码审核的目的。更适合安全可靠地管理大团队的开发者，而且能接受不信任贡献者的提交。
+Forking 工作流是在 GitFlow 基础上，充分利用了 Git 的 Fork 和 pull request的功能以达到代码审核的目的。更适合安全可靠地管理大团队的开发者，而且能接受不信任贡献者的提交。
 
 ![](media/75ed8e4ce5f0ae886ca3e64118cd2e3f.png)
 
@@ -733,101 +724,25 @@ git log --pretty=oneline
 
 ### 8.3.2 GitFlow 工作流举例
 
-![](media/137ab5ef17d3a9b579bc777612860f31.png)
-
 ### 8.3.3 分支实战
 
-![](media/c247fd2525be0cfdacbe2a77fcc05b22.png)
+![image-20210209134600237](media/image-20210209134600237.png)
 
 ### 8.3.4 具体操作
 
--   创建分支
 
-    ![](media/191805f6512f8a36c9917a2ffcacd628.jpg)
-
--   切换分支审查代码
-
-    ![](media/5ae46dfed714a2c73fdb500618b1e9be.jpg)
-
-    ![](media/4b8817e6673132a4b914dab76f3a3f52.jpg)
-
-    ![](media/dcb5c7ffca2bbd82f96087ef570feb20.png)
-
--   检出远程新分支
-
-    ![](media/4d04e5aa24dc70fa67c1110801aa7211.jpg)
-
--   切换回 master
-
-    ![](media/d20f1ea8596b7c51071538db3bc3fac5.jpg)
-
--   合并分支
-
-    ![](media/3d416680be1cf13e79ebc029176ba6bd.jpg)
-
--   合并结果
-
-    ![](media/2f408bf3bfdb5dde9cea6cc785fae139.jpg)
-
-    合并成功后，把 master 推送到远程。
 
 ## 九： Gitlab 服务器搭建过程
 
 ### **9.1**官网地址
 
->   首页：https://about.gitlab.com/
->   安装说明：https://about.gitlab.com/installation/
+首页：https://about.gitlab.com/
+
+安装说明：https://about.gitlab.com/installation/
 
 ### **9.2**安装命令摘录
 
-sudo yum install -y curl policycoreutils-python openssh-server cronie sudo
-lokkit -s http -s ssh sudo yum install postfix sudo service postfix start sudo
-chkconfig postfix on curl
-https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh
-\| sudo bash sudo EXTERNAL_URL="http://gitlab.example.com" yum -y install
-gitlab-ee
 
->   实际问题：yum 安装 gitlab-ee(或 ce)时，需要联网下载几百 M 的安装文件，非常耗
-
->   时，所以应提前把所需 RPM 包下载并安装好。
-
->   下载地址为：
-
-https://packages.gitlab.com/gitlab/gitlab-ce/packages/el/7/gitlab-ce-10.8.2-ce.0.el7.x86_64.rpm
-
-### **9.3**调整后的安装过程
-
-**sudo rpm -ivh /opt/gitlab-ce-10.8.2-ce.0.el7.x86_64.rpm** sudo yum install -y
-curl policycoreutils-python openssh-server cronie sudo lokkit -s http -s ssh
-sudo yum install postfix sudo service postfix start sudo chkconfig postfix on
-curl
-https://packages.gitlab.com/install/repositories/gitlab/gitlab-**c**e/script.rpm.sh
-\| sudo bash sudo EXTERNAL_URL="http://gitlab.example.com" yum -y install
-gitlab-**c**e 当前步骤完成后重启。
-
-### **9.4gitlab** 服务操作
-
--   初始化配置 gitlab
-
-    gitlab-ctl reconfigure
-
--   启动 gitlab 服务 gitlab-ctl start
-
--   停止 gitlab 服务 gitlab-ctl stop
-
-## 9.5浏览器访问
-
->   访问 Linux 服务器 IP 地址即可，如果想访问 EXTERNAL_URL 指定的域名还需要配置
-
->   域名服务器或本地 hosts 文件。
-
->   初次登录时需要为 gitlab 的 root 用户设置密码。
-
-![](media/dc15863e9fdb93b7871927fa97db4548.jpg)
-
->   root/atguigu2018good
-
->   ※应该会需要停止防火墙服务： service firewalld stop
 
 # 十：小乌龟
 
