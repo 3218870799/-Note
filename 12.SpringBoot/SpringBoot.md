@@ -461,13 +461,13 @@ public class Person {
 
 2、@Value获取值和@ConfigurationProperties获取值比较
 
-|            | @ConfigurationProperties | @Value |
-| ---------- | ------------------------ | ------ |
-| 功能         | 批量注入配置文件中的属性             | 一个个指定  |
-| 松散绑定（松散语法） | 支持                       | 不支持    |
-| SpEL       | 不支持                      | 支持     |
-| JSR303数据校验 | 支持                       | 不支持    |
-| 复杂类型封装     | 支持                       | 不支持    |
+|                      | @ConfigurationProperties | @Value     |
+| -------------------- | ------------------------ | ---------- |
+| 功能                 | 批量注入配置文件中的属性 | 一个个指定 |
+| 松散绑定（松散语法） | 支持                     | 不支持     |
+| SpEL                 | 不支持                   | 支持       |
+| JSR303数据校验       | 支持                     | 不支持     |
+| 复杂类型封装         | 支持                     | 不支持     |
 
 配置文件yml还是properties他们都能获取到值；
 
@@ -1030,20 +1030,20 @@ xxxxProperties:封装配置文件中相关属性；
 
 作用：必须是@Conditional指定的条件成立，才给容器中添加组件，配置配里面的所有内容才生效；
 
-| @Conditional扩展注解                | 作用（判断是否满足当前指定条件）               |
-| ------------------------------- | ------------------------------ |
-| @ConditionalOnJava              | 系统的java版本是否符合要求                |
-| @ConditionalOnBean              | 容器中存在指定Bean；                   |
-| @ConditionalOnMissingBean       | 容器中不存在指定Bean；                  |
-| @ConditionalOnExpression        | 满足SpEL表达式指定                    |
-| @ConditionalOnClass             | 系统中有指定的类                       |
-| @ConditionalOnMissingClass      | 系统中没有指定的类                      |
+| @Conditional扩展注解            | 作用（判断是否满足当前指定条件）                 |
+| ------------------------------- | ------------------------------------------------ |
+| @ConditionalOnJava              | 系统的java版本是否符合要求                       |
+| @ConditionalOnBean              | 容器中存在指定Bean；                             |
+| @ConditionalOnMissingBean       | 容器中不存在指定Bean；                           |
+| @ConditionalOnExpression        | 满足SpEL表达式指定                               |
+| @ConditionalOnClass             | 系统中有指定的类                                 |
+| @ConditionalOnMissingClass      | 系统中没有指定的类                               |
 | @ConditionalOnSingleCandidate   | 容器中只有一个指定的Bean，或者这个Bean是首选Bean |
-| @ConditionalOnProperty          | 系统中指定的属性是否有指定的值                |
-| @ConditionalOnResource          | 类路径下是否存在指定资源文件                 |
-| @ConditionalOnWebApplication    | 当前是web环境                       |
-| @ConditionalOnNotWebApplication | 当前不是web环境                      |
-| @ConditionalOnJndi              | JNDI存在指定项                      |
+| @ConditionalOnProperty          | 系统中指定的属性是否有指定的值                   |
+| @ConditionalOnResource          | 类路径下是否存在指定资源文件                     |
+| @ConditionalOnWebApplication    | 当前是web环境                                    |
+| @ConditionalOnNotWebApplication | 当前不是web环境                                  |
+| @ConditionalOnJndi              | JNDI存在指定项                                   |
 
 **自动配置类必须在一定的条件下才能生效；**
 
@@ -1280,21 +1280,21 @@ logging.pattern.console=%d{yyyy-MM-dd} [%thread] %-5level %logger{50} - %msg%n
 logging.pattern.file=%d{yyyy-MM-dd} === [%thread] === %-5level === %logger{50} ==== %msg%n
 ```
 
-| logging.file | logging.path | Example  | Description             |
-| ------------ | ------------ | -------- | ----------------------- |
-| (none)       | (none)       |          | 只在控制台输出                 |
-| 指定文件名        | (none)       | my.log   | 输出日志到my.log文件           |
-| (none)       | 指定目录         | /var/log | 输出到指定目录的 spring.log 文件中 |
+| logging.file | logging.path | Example  | Description                        |
+| ------------ | ------------ | -------- | ---------------------------------- |
+| (none)       | (none)       |          | 只在控制台输出                     |
+| 指定文件名   | (none)       | my.log   | 输出日志到my.log文件               |
+| (none)       | 指定目录     | /var/log | 输出到指定目录的 spring.log 文件中 |
 
 ### 2、指定配置
 
 给类路径下放上每个日志框架自己的配置文件即可；SpringBoot就不使用他默认配置的了
 
-| Logging System          | Customization                            |
-| ----------------------- | ---------------------------------------- |
+| Logging System          | Customization                                                                    |
+| ----------------------- | -------------------------------------------------------------------------------- |
 | Logback                 | `logback-spring.xml`, `logback-spring.groovy`, `logback.xml` or `logback.groovy` |
-| Log4j2                  | `log4j2-spring.xml` or `log4j2.xml`      |
-| JDK (Java Util Logging) | `logging.properties`                     |
+| Log4j2                  | `log4j2-spring.xml` or `log4j2.xml`                                              |
+| JDK (Java Util Logging) | `logging.properties`                                                             |
 
 logback.xml：直接就被日志框架识别了；
 
@@ -3756,119 +3756,70 @@ public class HelloCommandLineRunner implements CommandLineRunner {
 
 # 八、自定义starter
 
-starter：
+## 1：新建项目
 
-​	1、这个场景需要使用到的依赖是什么？
+并建立两个module，一个为启动器module，一个为自动配置module
 
-​	2、如何编写自动配置
+启动器Module
 
-```java
-@Configuration  //指定这个类是一个配置类
-@ConditionalOnXXX  //在指定条件成立的情况下自动配置类生效
-@AutoConfigureAfter  //指定自动配置类的顺序
-@Bean  //给容器中添加组件
+作用：只用来做依赖导入
 
-@ConfigurationPropertie结合相关xxxProperties类来绑定相关的配置
-@EnableConfigurationProperties //让xxxProperties生效加入到容器中
+**启动器命名规范：**
 
-自动配置类要能加载
-将需要启动就加载的自动配置类，配置在META-INF/spring.factories
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.springframework.boot.autoconfigure.admin.SpringApplicationAdminJmxAutoConfiguration,\
-org.springframework.boot.autoconfigure.aop.AopAutoConfiguration,\
-```
+springboot官方的启动器： spring-boot-starter-XXX 如：spring-boot-starter-jdbc
 
-​	3、模式：
+我们自定义的启动器：XXX-spring-boot-starter 如：sglhello-spring-boot-starter
 
-启动器只用来做依赖导入；
+自动配置Module
 
-专门来写一个自动配置模块；
+作用：具体实现启动器的业务逻辑
 
-启动器依赖自动配置；别人只需要引入启动器（starter）
+**命名规范：**
 
-mybatis-spring-boot-starter；自定义启动器名-spring-boot-starter
+XXX-spring-boot-starter-autoconfigurer 
+
+XXX最好跟启动器的XXX保持一致！
 
 
 
-步骤：
+## 2：配置启动器依赖
 
-1）、启动器模块
+在启动器Module的pom.xml文件中添加添加对自动配置模块项目的依赖
 
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <groupId>com.xqc.starter</groupId>
-    <artifactId>xqc-spring-boot-starter</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
-    <!--启动器-->
     <dependencies>
-
         <!--引入自动配置模块-->
         <dependency>
-            <groupId>com.xqc.starter</groupId>
-            <artifactId>xqc-spring-boot-starter-autoconfigurer</artifactId>
+            <groupId>com.sglhello.starter</groupId>
+            <artifactId>sglhello-spring-boot-starter-autoconfigurer</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
-
-</project>
 ```
 
-2）、自动配置模块
+## 3：配置自动配置模块的依赖
+
+这里我们把 dependencies 里面只留一个最基础的springboot对starter的支持就行了插件的引用，web的依赖都去掉
 
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-   <modelVersion>4.0.0</modelVersion>
-
-   <groupId>com.xqc.starter</groupId>
-   <artifactId>xqc-spring-boot-starter-autoconfigurer</artifactId>
-   <version>0.0.1-SNAPSHOT</version>
-   <packaging>jar</packaging>
-
-   <name>xqc-spring-boot-starter-autoconfigurer</name>
-   <description>Demo project for Spring Boot</description>
-
-   <parent>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-parent</artifactId>
-      <version>1.5.10.RELEASE</version>
-      <relativePath/> <!-- lookup parent from repository -->
-   </parent>
-
-   <properties>
-      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-      <java.version>1.8</java.version>
-   </properties>
-
    <dependencies>
-
       <!--引入spring-boot-starter；所有starter的基本配置-->
       <dependency>
          <groupId>org.springframework.boot</groupId>
          <artifactId>spring-boot-starter</artifactId>
       </dependency>
-
    </dependencies>
-
-
-
-</project>
-
 ```
 
+## 4：编写自动配置业务逻辑
 
+当其他SpringBoot项目引用启动器，因为启动器依赖于自动配置模块，然后也会扫描自动配置模块的类路径下的/META-IN目录下的 ` spring.factories ` HelloServiceAutoConfiguration配置类就会被拿到，然后里面的 helloService() 方法返回的HelloService对象就会被创建并且被@Bean 注解注册到ioc容器里面，这样 springboot 项目 里面就可以 通过@Autowired 注解使用 HelloService 对象了。
+
+在Config目录下创建如下三个文件：
+
+HelloProperties.java
 
 ```java
-package com.xqc.starter;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "xqc.hello")
@@ -3893,49 +3844,40 @@ public class HelloProperties {
         this.suffix = suffix;
     }
 }
-
 ```
 
+HelloService.java
+
 ```java
-package com.xqc.starter;
-
 public class HelloService {
-
     HelloProperties helloProperties;
-
     public HelloProperties getHelloProperties() {
         return helloProperties;
     }
-
     public void setHelloProperties(HelloProperties helloProperties) {
         this.helloProperties = helloProperties;
     }
-
     public String sayHellXqc(String name){
         return helloProperties.getPrefix()+"-" +name + helloProperties.getSuffix();
     }
 }
-
 ```
 
+HelloServiceAutoConfiguration.java
+
 ```java
-package com.xqc.starter;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
-@ConditionalOnWebApplication //web应用才生效
-@EnableConfigurationProperties(HelloProperties.class)
+@Configuration//申明这是一个配置类
+@ConditionalOnWebApplication//引用启动器的项目是web应用此自动配置模块才生效
+@EnableConfigurationProperties(HelloProperties.class)//加载配置对象到容器
 public class HelloServiceAutoConfiguration {
 
     @Autowired
     HelloProperties helloProperties;
+    //方法返回结果对象加载到容器
     @Bean
     public HelloService helloService(){
+         //新建业务逻辑处理对象，并返回加载到容器中，
+        // 这样引用启动器的项目就可以 @Autowired  HelloService 对象直接使用了
         HelloService service = new HelloService();
         service.setHelloProperties(helloProperties);
         return service;
@@ -3946,7 +3888,15 @@ public class HelloServiceAutoConfiguration {
 
 
 
+## 5：创建XXXAutoConfiguration的扫描配置
 
+因为springboot在启动的过程中会去扫描项目和所有项目依赖引用的jar包 类路径下的META-IN目录下的spring.factories配置读取所有的拦截器，过滤器，自动配置XXXAutoConfiguration 等等。
+
+```properties
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.sgl.mystarter.sglhello.config.HelloServiceAutoConfiguration
+```
 
 # 九：Thymeleaf
 
