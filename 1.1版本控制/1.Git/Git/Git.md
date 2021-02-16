@@ -374,6 +374,7 @@ git filter-branch --force --prune-empty --index-filter 'git rm -rf --cached --ig
 git filter-branch --force --prune-empty --index-filter 'git rm -rf --cached --ignore-unmatch 1.1版本控制/1.Git/Git/media/137ab5ef17d3a9b579bc777612860f31.png' --tag-name-filter cat -- --all
 
 # 如果没出问题可以不执行
+# 储藏
 git stash
 
 # 回收内存
@@ -640,6 +641,7 @@ git push [别名] [分支名]
 
     同一个团队中很难保证大家使用相同的 IDE 工具，而 IDE工具不同时，相关工程特定文件就有可能不同。如果这些文件加入版本控制，那么开发时很可能需要为了这些文件解决冲突。
     
+
 ![](media/eb863231dc92ee99fabc78bbdc0df61d.png)
     
 -   GitHub 官网样例文件
@@ -780,5 +782,5 @@ Forking 工作流是在 GitFlow 基础上，充分利用了 Git 的 Fork 和 pul
 
 
 
-
+清理历史大文件，BFG
 

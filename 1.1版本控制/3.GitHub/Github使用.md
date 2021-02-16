@@ -1,4 +1,4 @@
-
+# 使用查看
 
 给README添加小徽章
 
@@ -69,3 +69,104 @@
 - location：地区
 - language：语言
 - 例如：`location:beijing language:java`
+
+
+
+
+
+# GitHub Pages搭建网站
+
+新建仓库，创建个人站点，仓库名必须是 【用户名.github.io】
+
+在仓库下新建index.html文件即可。只支持静态网页。
+
+
+
+
+
+
+
+# 为开源项目贡献
+
+## 原则
+
+一：做有价值的事
+
+二：不要给别人添麻烦，可以让别人直接合并。一个提交只解决一个问题。
+
+三：先搜索，不要走撞车的问题
+
+四：使用工具
+
+
+
+## 例子
+
+为Gradle修改Java8语法
+
+将需要更改关心的变成Error
+
+![image-20210207213628693](media/image-20210207213628693.png)
+
+然后在项目上右键——>Analuze——>Inspect Code
+
+点击错误，使用 ` Alt + Enter ` 修改
+
+
+
+为SpringBoot贡献代码
+
+先 ` fork ` ,下载到本地
+
+
+
+写PR 
+
+```
+i found some code to simplify when using IDEA to inspect the Code,so i submit a PR here,Thanks!
+```
+
+签署贡献协议，签署个人
+
+
+
+为Guava
+
+
+
+
+
+
+
+
+
+Java中一切的操作都是一个拼接命令行参数而已。
+
+
+
+草案：
+
+Issue讨论
+
+
+
+谷歌文档
+
+
+
+Effective.java
+
+
+
+远程仓库资源
+
+remote-working：中国远程工作资料大全
+
+网站：一早一晚
+
+
+
+
+
+
+

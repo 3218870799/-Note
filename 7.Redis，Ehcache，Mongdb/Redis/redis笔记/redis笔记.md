@@ -1,12 +1,12 @@
-﻿# 第一章：Redis介绍
+﻿# 第一章：Redis 介绍
 
-## 1.1：什么是NoSql
+## 1.1：什么是 NoSql
 
-为了解决高并发、高可用、高可扩展，大数据存储等一系列问题而产生的数据库解决方案，就是NoSql。NoSql，叫非关系型数据库，它的全名Not only sql。它不能替代关系型数据库，只能作为关系型数据库的一个良好补充。
+为了解决高并发、高可用、高可扩展，大数据存储等一系列问题而产生的数据库解决方案，就是 NoSql。NoSql，叫非关系型数据库，它的全名 Not only sql。它不能替代关系型数据库，只能作为关系型数据库的一个良好补充。
 
-## 1.2：NoSql的分类
+## 1.2：NoSql 的分类
 
--   键值(Key-Value)存储数据库
+- 键值(Key-Value)存储数据库
 
 相关产品： Tokyo Cabinet/Tyrant、**Redis**、Voldemort、Berkeley DB
 
@@ -18,7 +18,7 @@
 
 劣势： 存储的数据缺少结构化
 
--   列存储数据库
+- 列存储数据库
 
 相关产品：Cassandra, **HBase**, Riak
 
@@ -30,11 +30,11 @@
 
 劣势：功能相对局限
 
--   文档型数据库
+- 文档型数据库
 
 相关产品：CouchDB、**MongoDB**
 
-典型应用：Web应用（与Key-Value类似，Value是结构化的）
+典型应用：Web 应用（与 Key-Value 类似，Value 是结构化的）
 
 数据模型： 一系列键值对
 
@@ -42,7 +42,7 @@
 
 劣势： 查询性能不高，而且缺乏统一的查询语法
 
--   图形(Graph)数据库
+- 图形(Graph)数据库
 
 相关数据库：Neo4J、InfoGrid、Infinite Graph
 
@@ -54,34 +54,28 @@
 
 劣势：需要对整个图做计算才能得出结果，不容易做分布式的集群方案。
 
+## 1.3：什么是 redis
 
+Redis 是使用 c 语言开发的一个高性能键值数据库。Redis 可以通过一些键值类型来存储数据。
 
+键值类型：String 字符类型 map 散列类型 list 列表类型 set 集合类型 sortedset 有序集合类型
 
+## 1.4：redis 历史发展
 
+2008 年，意大利的一家创业公司 Merzia 推出了一款基于 MySQL 的网站实时统计系统 LLOOGG，然而没过多久该公司的创始人
+Salvatore Sanfilippo 便对 MySQL 的性能感到失望，于是他决定亲自为 LLOOGG 量身定做一个数据库，并于 2009 年开发完成，这个数据库就是 Redis。
+不过 SalvatoreSanfilippo 并不满足只将 Redis 用于 LLOOGG 这一款产品，而是希望更多的人使用它，于是在同一年 Salvatore
+Sanfilippo 将 Redis 开源发布，并开始和 Redis 的另一名主要的代码贡献者 PieterNoordhuis 一起继续着 Redis 的开发，直到今天。
 
-
-## 1.3：什么是redis
-
-Redis是使用c语言开发的一个高性能键值数据库。Redis可以通过一些键值类型来存储数据。
-
-键值类型：String字符类型  map散列类型   list列表类型   set集合类型     sortedset有序集合类型
-
-## 1.4：redis历史发展
-
-2008年，意大利的一家创业公司Merzia推出了一款基于MySQL的网站实时统计系统LLOOGG，然而没过多久该公司的创始人
-Salvatore Sanfilippo便对MySQL的性能感到失望，于是他决定亲自为LLOOGG量身定做一个数据库，并于2009年开发完成，这个数据库就是Redis。
-不过SalvatoreSanfilippo并不满足只将Redis用于LLOOGG这一款产品，而是希望更多的人使用它，于是在同一年Salvatore
-Sanfilippo将Redis开源发布，并开始和Redis的另一名主要的代码贡献者PieterNoordhuis一起继续着Redis的开发，直到今天。
-
-## 1.5：redis的应用场景
+## 1.5：redis 的应用场景
 
 缓存（数据查询、短连接、新闻内容、商品内容等等）。（**最多使用**）
 
-分布式集群架构中的session分离。
+分布式集群架构中的 session 分离。
 
 聊天室的在线好友列表。
 
-任务队列。（秒杀、抢购、12306等等）
+任务队列。（秒杀、抢购、12306 等等）
 
 应用排行榜。
 
@@ -89,84 +83,76 @@ Sanfilippo将Redis开源发布，并开始和Redis的另一名主要的代码贡
 
 数据过期处理（可以精确到毫秒）
 
-# 第二章：redis安装
+# 第二章：redis 安装
 
-## 1：Window安装
+## 1：Window 安装
 
-安装包地址：[https://github.com/microsoftarchive/redis](https://links.jianshu.com/go?to=https%3A%2F%2Fgithub.com%2Fmicrosoftarchive%2Fredis) 
+安装包地址：[https://github.com/microsoftarchive/redis](https://links.jianshu.com/go?to=https%3A%2F%2Fgithub.com%2Fmicrosoftarchive%2Fredis)
 
 （1）进入安装包地址，选择 releases
 
 （2）在 releases 页面下载最新版
 
-msi是可执行文件，按安装步骤安装即可。zip直接解压就可以了。
+msi 是可执行文件，按安装步骤安装即可。zip 直接解压就可以了。
 
 ![image-20210124203236202](media/image-20210124203236202.png)
 
-端口号可保持默认的6379，并选择防火墙例外，从而保证外部可以正常访问Redis服务。
+端口号可保持默认的 6379，并选择防火墙例外，从而保证外部可以正常访问 Redis 服务。
 
 以服务方式启动
 
 以非服务方式启动
 
-进入CMD，进入redis的目录，执行如下命令
+进入 CMD，进入 redis 的目录，执行如下命令
 
 redis-server redis.windows.conf
 
-
-
 设置密码
 
-在redis目录中找到redis.windows-service.conf 和 redis.windows.conf 两个文件
+在 redis 目录中找到 redis.windows-service.conf 和 redis.windows.conf 两个文件
 
-都打开找到requirepass，加一行：requirepass 123456，123456是密码，保存重新运行redis，访问redis就需要密码了。
+都打开找到 requirepass，加一行：requirepass 123456，123456 是密码，保存重新运行 redis，访问 redis 就需要密码了。
 
-CMD并进入redis目录，执行如下命令，执行前请保证redis服务已启动
+CMD 并进入 redis 目录，执行如下命令，执行前请保证 redis 服务已启动
 
-redis-cli -h localhost -p 6379 -a 123456 
+redis-cli -h localhost -p 6379 -a 123456
 
+## 2：Linux 安装
 
-
-
-
-
-
-## 2：Linux安装
-
-## 2.1：redis下载
+## 2.1：redis 下载
 
 官网地址：<http://redis.io/>
 
 下载地址：<http://download.redis.io/releases/redis-3.0.0.tar.gz>
 
-## 2.2：redis的安装
+## 2.2：redis 的安装
 
-redis的安装环境会安装到linux系统中。
+redis 的安装环境会安装到 linux 系统中。
 
-第一步：安装VMware，并且在VMware中安装centos系统（参考linux教程）。
+第一步：安装 VMware，并且在 VMware 中安装 centos 系统（参考 linux 教程）。
 
-第二步：将redis的压缩包，上传到linux系统
+第二步：将 redis 的压缩包，上传到 linux 系统
 
-第三步：对redis的压缩包进行解压缩
+第三步：对 redis 的压缩包进行解压缩
 
 ```shell
 tar -zxf redis-3.0.0.tar.gz
 ```
 
-第四步：安装c语言环境（安装centos之后，自带c语言环境）
+第四步：安装 c 语言环境（安装 centos 之后，自带 c 语言环境）
 
 ```shell
 yum install gcc-c++
 ```
 
-第五步：编译redis源码
+第五步：编译 redis 源码
 
 ```shell
 cd redis-3.0.0
 make
 ```
 
-第六步：安装redis
+第六步：安装 redis
 
 ```shell
 make isntall  PREFIX=/usr/local/redis
@@ -176,7 +162,7 @@ make isntall  PREFIX=/usr/local/redis
 
 ![](media/68ddd64c3aea38042faf96f3569b1699.png)
 
-## 2.3：redis启动
+## 2.3：redis 启动
 
 ### 前端启动
 
@@ -202,23 +188,23 @@ make isntall  PREFIX=/usr/local/redis
 
 前端启动的问题：
 
-一旦客户端关闭，则redis服务也停掉。
+一旦客户端关闭，则 redis 服务也停掉。
 
 ### 后端启动
 
-第一步：需要将redis解压之后的源码包中的redis.conf文件拷贝到bin目录下
+第一步：需要将 redis 解压之后的源码包中的 redis.conf 文件拷贝到 bin 目录下
 
 ```shell
 cp /root/redis-3.0.0/redis.conf ./
 ```
 
-第二步：修改redis.conf文件，将daemonize改为yes
+第二步：修改 redis.conf 文件，将 daemonize 改为 yes
 
-先要使用vim redis.conf
+先要使用 vim redis.conf
 
 ![](media/7b8b2844a91801ade69ee5c13417aad5.png)
 
-第三步：使用命令后端启动redis
+第三步：使用命令后端启动 redis
 
 ```shell
 ./redis-server redis.conf
@@ -244,31 +230,31 @@ cp /root/redis-3.0.0/redis.conf ./
 
 在项目中，建议使用正常关闭。
 
-因为redis作为缓存来使用的话，将数据存储到内存中，如果使用正常关闭，则会将内存数据持久化到本地之后，再关闭。
+因为 redis 作为缓存来使用的话，将数据存储到内存中，如果使用正常关闭，则会将内存数据持久化到本地之后，再关闭。
 
 如果是强制关闭，则不会进行持久化操作，可能会造成部分数据的丢失。
 
-# 第三章：Redis客户端
+# 第三章：Redis 客户端
 
-## 3.1：Redis自带的客户端
+## 3.1：Redis 自带的客户端
 
--   启动
+- 启动
 
 启动客户端命令：[root\@xqc bin]\# ./redis-cli -h 127.0.0.1 -p 6379
 
-\-h：指定访问的redis服务器的ip地址
+\-h：指定访问的 redis 服务器的 ip 地址
 
-\-p：指定访问的redis服务器的port端口
+\-p：指定访问的 redis 服务器的 port 端口
 
 还可以写成：[root\@xqc bin]\# ./redis-cli
 
-使用默认配置：默认的ip【127.0.0.1】，默认的port【6379】
+使用默认配置：默认的 ip【127.0.0.1】，默认的 port【6379】
 
--   关闭
+- 关闭
 
-    Ctrl+c
+      Ctrl+c
 
-127.0.0.1:6379\> quit
+  127.0.0.1:6379\> quit
 
 ## 3.2：图形界面客户端
 
@@ -287,18 +273,15 @@ cp /root/redis-3.0.0/redis.conf ./
 
 ```
 
-
-
-
 ![](media/c07563023d5999a75c41aa25bd37a54f.png)
 
-Redis.conf中的数据库数量的设置：
+Redis.conf 中的数据库数量的设置：
 
 ![](media/2ad317edde82f3dd2588122c2c7ab81b.png)
 
 选择数据库的方式：
 
-使用select 加上数据库的下标 就可以选择指定的数据库来使用，下标从0开始
+使用 select 加上数据库的下标 就可以选择指定的数据库来使用，下标从 0 开始
 
 127.0.0.1:6379\> select 15
 
@@ -306,35 +289,35 @@ OK
 
 127.0.0.1:6379[15]\>
 
-## 3.3：Jedis客户端
+## 3.3：Jedis 客户端
 
-### jedis介绍
+### jedis 介绍
 
-Redis不仅是使用命令来操作，现在基本上主流的语言都有客户端支持，比如java、C、C\#、C++、php、Node.js、Go等。
+Redis 不仅是使用命令来操作，现在基本上主流的语言都有客户端支持，比如 java、C、C\#、C++、php、Node.js、Go 等。
 
-在官方网站里列一些Java的客户端，有**Jedis**、Redisson、Jredis、JDBC-Redis、等其中官方推荐使用Jedis和Redisson。
-在企业中用的最多的就是Jedis，下面我们就重点学习下Jedis。
+在官方网站里列一些 Java 的客户端，有**Jedis**、Redisson、Jredis、JDBC-Redis、等其中官方推荐使用 Jedis 和 Redisson。
+在企业中用的最多的就是 Jedis，下面我们就重点学习下 Jedis。
 
-Jedis同样也是托管在github上，地址：https://github.com/xetorthio/jedis
+Jedis 同样也是托管在 github 上，地址：https://github.com/xetorthio/jedis
 
 ### 工程搭建
 
-添加jar包
+添加 jar 包
 
 ![](media/a7eaceb8c6bb4b8aa6b917df15e58f9e.png)
 
-### 单实例连接redis
+### 单实例连接 redis
 
 ![](media/6c85a876fb83c7140cb103f554a09888.png)
 
-### 使用jedis连接池连接redis服务器
+### 使用 jedis 连接池连接 redis 服务器
 
 ![](media/3b488c6ffab2f760dc6ce09232363e0c.png)
 
-### Spring整合jedisPool（自学）
+### Spring 整合 jedisPool（自学）
 
--   添加spring的jar包
--   配置spring配置文件applicationContext.xml
+- 添加 spring 的 jar 包
+- 配置 spring 配置文件 applicationContext.xml
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -342,15 +325,15 @@ Jedis同样也是托管在github上，地址：https://github.com/xetorthio/jedi
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans 
-		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd 
-		http://www.springframework.org/schema/mvc 
-		http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd 
-		http://www.springframework.org/schema/context 
-		http://www.springframework.org/schema/context/spring-context-3.2.xsd 
-		http://www.springframework.org/schema/aop 
-		http://www.springframework.org/schema/aop/spring-aop-3.2.xsd 
-		http://www.springframework.org/schema/tx 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/mvc
+		http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+		http://www.springframework.org/schema/tx
 		http://www.springframework.org/schema/tx/spring-tx-3.2.xsd ">
 
 	<!-- 连接池配置 -->
@@ -388,8 +371,7 @@ Jedis同样也是托管在github上，地址：https://github.com/xetorthio/jedi
 
 ```
 
-
--   测试代码
+- 测试代码
 
 ```java
 	@Test
@@ -413,20 +395,19 @@ Jedis同样也是托管在github上，地址：https://github.com/xetorthio/jedi
 
 ```
 
-
-# 第四章：Redis数据类型
+# 第四章：Redis 数据类型
 
 ## 4.1：String
 
-value可以是String也可以是数字。一般做一些复杂的计数功能的缓存
+value 可以是 String 也可以是数字。一般做一些复杂的计数功能的缓存
 
 ### 应用
 
 #### 自增主键
 
-商品编号、订单号采用string的递增数字特性生成。
+商品编号、订单号采用 string 的递增数字特性生成。
 
-定义商品编号key：items:id
+定义商品编号 key：items:id
 
 192.168.101.3:7003\> INCR items:id
 
@@ -453,7 +434,7 @@ getset s2 222
 get s2
 "222"
 
-# 设置/获取多个键值 
+# 设置/获取多个键值
 语法：
 MSET key value [key value …]
 MGET key [key …]
@@ -471,74 +452,59 @@ del s1
 
 ```
 
-
-
 数值增减
 
--   递增数字
+- 递增数字
 
-当存储的字符串是整数时，Redis提供了一个实用的命令INCR，其作用是让当前键值递增，并返回递增后的值。
+当存储的字符串是整数时，Redis 提供了一个实用的命令 INCR，其作用是让当前键值递增，并返回递增后的值。
 
 语法：INCR key
 
-
--   增加指定的整数
+- 增加指定的整数
 
 语法：INCRBY key increment
 
-
-
-
--   递减数值
+- 递减数值
 
 语法：DECR key
 
-
-
-
--   减少指定的整数
+- 减少指定的整数
 
 语法：DECRBY key decrement
 
+向尾部追加值
 
-
-向尾部追加值 
-
-APPEND的作用是向键值的末尾追加value。如果键不存在则将该键的值设置为value，即相当于
+APPEND 的作用是向键值的末尾追加 value。如果键不存在则将该键的值设置为 value，即相当于
 SET key value。返回值是追加后字符串的总长度。
 
-*语法：APPEND key value*
+_语法：APPEND key value_
 
+获取字符串长度
 
+STRLEN 命令返回键值的长度，如果键不存在则返回 0。
 
-获取字符串长度 
-
-STRLEN命令返回键值的长度，如果键不存在则返回0。
-
-*语法：STRLEN key*
-
-
+_语法：STRLEN key_
 
 ## 4.2：Hash
 
-单点登录的时候，就是用这种数据结构存储用户信息，以cookieId作为key，设置30分钟为缓存过期时间，能很好的模拟出类似session的效果。
+单点登录的时候，就是用这种数据结构存储用户信息，以 cookieId 作为 key，设置 30 分钟为缓存过期时间，能很好的模拟出类似 session 的效果。
 
 散列类型
 
-### 使用string的问题
+### 使用 string 的问题
 
-假设有User对象以JSON序列化的形式存储到Redis中，User对象有id，username、password、age、name等属性，存储的过程如下：
+假设有 User 对象以 JSON 序列化的形式存储到 Redis 中，User 对象有 id，username、password、age、name 等属性，存储的过程如下：
 
 保存、更新：
 
-User对象 json(string) redis
+User 对象 json(string) redis
 
-如果在业务上只是更新age属性，其他的属性并不做更新我应该怎么做呢？
-如果仍然采用上边的方法在传输、处理时会造成资源浪费，下边讲的hash可以很好的解决这个问题。
+如果在业务上只是更新 age 属性，其他的属性并不做更新我应该怎么做呢？
+如果仍然采用上边的方法在传输、处理时会造成资源浪费，下边讲的 hash 可以很好的解决这个问题。
 
-### redis hash介绍
+### redis hash 介绍
 
-hash叫散列类型，它提供了字段和字段值的映射。字段值只能是字符串类型，不支持散列类型、集合类型等其它类型。如下：
+hash 叫散列类型，它提供了字段和字段值的映射。字段值只能是字符串类型，不支持散列类型、集合类型等其它类型。如下：
 
 ![](media/8a877c23948dede5955016c726a51eff.png)
 
@@ -546,9 +512,9 @@ hash叫散列类型，它提供了字段和字段值的映射。字段值只能�
 
 赋值
 
-HSET命令不区分插入和更新操作，当执行插入操作时HSET命令返回1，当执行更新操作时返回0。
+HSET 命令不区分插入和更新操作，当执行插入操作时 HSET 命令返回 1，当执行更新操作时返回 0。
 
--   一次只能设置一个字段值
+- 一次只能设置一个字段值
 
 语法：HSET key field value
 
@@ -556,8 +522,7 @@ HSET命令不区分插入和更新操作，当执行插入操作时HSET命令返
 hset user username zhangsan
 ```
 
-
--   一次可以设置多个字段值
+- 一次可以设置多个字段值
 
 语法：HMSET key field value [field value ...]
 
@@ -565,8 +530,7 @@ hset user username zhangsan
 hmset user username zhangsan age 20
 ```
 
-
--   当字段不存在时赋值，类似HSET，区别在于如果字段存在，该命令不执行任何操作
+- 当字段不存在时赋值，类似 HSET，区别在于如果字段存在，该命令不执行任何操作
 
 语法：HSETNX key field value
 
@@ -575,9 +539,9 @@ hsetnx user age 30
 hget user age
 ```
 
-取值 
+取值
 
--   一次只能获取一个字段值
+- 一次只能获取一个字段值
 
 语法：HGET key field
 
@@ -585,8 +549,7 @@ hget user age
 hget user username
 ```
 
-
--   一次可以获取多个字段值
+- 一次可以获取多个字段值
 
 语法：HMGET key field [field ...]
 
@@ -594,10 +557,9 @@ hget user username
 hmget user age username
 ```
 
+- _获取所有字段值_
 
--   *获取所有字段值*
-
-*语法：HGETALL key*
+_语法：HGETALL key_
 
 ```cmd
 hgetall user
@@ -613,7 +575,7 @@ hgetall user
 hdel user age
 ```
 
-增加数字 
+增加数字
 
 语法：HINCRBY key field increment
 
@@ -650,46 +612,43 @@ hvals user
 hlen user
 ```
 
-
 ### 应用
 
 #### 存储商品信息
 
--   商品字段
+- 商品字段
 
-【商品id、商品名称、商品描述、商品库存、商品好评】
+【商品 id、商品名称、商品描述、商品库存、商品好评】
 
--   定义商品信息的key
+- 定义商品信息的 key
 
-商品1001的信息在 Redis中的key为：[items:1001]
+商品 1001 的信息在 Redis 中的 key 为：[items:1001]
 
--   存储商品信息
+- 存储商品信息
 
 | 192.168.101.3:7003\> HMSET items:1001 id 3 name apple price 999.9 OK |
-|----------------------------------------------------------------------|
+| -------------------------------------------------------------------- |
 
-
--   获取商品信息
+- 获取商品信息
 
 | 192.168.101.3:7003\> HGET items:1001 id "3" 192.168.101.3:7003\> HGETALL items:1001 1) "id" 2) "3" 3) "name" 4) "apple" 5) "price" 6) "999.9" |
-|-----------------------------------------------------------------------------------------------------------------------------------------------|
-
+| --------------------------------------------------------------------------------------------------------------------------------------------- |
 
 ## 4.3：List
 
-### Arraylist和linkedlist的区别
+### Arraylist 和 linkedlist 的区别
 
-Arraylist是使用数组来存储数据，特点：查询快、增删慢
+Arraylist 是使用数组来存储数据，特点：查询快、增删慢
 
-Linkedlist是使用双向链表存储数据，特点：增删快、查询慢，但是查询链表两端的数据也很快。
+Linkedlist 是使用双向链表存储数据，特点：增删快、查询慢，但是查询链表两端的数据也很快。
 
-Redis的list是采用来链表来存储的，所以对于redis的list数据类型的操作，是操作list的两端数据来操作的。
+Redis 的 list 是采用来链表来存储的，所以对于 redis 的 list 数据类型的操作，是操作 list 的两端数据来操作的。
 
 ### 命令
 
 向列表两端增加元素
 
--   向列表左边增加元素
+- 向列表左边增加元素
 
 语法：LPUSH key value [value ...]
 
@@ -697,8 +656,7 @@ Redis的list是采用来链表来存储的，所以对于redis的list数据类�
 lpush list 1 2 3 4
 ```
 
-
--   向列表右边增加元素
+- 向列表右边增加元素
 
 语法：RPUSH key value [value ...]
 
@@ -708,7 +666,7 @@ rpush list 5 6 7 8
 
 查看列表
 
-LRANGE命令是列表类型最常用的命令之一，获取列表中的某一片段，将返回start、stop之间的所有元素（包含两端的元素），索引从0开始。索引可以是负数，如：**“-1”代表最后边的一个元素**。
+LRANGE 命令是列表类型最常用的命令之一，获取列表中的某一片段，将返回 start、stop 之间的所有元素（包含两端的元素），索引从 0 开始。索引可以是负数，如：**“-1”代表最后边的一个元素**。
 
 语法：LRANGE key start stop
 
@@ -716,15 +674,15 @@ LRANGE命令是列表类型最常用的命令之一，获取列表中的某一�
  lrange list 0 -1
 ```
 
-从列表两端弹出元素 
+从列表两端弹出元素
 
-LPOP命令从列表左边弹出一个元素，会分两步完成：
+LPOP 命令从列表左边弹出一个元素，会分两步完成：
 
 第一步是将列表左边的元素从列表中移除
 
 第二步是返回被移除的元素值。
 
-*语法：*
+_语法：_
 
 LPOP key
 
@@ -742,21 +700,21 @@ lpop list
 llen list
 ```
 
-删除列表中指定的值 
+删除列表中指定的值
 
-LREM命令会**删除列表中前count个值为value的元素**，返回实际删除的元素个数。根据count值的不同，该命令的执行方式会有所不同：
+LREM 命令会**删除列表中前 count 个值为 value 的元素**，返回实际删除的元素个数。根据 count 值的不同，该命令的执行方式会有所不同：
 
--   当count\>0时， LREM会从列表左边开始删除。
+- 当 count\>0 时， LREM 会从列表左边开始删除。
 
--   当count\<0时， LREM会从列表后边开始删除。
+- 当 count\<0 时， LREM 会从列表后边开始删除。
 
--   当count=0时， LREM删除所有值为value的元素。
+- 当 count=0 时， LREM 删除所有值为 value 的元素。
 
-*语法：LREM key count value*
+_语法：LREM key count value_
 
-获得/设置指定索引的元素值 
+获得/设置指定索引的元素值
 
--   获得指定索引的元素值
+- 获得指定索引的元素值
 
 语法：LINDEX key index
 
@@ -764,8 +722,7 @@ LREM命令会**删除列表中前count个值为value的元素**，返回实际�
 lindex list 2
 ```
 
-
--   设置指定索引的元素值
+- 设置指定索引的元素值
 
 语法：LSET key index value
 
@@ -775,26 +732,23 @@ lset list 2 9
 
 只保留列表指定片段
 
-指定范围和LRANGE一致
+指定范围和 LRANGE 一致
 
 语法：LTRIM key start stop
 
-向列表中插入元素 
+向列表中插入元素
 
-该命令首先会在列表中从左到右查找值为pivot的元素，然后根据第二个参数是BEFORE还是AFTER来决定将value插入到该元素的前面还是后面。
+该命令首先会在列表中从左到右查找值为 pivot 的元素，然后根据第二个参数是 BEFORE 还是 AFTER 来决定将 value 插入到该元素的前面还是后面。
 
-*语法：LINSERT key BEFORE\|AFTER pivot value*
+_语法：LINSERT key BEFORE\|AFTER pivot value_
 
+将元素从一个列表转移到另一个列表中
 
-
-将元素从一个列表转移到另一个列表中 
-
-*语法：RPOPLPUSH source destination*
+_语法：RPOPLPUSH source destination_
 
 ```cmd
 rpoplpush list newlist
 ```
-
 
 ### 应用
 
@@ -802,18 +756,17 @@ rpoplpush list newlist
 
 思路：
 
-在Redis中创建商品评论列表
+在 Redis 中创建商品评论列表
 
-用户发布商品评论，将评论信息转成json存储到list中。
+用户发布商品评论，将评论信息转成 json 存储到 list 中。
 
-用户在页面查询评论列表，从redis中取出json数据展示到页面。
+用户在页面查询评论列表，从 redis 中取出 json 数据展示到页面。
 
-定义商品评论列表key：
+定义商品评论列表 key：
 
-商品编号为1001的商品评论key【items: comment:1001】
+商品编号为 1001 的商品评论 key【items: comment:1001】
 
 | 192.168.101.3:7001\> LPUSH items:comment:1001 '{"id":1,"name":"商品不错，很好！！","date":1430295077289}' |
-
 
 ## 4.4：Set
 
@@ -825,7 +778,7 @@ rpoplpush list newlist
 
 ### 命令
 
-增加/删除元素 
+增加/删除元素
 
 语法：SADD key member [member ...]
 
@@ -839,7 +792,7 @@ sadd set a b c
 srem set c d
 ```
 
-获得集合中的所有元素 
+获得集合中的所有元素
 
 语法：SMEMBERS key
 
@@ -855,14 +808,11 @@ smembers set
 sismember set a
 ```
 
-
-
-
 ### 运算命令
 
 集合的差集运算 A-B
 
-属于A并且不属于B的元素构成的集合。
+属于 A 并且不属于 B 的元素构成的集合。
 
 ![](media/33df9bf18824a6220c396b701cac6c4c.png)
 
@@ -877,7 +827,7 @@ sdiff setA setB
 
 集合的交集运算 A ∩ B
 
-属于A且属于B的元素构成的集合。
+属于 A 且属于 B 的元素构成的集合。
 
 ![](media/444c5d47efa1a4bc1f65368ef1640e3a.png)
 
@@ -889,7 +839,7 @@ sinter setA setB
 
 集合的并集运算 A ∪ B
 
-属于A或者属于B的元素构成的集合
+属于 A 或者属于 B 的元素构成的集合
 
 ![](media/5e88405099c180f1f2591979ad19935c.png)
 
@@ -901,7 +851,7 @@ sunion setA setB
 
 获得集合中元素的个数
 
-*语法：SCARD key
+\*语法：SCARD key
 
 ```cmd
 scard setA
@@ -909,7 +859,7 @@ scard setA
 
 从集合中弹出一个元素
 
-注意：由于集合是无序的，所有SPOP命令会从集合中随机选择一个元素弹出
+注意：由于集合是无序的，所有 SPOP 命令会从集合中随机选择一个元素弹出
 
 语法：SPOP key
 
@@ -917,14 +867,13 @@ scard setA
 spop setA
 ```
 
+## 4.5：Sortedset
 
-## 4.5：Sortedset 
+Sortedset 又叫 zset
 
-Sortedset又叫zset
+Sortedset 是有序集合，可排序的，但是唯一。
 
-Sortedset是有序集合，可排序的，但是唯一。
-
-Sortedset和set的不同之处，是会给set中的元素添加一个分数，然后通过这个分数进行排序。
+Sortedset 和 set 的不同之处，是会给 set 中的元素添加一个分数，然后通过这个分数进行排序。
 
 ### 命令
 
@@ -950,7 +899,7 @@ Sortedset和set的不同之处，是会给set中的元素添加一个分数，�
 
 ```
 
-获取元素的分数 
+获取元素的分数
 
 语法：ZSCORE key member
 
@@ -960,7 +909,7 @@ zscore scoreboard tom
 
 删除元素
 
-移除有序集key中的一个或多个成员，不存在的成员将被忽略。当key存在但不是有序集类型时，返回一个错误。
+移除有序集 key 中的一个或多个成员，不存在的成员将被忽略。当 key 存在但不是有序集类型时，返回一个错误。
 
 语法：ZREM key member [member ...]
 
@@ -970,8 +919,7 @@ zrem scoreboard tom
 
 获得排名在某个范围的元素列表
 
-
--   按照元素分数**从大到小**的顺序返回索引从start到stop之间的所有元素（包含两端的元素）
+- 按照元素分数**从大到小**的顺序返回索引从 start 到 stop 之间的所有元素（包含两端的元素）
 
 语法：ZREVRANGE key start stop [WITHSCORES]
 
@@ -979,9 +927,9 @@ zrem scoreboard tom
 zrevrange scoreboard 0 -1
 ```
 
-获取元素的排名 
+获取元素的排名
 
--   从小到大
+- 从小到大
 
 语法：ZRANK key member
 
@@ -989,51 +937,33 @@ zrevrange scoreboard 0 -1
 
 ```
 
+- 从大到小
 
+_语法：ZREVRANK key member_
 
-
--   从大到小
-
-*语法：ZREVRANK key member*
-
-
-
-获得指定分数范围的元素 
+获得指定分数范围的元素
 
 语法：ZRANGEBYSCORE key min max [WITHSCORES] [LIMIT offset count]
 
-
-
 增加某个元素的分数,返回值是更改后的分数
 
-*语法：ZINCRBY key increment member*
+_语法：ZINCRBY key increment member_
 
+获得集合中元素的数量
 
+_语法：ZCARD key_
 
-获得集合中元素的数量 
+获得指定分数范围内的元素个数
 
-*语法：ZCARD key*
+_语法：ZCOUNT key min max_
 
-
-
-获得指定分数范围内的元素个数 
-
-*语法：ZCOUNT key min max*
-
-
-
-按照排名范围删除元素 
+按照排名范围删除元素
 
 语法：ZREMRANGEBYRANK key start stop
 
-
-
-按照分数范围删除元素 
+按照分数范围删除元素
 
 语法：ZREMRANGEBYSCORE key min max
-
-
-
 
 ### 应用
 
@@ -1041,25 +971,21 @@ zrevrange scoreboard 0 -1
 
 需求：根据商品销售量对商品进行排行显示
 
-思路：定义商品销售排行榜（sortedset集合），Key为items:sellsort，分数为商品销售量。
+思路：定义商品销售排行榜（sortedset 集合），Key 为 items:sellsort，分数为商品销售量。
 
 **写入商品销售量**：
 
--   商品编号1001的销量是9，商品编号1002的销量是10
+- 商品编号 1001 的销量是 9，商品编号 1002 的销量是 10
 
 | 192.168.101.3:7007\> ZADD items:sellsort 9 1001 10 1002 |
 
-
--   商品编号1001的销量加1
+- 商品编号 1001 的销量加 1
 
 | 192.168.101.3:7001\> ZINCRBY items:sellsort 1 1001 |
 
-
--   商品销量前10名：
+- 商品销量前 10 名：
 
 | 192.168.101.3:7001\> ZRANGE items:sellsort 0 9 withscores |
-
-
 
 ## 4.5：跳跃表
 
@@ -1067,7 +993,7 @@ zrevrange scoreboard 0 -1
 
 ### 什么是跳跃表
 
-对于单个链表来讲，即便链表中存储的数据是有序的，如果我们要向在其中查找某个数据，它只能从头到尾遍历链表。这样查找效率就会很低，时间复杂度会很高，达到了O(n)。
+对于单个链表来讲，即便链表中存储的数据是有序的，如果我们要向在其中查找某个数据，它只能从头到尾遍历链表。这样查找效率就会很低，时间复杂度会很高，达到了 O(n)。
 
 ![image-20200626083207599](media/image-20200626083207599.png)
 
@@ -1075,7 +1001,7 @@ zrevrange scoreboard 0 -1
 
 ![image-20200626083217149](media/image-20200626083217149.png)
 
-这个时候，我们假设要查找节点8，我们可以心在索引层遍历，当遍历到索引层中值为7的节点时，发现下一个节点是9，那么要查找的节点肯定在这两个节点之间，我们下降到链表层继续遍历就找到了8这个节点。。原来我们在单链表中找到8这个节点要遍历8个节点，而现在有了一级索引后，只需要遍历5个节点。
+这个时候，我们假设要查找节点 8，我们可以心在索引层遍历，当遍历到索引层中值为 7 的节点时，发现下一个节点是 9，那么要查找的节点肯定在这两个节点之间，我们下降到链表层继续遍历就找到了 8 这个节点。。原来我们在单链表中找到 8 这个节点要遍历 8 个节点，而现在有了一级索引后，只需要遍历 5 个节点。
 
 从上个例子中，我们可以看出，加来一层索引后，查找一个节点需要遍历的节点个数减少了，也就是说查询效率得到了提升，同理我们在一级索引的基础上，在加二级索引。
 
@@ -1087,74 +1013,67 @@ zrevrange scoreboard 0 -1
 
 像这种链表增加多种索引的结构，就是跳跃表。
 
-### Redis中的跳跃表
+### Redis 中的跳跃表
 
-从上面跳跃表的定义我们可以知道，如果使用跳跃表作为底层的数据结构，那么需要保证 元素之间的**有序性**，而且sortSet我们知道，他就是一个元素和元素之间排序好。
+从上面跳跃表的定义我们可以知道，如果使用跳跃表作为底层的数据结构，那么需要保证 元素之间的**有序性**，而且 sortSet 我们知道，他就是一个元素和元素之间排序好。
 
-Redis中使用跳跃表作为有序集合键的底层实现之一，以下几种情况将会让Redis使用跳跃表作为有序集合键的底层实现
+Redis 中使用跳跃表作为有序集合键的底层实现之一，以下几种情况将会让 Redis 使用跳跃表作为有序集合键的底层实现
 
 - 一个有序集合包含的元素数量比较多
 - 有序集合中元素的成员键比较长
 
-跳跃表支持平均O(logN)、最坏O(N) 复杂度的节点查找，还可以通过顺序性操作来批量处理节点。在大部分情况下，跳跃表的效率可以和平衡树相媲美，并且因为跳跃表的实现比平衡树要来得更为简单，所以有不少程序都使用跳跃表来代替平衡树。
+跳跃表支持平均 O(logN)、最坏 O(N) 复杂度的节点查找，还可以通过顺序性操作来批量处理节点。在大部分情况下，跳跃表的效率可以和平衡树相媲美，并且因为跳跃表的实现比平衡树要来得更为简单，所以有不少程序都使用跳跃表来代替平衡树。
 
-**那么为什么元素数量比较多或者比较长的字符串的时候，Redis要使用跳跃表来实现呢？**
+**那么为什么元素数量比较多或者比较长的字符串的时候，Redis 要使用跳跃表来实现呢？**
 
 从上面我们知道，跳跃表就是在链表的基础上，增加了多级索引以提升查找的效率，其实就是一个空间换时间的方法，必然会带来一个问题 -- 索引是占内存的。
 
 原始链表中存储的有可能是很大的对象，而索引节点只需要存储键值和几个指针，并不需要存储对象，因此当节点本身比较大或者元素数量比较多的时候，其优势必然会被放大，而缺点几乎可以忽略。
 
-### Redis中跳跃表的实现
+### Redis 中跳跃表的实现
 
-Redis的跳跃表由zSkipListNode和skipList两个结构定义，其中zSkipListNode结构用于表示跳跃表节点，而zSkipList结构则用于保存跳跃表节点的相关信息，比如节点的数量，以及指向表头节点和表尾节点的指针等等。
+Redis 的跳跃表由 zSkipListNode 和 skipList 两个结构定义，其中 zSkipListNode 结构用于表示跳跃表节点，而 zSkipList 结构则用于保存跳跃表节点的相关信息，比如节点的数量，以及指向表头节点和表尾节点的指针等等。
 
 ![image-20200626091014291](media/image-20200626091014291.png)
 
-上图展示了一个跳跃表的实例，其中最左边的是skipList结构，该结构包含以下属性
+上图展示了一个跳跃表的实例，其中最左边的是 skipList 结构，该结构包含以下属性
 
-- header：指向跳跃表的表头节点，通过这个指针程序定位表头节点的时间复杂度就为O(1)
-- tail：指向跳跃表的表尾节点,通过这个指针程序定位表尾节点的时间复杂度就为O(1)
-- level：记录目前跳跃表内,层数最大的那个节点的层数(表头节点的层数不计算在内)，通过这个属性可以再O(1)的时间复杂度内获取层高最好的节点的层数。
-- length：记录跳跃表的长度,也即是,跳跃表目前包含节点的数量(表头节点不计算在内)，通过这个属性，程序可以再O(1)的时间复杂度内返回跳跃表的长度。
+- header：指向跳跃表的表头节点，通过这个指针程序定位表头节点的时间复杂度就为 O(1)
+- tail：指向跳跃表的表尾节点,通过这个指针程序定位表尾节点的时间复杂度就为 O(1)
+- level：记录目前跳跃表内,层数最大的那个节点的层数(表头节点的层数不计算在内)，通过这个属性可以再 O(1)的时间复杂度内获取层高最好的节点的层数。
+- length：记录跳跃表的长度,也即是,跳跃表目前包含节点的数量(表头节点不计算在内)，通过这个属性，程序可以再 O(1)的时间复杂度内返回跳跃表的长度。
 
-结构右方的是四个 zskiplistNode结构,该结构包含以下属性
+结构右方的是四个 zskiplistNode 结构,该结构包含以下属性
 
 - 层
 
-节点中用L1、L2、L3等字样标记节点的各个层,L1代表第一层,L代表第二层,以此类推。
+节点中用 L1、L2、L3 等字样标记节点的各个层,L1 代表第一层,L 代表第二层,以此类推。
 
 每个层都带有两个属性:前进指针和跨度。前进指针用于访问位于表尾方向的其他节点,而跨度则记录了前进指针所指向节点和当前节点的距离(跨度越大、距离越远)。在上图中,连线上带有数字的箭头就代表前进指针,而那个数字就是跨度。当程序从表头向表尾进行遍历时,访问会沿着层的前进指针进行。
 
-  每次创建一个新跳跃表节点的时候,程序都根据幂次定律(powerlaw）,越大的数出现的概率越小)随机生成一个介于1和32之间的值作为level数组的大小,这个大小就是层的“高度”。
+每次创建一个新跳跃表节点的时候,程序都根据幂次定律(powerlaw）,越大的数出现的概率越小)随机生成一个介于 1 和 32 之间的值作为 level 数组的大小,这个大小就是层的“高度”。
 
 - 后退(backward)指针
 
-节点中用BW字样标记节点的后退指针,它指向位于当前节点的前一个节点。后退指针在程序从表尾向表头遍历时使用。与前进指针所不同的是每个节点只有一个后退指针，因此每次只能后退一个节点。
+节点中用 BW 字样标记节点的后退指针,它指向位于当前节点的前一个节点。后退指针在程序从表尾向表头遍历时使用。与前进指针所不同的是每个节点只有一个后退指针，因此每次只能后退一个节点。
 
 - 分值(score)
 
-各个节点中的1.0、2.0和3.0是节点所保存的分值。在跳跃表中,节点按各自所保存的分值从小到大排列。
+各个节点中的 1.0、2.0 和 3.0 是节点所保存的分值。在跳跃表中,节点按各自所保存的分值从小到大排列。
 
 - 成员对象(oj)
 
-各个节点中的o1、o2和o3是节点所保存的成员对象。在同一个跳跃表中,各个节点保存的成员对象必须是唯一的,但是多个节点保存的分值却可以是相同的:分值相同的节点将按照成员对象在字典序中的大小来进行排序,成员对象较小的节点会排在前面(靠近表头的方向),而成员对象较大的节点则会排在后面(靠近表尾的方向)。
+各个节点中的 o1、o2 和 o3 是节点所保存的成员对象。在同一个跳跃表中,各个节点保存的成员对象必须是唯一的,但是多个节点保存的分值却可以是相同的:分值相同的节点将按照成员对象在字典序中的大小来进行排序,成员对象较小的节点会排在前面(靠近表头的方向),而成员对象较大的节点则会排在后面(靠近表尾的方向)。
 
 ![image-20200626092856081](media/image-20200626092856081.png)
 
-
-
-
-
-
-
-
-## 4.6：Keys命令
+## 4.6：Keys 命令
 
 ### 常用命令
 
 keys
 
-返回满足给定pattern 的所有key
+返回满足给定 pattern 的所有 key
 
 ```cmd
 keys mylist*
@@ -1162,9 +1081,9 @@ keys mylist*
 
 exists
 
-确认一个key 是否存在
+确认一个 key 是否存在
 
-示例：从结果来看，数据库中不存在HongWan 这个key，但是age 这个key 是存在的
+示例：从结果来看，数据库中不存在 HongWan 这个 key，但是 age 这个 key 是存在的
 
 ```cmd
 exists setA
@@ -1172,7 +1091,7 @@ exists setA
 
 del
 
-删除一个key
+删除一个 key
 
 ```cmd
 del setA
@@ -1180,9 +1099,9 @@ del setA
 
 rename
 
-重命名key
+重命名 key
 
-示例：age 成功的被我们改名为age_new 了
+示例：age 成功的被我们改名为 age_new 了
 
 ```cmd
 keys set*
@@ -1200,13 +1119,13 @@ type
  type scoreboard
 ```
 
-设置key的生存时间
+设置 key 的生存时间
 
-Redis在实际使用过程中更多的用作缓存，然而缓存的数据一般都是需要设置生存时间的，即：到期后数据销毁。
+Redis 在实际使用过程中更多的用作缓存，然而缓存的数据一般都是需要设置生存时间的，即：到期后数据销毁。
 
-EXPIRE key seconds  设置key的生存时间（单位：秒）key在多少秒后会自动删除 
+EXPIRE key seconds 设置 key 的生存时间（单位：秒）key 在多少秒后会自动删除
 
-TTL key     查看key生于的生存时间 PERSIST key   清除生存时间 
+TTL key 查看 key 生于的生存时间 PERSIST key 清除生存时间
 
 PEXPIRE key milliseconds 生存时间设置单位为：毫秒
 
@@ -1214,55 +1133,52 @@ PEXPIRE key milliseconds 生存时间设置单位为：毫秒
 
 ```
 
+# 第五章：Redis 持久化方案
 
-# 第五章：Redis持久化方案
+## 5.1：RDB 方式
 
-## 5.1：RDB方式
-
-Redis默认的方式，redis通过快照来将数据持久化到磁盘中。设置持久化快照的条件在redis.conf中修改持久化快照的条件，如下：
+Redis 默认的方式，redis 通过快照来将数据持久化到磁盘中。设置持久化快照的条件在 redis.conf 中修改持久化快照的条件，如下：
 
 ![](media/433fc640a225bcae4adc01a116e0e0ea.png)
 
 持久化文件存储的目录
 
-在redis.conf中可以指定持久化文件存储的目录
+在 redis.conf 中可以指定持久化文件存储的目录
 
 ![](media/5b08c9ab5395de518fbad78ff8bdb969.png)
 
-为了保证数据的可靠性，Redis执行的**「全量快照」**，也就是把内存中的所有数据都写到磁盘中。
+为了保证数据的可靠性，Redis 执行的**「全量快照」**，也就是把内存中的所有数据都写到磁盘中。
 
-随着数据量的增大，一次性把全部数据都写到磁盘中势必会造成线程阻塞，这就关系到Redis的性能了。
+随着数据量的增大，一次性把全部数据都写到磁盘中势必会造成线程阻塞，这就关系到 Redis 的性能了。
 
-针对线程阻塞的问题Redis提供了两个命令，如下：
+针对线程阻塞的问题 Redis 提供了两个命令，如下：
 
 1. `save`：在主线程中执行，会导致主线程阻塞。
-2. `bgsave`：`fork`一个子进程，专门用于写入`RDB`文件，避免了主线程的阻塞，这是Redis的默认配置。
+2. `bgsave`：`fork`一个子进程，专门用于写入`RDB`文件，避免了主线程的阻塞，这是 Redis 的默认配置。
 
 这样就可以使用`bgsave`命令执行全量快照，既可以保证数据的可靠性也避免了主线程的阻塞。
 
+### Rdb 问题
 
-
-### Rdb问题
-
-一旦redis非法关闭，那么会丢失最后一次持久化之后的数据。
+一旦 redis 非法关闭，那么会丢失最后一次持久化之后的数据。
 
 如果数据不重要，则不必要关心。
 
-如果数据不能允许丢失，那么要使用aof方式。
+如果数据不能允许丢失，那么要使用 aof 方式。
 
-## 5.2：AOF方式
+## 5.2：AOF 方式
 
-Redis默认是不使用该方式持久化的。AOF(Append Only File)方式的持久化，是操作一次redis数据库，`AOF`日志（文本形式）会将收到每一条的命令且执行成功的命令以一定的格式写入到文本中（追加的方式）。
+Redis 默认是不使用该方式持久化的。AOF(Append Only File)方式的持久化，是操作一次 redis 数据库，`AOF`日志（文本形式）会将收到每一条的命令且执行成功的命令以一定的格式写入到文本中（追加的方式）。
 
-第一步：开启aof方式的持久化方案
+第一步：开启 aof 方式的持久化方案
 
-将redis.conf中的appendonly改为yes，即开启aof方式的持久化方案。
+将 redis.conf 中的 appendonly 改为 yes，即开启 aof 方式的持久化方案。
 
 ```properties
 appendonly yes
 ```
 
-Aof文件存储的目录和rdb方式的一样。Aof文件存储的名称
+Aof 文件存储的目录和 rdb 方式的一样。Aof 文件存储的名称
 
 ```properties
 appendfilename "appendonly.aof"
@@ -1284,53 +1200,43 @@ appendfilename "appendonly.aof"
 
 日志文件过大怎么办？
 
-随着数据量的增大，AOF日志文件难免会很大，这样将会导致写入和恢复数据都将变得非常慢。此时AOF提供了一种**「重写机制」**解决这一问题。
+随着数据量的增大，AOF 日志文件难免会很大，这样将会导致写入和恢复数据都将变得非常慢。此时 AOF 提供了一种**「重写机制」**解决这一问题。
 
-重写机制：即Redis会创建一个新的`AOF`文件，将每个键值对的最终值写成set命令写入文件中，减少中间修改的update命令
+重写机制：即 Redis 会创建一个新的`AOF`文件，将每个键值对的最终值写成 set 命令写入文件中，减少中间修改的 update 命令
 
-AOF重写过程是由后台子进程`bgrewriteaof`来完成的，这也是为了避免阻塞主线程，导致数据库性能下降。
+AOF 重写过程是由后台子进程`bgrewriteaof`来完成的，这也是为了避免阻塞主线程，导致数据库性能下降。
 
 过程：
 
-指每次执行重写时，主线程都`fork`一个子线程`bgrewriteaof`，主线程会把内存数据拷贝一份到子线程，此时子线程中包含了数据库的最新数据。然后子线程就能在不影响主线程的情况下进行AOF重写了。
-
-
-
-
-
-
+指每次执行重写时，主线程都`fork`一个子线程`bgrewriteaof`，主线程会把内存数据拷贝一份到子线程，此时子线程中包含了数据库的最新数据。然后子线程就能在不影响主线程的情况下进行 AOF 重写了。
 
 ### 结论
 
-在使用aof和rdb方式时，如果redis重启，则数据从aof文件加载。
-
-
-
-
+在使用 aof 和 rdb 方式时，如果 redis 重启，则数据从 aof 文件加载。
 
 # 第六章：事务
 
-Redis事务功能是通过MULTI、EXEC、DISCARD和WATCH 四个原语实现的
+Redis 事务功能是通过 MULTI、EXEC、DISCARD 和 WATCH 四个原语实现的
 
-Redis会将一个事务中的所有命令序列化，然后按顺序执行。
+Redis 会将一个事务中的所有命令序列化，然后按顺序执行。
 
 1. redis 不支持回滚“Redis 在事务失败时不进行回滚，而是继续执行余下的命令”， 所以 Redis 的内部可以保持简单且快速。
 2. 如果在一个事务中的命令出现错误，那么所有的命令都不会执行；
 3. 如果在一个事务中出现运行错误，那么正确的命令会被执行。
 
-注：redis的discard只是结束本次事务,正确命令造成的影响仍然存在.
+注：redis 的 discard 只是结束本次事务,正确命令造成的影响仍然存在.
 
-1）MULTI命令用于开启一个事务，它总是返回OK。MULTI执行之后，客户端可以继续向服务器发送任意多条命令，这些命令不会立即被执行，而是被放到一个队列中，当EXEC命令被调用时，所有队列中的命令才会被执行。
+1）MULTI 命令用于开启一个事务，它总是返回 OK。MULTI 执行之后，客户端可以继续向服务器发送任意多条命令，这些命令不会立即被执行，而是被放到一个队列中，当 EXEC 命令被调用时，所有队列中的命令才会被执行。
 
 2）EXEC：执行所有事务块内的命令。返回事务块内所有命令的返回值，按命令执行的先后顺序排列。当操作被打断时，返回空值 nil 。
 
-3）通过调用DISCARD，客户端可以清空事务队列，并放弃执行事务， 并且客户端会从事务状态中退出。
+3）通过调用 DISCARD，客户端可以清空事务队列，并放弃执行事务， 并且客户端会从事务状态中退出。
 
-4）WATCH 命令可以为 Redis 事务提供 check-and-set （CAS）行为。可以监控一个或多个键，一旦其中有一个键被修改（或删除），之后的事务就不会执行，监控一直持续到EXEC命令。watch指令在一次事务执行完毕后，即结束其生命周期。
+4）WATCH 命令可以为 Redis 事务提供 check-and-set （CAS）行为。可以监控一个或多个键，一旦其中有一个键被修改（或删除），之后的事务就不会执行，监控一直持续到 EXEC 命令。watch 指令在一次事务执行完毕后，即结束其生命周期。
 
 ### 乐观锁实现
 
-Redis的事务机制以及watch指令（CAS）实现乐观锁。
+Redis 的事务机制以及 watch 指令（CAS）实现乐观锁。
 
 ```java
 		while (true) {
@@ -1341,7 +1247,7 @@ Redis的事务机制以及watch指令（CAS）实现乐观锁。
                 //当前商品个数
                 int prdNum = Integer.parseInt(jedis.get(key));
                 if (prdNum > 0) {
- 
+
                     //开启事务，返回一个事务控制对象
                     Transaction transaction = jedis.multi();
                     //预先在事务对象中装入要执行的操作
@@ -1365,29 +1271,25 @@ Redis的事务机制以及watch指令（CAS）实现乐观锁。
         }
 ```
 
-
-
-# 第六章：Redis的主从复制
+# 第六章：Redis 的主从复制
 
 ## 6.1：什么是主从复制
 
-持久化保证了即使redis服务重启也不会丢失数据，因为redis服务重启后会将硬盘上持久化的数据恢复到内存中，但是当redis服务器的硬盘损坏了可能会导致数据丢失，如果**通过redis的主从复制机制就可以避免这种单点故障**，如下图：
+持久化保证了即使 redis 服务重启也不会丢失数据，因为 redis 服务重启后会将硬盘上持久化的数据恢复到内存中，但是当 redis 服务器的硬盘损坏了可能会导致数据丢失，如果**通过 redis 的主从复制机制就可以避免这种单点故障**，如下图：
 
 说明：
 
-主redis中的数据有两个副本（replication）即从redis1和从redis2，即使一台redis服务器宕机其它两台redis服务也可以继续提供服务。
+主 redis 中的数据有两个副本（replication）即从 redis1 和从 redis2，即使一台 redis 服务器宕机其它两台 redis 服务也可以继续提供服务。
 
-主redis中的数据和从redis上的数据保持实时同步，当主redis写入数据时通过主从复制机制会复制到两个从redis服务上。
+主 redis 中的数据和从 redis 上的数据保持实时同步，当主 redis 写入数据时通过主从复制机制会复制到两个从 redis 服务上。
 
-只有一个主redis，可以有多个从redis。
+只有一个主 redis，可以有多个从 redis。
 
-主从复制不会阻塞master，在同步数据时，master 可以继续处理client 请求
+主从复制不会阻塞 master，在同步数据时，master 可以继续处理 client 请求
 
-一个redis可以即是主又是从，如下图：
+一个 redis 可以即是主又是从，如下图：
 
 ![image-20201127171241544](media/image-20201127171241544.png)
-
-
 
 ## 6.2：主从复制设置
 
@@ -1401,7 +1303,7 @@ Redis的事务机制以及watch指令（CAS）实现乐观锁。
 
 [root\@xqc redis19]\# cp bin/ bin2 –r
 
-第二步：修改从机的redis.conf
+第二步：修改从机的 redis.conf
 
 语法：Slaveof masterip masterport
 
@@ -1409,9 +1311,9 @@ slaveof 192.168.242.137 6379
 
 ![](media/a01b5524303b194719dbc3f04503ea1e.png)
 
-第三步：修改从机的port地址为6380
+第三步：修改从机的 port 地址为 6380
 
-在redis.conf中修改
+在 redis.conf 中修改
 
 ![](media/e11f7ea497ef415af6b3667360eac66a.png)
 
@@ -1423,7 +1325,7 @@ slaveof 192.168.242.137 6379
 
 [root\@xqc bin2]\# ./redis-server redis.conf
 
-第六步：启动6380的客户端
+第六步：启动 6380 的客户端
 
 [root\@xqc bin2]\# ./redis-cli -p 6380
 
@@ -1434,62 +1336,59 @@ slaveof 192.168.242.137 6379
 从机不能执行写操作
 
 | 127.0.0.1:6380\> set s2 222 (error) **READONLY You can't write against a read only slave.** |
-|---------------------------------------------------------------------------------------------|
+| ------------------------------------------------------------------------------------------- |
 
+# 第七章：Redis 集群
 
-# 第七章：Redis集群
-
-## 7.1：redis-cluster架构图
+## 7.1：redis-cluster 架构图
 
 ![134caad7-0591-3edd-9162-6ae43d068333](media/f11614de2535d9c85d257a7d17dbccf0.jpeg)
 
 架构细节:
 
-(1)所有的redis节点彼此互联(PING-PONG机制),内部使用二进制协议优化传输速度和带宽.
+(1)所有的 redis 节点彼此互联(PING-PONG 机制),内部使用二进制协议优化传输速度和带宽.
 
-(2)节点的fail是通过集群中**超过半数的节点检测**失效时才生效.
+(2)节点的 fail 是通过集群中**超过半数的节点检测**失效时才生效.
 
-(3)客户端与redis节点直连,不需要中间proxy层.客户端不需要连接集群所有节点,连接集群中任何一个可用节点即可
+(3)客户端与 redis 节点直连,不需要中间 proxy 层.客户端不需要连接集群所有节点,连接集群中任何一个可用节点即可
 
-(4)redis-cluster把所有的物理节点映射到[0-16383]slot上,cluster负责维护node\<-\>slot\<-\>value
+(4)redis-cluster 把所有的物理节点映射到[0-16383]slot 上,cluster 负责维护 node\<-\>slot\<-\>value
 
-Redis 集群中内置了 16384 个哈希槽，当需要在 Redis 集群中放置一个 key-value时，redis 先对 key 使用 crc16 算法算出一个结果，然后把结果对 16384求余数，这样每个 key 都会对应一个编号在 0-16383 之间的哈希槽，redis会根据节点数量大致均等的将哈希槽映射到不同的节点
+Redis 集群中内置了 16384 个哈希槽，当需要在 Redis 集群中放置一个 key-value 时，redis 先对 key 使用 crc16 算法算出一个结果，然后把结果对 16384 求余数，这样每个 key 都会对应一个编号在 0-16383 之间的哈希槽，redis 会根据节点数量大致均等的将哈希槽映射到不同的节点
 
 示例如下：
 
 ![image-20201127171456311](media/image-20201127171456311.png)
 
+## 7.2：redis-cluster 投票:容错
 
-
-## 7.2：redis-cluster投票:容错
-
-(1)集群中所有master参与投票,如果半数以上master节点与其中一个master节点通信超过(cluster-node-timeout),认为该master节点挂掉.
+(1)集群中所有 master 参与投票,如果半数以上 master 节点与其中一个 master 节点通信超过(cluster-node-timeout),认为该 master 节点挂掉.
 
 (2):什么时候整个集群不可用(cluster_state:fail)?
 
--   如果集群任意master挂掉,且当前master没有slave，则集群进入fail状态。也可以理解成集群的[0-16383]slot映射不完全时进入fail状态。
+- 如果集群任意 master 挂掉,且当前 master 没有 slave，则集群进入 fail 状态。也可以理解成集群的[0-16383]slot 映射不完全时进入 fail 状态。
 
--   如果集群超过半数以上master挂掉，无论是否有slave，集群进入fail状态。
+- 如果集群超过半数以上 master 挂掉，无论是否有 slave，集群进入 fail 状态。
 
-## 7.3：安装ruby
+## 7.3：安装 ruby
 
-集群管理工具（redis-trib.rb）是使用ruby脚本语言编写的。
+集群管理工具（redis-trib.rb）是使用 ruby 脚本语言编写的。
 
-第一步：安装ruby
+第一步：安装 ruby
 
 [root\@xqc bin2]\# yum install ruby
 
 [root\@xqc bin2]\# yum install rubygems
 
-第二步：将以下文件上传到linux系统
+第二步：将以下文件上传到 linux 系统
 
 ![](media/e87aa6474af1e8a740afb7af83167c14.png)
 
-第三步：安装ruby和redis接口
+第三步：安装 ruby 和 redis 接口
 
 [root\@xqc \~]\# gem install redis-3.0.0.gem
 
-第四步：将redis-3.0.0包下src目录中的以下文件拷贝到redis19/redis-cluster/
+第四步：将 redis-3.0.0 包下 src 目录中的以下文件拷贝到 redis19/redis-cluster/
 
 ![](media/5da978d46ee16befc2ebb60452dccbc9.png)
 
@@ -1507,11 +1406,11 @@ Redis 集群中内置了 16384 个哈希槽，当需要在 Redis 集群中放置
 
 ## 7.4：搭建集群
 
-搭建集群最少也得需要3台主机，如果每台主机再配置一台从机的话，则最少需要6台机器。
+搭建集群最少也得需要 3 台主机，如果每台主机再配置一台从机的话，则最少需要 6 台机器。
 
 端口设计如下：7001-7006
 
-第一步：复制出一个7001机器
+第一步：复制出一个 7001 机器
 
 [root\@xqc redis19]\# cp bin ./redis-cluster/7001 –r
 
@@ -1527,7 +1426,7 @@ Redis 集群中内置了 16384 个哈希槽，当需要在 Redis 集群中放置
 
 ![](media/922b120855b5bf12557dff227701c992.png)
 
-第五步：复制出7002-7006机器
+第五步：复制出 7002-7006 机器
 
 [root\@xqc redis-cluster]\# cp 7001/ 7002 -r
 
@@ -1539,13 +1438,13 @@ Redis 集群中内置了 16384 个哈希槽，当需要在 Redis 集群中放置
 
 [root\@xqc redis-cluster]\# cp 7001/ 7006 –r
 
-第六步：修改7002-7006机器的端口
+第六步：修改 7002-7006 机器的端口
 
-第七步：启动7001-7006这六台机器
+第七步：启动 7001-7006 这六台机器
 
 ![](media/401896b9cbff782151e2ee95448ebe25.png)
 
-第八步：修改start-all.sh文件的权限
+第八步：修改 start-all.sh 文件的权限
 
 [root\@xqc redis-cluster]\# chmod u+x start-all.sh
 
@@ -1610,7 +1509,6 @@ M: a908736eadd1cd06e86fdff8b2749a6f46b38c00 192.168.242.137:7006
 
 ```
 
-
 ## 7.5：连接集群
 
 [root\@xqc 7001]\# ./redis-cli -h 192.168.242.137 -p 7001 **–c**
@@ -1637,14 +1535,14 @@ M: a908736eadd1cd06e86fdff8b2749a6f46b38c00 192.168.242.137:7006
   	cluster_stats_messages_sent:2372
   	cluster_stats_messages_received:2372
   	192.168.242.137:7002>
-  
-  
   ```
 
 
--   查看集群节点
+  ```
 
-```shell
+- 查看集群节点
+
+​```shell
 	192.168.242.137:7002> cluster nodes
 	8240cd0fe6d6f842faa42b0174fe7c5ddcf7ae24 192.168.242.137:7001 master - 0 1451581348093 1 connected 0-5460
 	cb7c5def8f61df2016b38972396a8d1f349208c2 192.168.242.137:7003 master - 0 1451581344062 3 connected 10923-16383
@@ -1653,27 +1551,27 @@ M: a908736eadd1cd06e86fdff8b2749a6f46b38c00 192.168.242.137:7006
 	4f52a974f64343fd9f1ee0388490b3c0647a4db7 192.168.242.137:7002 myself,master - 0 0 2 connected 5461-10922
 	cbb0c9bc4b27dd85511a7ef2d01bec90e692793b 192.168.242.137:7005 slave 4f52a974f64343fd9f1ee0388490b3c0647a4db7 0 1451581350108 5 connected
 
-```
+  ```
 
 ## 数据一致性问题
 
 以下方式都会出现问题，要会分析怎么出现错误：
 
-策略1：先更新缓存，再更新数据库
+策略 1：先更新缓存，再更新数据库
 
-策略2：先更新数据库，再更新缓存
+策略 2：先更新数据库，再更新缓存
 
-策略3：先删除缓存，再更新数据库
+策略 3：先删除缓存，再更新数据库
 
-问题：A先删缓存，B读取缓存没有，就读数据库，然后将旧值写入缓存，然后A再更新数据库，则出现不一致现象。
+问题：A 先删缓存，B 读取缓存没有，就读数据库，然后将旧值写入缓存，然后 A 再更新数据库，则出现不一致现象。
 
-解决办法：延时双删，在A更新数据库后再删一次缓存
+解决办法：延时双删，在 A 更新数据库后再删一次缓存
 
-A先删缓存，B读取缓存没有，就读数据库，然后将旧值写入缓存，然后A再更新数据库，延迟一段时间删除缓存。延迟时间大于一次读操作时间，
+A 先删缓存，B 读取缓存没有，就读数据库，然后将旧值写入缓存，然后 A 再更新数据库，延迟一段时间删除缓存。延迟时间大于一次读操作时间，
 
-策略4：先更新数据库，再删除缓存
+策略 4：先更新数据库，再删除缓存
 
-问题：A读数据库x=3，B更新数据库x=4，然后B删除缓存，A将读取旧值x=3写入缓存，但是出现概率比较低，写操作时间是大于读操作时间的。
+问题：A 读数据库 x=3，B 更新数据库 x=4，然后 B 删除缓存，A 将读取旧值 x=3 写入缓存，但是出现概率比较低，写操作时间是大于读操作时间的。
 
 解决方法：延时双删
 
@@ -1681,11 +1579,7 @@ A先删缓存，B读取缓存没有，就读数据库，然后将旧值写入缓
 
 不断循环删除
 
-
-
-
-
-往数据库插入的时候同时往Redis插入，定时任务从数据库增量的抽取数据更新至缓存，
+往数据库插入的时候同时往 Redis 插入，定时任务从数据库增量的抽取数据更新至缓存，
 
 定时任务更新缓存，
 
@@ -1693,36 +1587,34 @@ A先删缓存，B读取缓存没有，就读数据库，然后将旧值写入缓
 
 更新数据时，数据库和缓存更新，就容易出现缓存和数据库间的数据一致性问题。不管是先写数据库，再删除缓存；还是先删除缓存，再写库，都有可能出现数据不一致的情况。举个例子：
 
-1. 如果删除了缓存Redis，还没有来得及写库MySQL，另一个线程就来读取，发现缓存为空，则去数据库中读取数据写入缓存，此时缓存中为脏数据。
+1. 如果删除了缓存 Redis，还没有来得及写库 MySQL，另一个线程就来读取，发现缓存为空，则去数据库中读取数据写入缓存，此时缓存中为脏数据。
 2. 如果先写了库，在删除缓存前，写库的线程宕机了，没有删除掉缓存，则也会出现数据不一致情况。
 
 综合考虑后使用：前后双删加懒加载模式。
 
 就是当业务读取数据的时候再从存储层加载的模式，而不是更新后主动刷新
 
-试想一下，同时有多个服务器的多个线程进行’步骤1.2更新DB’，更新DB完成之后，它们就要进行异步刷缓存，我们都知道多服务器的异步操作，是无法保证顺序的，所以后面的刷新操作存在相互覆盖的并发问题，也就是说，存在先更新的DB操作，反而很晚才去刷新缓存，那这个时候，数据也是错的。
+试想一下，同时有多个服务器的多个线程进行’步骤 1.2 更新 DB’，更新 DB 完成之后，它们就要进行异步刷缓存，我们都知道多服务器的异步操作，是无法保证顺序的，所以后面的刷新操作存在相互覆盖的并发问题，也就是说，存在先更新的 DB 操作，反而很晚才去刷新缓存，那这个时候，数据也是错的。
 
 ### 主动加载
 
 写流程：
 
-第一步先删除缓存，删除之后再更新DB，之后再异步将数据刷回缓存。
+第一步先删除缓存，删除之后再更新 DB，之后再异步将数据刷回缓存。
 
 读流程：
 
-第一步先读缓存，如果缓存没读到，则去读DB，之后再异步将数据刷回缓存。
+第一步先读缓存，如果缓存没读到，则去读 DB，之后再异步将数据刷回缓存。
 
 这种模式简单易用，但是它有一个致命的缺点就是并发会出现脏数据。
 
-试想一下，同时有多个服务器的多个线程进行’步骤1.2更新DB’，更新DB完成之后，它们就要进行异步刷缓存，我们都知道多服务器的异步操作，是无法保证顺序的，所以后面的刷新操作存在相互覆盖的并发问题，也就是说，存在先更新的DB操作，反而很晚才去刷新缓存，那这个时候，数据也是错的。
+试想一下，同时有多个服务器的多个线程进行’步骤 1.2 更新 DB’，更新 DB 完成之后，它们就要进行异步刷缓存，我们都知道多服务器的异步操作，是无法保证顺序的，所以后面的刷新操作存在相互覆盖的并发问题，也就是说，存在先更新的 DB 操作，反而很晚才去刷新缓存，那这个时候，数据也是错的。
 
+1. 懒加载模式缓存可采取双删+TTL 失效来实现；
+2. 双删失败情况下可采取重试措施，重试有业务通过 mq 重试以及组件消费 mysql 的 binlog 再写入 mq 重试两种方式；
+3. 主动加载由于操作本身不具有幂等性，所以需要考虑加载的有序性问题，采取 mq 的分区机制实现串行化处理，实现缓存和 mysql 数据的最终一致，此时读和写操作的缓存加载事件是走的同一个 mq。
 
-
-1. 懒加载模式缓存可采取双删+TTL失效来实现；
-2. 双删失败情况下可采取重试措施，重试有业务通过mq重试以及组件消费mysql的binlog再写入mq重试两种方式；
-3. 主动加载由于操作本身不具有幂等性，所以需要考虑加载的有序性问题，采取mq的分区机制实现串行化处理，实现缓存和mysql数据的最终一致，此时读和写操作的缓存加载事件是走的同一个mq。
-
-# 第八章：jedis连接集群
+# 第八章：jedis 连接集群
 
 ## 设置防火墙
 
@@ -1754,14 +1646,13 @@ iptables：正在卸载模块：                                   [确定]
 iptables：应用防火墙规则：                                 [确定]
 ```
 
-
 ## 代码
 
 ![](media/5c43a3eab7e40913c14fe60dcf45b1c1.png)
 
-## 使用spring
+## 使用 spring
 
-- 配置applicationContext.xml
+- 配置 applicationContext.xml
 
   ```xml
   <!-- 连接池配置 -->
@@ -1819,13 +1710,10 @@ iptables：应用防火墙规则：                                 [确定]
   	</constructor-arg>
   	<constructor-arg index="1" ref="jedisPoolConfig"></constructor-arg>
   </bean>
-  
+
   ```
 
-  
-
-
--   测试代码
+- 测试代码
 
 ```java
 private ApplicationContext applicationContext;
@@ -1863,9 +1751,9 @@ private ApplicationContext applicationContext;
 
 (一)利用互斥锁，缓存失效的时候，先去获得锁，得到锁了，再去请求数据库。没得到锁，则休眠一段时间重试
 
-(二)采用异步更新策略，无论key是否取到值，都直接返回。value值中维护一个缓存失效时间，缓存如果过期，异步起一个线程去读数据库，更新缓存。需要做缓存预热(项目启动前，先加载缓存)操作。
+(二)采用异步更新策略，无论 key 是否取到值，都直接返回。value 值中维护一个缓存失效时间，缓存如果过期，异步起一个线程去读数据库，更新缓存。需要做缓存预热(项目启动前，先加载缓存)操作。
 
-(三)提供一个能迅速判断请求是否有效的拦截机制，比如，利用布隆过滤器，内部维护一系列合法有效的key。迅速判断出，请求所携带的Key是否合法有效。如果不合法，则直接返回。
+(三)提供一个能迅速判断请求是否有效的拦截机制，比如，利用布隆过滤器，内部维护一系列合法有效的 key。迅速判断出，请求所携带的 Key 是否合法有效。如果不合法，则直接返回。
 
 缓存雪崩，即缓存同一时间大面积的失效，这个时候又来了一波请求，结果请求都怼到数据库上，从而导致数据库连接异常。
 
@@ -1875,36 +1763,35 @@ private ApplicationContext applicationContext;
 
 (二)使用互斥锁，但是该方案吞吐量明显下降了。
 
-(三)双缓存。我们有两个缓存，缓存A和缓存B。缓存A的失效时间为20分钟，缓存B不设失效时间。自己做缓存预热操作。然后细分以下几个小点
+(三)双缓存。我们有两个缓存，缓存 A 和缓存 B。缓存 A 的失效时间为 20 分钟，缓存 B 不设失效时间。自己做缓存预热操作。然后细分以下几个小点
 
-- I 从缓存A读数据库，有则直接返回
-- II A没有数据，直接从B读数据，直接返回，并且异步启动一个更新线程。
-- III 更新线程同时更新缓存A和缓存B。
+- I 从缓存 A 读数据库，有则直接返回
+- II A 没有数据，直接从 B 读数据，直接返回，并且异步启动一个更新线程。
+- III 更新线程同时更新缓存 A 和缓存 B。
 
 ## 缓存击穿问题
 
 ## 缓存的并发竞争
 
-单线程的redis为什么这么快？
+单线程的 redis 为什么这么快？
 
 (一)纯内存操作
 (二)单线程操作，避免了频繁的上下文切换
-(三)采用了非阻塞I/O多路复用机制
+(三)采用了非阻塞 I/O 多路复用机制
 
 ## 过期策略以及内存淘汰机制
 
-redis只能存5G数据，可是你写了10G，那会删5G的数据。怎么删的，这个问题思考过么？还有，你的数据已经设置了过期时间，但是时间到了，内存占用率还是比较高，有思考过原因么?
+redis 只能存 5G 数据，可是你写了 10G，那会删 5G 的数据。怎么删的，这个问题思考过么？还有，你的数据已经设置了过期时间，但是时间到了，内存占用率还是比较高，有思考过原因么?
 
-答：redis采用的是定期删除+惰性删除策略。
+答：redis 采用的是定期删除+惰性删除策略。
 
-定期删除，redis默认每个100ms检查，是否有过期的key,有过期key则删除。需要说明的是，redis不是每个100ms将所有的key检查一次，而是随机抽取进行检查(如果每隔100ms,全部key进行检查，redis岂不是卡死)。因此，如果只采用定期删除策略，会导致很多key到时间没有删除。
+定期删除，redis 默认每个 100ms 检查，是否有过期的 key,有过期 key 则删除。需要说明的是，redis 不是每个 100ms 将所有的 key 检查一次，而是随机抽取进行检查(如果每隔 100ms,全部 key 进行检查，redis 岂不是卡死)。因此，如果只采用定期删除策略，会导致很多 key 到时间没有删除。
 
+于是，惰性删除派上用场。也就是说在你获取某个 key 的时候，redis 会检查一下，这个 key 如果设置了过期时间那么是否过期了？如果过期了此时就会删除。
 
-于是，惰性删除派上用场。也就是说在你获取某个key的时候，redis会检查一下，这个key如果设置了过期时间那么是否过期了？如果过期了此时就会删除。
+如果定期删除没删除 key。然后你也没即时去请求 key，也就是说惰性删除也没生效。这样，redis 的内存会越来越高。那么就应该采用内存淘汰机制。
 
-如果定期删除没删除key。然后你也没即时去请求key，也就是说惰性删除也没生效。这样，redis的内存会越来越高。那么就应该采用内存淘汰机制。
-
-在redis.conf中有一行配置
+在 redis.conf 中有一行配置
 
 ```xml
 maxmemory-policy volatile-lru
@@ -1912,28 +1799,24 @@ maxmemory-policy volatile-lru
 
 1）noeviction：当内存不足以容纳新写入数据时，新写入操作会报错。应该没人用吧。
 
-2）allkeys-lru：当内存不足以容纳新写入数据时，在键空间中，移除最近最少使用的key。推荐使用，目前项目在用这种。
+2）allkeys-lru：当内存不足以容纳新写入数据时，在键空间中，移除最近最少使用的 key。推荐使用，目前项目在用这种。
 
-3）allkeys-random：当内存不足以容纳新写入数据时，在键空间中，随机移除某个key。应该也没人用吧，你不删最少使用Key,去随机删。
+3）allkeys-random：当内存不足以容纳新写入数据时，在键空间中，随机移除某个 key。应该也没人用吧，你不删最少使用 Key,去随机删。
 
-4）volatile-lru：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，移除最近最少使用的key。这种情况一般是把redis既当缓存，又做持久化存储的时候才用。不推荐
+4）volatile-lru：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，移除最近最少使用的 key。这种情况一般是把 redis 既当缓存，又做持久化存储的时候才用。不推荐
 
-5）volatile-random：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，随机移除某个key。依然不推荐
+5）volatile-random：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，随机移除某个 key。依然不推荐
 
-6）volatile-ttl：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，有更早过期时间的key优先移除。不推荐
-
-
+6）volatile-ttl：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，有更早过期时间的 key 优先移除。不推荐
 
 ## 缓存更新
 
-除了缓存服务器自带的缓存失效策略之外（Redis默认的有6中策略可供选择），我们还可以根据具体的业务需求进行自定义的缓存淘汰，常见的策略有两种：
+除了缓存服务器自带的缓存失效策略之外（Redis 默认的有 6 中策略可供选择），我们还可以根据具体的业务需求进行自定义的缓存淘汰，常见的策略有两种：
 
 - 定时去清理过期的缓存；
 - 当有用户请求过来时，再判断这个请求所用到的缓存是否过期，过期的话就去底层系统得到新数据并更新缓存。
 
-两者各有优劣，第一种的缺点是维护大量缓存的key是比较麻烦的，第二种的缺点就是每次用户请求过来都要判断缓存失效，逻辑相对比较复杂！具体用哪种方案，大家可以根据自己的应用场景来权衡。
-
-
+两者各有优劣，第一种的缺点是维护大量缓存的 key 是比较麻烦的，第二种的缺点就是每次用户请求过来都要判断缓存失效，逻辑相对比较复杂！具体用哪种方案，大家可以根据自己的应用场景来权衡。
 
 ## 缓存降级
 
@@ -1944,24 +1827,20 @@ maxmemory-policy volatile-lru
 以参考日志级别设置预案：
 
 - 一般：比如有些服务偶尔因为网络抖动或者服务正在上线而超时，可以自动降级；
-- 警告：有些服务在一段时间内成功率有波动（如在95~100%之间），可以自动降级或人工降级，并发送告警；
-- 错误：比如可用率低于90%，或者数据库连接池被打爆了，或者访问量突然猛增到系统能承受的最大阀值，此时可以根据情况自动降级或者人工降级；
+- 警告：有些服务在一段时间内成功率有波动（如在 95~100%之间），可以自动降级或人工降级，并发送告警；
+- 错误：比如可用率低于 90%，或者数据库连接池被打爆了，或者访问量突然猛增到系统能承受的最大阀值，此时可以根据情况自动降级或者人工降级；
 - 严重错误：比如因为特殊原因数据错误了，此时需要紧急人工降级。
 
-服务降级的目的，是为了防止Redis服务故障，导致数据库跟着一起发生雪崩问题。因此，对于不重要的缓存数据，可以采取服务降级策略，例如一个比较常见的做法就是，Redis出现问题，不去数据库查询，而是直接返回默认值给用户。
-
-
-
-
+服务降级的目的，是为了防止 Redis 服务故障，导致数据库跟着一起发生雪崩问题。因此，对于不重要的缓存数据，可以采取服务降级策略，例如一个比较常见的做法就是，Redis 出现问题，不去数据库查询，而是直接返回默认值给用户。
 
 # 第十章：原理
 
-redis是单线程的，但是为什么还是这么快呢，
+redis 是单线程的，但是为什么还是这么快呢，
 
-　　原因1： 单线程，避免线程之间的竞争和不必要的上下文切换
+原因 1： 单线程，避免线程之间的竞争和不必要的上下文切换
 
-　　原因2 ：是内存中的，使用内存的，可以减少磁盘的io
+原因 2 ：是内存中的，使用内存的，可以减少磁盘的 io
 
-　　原因3：多路复用模型，用了缓冲区的概念，selector模型来进行的
+原因 3：多路复用模型，用了缓冲区的概念，selector 模型来进行的
 
-使用NIO都在内存中，
+使用 NIO 都在内存中，
