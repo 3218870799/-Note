@@ -1,33 +1,23 @@
-本文的目的是搞清楚Java中各种日志Log之间是怎么的关系，如何作用、依赖，好让我们平时在工作中如果遇到“日志打不出”或者“日志jar包冲突”等之类的问题知道该如何入手解决，以及在各种场景下如何调整项目中的各个框架的日志输出，使得输出统一。
+本文的目的是搞清楚 Java 中各种日志 Log 之间是怎么的关系，如何作用、依赖，好让我们平时在工作中如果遇到“日志打不出”或者“日志 jar 包冲突”等之类的问题知道该如何入手解决，以及在各种场景下如何调整项目中的各个框架的日志输出，使得输出统一。
 
-
-
-在日常工作中我们可能看到项目中依赖的跟日志相关的jar包有很多，`commons-logging.jar`、`log4j.jar`、`sl4j-api.jar`、`logback.jar`等等，眼花缭乱。我们要正确的配置，使得jar包相互作用生效之前，就先要理清它们之间的关系。
-
-
+在日常工作中我们可能看到项目中依赖的跟日志相关的 jar 包有很多，`commons-logging.jar`、`log4j.jar`、`sl4j-api.jar`、`logback.jar`等等，眼花缭乱。我们要正确的配置，使得 jar 包相互作用生效之前，就先要理清它们之间的关系。
 
 发展史：
 
-那就要从Java Log的发展历程开始说起。
+那就要从 Java Log 的发展历程开始说起。
 
-1. `log4j`（作者Ceki Gülcü）出来时就等到了广泛的应用（注意这里是直接使用），是Java日志事实上的标准，并成为了Apache的项目
-2. Apache要求把log4j并入到JDK，SUN拒绝，并在jdk1.4版本后增加了`JUL`（`java.util.logging`）
-3. 毕竟是JDK自带的，JUL也有很多人用。同时还有其他日志组件，如SimpleLog等。这时如果有人想换成其他日志组件，如log4j换成JUL，因为api完全不同，就需要改动代码。
-4. Apache见此，开发了`JCL`（Jakarta Commons Logging），即`commons-logging-xx.jar`。它只提供一套通用的日志接口api，并不提供日志的实现。很好的设计原则嘛，依赖抽象而非实现。这样应用程序可以在运行时选择自己想要的日志实现组件。
-5. 这样看上去也挺美好的，但是log4j的作者觉得JCL不好用，自己开发出`slf4j`，它跟JCL类似，本身不替供日志具体实现，只对外提供接口或门面。目的就是为了替代JCL。同时，还开发出`logback`，一个比log4j拥有更高性能的组件，目的是为了替代log4j。
-6. Apache参考了logback,并做了一系列优化，推出了`log4j2`
-
-
+1. `log4j`（作者 Ceki Gülcü）出来时就等到了广泛的应用（注意这里是直接使用），是 Java 日志事实上的标准，并成为了 Apache 的项目
+2. Apache 要求把 log4j 并入到 JDK，SUN 拒绝，并在 jdk1.4 版本后增加了`JUL`（`java.util.logging`）
+3. 毕竟是 JDK 自带的，JUL 也有很多人用。同时还有其他日志组件，如 SimpleLog 等。这时如果有人想换成其他日志组件，如 log4j 换成 JUL，因为 api 完全不同，就需要改动代码。
+4. Apache 见此，开发了`JCL`（Jakarta Commons Logging），即`commons-logging-xx.jar`。它只提供一套通用的日志接口 api，并不提供日志的实现。很好的设计原则嘛，依赖抽象而非实现。这样应用程序可以在运行时选择自己想要的日志实现组件。
+5. 这样看上去也挺美好的，但是 log4j 的作者觉得 JCL 不好用，自己开发出`slf4j`，它跟 JCL 类似，本身不替供日志具体实现，只对外提供接口或门面。目的就是为了替代 JCL。同时，还开发出`logback`，一个比 log4j 拥有更高性能的组件，目的是为了替代 log4j。
+6. Apache 参考了 logback,并做了一系列优化，推出了`log4j2`
 
 ### 概述
 
 体系
 
 ![image-20210104092014718](media/image-20210104092014718.png)
-
-
-
-
 
 **日志门面**
 
@@ -37,7 +27,7 @@
 
 日志实现则是日志具体的实现，包括日志级别控制、日志打印格式、日志输出形式（输出到数据库、输出到文件、输出到控制台等）。`Log4j`、`Log4j2`、`Logback` 以及 `Java Util Logging` 则属于这一类。
 
-###  **日志级别**
+### **日志级别**
 
 使用日志级别的好处在于，调整级别，就可以屏蔽掉很多调试相关的日志输出。不同的日志实现定义的日志级别不太一样，不过也都大同小异。
 
@@ -68,8 +58,6 @@
 - TRACE
 - ALL 最低等级的，用于打开所有日志记录。
 
-
-
 **Logback**
 
 `Logback` 日志级别比较简单，从严重到普通依次是：
@@ -79,8 +67,6 @@
 - INFO
 - DEBUG
 - TRACE
-
-
 
 **对比**
 
@@ -104,34 +90,24 @@
 - 如果比较在意性能，推荐：`Slf4j` + `Logback`。
 - 如果项目中已经使用了 `Log4j` 且没有发现性能问题，推荐组合为：`Slf4j` + `Log4j2`。
 
-
-
-
-
-
-
 JCL
 
 `commons-logging`已经停止更新，最后的状态如下所示：
 
 ![image-20201229144640097](media/image-20201229144640097.png)
 
-
-
-
-
 ### SLF4j
 
-意思为如果你想用slf4j作为日志门面的话，你如何去配合使用其他日志实现组件，这里说明一下（注意jar包名缺少了版本号，在找版本时也要注意版本之间是否兼容）
+意思为如果你想用 slf4j 作为日志门面的话，你如何去配合使用其他日志实现组件，这里说明一下（注意 jar 包名缺少了版本号，在找版本时也要注意版本之间是否兼容）
 
 - slf4j + logback`slf4j-api.jar` + `logback-classic.jar` + `logback-core.jar`
 - slf4j + log4j`slf4j-api.jar` + `slf4j-log4j12.jar` + `log4j.jar`
 - slf4j + jul`slf4j-api.jar` + `slf4j-jdk14.jar`
-- 也可以只用slf4j无日志实现`slf4j-api.jar` + `slf4j-nop.jar`
+- 也可以只用 slf4j 无日志实现`slf4j-api.jar` + `slf4j-nop.jar`
 
 以后开发的时候，日志记录方法的调用，不应该来直接调用日志的实现类，而是调用日志抽象层里面的方法；
 
-给系统里面导入slf4j的jar和  logback的实现jar
+给系统里面导入 slf4j 的 jar 和 logback 的实现 jar
 
 ```java
 import org.slf4j.Logger;
@@ -144,12 +120,6 @@ public class HelloWorld {
   }
 }
 ```
-
-
-
-
-
-
 
 #### 输出到文件
 
@@ -169,8 +139,7 @@ public class HelloWorld {
 </configuration>
 ```
 
-
-logback配置
+logback 配置
 
 默认的 `Logback` 配置文件名有两种：
 
@@ -180,7 +149,7 @@ logback配置
 Spring Boot 中为 `Logback` 提供了四个默认的配置文件，位置在 `org/springframework/boot/logging/logback/`，分别是：
 
 - defaults.xml：提供了公共的日志配置，日志输出规则等。
-- console-appender.xml：使用 CONSOLE_LOG_PATTERN 添加一个ConsoleAppender。
+- console-appender.xml：使用 CONSOLE_LOG_PATTERN 添加一个 ConsoleAppender。
 - file-appender.xml：添加一个 RollingFileAppender。
 - base.xml：为了兼容旧版 Spring Boot 而提供的。
 
@@ -200,20 +169,13 @@ Spring Boot 中为 `Logback` 提供了四个默认的配置文件，位置在 `o
 
 可以通过 include 引入 Spring Boot 已经提供的配置文件，也可以自定义。
 
-
-
-
 Spring
 
-Spring是用JCL作为日志门面的
-
-
+Spring 是用 JCL 作为日志门面的
 
 ### SpringBoot
 
 Spring Boot 使用 `Apache Commons Logging` 作为内部的日志框架门面，它只是一个日志接口，在实际应用中需要为该接口来指定相应的日志实现。
-
-
 
 Spring Boot 默认的日志实现是 `Logback`
 
@@ -225,8 +187,6 @@ Spring Boot 默认的日志实现是 `Logback`
     <artifactId>spring-boot-starter-web</artifactId>
 </dependency>
 ```
-
-
 
 **日志配置**
 
@@ -354,3 +314,73 @@ logging.logback.rollingpolicy.max-history：日志文件保存的天数。
 
 然后通过几个不同的 RollingFile 对不同级别的日志分别处理，不同级别的日志将输出到不同的文件，并按照各自的命名方式进行压缩。
 
+### logback
+
+**对比 log4j 的优点**：
+
+- 内核重写，实现更快，初始化内存加载更小。
+
+- 充分的测试。
+- ogback-classic 非常自然实现了 SLF4j，容易切换。
+- 自动重新加载配置文件
+
+**logback.xml 常用配置详解**
+
+(1) 根节点<configuration>，包含下面三个属性：
+
+scan: 当此属性设置为 true 时，配置文件如果发生改变，将会被重新加载，默认值为 true。
+
+scanPeriod: 设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当 scan 为 true 时，此属性生效。默认的时间间隔为 1 分钟。
+
+debug: 当此属性设置为 true 时，将打印出 logback 内部日志信息，实时查看 logback 运行状态。默认值为 false。
+
+例如：
+
+```xml
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+　　  <!--其他配置省略-->
+</configuration>　
+```
+
+(2) 子节点<contextName>：用来设置上下文名称，每个 logger 都关联到 logger 上下文，默认上下文名称为 default。但可以使用<contextName>设置成其他名字，用于区分不同应用程序的记录。一旦设置，不能修改。
+
+例如：
+
+```xml
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+     <contextName>myAppName</contextName>
+　　  <!--其他配置省略-->
+</configuration>
+```
+
+(3) 子节点<property> ：用来定义变量值，它有两个属性 name 和 value，通过<property>定义的值会被插入到 logger 上下文中，可以使“${}”来使用变量。name: 变量的名称 value: 的值时变量定义的值
+　　例如：
+
+```
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+　　　<property name="APP_Name" value="myAppName" />
+　　　<contextName>${APP_Name}</contextName>
+　　　<!--其他配置省略-->
+</configuration>
+```
+
+(4) 子节点<timestamp>：获取时间戳字符串，他有两个属性 key 和 datePattern
+
+key: 标识此<timestamp> 的名字；
+
+datePattern: 设置将当前时间（解析配置文件的时间）转换为字符串的模式，遵循 java.txt.SimpleDateFormat 的格式。
+　　例如：
+
+```
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+　　　　　　<timestamp key="bySecond" datePattern="yyyyMMdd'T'HHmmss"/>
+　　　　　　<contextName>${bySecond}</contextName>
+　　　　　　<!-- 其他配置省略-->
+</configuration>
+```
+
+(5) 子节点<appender>：负责写日志的组件，它有两个必要属性 name 和 class。name 指定 appender 名称，class 指定 appender 的全限定名
+
+（6）子节点<loger>：用来设置某一个包或具体的某一个类的日志打印级别、以及指定<appender>。<loger>仅有一个 name 属性，一个可选的 level 和一个可选的 addtivity 属性。可以包含零个或多个<appender-ref>元素，标识这个 appender 将会添加到这个 loger，name: 用来指定受此 loger 约束的某一个包或者具体的某一个类。level: 用来设置打印级别，大小写无关：TRACE, DEBUG, INFO, WARN, ERROR, ALL 和 OFF，还有一个特俗值 INHERITED 或者同义词 NULL，代表强制执行上级的级别。 如果未设置此属性，那么当前 loger 将会继承上级的级别。addtivity: 是否向上级 loger 传递打印信息。默认是 true。同<loger>一样，可以包含零个或多个<appender-ref>元素，标识这个 appender 将会添加到这个 loger。
+
+（7）子节点<root>:它也是<loger>元素，但是它是根 loger,是所有<loger>的上级。只有一个 level 属性，因为 name 已经被命名为"root",且已经是最上级了。level: 用来设置打印级别，大小写无关：TRACE, DEBUG, INFO, WARN, ERROR, ALL 和 OFF，不能设置为 INHERITED 或者同义词 NULL。 默认是 DEBUG。
