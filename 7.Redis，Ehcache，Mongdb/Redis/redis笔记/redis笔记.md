@@ -1,4 +1,6 @@
-﻿# 第一章：Redis 介绍
+﻿
+
+# 第一章：Redis 介绍
 
 ## 1.1：什么是 NoSql
 
@@ -1735,6 +1737,31 @@ private ApplicationContext applicationContext;
 	}
 ```
 
+## SpringBoot集成Redis
+
+详细参考：SpringBoot整合篇
+
+引入依赖
+
+配置redis
+
+使用操作不同类型，通过StringRedisTemplate,RedisTemplate
+
+```java
+redisTemplate.opsForValue().set("1",user);
+stringTemplate.opsForValue().set("2","string");
+```
+
+String：StringRedisTemplate.opsForValue()方法
+
+List：StringRedisTemplate.opsForList()方法
+
+Set：StringRedisTemplate.opsForSet()方法
+
+Hash：StringRedisTemplate.opsForHash()方法
+
+ZSet：StringRedisTemplate.opsForZSet()方法
+
 # 第九章：常见问题
 
 ## 缓存和数据库双写一致性
@@ -1745,7 +1772,7 @@ private ApplicationContext applicationContext;
 
 ## 缓存穿透与雪崩
 
-缓存穿透，即黑客故意去请求缓存中不存在的数据，导致所有的请求都怼到数据库上，从而数据库连接异常。
+**缓存穿透**：即黑客故意去请求缓存中不存在的数据，导致所有的请求都怼到数据库上，从而数据库连接异常。
 
 解决方案:
 
@@ -1755,7 +1782,9 @@ private ApplicationContext applicationContext;
 
 (三)提供一个能迅速判断请求是否有效的拦截机制，比如，利用布隆过滤器，内部维护一系列合法有效的 key。迅速判断出，请求所携带的 Key 是否合法有效。如果不合法，则直接返回。
 
-缓存雪崩，即缓存同一时间大面积的失效，这个时候又来了一波请求，结果请求都怼到数据库上，从而导致数据库连接异常。
+
+
+**缓存雪崩**：即缓存同一时间大面积的失效，这个时候又来了一波请求，结果请求都怼到数据库上，从而导致数据库连接异常。
 
 解决方案:
 
@@ -1770,6 +1799,22 @@ private ApplicationContext applicationContext;
 - III 更新线程同时更新缓存 A 和缓存 B。
 
 ## 缓存击穿问题
+
+缓存击穿是指缓存中没有但数据库中有的数据（一般是缓存时间到期），这时由于并发用户特别多，同时读缓存没读到数据，又同时去数据库去取数据，引起数据库压力瞬间增大，造成过大压力
+
+
+
+（1）设置热点数据永远不过期。
+
+（2）加互斥锁。
+
+区别：
+
+缓存穿透：访问不存在的key
+
+缓存雪崩：访问的缓存中无，数据库中有，
+
+缓存雪崩：大量失效的缓存，直接怼到数据库中
 
 ## 缓存的并发竞争
 
@@ -1832,6 +1877,41 @@ maxmemory-policy volatile-lru
 - 严重错误：比如因为特殊原因数据错误了，此时需要紧急人工降级。
 
 服务降级的目的，是为了防止 Redis 服务故障，导致数据库跟着一起发生雪崩问题。因此，对于不重要的缓存数据，可以采取服务降级策略，例如一个比较常见的做法就是，Redis 出现问题，不去数据库查询，而是直接返回默认值给用户。
+
+
+
+## Big key 问题
+
+redis的key 与 Value 的大小限制？
+
+
+
+String类型：一个String类型的value最大可以存储512M
+
+List类型：list的元素个数最多为2^32-1个，也就是4294967295个。
+
+Set类型：元素个数最多为2^32-1个，也就是4294967295个。
+
+Hash类型：键值对个数最多为2^32-1个，也就是4294967295个。
+
+Sorted set类型：跟Set类型相似。
+
+
+
+数据量大的Key ，导致经过分片之后，某个具体存储这个 big key 的实例内存使用量远大于其他实例，造成内存不足，拖累整个集群的使用。big key 在不同业务上，通常体现为不同的数据
+
+1. 论坛中的大型持久盖楼活动；
+2. 聊天室系统中热门聊天室的消息列表；
+
+
+
+字符串类型：一般认为超过 10k 的就是 bigkey，
+
+
+
+
+
+
 
 # 第十章：原理
 
