@@ -1,6 +1,4 @@
-﻿
-
-# 第一章：Redis 介绍
+﻿# 第一章：Redis 介绍
 
 ## 1.1：什么是 NoSql
 
@@ -68,6 +66,26 @@ Redis 是使用 c 语言开发的一个高性能键值数据库。Redis 可以�
 Salvatore Sanfilippo 便对 MySQL 的性能感到失望，于是他决定亲自为 LLOOGG 量身定做一个数据库，并于 2009 年开发完成，这个数据库就是 Redis。
 不过 SalvatoreSanfilippo 并不满足只将 Redis 用于 LLOOGG 这一款产品，而是希望更多的人使用它，于是在同一年 Salvatore
 Sanfilippo 将 Redis 开源发布，并开始和 Redis 的另一名主要的代码贡献者 PieterNoordhuis 一起继续着 Redis 的开发，直到今天。
+
+## 优点
+
+响应速度快，能有效提高系统的性能。
+
+支持 6 种数据类型。
+
+操作都是原子的。
+
+还支持各种实现，过期特性等等
+
+与本地缓存的优势：
+
+读写速度：并发下本地缓存需要加锁，读写慢一点
+
+redis 可以用分布式锁防止重复点击
+
+本地缓存的数据结果少，redis 可以储存多种，还可以持久化
+
+本地缓存容易导致线程安全问题。
 
 ## 1.5：redis 的应用场景
 
@@ -877,6 +895,12 @@ Sortedset 是有序集合，可排序的，但是唯一。
 
 Sortedset 和 set 的不同之处，是会给 set 中的元素添加一个分数，然后通过这个分数进行排序。
 
+底层使用跳跃表来实现。跳跃表相比于红黑树的优点：
+
+- 存取速度快，节点不需要进行旋转
+- 易于实现
+- 支持无锁操作
+
 ### 命令
 
 增加元素
@@ -1539,21 +1563,22 @@ M: a908736eadd1cd06e86fdff8b2749a6f46b38c00 192.168.242.137:7006
   	192.168.242.137:7002>
   ```
 
+  ```
 
   ```
 
 - 查看集群节点
 
 ​```shell
-	192.168.242.137:7002> cluster nodes
-	8240cd0fe6d6f842faa42b0174fe7c5ddcf7ae24 192.168.242.137:7001 master - 0 1451581348093 1 connected 0-5460
-	cb7c5def8f61df2016b38972396a8d1f349208c2 192.168.242.137:7003 master - 0 1451581344062 3 connected 10923-16383
-	66adf006fed43b3b5e499ce2ff1949a756504a16 192.168.242.137:7004 slave 8240cd0fe6d6f842faa42b0174fe7c5ddcf7ae24 0 1451581351115 1 connected
-	a908736eadd1cd06e86fdff8b2749a6f46b38c00 192.168.242.137:7006 slave cb7c5def8f61df2016b38972396a8d1f349208c2 0 1451581349101 3 connected
-	4f52a974f64343fd9f1ee0388490b3c0647a4db7 192.168.242.137:7002 myself,master - 0 0 2 connected 5461-10922
-	cbb0c9bc4b27dd85511a7ef2d01bec90e692793b 192.168.242.137:7005 slave 4f52a974f64343fd9f1ee0388490b3c0647a4db7 0 1451581350108 5 connected
+192.168.242.137:7002> cluster nodes
+8240cd0fe6d6f842faa42b0174fe7c5ddcf7ae24 192.168.242.137:7001 master - 0 1451581348093 1 connected 0-5460
+cb7c5def8f61df2016b38972396a8d1f349208c2 192.168.242.137:7003 master - 0 1451581344062 3 connected 10923-16383
+66adf006fed43b3b5e499ce2ff1949a756504a16 192.168.242.137:7004 slave 8240cd0fe6d6f842faa42b0174fe7c5ddcf7ae24 0 1451581351115 1 connected
+a908736eadd1cd06e86fdff8b2749a6f46b38c00 192.168.242.137:7006 slave cb7c5def8f61df2016b38972396a8d1f349208c2 0 1451581349101 3 connected
+4f52a974f64343fd9f1ee0388490b3c0647a4db7 192.168.242.137:7002 myself,master - 0 0 2 connected 5461-10922
+cbb0c9bc4b27dd85511a7ef2d01bec90e692793b 192.168.242.137:7005 slave 4f52a974f64343fd9f1ee0388490b3c0647a4db7 0 1451581350108 5 connected
 
-  ```
+````
 
 ## 数据一致性问题
 
@@ -1646,7 +1671,7 @@ iptables：清除防火墙规则：                                 [确定]
 iptables：将链设置为政策 ACCEPT：filter                    [确定]
 iptables：正在卸载模块：                                   [确定]
 iptables：应用防火墙规则：                                 [确定]
-```
+````
 
 ## 代码
 
@@ -1737,15 +1762,15 @@ private ApplicationContext applicationContext;
 	}
 ```
 
-## SpringBoot集成Redis
+## SpringBoot 集成 Redis
 
-详细参考：SpringBoot整合篇
+详细参考：SpringBoot 整合篇
 
 引入依赖
 
-配置redis
+配置 redis
 
-使用操作不同类型，通过StringRedisTemplate,RedisTemplate
+使用操作不同类型，通过 StringRedisTemplate,RedisTemplate
 
 ```java
 redisTemplate.opsForValue().set("1",user);
@@ -1782,8 +1807,6 @@ ZSet：StringRedisTemplate.opsForZSet()方法
 
 (三)提供一个能迅速判断请求是否有效的拦截机制，比如，利用布隆过滤器，内部维护一系列合法有效的 key。迅速判断出，请求所携带的 Key 是否合法有效。如果不合法，则直接返回。
 
-
-
 **缓存雪崩**：即缓存同一时间大面积的失效，这个时候又来了一波请求，结果请求都怼到数据库上，从而导致数据库连接异常。
 
 解决方案:
@@ -1802,15 +1825,13 @@ ZSet：StringRedisTemplate.opsForZSet()方法
 
 缓存击穿是指缓存中没有但数据库中有的数据（一般是缓存时间到期），这时由于并发用户特别多，同时读缓存没读到数据，又同时去数据库去取数据，引起数据库压力瞬间增大，造成过大压力
 
-
-
 （1）设置热点数据永远不过期。
 
 （2）加互斥锁。
 
 区别：
 
-缓存穿透：访问不存在的key
+缓存穿透：访问不存在的 key
 
 缓存雪崩：访问的缓存中无，数据库中有，
 
@@ -1878,40 +1899,39 @@ maxmemory-policy volatile-lru
 
 服务降级的目的，是为了防止 Redis 服务故障，导致数据库跟着一起发生雪崩问题。因此，对于不重要的缓存数据，可以采取服务降级策略，例如一个比较常见的做法就是，Redis 出现问题，不去数据库查询，而是直接返回默认值给用户。
 
-
-
 ## Big key 问题
 
-redis的key 与 Value 的大小限制？
+redis 的 key 与 Value 的大小限制？
 
+String 类型：一个 String 类型的 value 最大可以存储 512M
 
+List 类型：list 的元素个数最多为 2^32-1 个，也就是 4294967295 个。
 
-String类型：一个String类型的value最大可以存储512M
+Set 类型：元素个数最多为 2^32-1 个，也就是 4294967295 个。
 
-List类型：list的元素个数最多为2^32-1个，也就是4294967295个。
+Hash 类型：键值对个数最多为 2^32-1 个，也就是 4294967295 个。
 
-Set类型：元素个数最多为2^32-1个，也就是4294967295个。
+Sorted set 类型：跟 Set 类型相似。
 
-Hash类型：键值对个数最多为2^32-1个，也就是4294967295个。
-
-Sorted set类型：跟Set类型相似。
-
-
-
-数据量大的Key ，导致经过分片之后，某个具体存储这个 big key 的实例内存使用量远大于其他实例，造成内存不足，拖累整个集群的使用。big key 在不同业务上，通常体现为不同的数据
+数据量大的 Key ，导致经过分片之后，某个具体存储这个 big key 的实例内存使用量远大于其他实例，造成内存不足，拖累整个集群的使用。big key 在不同业务上，通常体现为不同的数据
 
 1. 论坛中的大型持久盖楼活动；
 2. 聊天室系统中热门聊天室的消息列表；
 
-
-
 字符串类型：一般认为超过 10k 的就是 bigkey，
 
+## 分片
 
+Redis 的分片是指将数据分散到多个 Redis 实例中的方法，分片之后，每个 redis 拥有一部分原数据集的子集。在数据量非常大时，分片能将数据量分散到若干主机的 redis 实例上，进而减轻单台 redis 实例的压力。
 
+- 范围分片
+- 哈希分片
 
+分片的位置：
 
-
+- 客户端分片
+- 代理分片
+- 服务器分片
 
 # 第十章：原理
 
