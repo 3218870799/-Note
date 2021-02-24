@@ -968,13 +968,19 @@ export KE_HOME=/opt/module/eagle export PATH=\$PATH:\$KE_HOME/bin
 
 # 第 7 章 Kafka 面试题 
 
-## 7.1 面试问题 
-
 1.Kafka 中的 ISR(InSyncRepli)、OSR(OutSyncRepli)、AR(AllRepli)代表什么？
 
 2.Kafka 中的 HW、LEO 等分别代表什么？
 
-3.Kafka 中是怎么体现消息顺序性的？
+#### Kafka 中是怎么体现消息顺序性的？
+
+Kafka分布式的单位是partition，同一个partition用一个write ahead log组织，所以可以保证FIFO的顺序。不同partition之间不能保证顺序。
+
+但是绝大多数用户都可以通过message key来定义，因为同一个key的message可以保证只发送到同一个partition，
+
+
+
+
 
 4.Kafka 中的分区器、序列化器、拦截器是否了解？它们之间的处理顺序是什么？
 
