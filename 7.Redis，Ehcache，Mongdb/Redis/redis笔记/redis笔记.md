@@ -1011,7 +1011,47 @@ _语法：ZCOUNT key min max_
 
 - 商品销量前 10 名：
 
-| 192.168.101.3:7001\> ZRANGE items:sellsort 0 9 withscores |
+| 192.168.101.3:7001\> ZRANGE items:sellsort 0 9 withscores 
+
+
+
+### 底层实现
+
+有序集合的编码可以是 ziplist 或者 skiplist。
+
+当有序集合对象同时满足以下两个条件时，对象使用 ziplist 编码：
+
+1、保存的元素数量小于128；
+
+2、保存的所有元素长度都小于64字节。
+
+以上两个条件也可以通过Redis配置文件zset-max-ziplist-entries 选项和 zset-max-ziplist-value 进行修改。
+
+ziplist 编码的有序集合对象使用压缩列表作为底层实现，每个集合元素使用两个紧挨在一起的压缩列表节点来保存，第一个节点保存元素的成员，第二个节点保存元素的分值。并且压缩列表内的集合元素按分值从小到大的顺序进行排列，小的放置在靠近表头的位置，大的放置在靠近表尾的位置。
+
+```cpp
+//操作
+ZADD price 8.5 apple 5.0 banana 6.0 cherry
+
+//存储顺序
+```
+
+![image-20210225094938987](media/image-20210225094938987.png)
+
+
+
+skiplist 编码的有序集合对象使用 zet 结构作为底层实现，一个 zset 结构同时包含一个字典和一个跳跃表：
+
+```cpp
+typedef struct zset{
+     //跳跃表
+     zskiplist *zsl;
+     //字典
+     dict *dice;
+} zset;
+```
+
+字典的键保存元素的值，字典的值则保存元素的分值；跳跃表节点的 object 属性保存元素的成员，跳跃表节点的 score 属性保存元素的分值。
 
 ## 4.5：跳跃表
 
