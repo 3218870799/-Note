@@ -2090,11 +2090,57 @@ RejectedExecutionHandler 接口，自定义饱和策略，如记录日志或持�
 
 ### 4：方法
 
-execute（）：提交任务，交给线程池执行
+**execute（）**
 
-submit（）：提交任务，能够返回执行结果 execute + Future
+提交任务，交给线程池执行
 
-shutdown（）：关闭线程池，等待任务都执行完
+执行流程：
+
+1、如果线程池当前线程数量少于corePoolSize，则addWorker(command, true)创建新worker线程，如果创建成功返回，没创建成功，则执行后续步骤；
+
+addWorker(command, true)失败的原因可能是：
+
+- 线程池已经shutdown，shutdown的线程池不再接收新任务
+- workerCountOf(c) < corePoolSize 判断后，由于并发，别的线程先创建了worker线程，导致workerCount>=corePoolSize
+
+2、如果线程池还在running状态，将task加入workQueue阻塞队列中，如果加入成功，进行double-check，如果加入失败（可能是队列已满），则执行后续步骤；
+
+double-check主要目的是：判断刚加入workQueue阻塞队列的task是否能被执行
+
+- 如果线程池已经不是running状态了，应该拒绝添加新任务，从workQueue中删除任务
+- 如果线程池是运行状态，或者从workQueue中删除任务失败（刚好有一个线程执行完毕，并消耗了这个任务），确保还有线程执行任务（只要有一个就够了）
+
+ 3、如果线程池不是running状态 或者 无法入队列，尝试开启新线程，扩容至maxPoolSize，如果addWork(command, false)失败了，拒绝当前command。
+
+
+
+**submit（）**
+
+提交任务，能够返回执行结果 execute + Future
+
+
+
+**shutdown（）**
+
+关闭线程池，等待任务都执行完
+
+执行流程：
+
+1、上锁，mainLock是线程池的主锁，是可重入锁，当要操作workers set这个保持线程的HashSet时，需要先获取mainLock，还有当要处理largestPoolSize、completedTaskCount这类统计数据时需要先获取mainLock
+
+2、判断调用者是否有权限shutdown线程池
+
+3、使用CAS操作将线程池状态设置为shutdown，shutdown之后将不再接收新任务
+
+4、中断所有空闲线程 interruptIdleWorkers()
+
+5、onShutdown()，ScheduledThreadPoolExecutor中实现了这个方法，可以在shutdown()时做一些处理
+
+6、解锁
+
+7、尝试终止线程池 tryTerminate()
+
+
 
 shutdownNow（）：关闭线程池，不等待任务执行完
 
