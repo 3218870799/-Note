@@ -65,7 +65,7 @@ JAVA1.7 如下图，但在 Java1.8 中，其他基本没变，只是将 Perm 变
 对象何时进入老年代？
 
 - 大对象直接进入老年代
-- 长期存活的对象：每熬过一回Minor GC，对象 age +1 ，当年龄达到一定数值时（JDK7是15，可以通过参数-XX:MaxTenuringThreshold设置年龄阀值）
+- 长期存活的对象：每熬过一回 Minor GC，对象 age +1 ，当年龄达到一定数值时（JDK7 是 15，可以通过参数-XX:MaxTenuringThreshold 设置年龄阀值）
 - 当 Survivor 空间中相同年龄所有对象的大小总和大于 Survivor 空间的一半，年龄大于或等于该年龄的对象就可以直接进入老年代，而不需要达到默认的分代年龄。
 
 ### 3.3：永久代
@@ -98,14 +98,14 @@ Jmap：查看堆内存占用情况 jmap - heap 进程 id
 
 上面说到，jdk1.8 中，已经不存在永久代（方法区），替代它的一块空间叫做“元空间”，和永久代类似，都是 JVM 规范对方法区的实现，但是元空间并不在虚拟机中，而是使用本地内存，元空间的大小仅受本地内存限制，但可以通过-XX:MetaspaceSize 和-XX:MaxMetaspaceSize 来指定元空间的大小。
 
-## JVM关闭
+## JVM 关闭
 
 正常关闭：
 
 - 所有守护线程执行结束
 - System.exit()
 - ctrl + C
-- kill (-15) SIGTERM信号 
+- kill (-15) SIGTERM 信号
 
 异常关闭
 
@@ -114,19 +114,17 @@ Jmap：查看堆内存占用情况 jmap - heap 进程 id
 
 强制关闭
 
-- kill -9 SIGKILL信号
+- kill -9 SIGKILL 信号
 - Runtime.halt()
 - 断电
 - 系统关机
-- 系统carsh
+- 系统 carsh
 
 # 二：垃圾回收机制
 
-为什么 Java要进行垃圾回收？
+为什么 Java 要进行垃圾回收？
 
 垃圾回收可以有效的防止内存泄露，有效的使用可以使用的内存。
-
-
 
 垃圾回收，就是通过垃圾收集器把内存中没用的对象清理掉。垃圾回收涉及到的内容有：
 
@@ -272,6 +270,10 @@ gc，STW 的时 间更长
 
 1.9 默认的是 G1
 
+G1 适用于 8/16G 以上的内存适用，清理垃圾时虽然 STW，但是是可控的.
+
+CMS 并发但是不可控
+
 ## （1）串行 Serial
 
 单线程，堆内存较小，适合个人电脑
@@ -322,11 +324,18 @@ CMS 是基于“标记-清除”算法实现的，整个过程分为 4 个步骤
 
 上图中，初始标记和重新标记时，需要 stop the world。整个过程中耗时最长的是并发标记和并发清除，这两个过程都可以和用户线程一起工作。
 
+优点：
+
+- 支持并发收集.
+- 低停顿,
+
 缺点：
 
 1、CMS 收集器对 CPU 资源非常敏感。
 
 2、CMS 收集器无法处理浮动垃圾（Floating Garbage，就是指在之前判断该对象不是垃圾，由于用户线程同时也是在运行过程中的，所以会导致判断不准确的， 可能在判断完成之后在清除之前这个对像已经变成了垃圾对象，所以有可能本该此垃圾被回收但是没有被回收，只能等待下一次 GC 再将该对象回收，所以这种对像就是浮动垃圾）可能出现“Concurrent Mode Failure”失败而导致另一次 Full GC 的产生
+
+3，采用标记清理算法，清理后可能会产生大量的内存碎片
 
 ## （3）响应时间优先
 
@@ -342,7 +351,7 @@ CMS 是基于“标记-清除”算法实现的，整个过程分为 4 个步骤
 
 ## （4）G1
 
-适用场景
+**适用场景**
 
 同时注重吞吐量（Throughput）和低延迟（Low latency），默认的暂停目标是 200 ms
 
@@ -352,23 +361,25 @@ CMS 是基于“标记-清除”算法实现的，整个过程分为 4 个步骤
 
 软实时，低延时
 
-G1的内存布局不再是新生代老年代等等的了，变成了，
+G1 的内存布局不再是新生代老年代等等的了，变成了，
 
 ![image-20210224180008868](media/image-20210224180008868.png)
 
 跨代引用，
 
-Card Table  和 Remebered Set（记住谁引用了我）
+Card Table 和 Remebered Set（记住谁引用了我）
 
 Writer Barrier（写屏障）
 
 流程：
 
-1：Fully young GC 完全的年轻代GC，产生一个STW，构建CS（Eden + Surivor），扫描GC Rooot，排空Dirty Card Queue，处理 RS （找到被老年代所引用的对象），
+1：Fully young GC 完全的年轻代 GC，产生一个 STW，构建 CS（Eden + Surivor），扫描 GC Rooot，排空 Dirty Card Queue，处理 RS （找到被老年代所引用的对象）适用卡表（Card Table）进行卡标记（card Marking）来解决老年代与新生代直接的引用问题。
+
+具体是，使用卡表（Card Table）和写屏障（Write Barrier）来进行标记并加快对 GC Roots 的扫描。卡表的设计师将堆内存平均分成 2 的 N 次方大小（默认 512 字节）个卡，并且维护一个卡表，用来储存每个卡的标识位。当对一个对象引用进行写操作时（对象引用改变），写屏障逻辑将会标记对象所在的卡页为脏页。在 YGC 只需要扫描卡表中的脏卡，将脏中的对象加入到 YGC 的 GC Roots 里面。当完成所有脏卡扫描时候，虚拟机会将卡表的脏卡标志位清空。
 
 2：Old GC：并发标记进行，三色标记算法，
 
-3：Mixed GC：进行老年代和新生代一起，他是和youngGC是完全相同的拷贝算法。默认1/8的老年代。
+3：Mixed GC：进行老年代和新生代一起，他是和 youngGC 是完全相同的拷贝算法。默认 1/8 的老年代。
 
 \-XX:+UseG1GC
 
@@ -378,13 +389,24 @@ Writer Barrier（写屏障）
 
 ![](media/27e343c0ebd762ccdc104ffbfc8f4be7.png)
 
-### 1：YoungCollection
+优点：
 
-### 2：YoungCollection+CM
+- 并行与并发
+- 管理不同的代
+- 没有内存碎片，整体上是标记整理算法，从局部看（相关的两块 Region）看是复制算法，都不会产生内存碎片。
+- 可控的 STW
 
-### 3：Mixed Collection
+缺点：
 
-### 4：fullGC
+- 卡表占用了大量的内存
+
+1：YoungCollection
+
+2：YoungCollection+CM
+
+3：Mixed Collection
+
+4：fullGC
 
 SerialGC
 
@@ -1475,7 +1497,7 @@ jmap
 
 5）jmap -help：jmap 命令帮助信息
 
- 6）jmap -dump:file=a 10340：jmap 下载堆信息文件，查看信息需要下载专门的工具
+6）jmap -dump:file=a 10340：jmap 下载堆信息文件，查看信息需要下载专门的工具
 
 jstat 每个一定时间监控内存使用情况
 
