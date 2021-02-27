@@ -98,6 +98,28 @@ Jmap：查看堆内存占用情况 jmap - heap 进程 id
 
 上面说到，jdk1.8 中，已经不存在永久代（方法区），替代它的一块空间叫做“元空间”，和永久代类似，都是 JVM 规范对方法区的实现，但是元空间并不在虚拟机中，而是使用本地内存，元空间的大小仅受本地内存限制，但可以通过-XX:MetaspaceSize 和-XX:MaxMetaspaceSize 来指定元空间的大小。
 
+## JVM关闭
+
+正常关闭：
+
+- 所有守护线程执行结束
+- System.exit()
+- ctrl + C
+- kill (-15) SIGTERM信号 
+
+异常关闭
+
+- RuntimeException
+- OOM
+
+强制关闭
+
+- kill -9 SIGKILL信号
+- Runtime.halt()
+- 断电
+- 系统关机
+- 系统carsh
+
 # 二：垃圾回收机制
 
 为什么 Java要进行垃圾回收？
