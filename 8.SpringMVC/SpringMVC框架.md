@@ -1,4 +1,4 @@
-﻿第1章 ：SpringMVC的基本概念 
+﻿# 第1章 ：SpringMVC的基本概念 
 
 ## 1.1 关于三层架构和MVC 
 
@@ -335,7 +335,7 @@ SpringMVC框架提供了很多的View视图类型的支持，包括：jstlView�
 
 ## 3.1 绑定说明 
 
-### 3.1.1 绑定的机制 
+###  绑定的机制 
 
 我们都知道，表单中请求参数都是基于key=value的。
 
@@ -343,612 +343,75 @@ SpringMVC绑定请求参数的过程是通过把表单提交请求参数，作�
 
 例如：
 
-\<a href=*"account/findAccount?accountId=10"*\>查询账户\</a\>
+```html
+<a href=*"account/findAccount?accountId=10"*\>查询账户\</a\>
+```
 
 中请求参数是：
 
 **accountId=10**
 
-/\*\*
-
-\* 查询账户
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping("/findAccount")
-
-**public** String findAccount(Integer accountId) {
-
-System.**out**.println("查询了账户。。。。"+accountId);
-
-**return** "success";
+```java
+@RequestMapping("/findAccount")
+public String findAccount(Integer accountId) {
+	System.**out**.println("查询了账户。。。。"+accountId);
+	return "success";
 
 }
+```
 
-### 3.1.2 支持的数据类型： 
+### 接受前端参数的几种方式：
 
-基本类型参数：
+1：普通方式-请求参数名与Controller方法名参数一致。
 
-包括基本类型和String类型
+2：对象方式：请求参数名和Controller方法中的对象的参数一致
 
-**POJO**类型参数：
+3：自定义方法参数名：当请求参数名与方法参数名不一致时
 
-包括实体类，以及关联的实体类
+可以在参数中增加@RequestParam注解。如果在方法中的参数增加了该注解，说明请求的url必须带该带有该参数，否则不能执行该方法。如果在方法中的参数没有增加该注解，说明请求的url无需带有该参数，也能继续执行该方法。
 
-数组和集合类型参数：
+　　@RequestParam(defaultValue="0")可设置默认值(仅当传入参数为空时)。
 
-包括List结构和Map结构的集合（包括数组）
+　　@RequestParam(value="id")可接受传入参数为id的值，覆盖该注解注释的字段。
 
-SpringMVC绑定请求参数是自动实现的，但是要想使用，必须遵循使用要求。
+　　@RequestParam(name="name",defaultValue = "李四") String u_name  如果传入字段”name”为空，默认u_name的值为”李四”。若传入”name”不为空，默认u_name值为传入值。
 
-### 3.1.3 要求： 
+```java
+@RequestMapping(value = "/addByDifName", method = RequestMethod.GET, produces = {"application/json;charset=UTF-8"})
+@ResponseBody
+public String addUserByDifName(@RequestParam("name") String u_name, @RequestParam("pwd")String u_pwd){
+```
 
-如果是基本类型或者**String**类型：
+4：HttpServletRequest方式
 
-要求我们的参数名称必须和控制器中方法的形参名称保持一致。(严格区分大小写)
-
-如果是**POJO**类型，或者它的关联对象：
-
-要求表单中参数名称和POJO类的属性名称保持一致。并且控制器方法的参数类型是POJO类型。
-
-如果是集合类型**,**有两种方式：
-
-第一种：
-
-要求集合类型的请求参数必须在POJO中。在表单中请求参数名称要和POJO中集合属性名称相同。
-
-给List集合中的元素赋值，使用下标。
-
-给Map集合中的元素赋值，使用键值对。
-
-第二种：
-
-接收的请求参数是json格式数据。需要借助一个注解实现。
-
-注意**:**
-
-它还可以实现一些数据类型自动转换。内置转换器全都在：
-
-org.springframework.core.convert.support包下。有：
-
-java.lang.Boolean -\> java.lang.String : ObjectToStringConverter
-
-java.lang.Character -\> java.lang.Number : CharacterToNumberFactory
-
-java.lang.Character -\> java.lang.String : ObjectToStringConverter
-
-java.lang.Enum -\> java.lang.String : EnumToStringConverter
-
-java.lang.Number -\> java.lang.Character : NumberToCharacterConverter
-
-java.lang.Number -\> java.lang.Number : NumberToNumberConverterFactory
-
-java.lang.Number -\> java.lang.String : ObjectToStringConverter
-
-java.lang.String -\> java.lang.Boolean : StringToBooleanConverter
-
-java.lang.String -\> java.lang.Character : StringToCharacterConverter
-
-java.lang.String -\> java.lang.Enum : StringToEnumConverterFactory
-
-java.lang.String -\> java.lang.Number : StringToNumberConverterFactory
-
-java.lang.String -\> java.util.Locale : StringToLocaleConverter
-
-java.lang.String -\> java.util.Properties : StringToPropertiesConverter
-
-java.lang.String -\> java.util.UUID : StringToUUIDConverter
-
-java.util.Locale -\> java.lang.String : ObjectToStringConverter
-
-java.util.Properties -\> java.lang.String : PropertiesToStringConverter
-
-java.util.UUID -\> java.lang.String : ObjectToStringConverter
-
-......
-
-如遇特殊类型转换要求，需要我们自己编写自定义类型转换器。
-
-### 3.1.4 示例 
-
-**3.1.4.1** 基本类型和**String**类型作为参数
-
-**jsp**代码：
-
-\<!-- 基本类型示例 --\>
-
-\<a
-href=*"account/findAccount?accountId=10&accountName=zhangsan"*\>查询账户\</a\>
-
-控制器代码：
-
-/\*\*
-
-\* 查询账户
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping("/findAccount")
-
-**public** String findAccount(Integer accountId,String accountName) {
-
-System.**out**.println("查询了账户。。。。"+accountId+","+accountName);
-
-**return** "success";
-
+```java
+@RequestMapping(value = "/addByHttpServletRequest", method = RequestMethod.GET, produces = {"application/json;charset=UTF-8"})
+@ResponseBody
+public String addUserByHttpServletRequest(HttpServletRequest request){
+    String name = request.getParameter("name");
+    String pwd = request.getParameter("pwd");
 }
+```
 
-运行结果：
+5：@PathVariable获取路径中的参数接收
 
-**3.1.4.2 POJO**类型作为参数
+```java
+@RequestMapping(value = "/add/{name}/{pwd}", method = RequestMethod.GET, produces = {"application/json;charset=UTF-8"})
+@ResponseBody
+public String addUserByPathVariable(@PathVariable String name, @PathVariable String pwd){
+```
 
-实体类代码：
+6：@RequestBody
 
+JSON方式提交
 
-**public class** Account **implements** Serializable {
+![image-20210302210444543](media/image-20210302210444543.png)
 
-**private** Integer id;
-
-**private** String name;
-
-**private** Float money;
-
-**private** Address address;
-
-//getters and setters
-
-}
-
-
-**public class** Address **implements** Serializable {
-
-**private** String provinceName;
-
-**private** String cityName;
-
-//getters and setters
-
-}
-
-**jsp**代码：
-
-\<!-- pojo类型演示 --\>
-
-\<form action=*"account/saveAccount"* method=*"post"*\>
-
-账户名称：\<input type=*"text"* name=*"name"* \>\<br/\>
-
-账户金额：\<input type=*"text"* name=*"money"* \>\<br/\>
-
-账户省份：\<input type=*"text"* name=*"address.provinceName"* \>\<br/\>
-
-账户城市：\<input type=*"text"* name=*"address.cityName"* \>\<br/\>
-
-\<input type=*"submit"* value=*"*保存*"*\>
-
-\</form\>
-
-控制器代码：
-
-/\*\*
-
-\* 保存账户
-
-\* **\@param** account
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping("/saveAccount")
-
-**public** String saveAccount(Account account) {
-
-System.**out**.println("保存了账户。。。。"+account);
-
-**return** "success";
-
-}
-
-运行结果：
-
-**3.1.4.3 POJO**类中包含集合类型参数
-
-实体类代码：
-
-**public class** User **implements** Serializable {
-
-**private** String username;
-
-**private** String password;
-
-**private** Integer age;
-
-**private** List\<Account\> accounts;
-
-**private** Map\<String,Account\> accountMap;
-
-//getters and setters
-
-\@Override
-
-**public** String toString() {
-
-**return** "User [username=" + username + ", password=" + password + ", age=" +
-age + ",\\n accounts=" + accounts
-
-\+ ",\\n accountMap=" + accountMap + "]";
-
-}
-
-}
-
-**jsp**代码：
-
-\<!-- POJO类包含集合类型演示 --\>
-
-\<form action=*"account/updateAccount"* method=*"post"*\>
-
-用户名称：\<input type=*"text"* name=*"username"* \>\<br/\>
-
-用户密码：\<input type=*"password"* name=*"password"* \>\<br/\>
-
-用户年龄：\<input type=*"text"* name=*"age"* \>\<br/\>
-
-账户1名称：\<input type=*"text"* name=*"accounts[0].name"* \>\<br/\>
-
-账户1金额：\<input type=*"text"* name=*"accounts[0].money"* \>\<br/\>
-
-账户2名称：\<input type=*"text"* name=*"accounts[1].name"* \>\<br/\>
-
-账户2金额：\<input type=*"text"* name=*"accounts[1].money"* \>\<br/\>
-
-账户3名称：\<input type=*"text"* name=*"accountMap['one'].name"* \>\<br/\>
-
-账户3金额：\<input type=*"text"* name=*"accountMap['one'].money"* \>\<br/\>
-
-账户4名称：\<input type=*"text"* name=*"accountMap['two'].name"* \>\<br/\>
-
-账户4金额：\<input type=*"text"* name=*"accountMap['two'].money"* \>\<br/\>
-
-\<input type=*"submit"* value=*"*保存*"*\>
-
-\</form\>
-
-控制器代码：
-
-/\*\*
-
-\* 更新账户
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping("/updateAccount")
-
-**public** String updateAccount(User user) {
-
-System.**out**.println("更新了账户。。。。"+user);
-
-**return** "success";
-
-}
-
-运行结果：
-
-**3.1.4.4** 请求参数乱码问题
-
-**post**请求方式：
-
-在web.xml中配置一个过滤器
-
-\<!-- 配置springMVC编码过滤器 --\>
-
-\<filter\>
-
-\<filter-name\>CharacterEncodingFilter\</filter-name\>
-
-\<filter-class\>
-
-org.springframework.web.filter.CharacterEncodingFilter
-
-\</filter-class\>
-
-\<!-- 设置过滤器中的属性值 --\>
-
-\<init-param\>
-
-\<param-name\>encoding\</param-name\>
-
-\<param-value\>UTF-8\</param-value\>
-
-\</init-param\>
-
-\<!-- 启动过滤器 --\>
-
-\<init-param\>
-
-\<param-name\>forceEncoding\</param-name\>
-
-\<param-value\>true\</param-value\>
-
-\</init-param\>
-
-\</filter\>
-
-\<!-- 过滤所有请求 --\>
-
-\<filter-mapping\>
-
-\<filter-name\>CharacterEncodingFilter\</filter-name\>
-
-\<url-pattern\>/\*\</url-pattern\>
-
-\</filter-mapping\>
-
-在springmvc的配置文件中可以配置，静态资源不过滤：
-
-\<!-- location表示路径，mapping表示文件，\*\*表示该目录下的文件以及子目录的文件
---\>
-
-**\<mvc:resources** location="/css/" mapping="/css/\*\*"**/\>**
-
-**\<mvc:resources** location="/images/" mapping="/images/\*\*"**/\>**
-
-**\<mvc:resources** location="/scripts/" mapping="/javascript/\*\*"**/\>**
-
-**get**请求方式：
-
-tomacat对GET和POST请求处理方式是不同的，GET请求的编码问题，要改tomcat的server.xml配置文件，如下：
-
-\<Connector connectionTimeout="20000" port="8080"
-
-protocol="HTTP/1.1" redirectPort="8443"/\>
-
-改为：
-
-\<Connector connectionTimeout="20000" port="8080"
-
-protocol="HTTP/1.1" redirectPort="8443"
-
-useBodyEncodingForURI="true"/\>
-
-如果遇到ajax请求仍然乱码，请把：
-
-useBodyEncodingForURI="true"改为**URIEncoding**="UTF-8"
-
-即可。
-
-## 3.2 特殊情况 
-
-### 3.2.1 自定义类型转换器 
-
-**3.2.1.1** 使用场景:
-
-**jsp**代码：
-
-\<!-- 特殊情况之：类型转换问题 --\>
-
-\<a href=*"account/deleteAccount?date=2018-01-01"*\>根据日期删除账户\</a\>
-
-控制器代码：
-
-/\*\*
-
-\* 删除账户
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping("/deleteAccount")
-
-**public** String deleteAccount(String date) {
-
-System.**out**.println("删除了账户。。。。"+date);
-
-**return** "success";
-
-}
-
-运行结果：
-
-当我们把控制器中方法参数的类型改为**Date**时：
-
-/\*\*
-
-\* 删除账户
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping("/deleteAccount")
-
-**public** String deleteAccount(Date date) {
-
-System.**out**.println("删除了账户。。。。"+date);
-
-**return** "success";
-
-}
-
-运行结果：
-
-异常提示：
-
-Failed to bind request element:
-
-org.springframework.web.method.annotation.MethodArgumentTypeMismatchException:
-
-Failed to convert value of type 'java.lang.String' to required type
-
-'java.util.Date'; nested exception is
-
-org.springframework.core.convert.ConversionFailedException:
-
-Failed to convert from type [java.lang.String] to type [java.util.Date] for
-value '2018-01-01'; nested exception is java.lang.IllegalArgumentException
-
-**3.2.1.2** 使用步骤
-
-第一步：定义一个类，实现**Converter**接口，该接口有两个泛型。
-
-**public interface** Converter\<S, T\> {//S:表示接受的类型，T：表示目标类型
-
-/\*\*
-
-\* 实现类型转换的方法
-
-\*/
-
-\@Nullable
-
-T convert(S source);
-
-}
-
-
-**public class** StringToDateConverter **implements** Converter\<String, Date\>
-{
-
-/\*\*
-
-\* 用于把String类型转成日期类型
-
-\*/
-
-\@Override
-
-**public** Date convert(String source) {
-
-DateFormat format = **null**;
-
-**try** {
-
-**if**(StringUtils.*isEmpty*(source)) {
-
-**throw new** NullPointerException("请输入要转换的日期");
-
-}
-
-format = **new** SimpleDateFormat("yyyy-MM-dd");
-
-Date date = format.parse(source);
-
-**return** date;
-
-} **catch** (Exception e) {
-
-**throw new** RuntimeException("输入日期有误");
-
-}
-
-}
-
-}
-
-第二步：在**spring**配置文件中配置类型转换器。
-
-spring配置类型转换器的机制是，将自定义的转换器注册到类型转换服务中去。
-
-\<!-- 配置类型转换器工厂 --\>
-
-\<bean id=*"converterService"*
-
-class=*"org.springframework.context.support.ConversionServiceFactoryBean"*\>
-
-\<!-- 给工厂注入一个新的类型转换器 --\>
-
-\<property name=*"converters"*\>
-
-\<array\>
-
-\<!-- 配置自定义类型转换器 --\>
-
-\<bean class=*"com.xqc.web.converter.StringToDateConverter"*\>\</bean\>
-
-\</array\>
-
-\</property\>
-
-\</bean\>
-
-第三步：在**annotation-driven**标签中引用配置的类型转换服务
-
-\<!-- 引用自定义类型转换器 --\>
-
-\<mvc:annotation-driven
-conversion-service=*"converterService"*\>\</mvc:annotation-driven\>
-
-运行结果：
-
-### 3.2.2 使用ServletAPI对象作为方法参数 
-
-SpringMVC还支持使用原始ServletAPI对象作为控制器方法的参数。支持原始ServletAPI对象有：
-
-**HttpServletRequest**
-
-**HttpServletResponse**
-
-**HttpSession**
-
-**java.security.Principal**
-
-**Locale**
-
-**InputStream**
-
-**OutputStream**
-
-**Reader**
-
-**Writer**
-
-我们可以把上述对象，直接写在控制的方法参数中使用。
-
-部分示例代码：
-
-**jsp**代码：
-
-\<!-- 原始ServletAPI作为控制器参数 --\>
-
-\<a href=*"account/testServletAPI"*\>测试访问ServletAPI\</a\>
-
-控制器中的代码：
-
-/\*\*
-
-\* 测试访问testServletAPI
-
-\* \@return
-
-\*/
-
-\@RequestMapping("/testServletAPI")
-
-**public** String testServletAPI(HttpServletRequest request,
-
-HttpServletResponse response,
-
-HttpSession session) {
-
-System.**out**.println(request);
-
-System.**out**.println(response);
-
-System.**out**.println(session);
-
-**return** "success";
-
-}
-
-执行结果：
+```java
+@RequestMapping(value = "/addByObjectJSON", produces = {"application/json;charset=UTF-8"})
+@ResponseBody
+public String addUserByObjectJSON(@RequestBody User user){
+```
 
 # 第4章 常用注解
 
