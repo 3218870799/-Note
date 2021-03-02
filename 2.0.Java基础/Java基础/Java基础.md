@@ -375,6 +375,10 @@ Java 为什么只能单继承？
 
 是指同一行为，具有多个不同表现形式。
 
+实现原理：动态绑定，方法表
+
+虚拟机栈中会存放当前方法调用的栈帧，在栈帧中，存储着局部变量表、操作栈、动态连接 、返回地址和其他附加信息。多态的实现过程，就是方法调用动态分派的过程，通过栈帧的信息去找到被调用方法的具体实现，然后使用这个具体实现的直接引用完成方法调用。
+
 ### 4.4：内部类
 
 ```java
@@ -2096,29 +2100,25 @@ RejectedExecutionHandler 接口，自定义饱和策略，如记录日志或持�
 
 执行流程：
 
-1、如果线程池当前线程数量少于corePoolSize，则addWorker(command, true)创建新worker线程，如果创建成功返回，没创建成功，则执行后续步骤；
+1、如果线程池当前线程数量少于 corePoolSize，则 addWorker(command, true)创建新 worker 线程，如果创建成功返回，没创建成功，则执行后续步骤；
 
 addWorker(command, true)失败的原因可能是：
 
-- 线程池已经shutdown，shutdown的线程池不再接收新任务
-- workerCountOf(c) < corePoolSize 判断后，由于并发，别的线程先创建了worker线程，导致workerCount>=corePoolSize
+- 线程池已经 shutdown，shutdown 的线程池不再接收新任务
+- workerCountOf(c) < corePoolSize 判断后，由于并发，别的线程先创建了 worker 线程，导致 workerCount>=corePoolSize
 
-2、如果线程池还在running状态，将task加入workQueue阻塞队列中，如果加入成功，进行double-check，如果加入失败（可能是队列已满），则执行后续步骤；
+2、如果线程池还在 running 状态，将 task 加入 workQueue 阻塞队列中，如果加入成功，进行 double-check，如果加入失败（可能是队列已满），则执行后续步骤；
 
-double-check主要目的是：判断刚加入workQueue阻塞队列的task是否能被执行
+double-check 主要目的是：判断刚加入 workQueue 阻塞队列的 task 是否能被执行
 
-- 如果线程池已经不是running状态了，应该拒绝添加新任务，从workQueue中删除任务
-- 如果线程池是运行状态，或者从workQueue中删除任务失败（刚好有一个线程执行完毕，并消耗了这个任务），确保还有线程执行任务（只要有一个就够了）
+- 如果线程池已经不是 running 状态了，应该拒绝添加新任务，从 workQueue 中删除任务
+- 如果线程池是运行状态，或者从 workQueue 中删除任务失败（刚好有一个线程执行完毕，并消耗了这个任务），确保还有线程执行任务（只要有一个就够了）
 
- 3、如果线程池不是running状态 或者 无法入队列，尝试开启新线程，扩容至maxPoolSize，如果addWork(command, false)失败了，拒绝当前command。
-
-
+3、如果线程池不是 running 状态 或者 无法入队列，尝试开启新线程，扩容至 maxPoolSize，如果 addWork(command, false)失败了，拒绝当前 command。
 
 **submit（）**
 
 提交任务，能够返回执行结果 execute + Future
-
-
 
 **shutdown（）**
 
@@ -2126,21 +2126,19 @@ double-check主要目的是：判断刚加入workQueue阻塞队列的task是否�
 
 执行流程：
 
-1、上锁，mainLock是线程池的主锁，是可重入锁，当要操作workers set这个保持线程的HashSet时，需要先获取mainLock，还有当要处理largestPoolSize、completedTaskCount这类统计数据时需要先获取mainLock
+1、上锁，mainLock 是线程池的主锁，是可重入锁，当要操作 workers set 这个保持线程的 HashSet 时，需要先获取 mainLock，还有当要处理 largestPoolSize、completedTaskCount 这类统计数据时需要先获取 mainLock
 
-2、判断调用者是否有权限shutdown线程池
+2、判断调用者是否有权限 shutdown 线程池
 
-3、使用CAS操作将线程池状态设置为shutdown，shutdown之后将不再接收新任务
+3、使用 CAS 操作将线程池状态设置为 shutdown，shutdown 之后将不再接收新任务
 
 4、中断所有空闲线程 interruptIdleWorkers()
 
-5、onShutdown()，ScheduledThreadPoolExecutor中实现了这个方法，可以在shutdown()时做一些处理
+5、onShutdown()，ScheduledThreadPoolExecutor 中实现了这个方法，可以在 shutdown()时做一些处理
 
 6、解锁
 
 7、尝试终止线程池 tryTerminate()
-
-
 
 shutdownNow（）：关闭线程池，不等待任务执行完
 
@@ -2488,6 +2486,10 @@ ReentrantLock、CountDownLatch、CycleBarrier 底层都是通过 AQS 来实现�
 
 **AQS 的核心思想**：如果被请求的共享资源空闲，则将当前请求的资源的线程设置为有效的工作线程，并将共享资源设置为锁定状态，如果被请求的共享资源被占用，那么就需要一套线程阻塞等待以及唤醒时锁分配的机制，这个 AQS 是用 CLH 队列锁实现的，即将暂时获取不到的锁的线程加入到队列中。CLH 队列是一个虚拟的双向队列，虚拟的双向队列即不存在队列的实例，仅存在节点之间的关联关系。
 
+AtomicInteger state，具体含义由子类实现，子类必须实现更改方法，必须是一个内部类。
+
+有新进程来竞争该资源，拿不到就要添加的队列尾部，
+
 AQS 是将每一条请求共享资源的线程封装成一个 CLH 锁队列的一个结点（Node），来实现锁的分配
 
 AQS 就是基于 CLH 队列，用 volatile 修饰共享变量 state，线程通过 CAS 去改变状态符，成功则获取锁成功，失败则进入等待队列，同时等待被唤醒。
@@ -2525,6 +2527,8 @@ CountDownLatch
 
 - acquire() 和 acquireShared() 两种方式下，线程在等待队列中都是忽略中断的
 - acquireInterruptibly() 和 acquireSharedInterruptibly() 是支持响应中断的
+
+同步器一般包含两种方法，一种是 acquire，另一种是 release。acquire 操作阻塞调用的线程，直到或除非同步状态允许其继续执行。而 release 操作则是通过某种方式改变同步状态，使得一或多个被 acquire 阻塞的线程继续执行
 
 ## 5.6：线程协作
 
@@ -2645,7 +2649,7 @@ unsafe 类是 CAS 的核心类，Java 无法直接访问底层操作系统，而
 
 6：Condition 控制线程通信
 
-7：**ReadWriteLock 读写锁**
+###
 
 8：**线程 8 锁**
 
@@ -2654,8 +2658,6 @@ unsafe 类是 CAS 的核心类，Java 无法直接访问底层操作系统，而
 提供了一个基于 FIFO 队列
 
 **6.1 ConcurrentHashMap**
-
-**6.2 ReentrantLock**
 
 **6.3 Condition**
 
@@ -2689,6 +2691,14 @@ ReenTrantLock 提供了一种能够中断等待锁的线程的机制，通过 lo
 
 ReentantLock 相比于 Synchronized 可以更方便的获取锁，可以操作读写锁，可以唤醒指定线程等等，
 
+### ReetrantReadWriteLock 读写锁
+
+Read 的时候是共享锁，Write 的时候是排它锁（互斥锁），默认使用非公平方式获取锁，可重入锁
+
+锁降级：从写锁变成读锁，支持
+
+锁升级：从读锁变成写锁，不支持，会产生死锁。
+
 ### 1，CountDownLatch
 
 让一些线程阻塞直到另一些线程完成一系列操作才被唤醒
@@ -2700,6 +2710,16 @@ CountDownLatch 主要有两个方法，当一个或多个线程调用 await 方�
 与 CountDownLatch 相反，这个类是为了帮助猿友们方便的实现多个线程一起启动的场景，就像赛跑一样，只要大家都准备好了，那就开始一起冲。也就是做加法。
 
 CyclicBarrier 的字面意思就是可循环（cyclic）使用的屏障（Barrier）。它要求做的事情是，让一组线程到达一个屏障（也可以叫同步点）时被阻塞，直到最后一个线程到达屏障时，屏障才会开门，所有被屏障拦截的线程才会继续干活，线程进入屏障通过 CyclicBarrier 的 await 方法。都是通过维护计数器来实现的。线程执行 await() 方法之后计数器会减 1，
+
+### ConditionObject 通知
+
+synchronized 控制同步的时候，可以配合 Object 的 wait(),notify(),notifyAll()系列方法实现等待/通知模式，而 Lock，它提供了条件 Condition 接口，配合 await(),signal(),signalAll()等方法也可以实现等待/通知机制。ConditionObject 实现了 Condition 接口，给 AQS 提供条件变量的支持。
+
+一个 Condition 包含一个等待队列，Condition 拥有节点（firstWaiter）和尾节点（lastWaiter），当前线程调用 Condition.await()方法，将会以当前线程构造节点，并将节点从尾部加入等待队列。
+
+![image-20210302094438500](media/image-20210302094438500.png)
+
+调用 Condition 的 signal 方法，将会唤醒在等待队列中等待时间最久的节点（首节点—），在唤醒节点之前，会将节点移动同步队列中。
 
 ### 3，Semaphore 信号量
 
@@ -3206,6 +3226,20 @@ linux 的步骤：
 提供了最高级网络应用。URL 的网络资源的位置来同一表示 Internet 上各种网络资源。通过 URL 对象可以创建当前应用程序和 URL 表示的网络资源之 间的连接，这样当前程序就可以读取网络资源数据，或者把自己的数据传送到网络上去。
 
 # 八：JDBC
+
+数据库连接池的实现：
+
+数据库连接池的基本思想就是为数据库连接建立一个“缓冲池”
+
+预先在缓冲池中放入一定数量的连接，当需要建立数据库连接时，只需从“缓冲池”中取出一个，使用完毕之后再放回去。我们可以通过设定连接池最大连接数来防止系统无尽的与数据库连接。
+
+编写 class 实现 DataSource 接口
+
+在 class 构造器一次性创建 10 个连接，将连接保存 LinkedList
+
+实现 getConnection 从 LinkedList 中返回一个连接
+
+提供将连接放回连接池中方法
 
 # 九：特性
 
