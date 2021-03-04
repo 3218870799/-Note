@@ -1329,8 +1329,6 @@ Feign 支持可插拔式的编码器和解码器，SpringCloud 对 Feign 进行�
 
 
 
-
-
 ### 使用 OpenFeign
 
 之前的服务间调用,我们使用的是ribbon+RestTemplate，现在改为使用Feign
@@ -1339,23 +1337,71 @@ Feign 支持可插拔式的编码器和解码器，SpringCloud 对 Feign 进行�
 
 名字 cloud_order_feign-80
 
-2,pom 文件
+pom 文件
 
-3,配置文件
+```xml
+<!--openfeign-->
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-openfeign</artifactId>
+</dependency>
+```
+
+配置文件
+
+
 
 ![](.\media\Feign的4.png)
 
-4,主启动类
+主启动类
 
-![](.\media\Feign的5.png)
+```java
+@SpringBootApplication
+@EnableFeignClients
+public class OrderFeignMain80 {
+    public static void main(String[] args) {
+        SpringApplication.run(OrderFeignMain80.class, args);
+    }
+}
+```
 
 5,fegin 需要调用的其他的服务的接口
 
-![](.\media\Feign的6.png)
+```java
+@Component
+@FeignClient(value = "cloud-payment-service")
+public interface PaymentFeignService {
+
+    @GetMapping(value = "/payment/get/{id}")
+    public CommonResult<Payment> getPaymentById(@PathVariable("id") Long id);
+
+    @GetMapping("/payment/feign/timeout")
+    public String paymentFeignTimeout();
+}
+```
 
 6,controller
 
-![](.\media\Feign的7.png)
+```java
+@RestController
+@Slf4j
+public class OrderFeignController {
+    @Resource
+    private PaymentFeignService paymentFeignService;
+
+    @GetMapping(value = "/consumer/payment/get/{id}")
+    public CommonResult<Payment> getPaymentById(@PathVariable("id") Long id){
+        CommonResult<Payment> paymentById = paymentFeignService.getPaymentById(id);
+        return paymentById;
+    }
+
+    @GetMapping("/consumer/payment/feign/timeout")
+    public String paymentFeignTimeout(){
+        //open-feign-ribbon,客户端默认等待一秒钟
+        return paymentFeignService.paymentFeignTimeout();
+    }
+}
+```
 
 7 测试:
 
@@ -1375,7 +1421,14 @@ Feign 支持可插拔式的编码器和解码器，SpringCloud 对 Feign 进行�
 
 **因为 OpenFeign 的底层是 ribbon 进行负载均衡,所以它的超时时间是由 ribbon 控制**
 
-![](.\media\Feign的8.png)
+```properties
+# 设置feign客户端超时时间(OpenFeign默认支持ribbon)
+ribbon:
+  # 指的是建立连接所用的时间,适用于网络状态正常的情况下,两端连接所用的时间
+  ReadTimeout: 5000
+  # 指的是建立连接后从服务器读取到可用资源所用的时间
+  ConnectTimeout: 5000
+```
 
 ### OpenFeign 日志
 
@@ -1397,15 +1450,42 @@ FULL：除了 HEADERS 中定义的信息以外，还有请求和响应的正文�
 
 **实现在配置类中添加 OpenFeign 的日志类**
 
-![](.\media\Feign的11.png)
+```java
+@Configuration
+public class FeignConfig {
+    /**
+     * feignClient配置日志级别
+     *
+     * @return
+     */
+    @Bean
+    public Logger.Level feignLoggerLevel() {
+        // 请求和响应的头信息,请求和响应的正文及元数据
+        return Logger.Level.FULL;
+    }
+}
+```
 
-#### 2,为指定类设置日志级别:
 
-![](.\media\Feign的13.png)
+
+#### 2,为指定类设置日志级别
+
+```java
+@Component
+@FeignClient(value="CLOUD-PAYMENT-SERVICE")
+public interface PaymentFeignService{
+    
+}
+```
 
 **配置文件中:**
 
-![](.\media\Feign的12.png)
+```yml
+logging:
+  level:
+    # feign日志以什么级别监控哪个接口
+    com.xqc.springcloud.service.PaymentFeignService: debug
+```
 
 #### 3,启动服务即可
 
