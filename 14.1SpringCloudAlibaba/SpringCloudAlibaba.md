@@ -34,7 +34,7 @@ Alibaba Cloud OSS：阿里云存储服务，是阿里云提供的海量，安全
 
 # Nacos
 
-### Nacos 与其他服务注册的对比
+## 对比
 
 Nacos 它既可以支持 CP,也可以支持 AP,可以切换
 
@@ -54,33 +54,47 @@ Nacos 它既可以支持 CP,也可以支持 AP,可以切换
 
 Nacos=erueka+config+bus
 
-## 原理
+## 安装
 
-流程：
+Window 安装：
 
-心跳机制：启动微服务时会向 Nacos 建立连接，并发送心跳请求，Nacos 会将其记录下来，如果某个微服务挂掉了，Nacos 定时任务监听微服务是否超出心跳时间，先标记为不健康，还是不行就直接干掉
-
-### 安装 Nacos:
-
-需要 java8 和 Mavne
+需要 java8 和 Maven
 
 **1,到 github 上下载安装包**
 
+https://github.com/alibaba/nacos/releases/tag/2.0.0-BETA
+
 解压安装包
+
+导入数据库脚本：D:\Nacos\conf\nacos_config.sql
+
+启动 mysql
 
 **2,启动 Nacos**
 
-在 bin 下,进入 cod
+在 bin 下,进入 cmd，如果集群直接启动
 
 ./startup.cmd
+
+单机使用单机模式启动
+
+```cmd
+.\startup.cmd -m standalone
+```
 
 **3,访问 Nacos**
 
 Nacos 默认监听 8848
 
-localhost:8848/nacos
+http://localhost:8848/nacos
 
 账号密码:默认都是 nacos
+
+## 原理
+
+流程：
+
+心跳机制：启动微服务时会向 Nacos 建立连接，并发送心跳请求，Nacos 会将其记录下来，如果某个微服务挂掉了，Nacos 定时任务监听微服务是否超出心跳时间，先标记为不健康，还是不行就直接干掉
 
 ### 使用 Nacos:
 
@@ -484,19 +498,23 @@ spring:
 
 ![](media/Alibaba%E7%9A%8454.png)
 
-## 使用 sentinel
+## Window 安装
 
-1,下载 sentinel 的 jar 包
+下载：https://github.com/alibaba/Sentinel/releases是一个Jar包，放到目录下
 
-2,运行 sentinel
+![image-20210304102735678](media/image-20210304102735678.png)
 
-由于是一个 jar 包,所以可以直接 java -jar 运行
+创建一个启动脚本，指定端口为 8070
 
-注意,默认 sentinel 占用 8080 端口
+```cmd
+start java -jar sentinel-dashboard-1.8.1.jar --server.port=8070
+```
 
-3,访问 sentinel
+然后访问：http://localhost:8070/
 
-localhost:8080
+账号：sentinel
+
+密码：sentinel
 
 ## 微服务整合 sentinel:
 
