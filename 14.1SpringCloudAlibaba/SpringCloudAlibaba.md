@@ -650,9 +650,7 @@ start java -jar sentinel-dashboard-1.8.1.jar --server.port=8070
 
    Warm up：根据 codeFactor（冷加载因子，默认 3）的值，从阈值 codeFactor，经过预热时长，才达到设置的 QPS 阈值。
 
-   ![](media/sentinel%E7%9A%8414.png)
-
-   ![](media/sentinel%E7%9A%8415.png)
+   
 
    ![](media/sentinel%E7%9A%8416.png)
 
@@ -1047,11 +1045,11 @@ _![](media/sentinel%E7%9A%8451.png)_
 
 ![](media/sentinel%E7%9A%84%E7%9A%8431.png)
 
-### sentinel 持久化规则
+## 持久化规则
 
 默认规则是临时存储的,重启 sentinel 就会消失
 
-![](media/sentinel%E7%9A%84%E7%9A%8432.png)
+将限流配置规则持久化进Nacos保存，只要刷新8401某个rest地址，sentinel控制台的流控规则就能看到，只要Nacos里面的配置不删除，针对8401删Sentinal上的流控规则持续有效。
 
 **这里以之前的 8401 为案例进行修改:**
 
@@ -1069,23 +1067,72 @@ _![](media/sentinel%E7%9A%8451.png)_
 
 2. 修改配置文件:
 
-   添加:
+   ```yml
+   server:
+     port: 8401
+   
+   spring:
+     application:
+       name: cloudalibaba-sentinel-service
+     cloud:
+       nacos:
+         discovery:
+         	# Nacos服务注册中心地址
+           server-addr: localhost:8848
+           namespace: dev
+         config:
+           server-addr: localhost:8848
+           file-extension: yaml
+           #指定分组
+           group: dev
+           #指定命名空间
+           namespace: dev
+   
+       # 配置Sentinel流控
+       sentinel:
+         transport:
+           #配置Sentinel dashboard地址
+           dashboard: localhost:8070
+           #默认8719端口,如果被占用会向上扫描。
+           port: 8719
+   
+         # sentinel持久化到nacos
+         datasource:
+           flow:
+             nacos:
+               # nacos连接地址
+               server-addr: ${spring.cloud.nacos.discovery.server-addr}
+               # nacos中的配置名称
+               data-id: ${spring.application.name}-flow-rules
+               group-id: DEFAULT_GROUP
+               data-type: json
+               rule-type: flow
+           degrade:
+             nacos:
+               server-addr: ${spring.cloud.nacos.discovery.server-addr}
+               data-id: ${spring.application.name}-degrade-rules
+               group-id: DEFAULT_GROUP
+               data-type: json
+               rule-type: degrade
+   ```
 
-   ![](media/sentinel%E7%9A%84%E7%9A%8433.png)
-
-   **实际上就是指定,我们的规则要保证在哪个名称空间的哪个分组下**
-
-   这里没有指定 namespace, 但是是可以指定的
-
-   **注意,这里的 dataid 要与 8401 的服务名一致**
+   在上面我们分别配置了sentinel的流控规则和降级规则
 
 3. **在 nacos 中创建一个配置文件,dataId 就是上面配置文件中指定的**
 
+   
+
    ![](media/sentinel%E7%9A%84%E7%9A%8434.png)
 
-   ==json 中,这些属性的含义:==
+   json 中,这些属性的含义:
 
-   ![](media/sentinel%E7%9A%84%E7%9A%8435.png)
+   - **resource**：资源名称
+   - **limitApp**：来源应⽤
+   - **grade**：阈值类型 0 线程数 1 QPS
+   - **count**：单机阈值
+   - **strategy**：流控模式， 0 直接 1 关联 2 链路
+   - **controlBehavior**：流控效果， 0 快速失败 1 Warm Up 2 排队等待
+   - **clusterMode**： true/false 是否集群
 
 4. 启动 8401:
 
