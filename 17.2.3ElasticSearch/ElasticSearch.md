@@ -96,7 +96,17 @@ ES 与关系型数据库
 
 到官网下载：https://www.elastic.co/cn/downloads/
 
-![image-20200922094003384](images/image-20200922094003384.png)
+Window安装：
+
+解压：D:\ES\elasticsearch-7.11.1\
+
+运行：D:\ES\elasticsearch-7.11.1\bin\elasticsearch.bat
+
+访问：http://localhost:9200/
+
+
+
+Linux安装：
 
 选择对应版本的数据，这里我使用的是 Linux 来进行安装，所以就先下载好 ElasticSearch 的 Linux 安装包
 
