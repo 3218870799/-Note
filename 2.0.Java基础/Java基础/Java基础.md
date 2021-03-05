@@ -1076,11 +1076,15 @@ List 可以精确的控制每个元素的插入位置，或删除某个位置元
 
 ### ArrayList
 
+#### 扩容
+
+**变化**
+
 JDK1.7 ：ArrayList 像饿汉式，直接创建一个初始容量为 10 的数组
 
 JDK1.8：ArrayList 像懒汉式，一开始创建个长度为 0 的数组，当添加第一个元素时再创建一个始容量 10 的数组
 
-动态数组，
+**与Vector对比**
 
 1、ArrayList 创建时的大小为 0；当加入第一个元素时，进行第一次扩容时，默认容量大小为 10。
 
@@ -1094,7 +1098,7 @@ JDK1.8：ArrayList 像懒汉式，一开始创建个长度为 0 的数组，当�
 
 6、ArrayList 是非线程安全的，Vector 是线程安全的。
 
-Q：怎么实现线程安全呢？
+**怎么实现线程安全呢？**
 
 A：方法一：使用 Vector，Vector 是线程安全的，它在方法上加了 synchronized
 
@@ -1114,7 +1118,7 @@ List<String> list = Collections.synchronizedList(new ArrayList<>());
 
 Array 可以包含基本类型和对象类型，ArrayList 只能包含对象类型。
 
-1：ArrayList，Vector，linkedList 的区别
+**ArrayList，Vector，linkedList 的区别？**
 
 ArrayList 和 Vector 都是使用数组方式存储数据，此数组元素数大于实际存储的数据以便增加和插入元素，它们都允许直接按序号索引元素，但是插入元素要涉及数组元素移动等内存操作，所以索引数据快而插入数据慢，
 
@@ -1125,6 +1129,60 @@ LinkedList 使用双向链表实现存储，按序号索引数据需要进行前
 ArrayList 是基于数组实现的，要求一段连续的空间
 
 LinkedList 是基于链表实现的，是一个双向循环列表。不是线程安全的。
+
+
+
+**删除**
+
+ArrayList有两种方法移除元素，一种传递要删除的元素的索引，一种传递要移除的元素本身，删除最低索引的元素
+
+迭代器删除
+
+```java
+		List<String> list = new ArrayList<>();
+		list.add("1");
+		list.add("2");
+		list.add("3");
+		//测试for循环遍历删除非最后一个
+		//问题：遗漏元素
+		//原因：遗漏元素是因为删除元素后，List的size已经减1，但i不变，则i位置元素等于被跳过，不在循环中处理。
+		//解决方法:
+		//若if代码块中调用remove函数后，加上i--，则能避免这种错误。
+		for (int i = 0; i < list.size(); i++) {
+		    System.out.println(i + ":" + list.get(i));
+		    String s = list.get(i);
+		    if ("1".equals(s)) {
+		        list.remove(s);
+		        //i--;
+		    }
+		}
+		System.out.println(list);
+		
+		//迭代器遍历
+		//安全，调用Iterator的方法
+		Iterator<String> iterator = list.iterator(); 
+		while (iterator.hasNext()){
+		    String str = iterator.next();
+		    System.out.println(str);
+		    if("2".equals(str)) {
+		        iterator.remove(); 
+		    }
+		}
+		System.out.println(list);
+		
+		//foreach遍历，删除头尾元素
+		//出错：
+		//原因：foreach实质上也是使用Iterator进行遍历。不同的地方在于，一个使用Iterator的删除方法，一个使用List的删除方法。
+		// 报错是因为remove方法改变了modCount，导致next方法时checkForComodification检查不通过，抛出异常。
+		// 移除2时正常：因为2刚好是倒数第二个元素，移除后size-1，在hasNext方法中已结束循环，不在调用next方法。虽然不报错，但会使最后一个元素被跳过，没有进入循环。
+		// 移除1或3失败略有不同：remove(3)后，size减1，cursor已经比size大1，但由于hasNext方法是 cursor!=size，还是会进入循环，在next方法中才会报错。如果hasNext方法是 cursor>size ，移除3的情形会类似于移除2(不报错，直接退出进入循环)。
+		for (String s : list) {
+		    System.out.println(s);
+		    if ("1".equals(s)) {
+		        list.remove(s);
+		    }
+		}
+```
 
 ### LinkedList
 
