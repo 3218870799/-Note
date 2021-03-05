@@ -24,6 +24,8 @@ MySQL AB 是由两个瑞典人和一个芬兰人：David Axmark、Allan Larsson 
 
 https://www.cnblogs.com/puhongjun/p/10076039.html
 
+https://www.cnblogs.com/2020javamianshibaodian/p/mysql8020anzhuangjiaocheng.html
+
 一下是老版本的
 
 > 打开下载的 mysql 安装文件 mysql-essential-5.0.22-win32.msi，双击运行，出现如下界面
@@ -242,6 +244,8 @@ MySQL 支持多种类型，大致可以分为三类：数值、日期/时间和�
 
 在存储上， varchar 类型需要 2 个字节的额外空间来跟踪存储字符串的长度，这样 varchar(1) 实际占用的是 3 个字节。
 
+char(10)存数据存的是 1000000000，而 varchar(10)存数据存的是 1
+
 ### 表操作
 
 13.1.1 创建表
@@ -432,7 +436,7 @@ insert into emp_bak select \* from emp where sal=3000;
 
   5.  自定义检查约束，check（不建议使用）(在 mysql 中现在还不支持)
 
-13.4.1、非空约束，not null
+  13.4.1、非空约束，not null
 
 非空约束，针对某个字段设置其值不为空，如：学生的姓名不能为空
 
@@ -1247,23 +1251,18 @@ union all 只是合并查询结果，并不会进行去重和排序操作，在�
 
 mysql 提供了 limit ，主要用于提取前几条或者中间某几行数据
 
-select \* from table limit m,n  
-其中 m 是指记录开始的 index，从 0 开始，表示第一条记录  
-n 是指从第 m+1 条开始，取 n 条。  
-select \* from tablename limit 2,4  
-即取出第 3 条至第 6 条，4 条记录
+```sql
+select * from table limit m,n
+```
 
-12.1、取得前 5 条数据
+其中 m 是指记录开始的 index，从 0 开始，表示第一条记录
 
-| select \* from emp limit 5;
+n 是指从第 m+1 条开始，取 n 条。
 
-12.2、从第二条开始取两条数据
-
-| select \* from emp limit 1,2;
-
-12.3、取得薪水最高的前 5 名
-
-| select \* from emp e order by e.sal desc limit 5;
+```sql
+--取得前 5 条数据
+select * from emp limit 5;
+```
 
 # 第四部分、存储引擎
 
@@ -1375,8 +1374,7 @@ MyISAM 提供了大量的特性，包括全文索引、压缩、空间函数(GIS
 InnoDB 的表是根据主键进行展开的 B+tree 的聚集索引。MyIsam 则非聚集型索引，myisam
 存储会有两个文件，一个是索引文件，另外一个是数据文件，其中索引文件中的索引指向数据文件中的表数据。
 
-聚集型索引并不是一种单独的索引类型，而是一种存储方式，InnoDB
-聚集型索引实际上是在同一结构中保存了 B+tree
+聚集型索引并不是一种单独的索引类型，而是一种存储方式，InnoDB 聚集型索引实际上是在同一结构中保存了 B+tree
 索引和数据行。当有聚簇索引时，它的索引实际放在叶子页中。
 
 ![image-20200404084731063](media/image-20200404084731063.png)
@@ -1973,6 +1971,30 @@ alter table t add index index_name(a,b,c);
 #### 最左匹配原则
 
 创建联合索引时，索引存储在叶子节点，叶子会根据最左边的进行排序，如果没有匹配上，后边也不再匹配，导致索引失效。
+
+索引失效的情况：
+
+- 不按顺序，跳过中间的索引
+- 以%开头的 like
+- where 带 or，mysiam 能用索引，innodb 不行，用 union 代替 or
+
+高效：
+
+```sql
+select loc_id , loc_desc , region from location where loc_id = 10
+union
+select loc_id , loc_desc , region  from location where region = "melbourne"
+```
+
+低效：
+
+```sql
+select loc_id , loc desc , region from location where loc_id = 10 or region = "melbourne"
+```
+
+- 需要类型转换的
+- 索引列有运算的
+- 使用了函数的
 
 ### 哈希索引
 
@@ -2785,12 +2807,6 @@ AND STATUS = 1
 
 **更新操作，最好用主键或者唯一索引来更新,这样是行锁，否则更新时会锁表**
 
-# 第十一章：SQL 优化
-
-官网：
-
-explain
-
 # 19：服务器级常用 sql 语句
 
 ```sql
@@ -3122,4 +3138,4 @@ mysql 使用 PrepareStatement
 
 主从复制原理：
 
-主库开启 binlog 日志，从库生成两个线程，一个 I/O 线程，一个 SQL 线程；i/o 线程去请求主库 的 binlog，并将得到的 binlog 日志写到 relay log（中继日志） 文件中；主库会生成一个 log dump 线程，用来给从库 i/o 线程传 binlog。SQL 线程，会读取 relay log 文件中的日志，并解析成具体操作，来实现主从的操作一致，而最终数据一致；
+主库开启 binlog 日志，主库会生成一个 log dump 线程，用来给从库 i/o 线程传 binlog。从库生成两个线程，一个 I/O 线程，一个 SQL 线程；i/o 线程去请求主库 的 binlog，并将得到的 binlog 日志写到 relay log（中继日志） 文件中；SQL 线程，会读取 relay log 文件中的日志，并解析成具体操作，来实现主从的操作一致，而最终数据一致；
