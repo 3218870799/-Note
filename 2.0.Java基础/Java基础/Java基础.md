@@ -18,13 +18,21 @@
 
 - #### final
 
-类：不能被继承，方法：不能被重写，变量：不能被改变。
+类：不能被继承，方法：不能被重写，变量：不能被改变。final 成员变量表示常量，只能被赋值一次，赋值后值不再改变
+
+final 修饰对象：
+
+```java
+final Eog eog=new Eog("欧欧");
+eog.name="美美";//正确的
+eog=new Eog("亚亚");//错误的
+```
 
 - #### static
 
-“static”关键字表明一个成员变量或者是成员方法可以在没有所属的类的实例变量的情况下被访问。
+“static”：全局，静态，关键字表明一个成员变量或者是成员方法可以在没有所属的类的实例变量的情况下被访问。
 
-Java 中**static 方法不能被覆盖**，因为方法覆盖是基于运行时动态绑定的，而 static 方法是编译时静态绑定的。static 方法跟类的任何实例都不相关，所以概念上不适用。
+Java 中**static 方法不能被覆盖**，因为方法覆盖是基于运行时动态绑定的，而 static 方法是**编译时静态绑定**的。static 方法跟类的任何实例都不相关，所以概念上不适用。
 
 - #### synchronized
 
@@ -221,7 +229,7 @@ LongNum.inValue();
 - `public static double parseDouble(String s)`：将字符串参数转换为对应的 double 基本类型。
 - `public static boolean parseBoolean(String s)`：将字符串参数转换为对应的 boolean 基本类型。
 
-5）值缓存
+**值缓存**
 
 这个就是 java8 中的 Integer 类中的一个内部缓存类（其他版本的 jdk 实现有可能不一样但是效果都是一样的），这个类的作用就是将 -128~127 之间的整型做了一个缓存，（享元模式）
 
@@ -245,15 +253,55 @@ equals 比较的是字符串，如果不重写比较的也是地址。
 
 ### 值传递和引用传递
 
-八种基本数据类型，在栈里面分配内存，属于值传递
+值传递（pass by value）是指在调用函数时将实际参数复制一份传递到函数中，这样在函数中如果对参数进行修改，将不会影响到实际参数。
 
-`栈管运行，堆管存储`
+引用传递（pass by reference）是指在调用函数时将实际参数的地址直接传递到函数中，那么在函数中对参数所进行的修改，将影响到实际参数。
 
-int 等基本数据类型，相当于传递的一个副本，属于值传递
+八种基本数据类型，在栈里面分配内存，属于值传递`栈管运行，堆管存储`
 
-对于其他对象一般都是引用传递
+int 等基本数据类型，相当于传递的一个副本，属于值传递,对于其他对象一般都是引用传递,特殊的 String，会将变量放入到一个常量池中
 
-特殊的 String，会将变量放入到一个常量池中，
+举例：
+
+```text
+第一个例子：基本类型
+void foo(int value) {
+    value = 100;
+}
+foo(num); // num 没有被改变
+第二个例子：没有提供改变自身方法的引用类型
+void foo(String text) {
+    text = "windows";
+}
+foo(str); // str 也没有被改变
+第三个例子：提供了改变自身方法的引用类型
+StringBuilder sb = new StringBuilder("iphone");
+void foo(StringBuilder builder) {
+    builder.append("4");
+}
+foo(sb); // sb 被改变了，变成了"iphone4"
+```
+
+![image-20210305103735858](media/image-20210305103735858.png)
+
+builder.append("4")之后
+
+![image-20210305103755951](media/image-20210305103755951.png)
+
+```java
+第四个例子：提供了改变自身方法的引用类型，但是不使用，而是使用赋值运算符。
+StringBuilder sb = new StringBuilder("iphone");
+void foo(StringBuilder builder) {
+    builder = new StringBuilder("ipad");
+}
+foo(sb); // sb 没有被改变，还是 "iphone"
+```
+
+![image-20210305103906175](media/image-20210305103906175.png)
+
+builder = new StringBuilder("ipad"); 之后
+
+![image-20210305103922424](media/image-20210305103922424.png)
 
 ## 3：流程控制
 
@@ -594,42 +642,6 @@ public int size()
 
 ### 4：String 类
 
-1：查看构造方法
-
-```java
-//构造
-public String() ：初始化新创建的 String对象，以使其表示空字符序列。
-public String(char[] value) ：通过当前参数中的字符数组来构造新的String。
-public String(byte[] bytes) ：通过使用平台的默认字符集解码当前参数中的字节数组来构造新的
-```
-
-2：判断功能的方法
-
-```java
-public boolean equals (Object anObject) ：将此字符串与指定对象进行比较。
-
-public boolean equalsIgnoreCase (String anotherString)：将此字符串与指定对象进行比较，忽略大小写。获取功能的方法
-
-public int length () ：返回此字符串的长度。
-
-public String concat (String str) ：将指定的字符串连接到该字符串的末尾。
-
-public char charAt (int index) ：返回指定索引处的 char值。
-
-public int indexOf (String str) ：返回指定子字符串第一次出现在该字符串内的索引。
-
-public String substring (int beginIndex)：返回一个子字符串，从beginIndex开始截取字符串到字符串结尾。
-
-public String substring (int beginIndex, int endIndex)：返回一个子字符串，从beginIndex到endIndex截取字符串。含beginIndex，不含endIndex。转换功能的方法
-public char[] toCharArray () ：将此字符串转换为新的字符数组。
-
-public byte[] getBytes () ：使用平台的默认字符集将该String编码转换为新的字节数组。
-
-public String replace (CharSequence target, CharSequence replacement)：将与target匹配的字符串使用replacement字符串替换。分割功能的方法
-
-public String[] split(String regex)：将此字符串按照给定的regex（规则）拆分为字符串数组
-```
-
 **1：String 类为什么是不可变的 final 类型？**
 
 - 为了实现字符串池(只有当字符是不可变的，字符串池才有可能实现）
@@ -649,6 +661,16 @@ public String[] split(String regex)：将此字符串按照给定的regex（规�
 new String（） 创建一个引用对象。
 
 String s , 这个语句声明一个类 String 的引用变量 s
+
+3：判断
+
+```java
+String a = "AAA";
+String b = new String("AAA");
+a==b;//false
+```
+
+“AAA”在常量池里，对象在堆里
 
 ### 5：StringBuilder 与 StringBuffer
 
@@ -2100,14 +2122,14 @@ RejectedExecutionHandler 接口，自定义饱和策略，如记录日志或持�
 
 执行流程：
 
-1、如果线程池当前线程数量少于 corePoolSize，则 addWorker(command, true)创建新 worker 线程，如果创建成功返回，没创建成功，则执行后续步骤；
+1、如果线程池当前线程数量少于 corePoolSize，则 addWorker(command, true)创建新 worker 线程，如果创建成功返回，没创建成功则 2
 
 addWorker(command, true)失败的原因可能是：
 
 - 线程池已经 shutdown，shutdown 的线程池不再接收新任务
 - workerCountOf(c) < corePoolSize 判断后，由于并发，别的线程先创建了 worker 线程，导致 workerCount>=corePoolSize
 
-2、如果线程池还在 running 状态，将 task 加入 workQueue 阻塞队列中，如果加入成功，进行 double-check，如果加入失败（可能是队列已满），则执行后续步骤；
+2、如果线程池中线程还在 running 状态，尝试将 task 加入 workQueue 阻塞队列中，如果加入成功，进行 double-check，如果加入失败（可能是队列已满），则执行后续步骤；
 
 double-check 主要目的是：判断刚加入 workQueue 阻塞队列的 task 是否能被执行
 
@@ -3552,25 +3574,17 @@ JDK1.8 以后参数 ElementType 多了两个枚举值为 TYPE_PARAMETER，USE
 
 ## 5：泛型
 
-List<>、List<Object>、List<?>、List<T> 泛型的区别？
+1.5 以后，把集合中的内容限定为一个特定的数据类型
 
-List<T>、List<?>、List<Object>这三者都可以容纳所有的对象，但使用的顺序应该是首选List<T>，次之List<?>，最后选择List<Object>
+**如果 Foo 是 Bar 的一个子类型(子类或者子接口)，而 G 是某种泛型声明，那么 G\<Foo\>是 G\<Bar\>的子类型并不成立!!**
 
-泛型之间只有同类型才能相互赋值。
+使用情景，集合，类，方法
 
-List<T>表示的是List集合中的元素都为T类型，具体类型在运行期决定；
-
-List<?>是只读类型的，不能进行增加、修改操作，因为编译器不知道List中容纳的是 什么类型的元素，也就无毕校验类型是否安全了，而且List<?>读取出的元素都是Object类 型的，需要主动转型，所以它经常用于泛型方法的返回值。注意，List<?>虽然无法增加、修 改元素，但是却可以删除元素，比如执行remove、clear等方法，那是因为它的删除动作与泛型类型无关。
-
-List<Object>也可以读写操作，但是它执行写入操作时需要向上转型（Upcast),在读 取数据后需要向下转型（Downcast)
-
-1.5 以后
-
-把集合中的内容限定为一个特定的数据类型
-
-**如果 Foo 是 Bar 的一个子类型(子类或者子接口)，而 G 是某种**
-
-**泛型声明，那么 G\<Foo\>是 G\<Bar\>的子类型并不成立!!**
+```java
+List<T>
+Person<T>
+show(T[] arr)
+```
 
 ### 泛型通配符
 
@@ -3608,6 +3622,18 @@ public static void getElement2(Collection<? super Number> coll){}
 2.读取 List 的对象 list 中的元素时，永远是安全的，因为不管 list 的真实类型 是什么，它包含的都是 Object。
 
 3.写入 list 中的元素时，不行。因为我们不知道 c 的元素类型，我们不能向其中 添加对象。 唯一的例外是 null，它是所有类型的成员
+
+问题 1：List<>、List<Object>、List<?>、List<T> 泛型的区别？
+
+List<T>、List<?>、List<Object>这三者都可以容纳所有的对象，但使用的顺序应该是首选List<T>，次之List<?>，最后选择 List<Object>
+
+泛型之间只有同类型才能相互赋值。
+
+List<T>表示的是 List 集合中的元素都为 T 类型，具体类型在运行期决定；
+
+List<?>是只读类型的，不能进行增加、修改操作，因为编译器不知道List中容纳的是 什么类型的元素，也就无毕校验类型是否安全了，而且List<?>读取出的元素都是 Object 类 型的，需要主动转型，所以它经常用于泛型方法的返回值。注意，List<?>虽然无法增加、修 改元素，但是却可以删除元素，比如执行 remove、clear 等方法，那是因为它的删除动作与泛型类型无关。
+
+List<Object>也可以读写操作，但是它执行写入操作时需要向上转型（Upcast),在读 取数据后需要向下转型（Downcast)
 
 # Java8
 
