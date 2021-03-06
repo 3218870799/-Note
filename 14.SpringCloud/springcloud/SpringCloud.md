@@ -1,13 +1,4 @@
-﻿server:
-port: 7001
-注意,这里是 7001
-eureka:
-instance:
-hostname: eureka7001.com teureka 服务端的实例名称 client:
-register-with-eureka: false#false 表示不向注册中心注册自己。
-fetch-registry: false #false 表示自己端就是注册中心，我的职贵就是维护服务实例，并不需要去检索服务 service-url:
-defaultZone: http: / /eureka7002.com: 7002/eureka/
-注意.这里指定的是 7002 的地址。第一章：简介
+﻿# 第一章：简介
 
 ## 1：版本
 
@@ -1301,9 +1292,11 @@ public class Applicationcontextconfig{
 
 ## OpenFeign
 
-是一个声明式的 web 客户端,只需要创建一个接口,添加注解即可完成微服务之间的调用
+是一个声明式的 web 客户端,只需要创建一个接口,添加注解即可完成微服务之间的调用，封装了 Ribbon
 
 Feign 支持可插拔式的编码器和解码器，SpringCloud 对 Feign 进行封装。使其支持 SpringMVC 标准注解和 HttpMessageConverters。
+
+以前要写接口，写实现类，通过 Ribbon 负载均衡远程调用，拿到返回值继续写接下来的程序，现在直接写接口，添加注解，使用时直接使用远程的类方法即可，无感知远程 HTTP 请求。
 
 作用：
 
@@ -1315,23 +1308,23 @@ Feign 支持可插拔式的编码器和解码器，SpringCloud 对 Feign 进行�
 
 就是 A 要调用 B,Feign 就是在 A 中创建一个一模一样的 B 对外提供服务的的接口,我们调用这个接口,就可以服务到 B
 
-### **Feign 与 OpenFeign 区别**
+### Feign 与 OpenFeign 区别
 
-![](.\media\Feign的3.png)
+Feign：Feign 是 SpringCloud 组件中的一个轻量级 RESTful 的 Http 服务客户端，Feign 内置了 Feign 内置了 Ribbon，用来做客户端负载均衡，去调用服务注册中心的服务。Feign 的使用方式是：使用 Feign 的注解定义接口，调用这个接口，就可以斯奥用服务注册中心的服务。
+
+OpenFeign：OpenFeign 是 SpringCloud 在 Feign 的基础上支持了 SpringMVC 的注解，如@RequestMapping 等等，OpenFeign 的@FeignClient 可以解析 SpringMVC 的@RequestMapping 注解下的接口，并通过动态代理的方式产生实现类，实现类中做负载均衡并调用其他服务。
 
 ### 常用注解
 
-1）：@FeignClient和@EnableFeignClients
+1）：@FeignClient 和@EnableFeignClients
 
-@FeignClient标注用于声明Feign客户端可访问的Web服务。
+@FeignClient 标注用于声明 Feign 客户端可访问的 Web 服务。
 
-@EnableFeignClients标注用于修饰Spring Boot应用的入口类，以通知Spring Boot启动应用时，扫描应用中声明的Feign客户端可访问的Web服务。
-
-
+@EnableFeignClients 标注用于修饰 Spring Boot 应用的入口类，以通知 Spring Boot 启动应用时，扫描应用中声明的 Feign 客户端可访问的 Web 服务。
 
 ### 使用 OpenFeign
 
-之前的服务间调用,我们使用的是ribbon+RestTemplate，现在改为使用Feign
+之前的服务间调用,我们使用的是 ribbon+RestTemplate，现在改为使用 Feign
 
 1,新建一个 order 项目,用于 feign 测试
 
@@ -1349,9 +1342,15 @@ pom 文件
 
 配置文件
 
-
-
-![](.\media\Feign的4.png)
+```yml
+server:
+	port: 80
+eureka:
+	client:
+		register-with-eureka: false
+		service-url:
+			defaultzone: http://eureka7001.com:7001/eureka/,http://eureka7002.com:7002/eureka/
+```
 
 主启动类
 
@@ -1411,9 +1410,70 @@ public class OrderFeignController {
 
 启动当前的 order 模块
 
-**Feign 默认使用 ribbon 实现负载均衡**
+请求传参：
 
-### OpenFeign 超时机制
+1：GET 方式：使用@PathVriable 注解或@RequestParam 注解接受请求参数。如上面演示，
+
+2：POST 方式：
+
+
+
+### 性能优化
+
+#### gzip 压缩
+
+压缩纯文本可以达到 70%以上，降低网络传输字节，加快网页加载速度，使用 deflate 算法
+
+Http 协议关于压缩传输的规定
+
+1：客户端向服务器请求中带有：` Accept-Encoding:gzip` ,`deflate ` 字段，向服务器表示客户端支持的压缩格式（gzip 或 deflate）如果不发送该请求头，服务端默认是不会压缩的。
+
+2：服务端在收到请求之后，如果请求头中含有 `Accept-Encodeing` 字段，并且支持该压缩类型，就会对想用报文压缩之后返回给客户端，并且携带 `Content-Encoding:gzip` 消息头，表示响应报文是根据改格式进行压缩的
+
+3：客户端接收到请求之后，先判断是否有 ` Content-Encoding` 消息头，如果有，按该格式解压报文，否则按正常报文处理
+
+配置：
+
+浏览器——>消费者——>生产者，并且返回的过程
+
+局部是指：消费者——生产者直接进行压缩
+
+全局是指：浏览器<——>消费者<——>生产者之间的传输进行压缩
+
+局部：
+
+服务消费者：application.yml
+
+```yml
+feign:
+	compression:
+		request:
+			mime-types:text/xml,application/xml.application/json #配置压缩支持的MIME TYPE
+			mime-request-size：512 # 配置压缩数据大小的最小阈值，默认2048
+			enabled:true #请求是否开启gzip压缩
+		response:
+			enabled:true # 响应是否开启gzip压缩
+```
+
+全局：
+
+```yml
+server:
+	port:9000 # 接口
+	compression:
+        # 是否开启压缩
+        enabled:true
+        # 配置压缩支持的MIME TYPE
+        mime-types:application/json,application/xml,text/html,text/xml,text/plain
+```
+
+
+
+#### Http连接池
+
+Feign的Http客户端支持3种框架：HttpURLConnection，HttpClient，OKHttp，默认是HttpURLConnection，一般换成HttpClient
+
+#### OpenFeign 超时机制
 
 ==OpenFeign 默认等待时间是 1 秒,超过 1 秒,直接报错==
 
@@ -1430,11 +1490,9 @@ ribbon:
   ConnectTimeout: 5000
 ```
 
-### OpenFeign 日志
+#### OpenFeign 日志
 
-Feign 提供日志打印功能，我们可以通过配置来调整日志级别，从而了解 Fegin 中 Http 请求的细节。
-
-对 feign 接口的调用情况进行监控和输出。
+Feign 提供日志打印功能，我们可以通过配置来调整日志级别，从而了解 Fegin 中 Http 请求的细节。对 feign 接口的调用情况进行监控和输出。后可以使用链路追踪进行监控
 
 **OpenFeign 的日志级别有:**
 
@@ -1446,7 +1504,7 @@ HEADERS：除了 BASIC 中定义的信息以外，还有请求和响应的头信
 
 FULL：除了 HEADERS 中定义的信息以外，还有请求和响应的正文及元数据
 
-#### 1,使用 OpenFeign 的日志:
+1,使用 OpenFeign 的日志:
 
 **实现在配置类中添加 OpenFeign 的日志类**
 
@@ -1466,15 +1524,13 @@ public class FeignConfig {
 }
 ```
 
-
-
-#### 2,为指定类设置日志级别
+2,为指定类设置日志级别
 
 ```java
 @Component
 @FeignClient(value="CLOUD-PAYMENT-SERVICE")
 public interface PaymentFeignService{
-    
+
 }
 ```
 
@@ -1487,7 +1543,40 @@ logging:
     com.xqc.springcloud.service.PaymentFeignService: debug
 ```
 
-#### 3,启动服务即可
+3,启动服务即可
+
+### 负载均衡配置
+
+Feign 封装了 Ribbon 自然也就集成了负载均衡的功能，默认采用轮询策略，修改默认策略。
+
+全局修改：
+
+在启动类或配置类中注入负载均衡策略对象，所有服务请求均采用使用这种策略。
+
+```java
+@Bean
+public RandomRule randomRule(){
+    return new RandomRule();
+}
+```
+
+局部配置：打开配置文件
+
+```yml
+# 负载均衡策略
+# service-provide为调用的服务的名称
+service-provider
+	ribbon:
+		NFLoadBalancerRuleClassName:com.netflix.loadbalancer.RandomRule
+```
+
+### 原理
+
+基于面向接口的动态代理方式生成实现类
+
+FeignClientFactoryBean implement FactoryBean
+
+Target：
 
 # 第六章：服务降级
 
@@ -2824,7 +2913,7 @@ Stream 中处于同一个 group 中的多个消费者是竞争关系，就能够
 
 ## ZipKin
 
-每个微服务都会向zipkin报告计时数据，聚合各业务系统调用延迟数据，达到链路调用监控跟踪。
+每个微服务都会向 zipkin 报告计时数据，聚合各业务系统调用延迟数据，达到链路调用监控跟踪。
 
 在复杂的调用链路中假设存在一条调用链路响应缓慢，如何定位其中延迟高的服务呢？
 
@@ -2832,29 +2921,27 @@ Stream 中处于同一个 group 中的多个消费者是竞争关系，就能够
 
 - zipkin：使用`zipkin`的`web UI`可以一眼看出延迟高的服务
 
-  
-  
-  各业务系统在彼此调用时，将特定的跟踪消息传递至`zipkin`,zipkin在收集到跟踪信息后将其聚合处理、存储、展示等，用户可通过`web UI`方便获得网络延迟、调用链路、系统依赖等等。
-  同时zipkin会根据调用关系通过zipkin ui生成依赖关系图，
+  各业务系统在彼此调用时，将特定的跟踪消息传递至`zipkin`,zipkin 在收集到跟踪信息后将其聚合处理、存储、展示等，用户可通过`web UI`方便获得网络延迟、调用链路、系统依赖等等。
+  同时 zipkin 会根据调用关系通过 zipkin ui 生成依赖关系图，
 
 ![image-20210304135039511](media/image-20210304135039511.png)
 
-在使用zipkin链路追踪的时候，需要提前启动zipkin服务
+在使用 zipkin 链路追踪的时候，需要提前启动 zipkin 服务
 
-来自Twitte的分布式日志收集工具，分为上传端(spring-cloud-starter-zipkin，集成到项目中)与服务端(独立部署，默认将数据存到内存中)
+来自 Twitte 的分布式日志收集工具，分为上传端(spring-cloud-starter-zipkin，集成到项目中)与服务端(独立部署，默认将数据存到内存中)
 
-注意: Zipkin仅对RPC通信过程进行记录，注意它与业务代码日志是无关的，如果你希望找到一款LogAppender来分析所有Log4j留下的日志，那么建议还是使用Kakfa+ELK这种传统的方法来实现。
+注意: Zipkin 仅对 RPC 通信过程进行记录，注意它与业务代码日志是无关的，如果你希望找到一款 LogAppender 来分析所有 Log4j 留下的日志，那么建议还是使用 Kakfa+ELK 这种传统的方法来实现。
 
 ### 概念：
 
-- Span：基本工作单元，一次链路调用(可以是RPC，DB等没有特定的限制)创建一个span，通过一个64位ID标识它，span通过还有其他的数据，例如描述信息，时间戳，key-value对的(Annotation)tag信息，parent-id等,其中parent-id可以表示span调用链路来源，通俗的理解span就是一次请求信息
-- Trace：类似于树结构的Span集合，表示一条调用链路，存在唯一标识
+- Span：基本工作单元，一次链路调用(可以是 RPC，DB 等没有特定的限制)创建一个 span，通过一个 64 位 ID 标识它，span 通过还有其他的数据，例如描述信息，时间戳，key-value 对的(Annotation)tag 信息，parent-id 等,其中 parent-id 可以表示 span 调用链路来源，通俗的理解 span 就是一次请求信息
+- Trace：类似于树结构的 Span 集合，表示一条调用链路，存在唯一标识
 - Annotation：注解，用来记录请求特定事件相关信息（例如时间），通常包含四个注解信息
   - cs： Client Start,表示客户端发起请求
   - sr：Server Receive,表示服务端收到请求
   - ss：Server Send,表示服务端完成处理，并将结果发送给客户端
   - cr：Client Received,表示客户端获取到服务端返回信息
-- BinaryAnnotation：提供一些额外信息，一般已key-value对出现
+- BinaryAnnotation：提供一些额外信息，一般已 key-value 对出现
 
 ### 安装 zipkin:
 
@@ -2886,25 +2973,23 @@ localhost:9411/zipkin/
 
 **可以看到,类似链表的形式**
 
-
-
 ### 日志存储方式
 
-目前zipkin收集的信息能够以三种方式进行存储
+目前 zipkin 收集的信息能够以三种方式进行存储
 
 - 内存（默认）
 - Mysql
 - ElasticSearch
 
-这里我们尝试的是以mysql的方式进行存储，如果不想以mysql进行存储的话，可以忽略这一步
+这里我们尝试的是以 mysql 的方式进行存储，如果不想以 mysql 进行存储的话，可以忽略这一步
 
-- 初始化mysql数据库
+- 初始化 mysql 数据库
 
-首先需要在mogu_blog数据库中，执行下面的官方SQL脚本，创建对应的表
+首先需要在 mogu_blog 数据库中，执行下面的官方 SQL 脚本，创建对应的表
 
 [官方脚本传送门](https://github.com/openzipkin/zipkin/blob/master/zipkin-storage/mysql-v1/src/main/resources/mysql.sql)
 
-在之前，需要创建一个数据库，叫zipkin
+在之前，需要创建一个数据库，叫 zipkin
 
 执行完成后，我们将会得到三个表
 
@@ -2920,7 +3005,7 @@ localhost:9411/zipkin/
 java -jar zipkin.jar --STORAGE_TYPE=mysql --MYSQL_DB=zipkin --MYSQL_USER=root --MYSQL_PASS=root --MYSQL_HOST=localhost --MYSQL_TCP_PORT=3306
 ```
 
-### 项目中集成ZipKin
+### 项目中集成 ZipKin
 
 引入依赖
 
@@ -2938,7 +3023,7 @@ java -jar zipkin.jar --STORAGE_TYPE=mysql --MYSQL_DB=zipkin --MYSQL_USER=root --
 </dependency>
 ```
 
-在业务服务的application.yml增加下面的配置，几乎每个模块
+在业务服务的 application.yml 增加下面的配置，几乎每个模块
 
 ```yml
 #spring
@@ -2952,14 +3037,14 @@ spring:
       probability: 1.0 # 采样比例为: 0.1(即10%),设置的值介于0.0到1.0之间，1.0则表示全部采集。
   # zipkin 配置
   zipkin:
-    base-url: http://localhost:9411  # 指定了Zipkin服务器的地址
+    base-url: http://localhost:9411 # 指定了Zipkin服务器的地址
 ```
 
-访问：：[http://localhost:9411](http://localhost:9411/) 
+访问：：[http://localhost:9411](http://localhost:9411/)
 
 ## Sleuth
 
-它的功能是在项目中自动为日志加入Tag与序列号
+它的功能是在项目中自动为日志加入 Tag 与序列号
 
 ### 2,使用 sleuth:
 
@@ -2995,20 +3080,19 @@ spring:
 
 ### 原理：
 
-调用侧请求中加入额外的Span序列号等上下文信息放入Header中(通过注入Feign定制Client实现)，被调用侧通过全局Filter模拟AOP记录执行情况，计算执行情况与耗时，并存入定制的ByteBoundedQueue队列中，然后通过HTTP等将信息异步发送到Zipkin收集器中，Zipkin收集器通过UI显示调用详情
+调用侧请求中加入额外的 Span 序列号等上下文信息放入 Header 中(通过注入 Feign 定制 Client 实现)，被调用侧通过全局 Filter 模拟 AOP 记录执行情况，计算执行情况与耗时，并存入定制的 ByteBoundedQueue 队列中，然后通过 HTTP 等将信息异步发送到 Zipkin 收集器中，Zipkin 收集器通过 UI 显示调用详情
 
 其中添加了如下组件
 
-- TraceFeignClient： 请求端注入的FeignClient，为Request的Header添加SpanID, TraceID等信息
+- TraceFeignClient： 请求端注入的 FeignClient，为 Request 的 Header 添加 SpanID, TraceID 等信息
 
-- TraceFilter： 接收端注入的定制Filter，它将解析Request中的Header，执行业务，计算耗时，最终算出一个完整的JSON格式的Span，通过队列异步发送到收集器ZipKin中
-- ZipKin：日志收集器，读取JSON格式的SPAN信息，并存储与展示
+- TraceFilter： 接收端注入的定制 Filter，它将解析 Request 中的 Header，执行业务，计算耗时，最终算出一个完整的 JSON 格式的 Span，通过队列异步发送到收集器 ZipKin 中
+- ZipKin：日志收集器，读取 JSON 格式的 SPAN 信息，并存储与展示
 
 采样率
 
-如果使用spring-cloud-sleuth-zipkin或spring-cloud-sleuth-stream，PercentageBasedSampler是默认的（默认值是0.1），你可以使用spring.sleuth.sampler.percentage配置输出
+如果使用 spring-cloud-sleuth-zipkin 或 spring-cloud-sleuth-stream，PercentageBasedSampler 是默认的（默认值是 0.1），你可以使用 spring.sleuth.sampler.percentage 配置输出
 
 附加信息
 
-用户可以使用span tags定制关键字，为了限制span数据量，一般一个HTTP请求只会被少数元数据标记，例如status code、host以及URL，用户可以通过配置spring.sleuth.keys.http.headers(一系列头名称)添加request headers
-
+用户可以使用 span tags 定制关键字，为了限制 span 数据量，一般一个 HTTP 请求只会被少数元数据标记，例如 status code、host 以及 URL，用户可以通过配置 spring.sleuth.keys.http.headers(一系列头名称)添加 request headers
