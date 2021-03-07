@@ -2331,6 +2331,18 @@ public class ESHightApi {
 
 # 第九章：ES 的基本原理
 
+## 分布式架构原理
+
+elasticsearch设计的理念就是分布式搜索引擎，底层其实还是基于lucene的。核心思想就是在多台机器上启动多个es进程实例，组成了一个es集群。
+
+es中存储数据的基本单位是索引
+
+es集群多个节点，会自动选举一个节点为master节点，这个master节点其实就是干一些管理的工作的，比如维护索引元数据拉，负责切换primary shard和replica shard身份拉，之类的。
+
+要是master节点宕机了，那么会重新选举一个节点为master节点。
+
+如果是非master节点宕机了，那么会由master节点，让那个宕机节点上的primary shard的身份转移到其他机器上的replica shard。急着你要是修复了那个宕机机器，重启了之后，master节点会控制将缺失的replica shard分配过去，同步后续修改的数据之类的，让集群恢复正常。
+
 ## ES 写数据过程
 
 - 客户端选择一个 node 发送请求过去，这个 node 就是 `coordinating node`（协调节点）。
@@ -2359,7 +2371,7 @@ public class ESHightApi {
 
 ## es 读数据过程
 
-可以通过 `doc id` 来查询，会根据 `doc id` 进行 hash，判断出来当时把 `doc id` 分配到了哪个 shard 上面去，从那个 shard 去查询。
+查询，GET某一条数据，写入了某个document，这个document会自动给你分配一个全局唯一的id，可以通过 `doc id` 来查询，会根据 `doc id` 进行 hash，判断出来当时把 `doc id` 分配到了哪个 shard 上面去，从那个 shard 去查询。
 
 - 客户端发送请求到**任意** 一个 node，成为 `coordinate node`。
 - `coordinate node` 对 `doc id` 进行哈希路由，将请求转发到对应的 node，此时会使用 `round-robin` **随机轮询算法** ，在 `primary shard` 以及其所有 replica 中随机选择一个，让读请求负载均衡。
