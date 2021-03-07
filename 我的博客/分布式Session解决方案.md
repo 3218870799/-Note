@@ -1,25 +1,4 @@
-![image-20210120142815995](media/image-20210120142815995.png)
-
-
-
-两种方式：
-
-一种是nginx使用ip_hash策略进行，将同一个请求分发到相同的服务器上，（还有一个类似于王者荣耀选取，由客户手动负载）
-
-
-
-第二种是基于Redis存储session
-
-- 这是企业中使用的最多的一种方式
-- spring为我们封装好了spring-session，直接引入依赖即可
-- 数据保存在redis中，无缝接入，不存在任何安全隐患
-- redis自身可做集群，搭建主从，同时方便管理
-
-多了一次网络调用，web容器需要向redis访问
-
-
-
-
+# 基本概念
 
 Cookie：缓存在浏览器的，每次客户端向服务器发送请求时都会带上的特殊信息。
 
@@ -43,21 +22,27 @@ Session：一个浏览器和服务器的交互的会话，Cookie中保存着Sess
 
 
 
-
-
-
-
-分布式Session问题：
+# 问题
 
 因为分布式的，客户端发送了一个请求，经过负载均衡后该请求会被分配到下列服务器中的任意一个，这是用户验证了，如果用户再次请求，该请求被负载到另一台服务器上，此时检查Cookie中的sessionId发现该服务器没有，这是会让用户重新登录，这就会出现问题。
 
+# 解决方案
 
 
-方法一：Session复制
+
+![image-20210120142815995](media/image-20210120142815995.png)
+
+
+
+## 一：请求分发到相同服务器上
+
+一种是nginx使用ip_hash策略进行，将同一个请求分发到相同的服务器上，（还有一个类似于王者荣耀选取，由客户手动负载）
+
+在Nginx中配置ip_hash，配置了IP绑定就不支持负载均衡了。
+
+## 二：Session复制
 
 将所有服务器中的Session都同步复制到所有服务器上。在所有服务器间做一个Session的同步。部署两台Tomcat，开启集群配置。
-
-
 
 在项目中在WEB-INF目录下的web.xml文件中添加开启
 
@@ -68,20 +53,15 @@ Session：一个浏览器和服务器的交互的会话，Cookie中保存着Sess
 
 
 
-方法二：使用Nginx中IP绑定策略
-
-在Nginx中配置ip_hash，配置了IP绑定就不支持负载均衡了。
-
-
-
-方法三：使用Token代替Session
+## 三：使用Token代替Session
 
 　　当Web服务器接收到请求后，请求会进入对应的Filter进行过滤，将原本需要由Web服务器创建会话的过程转交给Spring-Session进行创建。Spring-Session会将原本应该保存在Web服务器内存的Session存放到Redis中。然后Web服务器之间通过连接Redis来共享数据，达到Sesson共享的目的。
 
 使用基于 Token 的身份验证方法，在服务端不需要存储用户的登录记录。大概的流程是这样的： 
 
    1、客户端通过用户名和密码登录服务器；
-   2、服务端对客户端身份进行验证；
+
+2、服务端对客户端身份进行验证；
    3、服务端对该用户生成Token，返回给客户端；
    4、客户端将Token保存到本地浏览器，一般保存到cookie中；
    5、客户端发起请求，需要携带该Token；
@@ -98,7 +78,146 @@ Session：一个浏览器和服务器的交互的会话，Cookie中保存着Sess
 
 
 
-方法三：基于Redis存储的session方案。
+## 四：Redis存储的session
+
+这是企业中使用的最多的一种方式
+
+spring为我们封装好了spring-session，直接引入依赖即可
+
+数据保存在redis中，无缝接入，不存在任何安全隐患
+
+redis自身可做集群，搭建主从，同时方便管理
+
+多了一次网络调用，web容器需要向redis访问
+
+
+
+### 1：Tomact+Redis
+
+就是使用session的代码跟以前一样，还是基于tomcat原生的session支持即可，然后就是用一个叫做Tomcat RedisSessionManager的东西，让所有我们部署的tomcat都将session数据存储到redis即可。
+
+在tomcat的配置文件中，配置一下
+
+```
+<Valve className="com.orangefunction.tomcat.redissessions.RedisSessionHandlerValve" />
+
+<Manager className="com.orangefunction.tomcat.redissessions.RedisSessionManager"
+
+    host="{redis.host}"
+
+    port="{redis.port}"
+
+    database="{redis.dbnum}"
+
+    maxInactiveInterval="60"/>
+```
+
+搞一个类似上面的配置即可，你看是不是就是用了RedisSessionManager，然后指定了redis的host和 port就ok了。
+
+```
+<Valve className="com.orangefunction.tomcat.redissessions.RedisSessionHandlerValve" />
+
+<Manager className="com.orangefunction.tomcat.redissessions.RedisSessionManager"
+
+     sentinelMaster="mymaster"
+
+     sentinels="<sentinel1-ip>:26379,<sentinel2-ip>:26379,<sentinel3-ip>:26379"
+
+     maxInactiveInterval="60"/>
+```
+
+还可以用上面这种方式基于redis哨兵支持的redis高可用集群来保存session数据，都是ok的
+
+但我们从Session获取数据，其实tomcat就是会从redis中获取到session了。
+
+但是存在的问题，就是严重依赖于Web容器
+
+
+
+
+
+
+
+
+
+### 2：Spring Session +Redis
+
+pom.xml
+
+```
+<dependency>
+     <groupId>org.springframework.session</groupId>
+     <artifactId>spring-session-data-redis</artifactId>
+     <version>1.2.1.RELEASE</version>
+</dependency>
+<dependency>
+     <groupId>redis.clients</groupId>
+     <artifactId>jedis</artifactId>
+     <version>2.8.1</version>
+</dependency>
+```
+
+### spring配置文件
+
+```
+<bean id="redisHttpSessionConfiguration"
+class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration">
+  <property name="maxInactiveIntervalInSeconds" value="600"/>
+</bean>
+<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+  <property name="maxTotal" value="100" />
+  <property name="maxIdle" value="10" />
+</bean>
+<bean id="jedisConnectionFactory"
+   class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory" destroy-method="destroy">
+  <property name="hostName" value="${redis_hostname}"/>
+  <property name="port" value="${redis_port}"/>
+  <property name="password" value="${redis_pwd}" />
+  <property name="timeout" value="3000"/>
+  <property name="usePool" value="true"/>
+  <property name="poolConfig" ref="jedisPoolConfig"/>
+</bean>
+```
+
+### web.xml
+
+```
+<filter>
+  <filter-name>springSessionRepositoryFilter</filter-name>
+  <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+</filter>
+<filter-mapping>
+  <filter-name>springSessionRepositoryFilter</filter-name>
+  <url-pattern>/*</url-pattern>
+</filter-mapping>
+```
+
+### 示例代码
+
+```
+@Controller
+@RequestMapping("/test")
+public class TestController {
+@RequestMapping("/putIntoSession")
+@ResponseBody
+  public String putIntoSession(HttpServletRequest request, String username){
+   request.getSession().setAttribute("name", “leo”);
+   return "ok";
+  }
+@RequestMapping("/getFromSession")
+@ResponseBody
+  public String getFromSession(HttpServletRequest request, Model model){
+   String name = request.getSession().getAttribute("name");
+   return name;
+  }
+}
+```
+
+
+
+
+
+
 
 重写了getSession方法，
 
