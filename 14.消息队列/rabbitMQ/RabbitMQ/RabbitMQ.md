@@ -349,6 +349,8 @@ rabbitmqctl delete vhost bjpowernode
 
 ## 3.1 机制
 
+### 1：结构
+
 所有 MQ 产品从模型抽象上来说都是一样的过程：消费者（consumer）订阅某个队列。生产者（producer）创建消息，然后发布到队列（queue）中，最后将消息发送到监听的消费者。
 
 ![image-20201112222239406](Media/image-20201112222239406.png)
@@ -437,6 +439,10 @@ confirm：一旦 channel 进入 confirm 模式，所有在该信道上发布的�
 
 处理消息成功后，手动回复确认消息。
 
+### 3：传输原理
+
+由于TCP连接的创建和销毁开销较大，且并发数受系统资源限制，会造成性能瓶颈。RabbitMQ使用信道的方式来传输数据。channel是建立在真实的TCP连接内的虚拟连接，且每条TCP连接上的信道数量没有限制
+
 ### 4：持久化机制
 
 持久化设置：
@@ -455,7 +461,7 @@ confirm：一旦 channel 进入 confirm 模式，所有在该信道上发布的�
 
 1：simple 模式
 
-![img](media/aHR0cHM6Ly91c2VyLWdvbGQtY2RuLnhpdHUuaW8vMjAxOS84LzI4LzE2Y2Q3NTE3OGI3ZTVlMjA.png)
+
 
 缺点：
 
@@ -465,17 +471,21 @@ confirm：一旦 channel 进入 confirm 模式，所有在该信道上发布的�
 
 消费者 1,消费者 2 同时监听同一个队列,消息被消费。C1 C2 共同争抢当前的消息队列内容,谁先拿到谁负责消费消息
 
+![img](media/aHR0cHM6Ly91c2VyLWdvbGQtY2RuLnhpdHUuaW8vMjAxOS84LzI4LzE2Y2Q3NTE3OGI3ZTVlMjA.png)
+
+均衡算法，消费者是平均分配的。
+
 缺点：
 
 高并发情况下,默认会产生某一个消息被多个消费者共同使用,可以设置一个开关(syncronize) 保证一条消息只能被一个消费者使用
 
-3：publish/subscribe 发布订阅
+3：Fanout,广播模式下
 
 ![img](media/aHR0cHM6Ly91c2VyLWdvbGQtY2RuLnhpdHUuaW8vMjAxOS84LzI4LzE2Y2Q3Njk2NGMxMGM3NWI.png)
 
 每个消费者监听自己的队列；
 
-生产者将消息发给 broker，由交换机将消息转发到绑定此交换机的每个队列，每个绑定交换机的队列都将接收到消息。
+生产者将消息发给 broker交换机，由交换机将消息转发到绑定此交换机的每个队列，每个绑定交换机的队列都将接收到消息。注册业务，注册成功后既要发邮件又要发短信
 
 4：routing 路由模式
 
