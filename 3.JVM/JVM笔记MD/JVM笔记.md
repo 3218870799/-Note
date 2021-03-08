@@ -175,8 +175,7 @@ Roots 之间没有可达路径，这些对象就被判了死刑。
 
 可以配合引用队列来释放弱引用自身
 
-（4） 虚引用（PhantomReference） 必须配合引用队列使用，主要配合 ByteBuffer
-使用，被引用对象回收时，会将虚引用入队， 由 Reference Handler
+（4） 虚引用（PhantomReference） 必须配合引用队列使用，主要配合 ByteBuffer使用，被引用对象回收时，会将虚引用入队， 由 Reference Handler
 
 线程调用虚引用相关方法释放直接内存
 
@@ -315,9 +314,13 @@ CMS 并发但是不可控
 “Concurrent”并发是指垃圾收集的线程和用户执行的线程是可以同时执行的。
 
 CMS 是基于“标记-清除”算法实现的，整个过程分为 4 个步骤：
-1、初始标记（CMS initial mark）：找到根对象
-2、并发标记（CMS concurrent mark）：过滤对象树，可能产生错误标记，已经标记为垃圾，又被连上了
-3、重新标记（CMS remark）：修正错标，CMS 和 G1 都采用的三色标记，CMS 采用增量更新，G1 使用快照的方式。ZGC 采用颜色指针。
+
+1、初始标记（CMS initial mark）：找到根对象，标记老年代中所有的GC Root对象，标记年轻代中活着的对象引用到老年代的对象（指年轻带中还存活的引用类型对象，引用指向老年代的对象）
+
+2、并发标记（CMS concurrent mark）：过滤对象树，可能产生错误标记，已经标记为垃圾，又被连上了，该阶段会把上述对象所在的Card标识为Dirty，后续只需扫描这些Dirty Card的对象，避免扫描整个老年代；并发标记阶段只负责将引用发生改变的Card标记为Dirty状态，不负责处理；
+
+3、重新标记（CMS remark）：由于前面是并发标记的，这时候年轻代的对象对老年代的引用已经发生了改变，修正错标，CMS 和 G1 都采用的三色标记，CMS 采用增量更新，G1 使用快照的方式。ZGC 采用颜色指针。
+
 4、并发清除（CMS concurrent sweep）。
 
 ![89af7bbc-5331-4c62-ab7e-18e93350f826](media/641601-20150915141621148-1908245224.png)
@@ -333,9 +336,20 @@ CMS 是基于“标记-清除”算法实现的，整个过程分为 4 个步骤
 
 1、CMS 收集器对 CPU 资源非常敏感。
 
-2、CMS 收集器无法处理浮动垃圾（Floating Garbage，就是指在之前判断该对象不是垃圾，由于用户线程同时也是在运行过程中的，所以会导致判断不准确的， 可能在判断完成之后在清除之前这个对像已经变成了垃圾对象，所以有可能本该此垃圾被回收但是没有被回收，只能等待下一次 GC 再将该对象回收，所以这种对像就是浮动垃圾）可能出现“Concurrent Mode Failure”失败而导致另一次 Full GC 的产生
+2、CMS 收集器无法处理浮动垃圾（Floating Garbage，并发清理阶段用户线程还在运行着，伴随程序运行自然就还会有新的垃圾不断产生，只能等待下一次 GC 再将该对象回收，所以这种对像就是浮动垃圾）可能出现“Concurrent Mode Failure”失败而导致另一次 Full GC 的产生
 
-3，采用标记清理算法，清理后可能会产生大量的内存碎片
+3，采用标记清理算法，清理后可能会产生大量的内存碎片，如果没有整块空间存了，就会触发Full GC ,然后进行空间整理压缩。
+
+解决内存碎片：
+
+-XX:CMSFullGCsBeforeCompaction=n
+ 意思是说在上一次CMS并发GC执行过后，到底还要再执行多少次full GC才会做压缩。默认是0，也就是在默认配置下每次CMS GC顶不住了而要转入full GC的时候都会做压缩。 如果把CMSFullGCsBeforeCompaction配置为10，就会让上面说的第一个条件变成每隔10次真正的full GC才做一次压缩。
+
+
+
+
+
+
 
 ## （3）响应时间优先
 
@@ -361,7 +375,7 @@ CMS 是基于“标记-清除”算法实现的，整个过程分为 4 个步骤
 
 软实时，低延时
 
-G1 的内存布局不再是新生代老年代等等的了，变成了，
+G1 的内存布局不再是新生代老年代等等的了，变成了
 
 ![image-20210224180008868](media/image-20210224180008868.png)
 
@@ -373,21 +387,13 @@ Writer Barrier（写屏障）
 
 流程：
 
-1：Fully young GC 完全的年轻代 GC，产生一个 STW，构建 CS（Eden + Surivor），扫描 GC Rooot，排空 Dirty Card Queue，处理 RS （找到被老年代所引用的对象）适用卡表（Card Table）进行卡标记（card Marking）来解决老年代与新生代直接的引用问题。
+1：Fully young GC 完全的年轻代 GC，产生一个 STW，构建 CS（Eden + Surivor），扫描 GC Rooot，排空 Dirty Card Queue，处理  Remebered Set （找到被老年代所引用的对象）使用卡表（Card Table）进行卡标记（card Marking）来解决老年代与新生代直接的引用问题，复制对象到Survivor区，处理软，虚等引用
 
 具体是，使用卡表（Card Table）和写屏障（Write Barrier）来进行标记并加快对 GC Roots 的扫描。卡表的设计师将堆内存平均分成 2 的 N 次方大小（默认 512 字节）个卡，并且维护一个卡表，用来储存每个卡的标识位。当对一个对象引用进行写操作时（对象引用改变），写屏障逻辑将会标记对象所在的卡页为脏页。在 YGC 只需要扫描卡表中的脏卡，将脏中的对象加入到 YGC 的 GC Roots 里面。当完成所有脏卡扫描时候，虚拟机会将卡表的脏卡标志位清空。
 
-2：Old GC：并发标记进行，三色标记算法，
+2：ConCurrent Marking：并发标记进行，三色标记算法：初始标记，标记根节点直接到达的对象；根区域扫描，扫描survivor区直接可达的老年代区域对象,并标记被引用的对象；并发标记，在整个堆中进行标记；再次标记，修正标记（STW），独占清理（STW），计算各个区域的存活对象和GC回收比例,并进行排序,识别可以混合回收的区域；并发清理
 
 3：Mixed GC：进行老年代和新生代一起，他是和 youngGC 是完全相同的拷贝算法。默认 1/8 的老年代。
-
-\-XX:+UseG1GC
-
-\-XX:G1HeapRegionSize=size
-
-\-XX:MaxGCPauseMillis=time
-
-![](media/27e343c0ebd762ccdc104ffbfc8f4be7.png)
 
 优点：
 
@@ -399,38 +405,6 @@ Writer Barrier（写屏障）
 缺点：
 
 - 卡表占用了大量的内存
-
-1：YoungCollection
-
-2：YoungCollection+CM
-
-3：Mixed Collection
-
-4：fullGC
-
-SerialGC
-
-新生代内存不足发生的垃圾收集 - minor gc
-
-老年代内存不足发生的垃圾收集 - full gc
-
-ParallelGC
-
-新生代内存不足发生的垃圾收集 - minor gc
-
-老年代内存不足发生的垃圾收集 - full gc
-
-CMS
-
-新生代内存不足发生的垃圾收集 - minor gc
-
-老年代内存不足
-
-G1
-
-新生代内存不足发生的垃圾收集 - minor gc
-
-老年代内存不足
 
 https://www.cnblogs.com/webor2006/p/11055468.html
 
