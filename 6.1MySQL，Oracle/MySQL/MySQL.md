@@ -1661,17 +1661,45 @@ mysql\> SET GLOBAL TRANSACTION ISOLATION LEVEL READ COMMITTED；
 
 - 为了查看当前隔离级别，可访问 tx_isolation 变量：
 
-  - 查看会话级的当前隔离级别：
+  1.查看当前会话隔离级别
 
-mysql\> SELECT \@\@tx_isolation;
+  select @@tx_isolation;
 
-或：
+  2.查看系统当前隔离级别
 
-mysql\> SELECT \@\@session.tx_isolation;
+  select @@global.tx_isolation;
 
-- 查看全局级的当前隔离级别：
+  3.设置当前会话隔离级别
 
-mysql\> SELECT \@\@global.tx_isolation;
+  set session transaction isolatin level repeatable read;
+
+  4.设置系统当前隔离级别
+
+  set global transaction isolation level repeatable read;
+
+
+
+对比Oracle查询隔离级别：
+
+```sqlite
+1）：
+
+declare
+trans_id Varchar2(100);
+begin
+trans_id := dbms_transaction.local_transaction_id( TRUE );
+end;
+
+2）：
+
+SELECT s.sid, s.serial#,CASE BITAND(t.flag, POWER(2, 28))
+WHEN 0 THEN 'READ COMMITTED'
+ELSE 'SERIALIZABLE' END AS isolation_level
+FROM v$transaction t
+JOIN v$session s ON t.addr = s.taddr AND s.sid = sys_context('USERENV', 'SID');
+```
+
+
 
 #### 15.4.7、并发事务与隔离级别示例
 
