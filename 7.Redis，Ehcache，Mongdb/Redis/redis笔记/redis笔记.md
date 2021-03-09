@@ -1005,6 +1005,56 @@ _语法：ZCOUNT key min max_
 
 | 192.168.101.3:7001\> ZRANGE items:sellsort 0 9 withscores
 
+#### 实现延时队列
+
+方式一：使用 redis zset 数据结构 ，使用 score 排序 score 为过期时间点 ，启动线程不断取出排序第一个 比较 score 和当前时间点 如果 score 小于或等于当前时间 说明此数据过期 需要处理 ，处理完毕在 zset 中移除
+
+方式二：修改 redis 配置 redis.conf 添加 notify-keyspace-events Ex
+
+编写测试 demo
+
+新建 boot 工程 加入 redis 依赖
+
+新建 redisconfig 注入 RedisMessageListenerContainer Bean
+
+```java
+@Configuration
+public class RedisListenerConfig {
+    @Bean
+    RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory) {
+
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        return container;
+    }
+}
+```
+
+编写 redis 监听类 继承 KeyExpirationEventMessageListener
+
+```java
+@Component
+public class RedisKeyExpirationListener extends KeyExpirationEventMessageListener {
+
+    public RedisKeyExpirationListener(RedisMessageListenerContainer listenerContainer) {
+        super(listenerContainer);
+    }
+    @Override
+    public void onMessage(Message message, byte[] pattern) {
+        String expiredKey = message.toString();
+        System.out.println("监听到过期的key为："+expiredKey);
+    }
+}
+```
+
+运行 boot 工程 使用 redis 客户端 redis desktop manager 添加一个 key 设置过期时间
+
+![img](media/1674623-20190628161120652-1057179685.png)
+
+延时两秒 在工程控制太看到输出
+
+![img](media/1674623-20190628161204608-1459829592.png)
+
 ### 底层实现
 
 有序集合的编码可以是 ziplist 或者 skiplist。
