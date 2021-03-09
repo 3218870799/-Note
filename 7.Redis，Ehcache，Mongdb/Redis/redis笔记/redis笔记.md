@@ -180,8 +180,6 @@ make isntall  PREFIX=/usr/local/redis
 
 第七步：查看是否安装成功
 
-![](media/68ddd64c3aea38042faf96f3569b1699.png)
-
 ## 2.3：redis 启动
 
 ### 前端启动
@@ -203,8 +201,6 @@ make isntall  PREFIX=/usr/local/redis
 ```
 
 启动界面：
-
-![](media/749aef429c739ca232fee6d9099a8712.png)
 
 前端启动的问题：
 
@@ -297,8 +293,6 @@ cp /root/redis-3.0.0/redis.conf ./
 
 Redis.conf 中的数据库数量的设置：
 
-![](media/2ad317edde82f3dd2588122c2c7ab81b.png)
-
 选择数据库的方式：
 
 使用 select 加上数据库的下标 就可以选择指定的数据库来使用，下标从 0 开始
@@ -323,8 +317,6 @@ Jedis 同样也是托管在 github 上，地址：https://github.com/xetorthio/j
 ### 工程搭建
 
 添加 jar 包
-
-![](media/a7eaceb8c6bb4b8aa6b917df15e58f9e.png)
 
 ### 单实例连接 redis
 
@@ -1201,6 +1193,8 @@ PEXPIRE key milliseconds 生存时间设置单位为：毫秒
 
 # 第五章：Redis 持久化方案
 
+Redis 持久化的意义，在于故障恢复，也属于高可用的一个环节。
+
 ## 5.1：RDB 方式
 
 Redis 默认的方式，redis 通过快照来将数据持久化到磁盘中。设置持久化快照的条件在 redis.conf 中修改持久化快照的条件，如下：
@@ -1426,6 +1420,21 @@ Redis 增量复制是指 Slave 初始化后开始正常工作时主服务器发�
 
 # 第七章：Redis 集群
 
+#### Redis Cluster
+
+是 Redis 的集群模式
+
+- 自动将数据进行分片，每个 master 上放一部分数据
+- 提供内置的高可用支持，部分 master 不可用时，还是可以继续工作的
+
+在 redis cluster 架构下，每个 redis 要放开两个端口号，比如一个是 6379，另外一个就是加 10000 的端口号，比如 16379 端口号是用来进行节点间通信的，也就是 cluster bus 的东西，集群总线。cluster bus 的通信，用来进行故障检测，配置更新，故障转移授权
+
+#### Redis replication + sentinel：高可用模式
+
+如果你的数据量很少，主要是承载高并发高性能的场景，比如你的缓存一般就几个 G，单机足够了，replication，一个 mater，多个 slave，要几个 slave 跟你的要求的读吞吐量有关系，然后自己搭建一个 sentinal 集群，去保证 redis 主从架构的高可用性，就可以了
+
+redis cluster，主要是针对海量数据+高并发+高可用的场景，海量数据，如果你的数据量很大，那么建议就用 redis cluster
+
 ## 7.1：redis-cluster 架构图
 
 ![134caad7-0591-3edd-9162-6ae43d068333](media/f11614de2535d9c85d257a7d17dbccf0.jpeg)
@@ -1458,182 +1467,7 @@ Redis 集群中内置了 16384 个哈希槽，当需要在 Redis 集群中放置
 
 ## 7.3：安装 ruby
 
-集群管理工具（redis-trib.rb）是使用 ruby 脚本语言编写的。
-
-第一步：安装 ruby
-
-[root\@xqc bin2]\# yum install ruby
-
-[root\@xqc bin2]\# yum install rubygems
-
-第二步：将以下文件上传到 linux 系统
-
-![](media/e87aa6474af1e8a740afb7af83167c14.png)
-
-第三步：安装 ruby 和 redis 接口
-
-[root\@xqc \~]\# gem install redis-3.0.0.gem
-
-第四步：将 redis-3.0.0 包下 src 目录中的以下文件拷贝到 redis19/redis-cluster/
-
-![](media/5da978d46ee16befc2ebb60452dccbc9.png)
-
-[root\@xqc src]\# cd /usr/local/redis19/
-
-[root\@xqc redis19]\# mkdir redis-cluster
-
-[root\@xqc redis19]\# cd /root/redis-3.0.0/src/
-
-[root\@xqc src]\# cp redis-trib.rb /usr/local/redis19/redis-cluster
-
-第五步：查看是否拷贝成功
-
-![](media/5777c628734d944369f1488b668881e0.png)
-
 ## 7.4：搭建集群
-
-搭建集群最少也得需要 3 台主机，如果每台主机再配置一台从机的话，则最少需要 6 台机器。
-
-端口设计如下：7001-7006
-
-第一步：复制出一个 7001 机器
-
-[root\@xqc redis19]\# cp bin ./redis-cluster/7001 –r
-
-第二步：如果存在持久化文件，则删除
-
-[root\@xqc 7001]\# rm -rf appendonly.aof dump.rdb
-
-第三步：设置集群参数
-
-![](media/03746a099c65803ac886926698a097ce.png)
-
-第四步：修改端口
-
-![](media/922b120855b5bf12557dff227701c992.png)
-
-第五步：复制出 7002-7006 机器
-
-[root\@xqc redis-cluster]\# cp 7001/ 7002 -r
-
-[root\@xqc redis-cluster]\# cp 7001/ 7003 -r
-
-[root\@xqc redis-cluster]\# cp 7001/ 7004 -r
-
-[root\@xqc redis-cluster]\# cp 7001/ 7005 -r
-
-[root\@xqc redis-cluster]\# cp 7001/ 7006 –r
-
-第六步：修改 7002-7006 机器的端口
-
-第七步：启动 7001-7006 这六台机器
-
-![](media/401896b9cbff782151e2ee95448ebe25.png)
-
-第八步：修改 start-all.sh 文件的权限
-
-[root\@xqc redis-cluster]\# chmod u+x start-all.sh
-
-[root\@xqc redis-cluster]\# ./start-all.sh
-
-第九步：创建集群
-
-```shell
-./redis-trib.rb create --replicas 1 192.168.242.137:7001 192.168.242.137:7002 192.168.242.137:7003 192.168.242.137:7004 192.168.242.137:7005  192.168.242.137:7006
->>> Creating cluster
-Connecting to node 192.168.242.137:7001: OK
-Connecting to node 192.168.242.137:7002: OK
-Connecting to node 192.168.242.137:7003: OK
-Connecting to node 192.168.242.137:7004: OK
-Connecting to node 192.168.242.137:7005: OK
-Connecting to node 192.168.242.137:7006: OK
->>> Performing hash slots allocation on 6 nodes...
-Using 3 masters:
-192.168.242.137:7001
-192.168.242.137:7002
-192.168.242.137:7003
-Adding replica 192.168.242.137:7004 to 192.168.242.137:7001
-Adding replica 192.168.242.137:7005 to 192.168.242.137:7002
-Adding replica 192.168.242.137:7006 to 192.168.242.137:7003
-M: 8240cd0fe6d6f842faa42b0174fe7c5ddcf7ae24 192.168.242.137:7001
-   slots:0-5460 (5461 slots) master
-M: 4f52a974f64343fd9f1ee0388490b3c0647a4db7 192.168.242.137:7002
-   slots:5461-10922 (5462 slots) master
-M: cb7c5def8f61df2016b38972396a8d1f349208c2 192.168.242.137:7003
-   slots:10923-16383 (5461 slots) master
-S: 66adf006fed43b3b5e499ce2ff1949a756504a16 192.168.242.137:7004
-   replicates 8240cd0fe6d6f842faa42b0174fe7c5ddcf7ae24
-S: cbb0c9bc4b27dd85511a7ef2d01bec90e692793b 192.168.242.137:7005
-   replicates 4f52a974f64343fd9f1ee0388490b3c0647a4db7
-S: a908736eadd1cd06e86fdff8b2749a6f46b38c00 192.168.242.137:7006
-   replicates cb7c5def8f61df2016b38972396a8d1f349208c2
-Can I set the above configuration? (type 'yes' to accept): yes
->>> Nodes configuration updated
->>> Assign a different config epoch to each node
->>> Sending CLUSTER MEET messages to join the cluster
-Waiting for the cluster to join..
->>> Performing Cluster Check (using node 192.168.242.137:7001)
-M: 8240cd0fe6d6f842faa42b0174fe7c5ddcf7ae24 192.168.242.137:7001
-   slots:0-5460 (5461 slots) master
-M: 4f52a974f64343fd9f1ee0388490b3c0647a4db7 192.168.242.137:7002
-   slots:5461-10922 (5462 slots) master
-M: cb7c5def8f61df2016b38972396a8d1f349208c2 192.168.242.137:7003
-   slots:10923-16383 (5461 slots) master
-M: 66adf006fed43b3b5e499ce2ff1949a756504a16 192.168.242.137:7004
-   slots: (0 slots) master
-   replicates 8240cd0fe6d6f842faa42b0174fe7c5ddcf7ae24
-M: cbb0c9bc4b27dd85511a7ef2d01bec90e692793b 192.168.242.137:7005
-   slots: (0 slots) master
-   replicates 4f52a974f64343fd9f1ee0388490b3c0647a4db7
-M: a908736eadd1cd06e86fdff8b2749a6f46b38c00 192.168.242.137:7006
-   slots: (0 slots) master
-   replicates cb7c5def8f61df2016b38972396a8d1f349208c2
-[OK] All nodes agree about slots configuration.
->>> Check for open slots...
->>> Check slots coverage...
-[OK] All 16384 slots covered.
-
-```
-
-## 7.5：连接集群
-
-[root\@xqc 7001]\# ./redis-cli -h 192.168.242.137 -p 7001 **–c**
-
-\-c：指定是集群连接
-
-![](media/2ddf9fae33198b72550a16e9bf5c8ac4.png)
-
-## 7.6：查看集群信息
-
-- 查看集群信息
-
-  ```shell
-  	192.168.242.137:7002> cluster info
-  	cluster_state:ok
-  	cluster_slots_assigned:16384
-  	cluster_slots_ok:16384
-  	cluster_slots_pfail:0
-  	cluster_slots_fail:0
-  	cluster_known_nodes:6
-  	cluster_size:3
-  	cluster_current_epoch:6
-  	cluster_my_epoch:2
-  	cluster_stats_messages_sent:2372
-  	cluster_stats_messages_received:2372
-  	192.168.242.137:7002>
-  ```
-
-- 查看集群节点
-
-```shell
-192.168.242.137:7002> cluster nodes
-8240cd0fe6d6f842faa42b0174fe7c5ddcf7ae24 192.168.242.137:7001 master - 0 1451581348093 1 connected 0-5460
-cb7c5def8f61df2016b38972396a8d1f349208c2 192.168.242.137:7003 master - 0 1451581344062 3 connected 10923-16383
-66adf006fed43b3b5e499ce2ff1949a756504a16 192.168.242.137:7004 slave 8240cd0fe6d6f842faa42b0174fe7c5ddcf7ae24 0 1451581351115 1 connected
-a908736eadd1cd06e86fdff8b2749a6f46b38c00 192.168.242.137:7006 slave cb7c5def8f61df2016b38972396a8d1f349208c2 0 1451581349101 3 connected
-4f52a974f64343fd9f1ee0388490b3c0647a4db7 192.168.242.137:7002 myself,master - 0 0 2 connected 5461-10922
-cbb0c9bc4b27dd85511a7ef2d01bec90e692793b 192.168.242.137:7005 slave 4f52a974f64343fd9f1ee0388490b3c0647a4db7 0 1451581350108 5 connected
-```
 
 ## 数据一致性问题
 
@@ -1709,6 +1543,55 @@ A 先删缓存，B 读取缓存没有，就读数据库，然后将旧值写入�
 3. 主动加载由于操作本身不具有幂等性，所以需要考虑加载的有序性问题，采取 mq 的分区机制实现串行化处理，实现缓存和 mysql 数据的最终一致，此时读和写操作的缓存加载事件是走的同一个 mq。
 
 ## 哨兵模式 RedisSentinel
+
+master 宕机了，选择其他的从节点称为 master：步骤：
+
+（1）将宕机的 master 下线——谁来确定 master 宕机了？
+
+（2）找一个 slave 作为 master——怎么找？
+
+（3）通知所有的 slave 连接新的 master——配置后，主恢复了怎么办？
+
+（4）启动新的 master 与 slave
+
+（5）全量复制 _ N + 部分复制 _ N
+
+哨兵：一个分布式系统，用于对主从结构中的每台服务器进行监控，当出现故障时通过投票机制选择新的 master 并将所有 slave 连接到新的 master。监控，通知，自动故障转移。
+
+注意哨兵也是一台 redis 服务器，只是不提供数据服务，通常哨兵配置数量为单数，为防止竞选投票的问题
+
+### 原理
+
+**监控**
+
+用于同步各个节点的状态信息：
+
+- 获取各个哨兵的状态
+- 获取主节点状态：master 属性，各个 slave 的详细信息
+- 获取所有 slave 的状态：根据 master 中 slave 的信息
+
+![image-20210309105906817](media/image-20210309105906817.png)
+
+sentinel 会向 master，slave 以及其他 sentinel 获取状态，Sentinel 之间会组件“对应频道”，大家一起发布信息，订阅信息，收信息，同步信息等。
+
+**通知**
+
+哨兵 1 向主发 hello，然后获取后发送到哨兵集群
+
+**故障转移阶段**
+
+一开始哨兵 1 给主节点发 Hello，但是主节点没回，标记为 SRI_S_DOWN（主观下线），然后发送给所有哨兵，然后其他哨兵也去发 hello 验证，只要半数以上的哨兵认为 master 挂了，就将状态改为 SRI_O_DOWN（客观下线）
+
+![image-20210309110302882](media/image-20210309110302882.png)
+
+清理队伍：
+
+选出领头的哨兵：每个哨兵有一票，按照每个哨兵接受到其他哨兵的先后顺序，决定将自己的票投给哪一个哨兵，如果有哨兵得到了半数以上的票，就成为领头，如果没有，就再选一轮，竞选次数加一。
+
+处置选举 master：
+
+- 服务器列表挑选 master：在线的，响应快的，与原 master 断开时间近的，优先级，偏移量，runid 比较小
+- 发送指令：向新的 master 发送 slave of no one ，让其成为主节点；向其他 slave 发送 slaveof 新 masterIP 端口。
 
 Redis-Sentinel(哨兵模式)是 Redis 官方推荐的高可用性(HA)解决方案，当用 Redis 做 Master-slave 的高可用方案时，假如 master 宕机了，Redis 本身(包括它的很多客户端)都没有实现自动进行主备切换，而 Redis-sentinel 本身也是一个独立运行的进程，它能监控多个 master-slave 集群，发现 master 宕机后能进行自懂切换。它的主要功能有以下几点：
 
@@ -1875,7 +1758,11 @@ ZSet：StringRedisTemplate.opsForZSet()方法
 
 采取正确更新策略，先更新数据库，再删缓存。其次，因为可能存在删除缓存失败的问题，提供一个补偿措施即可，例如利用消息队列。
 
-加入到缓存时一般都会设置过期时间
+加入到缓存时一般都会设置过期时间。
+
+（1）读的时候，先读缓存，缓存没有的话，那么就读数据库，然后取出数据后放入缓存，同时返回响应
+
+（2）更新的时候，先删除缓存，然后再更新数据库
 
 ## 缓存穿透与雪崩
 
@@ -1883,7 +1770,7 @@ ZSet：StringRedisTemplate.opsForZSet()方法
 
 解决方案:
 
-1：缓存空对象：如果查不到，将自定义一个空对象加入到缓存中，效果不好，如果是那种连着 1 到 100 万那种访问，还是要去查数据库
+1：缓存空对象：如果查不到，将自定义一个空对象加入到缓存中，效果不好，如果是那种连着 1 到 100 万那种访问，还是要去查数据库。
 
 2：布隆过滤器
 
@@ -1905,6 +1792,8 @@ ZSet：StringRedisTemplate.opsForZSet()方法
 
 解决方案:
 
+事前：
+
 (一)给缓存的失效时间，加上一个随机值，避免集体失效。
 
 (三)双缓存。我们有两个缓存，缓存 A 和缓存 B。缓存 A 的失效时间为 20 分钟，缓存 B 不设失效时间。自己做缓存预热操作。然后细分以下几个小点
@@ -1915,7 +1804,11 @@ ZSet：StringRedisTemplate.opsForZSet()方法
 
 (二)使用互斥锁，但是该方案吞吐量明显下降了。
 
+事中：
+
 出现雪崩，降级，熔断
+
+事后：redis 持久化，快速恢复缓存数据，一般重启，自动从磁盘上加载数据恢复内存中的数据。
 
 ## 缓存击穿问题
 
