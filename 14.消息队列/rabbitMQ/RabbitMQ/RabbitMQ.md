@@ -441,7 +441,7 @@ confirm：一旦 channel 进入 confirm 模式，所有在该信道上发布的�
 
 ### 3：传输原理
 
-由于TCP连接的创建和销毁开销较大，且并发数受系统资源限制，会造成性能瓶颈。RabbitMQ使用信道的方式来传输数据。channel是建立在真实的TCP连接内的虚拟连接，且每条TCP连接上的信道数量没有限制
+由于 TCP 连接的创建和销毁开销较大，且并发数受系统资源限制，会造成性能瓶颈。RabbitMQ 使用信道的方式来传输数据。channel 是建立在真实的 TCP 连接内的虚拟连接，且每条 TCP 连接上的信道数量没有限制
 
 ### 4：持久化机制
 
@@ -460,8 +460,6 @@ confirm：一旦 channel 进入 confirm 模式，所有在该信道上发布的�
 ## 3.2：工作模式
 
 1：simple 模式
-
-
 
 缺点：
 
@@ -485,7 +483,7 @@ confirm：一旦 channel 进入 confirm 模式，所有在该信道上发布的�
 
 每个消费者监听自己的队列；
 
-生产者将消息发给 broker交换机，由交换机将消息转发到绑定此交换机的每个队列，每个绑定交换机的队列都将接收到消息。注册业务，注册成功后既要发邮件又要发短信
+生产者将消息发给 broker 交换机，由交换机将消息转发到绑定此交换机的每个队列，每个绑定交换机的队列都将接收到消息。注册业务，注册成功后既要发邮件又要发短信
 
 4：routing 路由模式
 
@@ -1853,11 +1851,46 @@ DLX 也是一个正常的交换机，。当这个队列中存在死信时，Rabb
 
 ## 延时队列
 
+详细：https://www.cnblogs.com/mfrank/p/11260355.html
+
 10 分钟不支付完成就进行回滚。
 
-介绍一下 RabbitMQ 中的一个高级特性——`TTL（Time To Live）` ，`TTL`是 RabbitMQ 中一个消息或者队列的属性，表明`一条消息或者该队列中的所有消息的最大存活时间`，单位是毫秒。换句话说，如果一条消息设置了 TTL 属性或者进入了设置 TTL 属性的队列，那么这条消息如果在 TTL 设置的时间内没有被消费，则会成为“死信”。
+介绍一下 RabbitMQ 中的一个高级特性——`TTL（Time To Live）` ，`TTL`是 RabbitMQ 中一个消息或者队列的属性，表明`一条消息或者该队列中的所有消息的最大存活时间`，单位是毫秒。换句话说，如果一条消息设置了 TTL 属性或者进入了设置 TTL 属性的队列，那么这条消息如果在 TTL 设置的时间内没有被消费，则会成为“死信”。如果同时配置了队列的 TTL 和消息的 TTL，那么较小的那个值将会被使用。
+
+第一种是在创建队列的时候设置队列的 `x-message-tt` 属性
+
+```java
+Map<String, Object> args = new HashMap<String, Object>();
+args.put("x-message-ttl", 6000);
+channel.queueDeclare(queueName, durable, exclusive, autoDelete, args);
+```
+
+这样所有被投递到该队列的消息都最多不会存活超过 6s
+
+第二种是针对每条消息设置 TTL
+
+```java
+AMQP.BasicProperties.Builder builder = new AMQP.BasicProperties.Builder();
+builder.expiration("6000");
+AMQP.BasicProperties properties = builder.build();
+channel.basicPublish(exchangeName, routingKey, mandatory, properties, "msg body".getBytes());
+```
+
+但这两种方式是有区别的，如果设置了队列的 TTL 属性，那么一旦消息过期，就会被队列丢弃，而第二种方式，消息即使过期，也不一定会被马上丢弃，因为消息是否过期是在即将投递到消费者之前判定的，如果当前队列有严重的消息积压情况，则已过期的消息也许还能存活较长时间。
+
+**使用 TTL 和死信队列实现延时队列功能：**
+
+TTL 则刚好能让消息在延迟多久之后成为死信，另一方面，成为死信的消息都会被投递到死信队列里，这样只需要消费者一直消费死信队列里的消息就万事大吉了，因为里面的消息都是希望被立即处理的消息。
 
 生产者生产一条延时消息，根据需要延时时间的不同，利用不同的 routingkey 将消息路由到不同的延时队列，每个队列都设置了不同的 TTL 属性，并绑定在同一个死信交换机中，消息过期后，根据 routingkey 的不同，又会被路由到不同的死信队列中，消费者只需要监听对应的死信队列进行处理即可。
+
+如果这样使用的话，岂不是每增加一个新的时间需求，就要新增一个队列，这样只能将 TTL 设置在消息属性里了。增加一个延时队列，用于接收设置为任意延时时长的消息，增加一个相应的死信队列和 routingkey：
+
+但是，在最开始的时候，就介绍过，如果使用在消息属性上设置 TTL 的方式，消息可能并不会按时“死亡“，因为 RabbitMQ 只会检查第一个消息是否过期，如果过期则丢到死信队列，索引如果第一个消息的延时时长很长，而第二个消息的延时时长很短，则第二个消息并不会优先得到执行。
+
+**利用 RabbitMQ 插件实现延时队列：**
+
+安装一个插件即可：https://www.rabbitmq.com/community-plugins.html ，下载 rabbitmq_delayed_message_exchange 插件，然后解压放置到 RabbitMQ 的插件目录。
 
 ## 消息数据丢失
 
