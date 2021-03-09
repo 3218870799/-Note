@@ -1417,7 +1417,21 @@ HashMap 在进行扩容时，使用的 rehash 方式非常巧妙，因为每次�
 
 总的来说：扩容时总是扩容到原来的两倍，使用位运算，可以很容易的将原本的元素转移到新的数组中去。
 
-Q：HashMap 也是线程不安全的，怎么解决呢？
+
+
+Q：HashMap 为什么是线程不安全的，怎么解决呢？
+
+不安全：
+
+（1）put的时候导致的多线程数据不一致。
+
+比如有两个线程A和B，首先A希望插入一个key-value对到HashMap中，首先计算记录所要落到的桶的索引坐标，然后获取到该桶里面的链表头结点，此时线程A的时间片用完了，而此时线程B被调度得以执行，和线程A一样执行，只不过线程B成功将记录插到了桶里面，假设线程A插入的记录计算出来的桶索引和线程B要插入的记录计算出来的桶索引是一样的，那么当线程B成功插入之后，线程A再次被调度运行时，它依然持有过期的链表头但是它对此一无所知，以至于它认为它应该这样做，如此一来就覆盖了线程B插入的记录，这样线程B插入的记录就凭空消失了，造成了数据不一致的行为。
+
+（2）另外一个比较明显的线程不安全的问题是HashMap的get操作可能因为resize而引起死循环（cpu100%）
+
+![img](media/7853175-ab75cd3738471507.png)
+
+解决：
 
 方法一：使用 Collections 的方法，给外层套一个：Collections.synchronizedMap(new HashMap<>());
 
@@ -1542,13 +1556,25 @@ hashCode & n-1
 
 并更新 sizeCtl 的大小为新数组的 0.75 倍
 
-阈值
+
+
+**Q：concurrenthashmap为什么安全，加锁在什么位置，读数据用加锁么？**
+
+采用CAS和synchronized方式处理并发。以put操作为例，CAS方式确定key的数组下标，synchronized保证链表节点的同步效果。
+
+加锁时synchronized是加在Node节点上。
+
+在1.8中ConcurrentHashMap的get操作全程不需要加锁，get操作全程不需要加锁是因为Node的成员val是用volatile修饰的，数组用volatile修饰主要是保证在数组扩容的时候保证可见性。
+
+
 
 ### HashTable
 
-线程安全：所有涉及到多线程操作的都加上了 synchronized 关键字来锁住整个 table
+线程安全：所有涉及到多线程操作的都加上了 synchronized 关键字来锁住整个 table，HashTable容器使用synchronized来保证线程安全，但在线程竞争激烈的情况下HashTable的效率非常低下。因为多个线程访问HashTable的同步方法时，可能会进入阻塞或轮询状态。如线程1使用put进行添加元素，线程2不但不能使用put方法添加元素，并且也不能使用get方法来获取元素，所以竞争越激烈效率越低。
 
 现在很少用了，多被 HahsMap 或 ConcurrentHashMap 代替，不允许插入 null 值
+
+
 
 ### LinkedHashMap
 
@@ -1592,7 +1618,9 @@ TreeMap：适用于按自然顺序或自定义顺序遍历键（key)。
 
 HashMap 通常比 TreeMap 快一点（树和哈希表的数据结构使然），建议多使用 HashMap,在需要排序的 Map 时候才用 TreeMap.
 
-**2：HashMap 与 HashTable 的区别**
+
+
+2：HashMap 与 HashTable 的区别？
 
 - HashMap 是线程不安全的，HashTable 是线程安全的，效率低。因此，HashMap 更适合于单线程环境，而 Hashtable 适合于多线程环境。
 - Hashtable 的方法是 Synchronize 的，而 HashMap 不是
@@ -2645,17 +2673,13 @@ JUC 包增加了并发编程中常用的工具类，用于定义类似于线程�
 
 #### synchronized
 
-JDK 早期，synchronized 叫做重量级锁， 因为申请锁资源必须通过 kernel, 系统调用
+JDK 早期，synchronized 叫做重量级锁， 因为申请锁资源必须通过 kernel, 系统调用，后来调整为锁升级的过程：无锁 - 偏向锁 - 轻量级锁 （自旋锁，自适应自旋）- 重量级锁
 
-synchronized：保证在同一时刻，只有一个线程可以执行某个方法或某个代码块
-
-同时 synchronized 可以保证一个线程的变化可见（可见性），即可以代替 volatile。
+synchronized：保证在同一时刻，只有一个线程可以执行某个方法或某个代码块，同时 synchronized 可以保证一个线程的变化可见（可见性），即可以代替 volatile。悲观锁，非公平锁（底层调用mutex锁，内核提供的这个锁并不保证公平）
 
 可以修饰代码块，方法，静态方法，类
 
-锁升级的过程：
 
-无锁 - 偏向锁 - 轻量级锁 （自旋锁，自适应自旋）- 重量级锁
 
 #### volatile
 
@@ -4917,8 +4941,7 @@ finalizable， remap， mark0 和 mark1。
 
 ### 读屏障
 
-读屏障是每当应用程序线程从堆加载引用时运行的代码片段（即访问对象上的非原生字段 non-primitive
-field）：
+读屏障是每当应用程序线程从堆加载引用时运行的代码片段（即访问对象上的非原生字段 non-primitive field）：
 
 # Java12
 
