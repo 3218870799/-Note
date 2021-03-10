@@ -94,6 +94,8 @@ http://localhost:8848/nacos
 
 流程：
 
+客户端在启动时，首先穿件一个心跳定时任务，如果返回404，就向注册中心发送注册请求；客户端将服务实例信息发送到服务端，服务端将客户信息放在一个ConcurrentHashMap中；客户端定时任务拉取服务端注册信息，每次拉取后刷新本地已保存的信息，需要用时直接从本地获取。
+
 心跳机制：启动微服务时会向 Nacos 建立连接，并发送心跳请求，Nacos 会将其记录下来，如果某个微服务挂掉了，Nacos 定时任务监听微服务是否超出心跳时间，先标记为不健康，还是不行就直接干掉
 
 ### 使用 Nacos:
@@ -601,7 +603,7 @@ start java -jar sentinel-dashboard-1.8.1.jar --server.port=8070
 - 快速失败：直接失败，跑一场
 - Warm UP：根据 CodeFactor（冷加载因子，默认 3）的值，从阈值 CodeFactor，经过预热时长，才达到设置的 QPS 的阈值。
 
-==流控模式==:
+## 流控模式
 
 1. 直接快速失败
 
@@ -630,8 +632,6 @@ start java -jar sentinel-dashboard-1.8.1.jar --server.port=8070
    当关联的资源达到阈值时，就限流自己
 
    当与 A 关联的资源 B 达到阈值后，就限流 A 自己
-
-   ![](media/sentinel%E7%9A%8412.png)
 
    ==应用场景: 比如**支付接口**达到阈值,就要限流下**订单的接口**,防止一直有订单==
 
@@ -668,19 +668,36 @@ start java -jar sentinel-dashboard-1.8.1.jar --server.port=8070
 
 **就是熔断降级**
 
-![](media/sentinel%E7%9A%8421.png)
+![image-20200416095515859](http://image.moguit.cn/c5be24e5cafc467da1b7c9ff652c2f43)
 
-![](media/sentinel%E7%9A%8420.png)
+- RT（平均响应时间，秒级）
+  - 平均响应时间，超过阈值 且 时间窗口内通过的请求 >= 5，两个条件同时满足后出发降级
+  - 窗口期过后，关闭断路器
+  - RT最大4900（更大的需要通过 -Dcsp.sentinel.staticstic.max.rt=XXXXX才能生效）
+- 异常比例（秒级）
+  - QPA >= 5 且异常比例（秒级）超过阈值时，触发降级；时间窗口结束后，关闭降级
+- 异常数（分钟级）
+  - 异常数（分钟统计）超过阈值时，触发降级，时间窗口结束后，关闭降级
 
-![](media/sentinel%E7%9A%8422.png)
+Sentinel熔断降级会在调用链路中某个资源出现不稳定状态时（例如调用超时或异常比例升高），对这个资源的调用进行限制，让请求快速失败，避免影响到其他的资源而导致级联错误。
 
-![](media/sentinel%E7%9A%8423.png)
+当资源被降级后，在接下来的降级时间窗口之内，对该资源的调用都自动熔断（默认行为是抛出DegradeException）
 
-#### 1,RT 配置:
+Sentinel的断路器是没有半开状态的：半开的状态，系统会自动检测是否请求有异常，没有异常就关闭断路器恢复使用，有异常则继续打开断路器不可用，具体可看Hy
+
+#### 1,RT 
 
 新增一个请求方法用于测试
 
-![](media/sentinel%E7%9A%8424.png)
+```java
+    @GetMapping("/testD")
+    public String testD()
+    {
+        try { TimeUnit.SECONDS.sleep(1); } catch (InterruptedException e) { e.printStackTrace(); }
+        log.info("testD 异常比例");
+        return "------testD";
+    }
+```
 
 ==配置 RT:==
 
@@ -700,9 +717,9 @@ start java -jar sentinel-dashboard-1.8.1.jar --server.port=8070
 
 **默认熔断后.就直接抛出异常**
 
-#### 2,异常比例:
+#### 2,异常比例
 
-![](media/sentinel%E7%9A%8428.png)
+异常比例 (`DEGRADE_GRADE_EXCEPTION_RATIO`)：当资源的每秒请求量 >= N（可配置），并且每秒异常总数占通过量的比值超过阈值（`DegradeRule` 中的 `count`）之后，资源进入降级状态，即在接下的时间窗口（`DegradeRule` 中的 `timeWindow`，以 s 为单位）之内，对这个方法的调用都会自动地返回。异常比率的阈值范围是 `[0.0, 1.0]`，代表 0% - 100%。
 
 修改请求方法
 
@@ -1168,7 +1185,13 @@ TM（事务管理器）：定义全局事务的范围，开始全局事务，提
 
 RM（资源管理器）：管理分支事务处理的资源，与 TC 交谈以注册分支事务和报告分支事务的状态，并驱动分支事务提交或回滚。
 
-![](media/seala%E7%9A%843.png)
+![image-20210307172859624](media/image-20210307172859624.png)
+
+- TM向TC申请开启一个全局事务，全局事务创建成功并生成一个全局唯一的XID
+- XID在微服务调用链路的上下文中传播，也就是在多个TM，RM中传播
+- RM向TC注册分支事务，将其纳入XID对应全局事务的管辖
+- TM向TC发起针对XID的全局提交或回滚决议
+- TM调度XID下管辖的全部分支事务完成提交或回滚请求
 
 ## seata 安装
 
@@ -1874,6 +1897,8 @@ seata_account：建 t_account 表
 ## seata 原理
 
 ![](media/seala%E7%9A%8415.png)
+
+分布式事务的执行流程：
 
 TM 开启分布式事务（TM 向 TC 注册全局事务记录）
 
