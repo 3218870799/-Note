@@ -1083,6 +1083,8 @@ CAP：[一致性](https://baike.baidu.com/item/一致性/9840083)（Consistency�
 
 ## 10,Ribbon 负载均衡
 
+### 简介
+
 主要提供客户端的软件负载均衡和服务调用。Ribbon 客户端组件提供一系列完善的配置项如连接超时，重试等。简单的说，就是在配置文件中列出 Load Balencer 后面所有的机器，Ribbon 会自动的帮助你基于某种规则（如简单轮询，随机连接等）去连接这些机器。我们很容易使用 Ribbon 实现自定义的负载均衡算法。
 
 **Ribbon 目前也进入维护,基本上不准备更新了**
@@ -1116,6 +1118,46 @@ Ribbon 在工作时分成两步：
 第二步在根据用户指定的策略，在从 server 取到的服务注册列表中选择一个地址。
 
 其中 Ribbon 提供了多种策略：轮询，随机，和响应时间加权。
+
+### 原理
+
+ILoadBalance负载均衡器：ribbon是一个为客户端提供负载均衡功能的服务，它内部提供了一个叫做ILoadBalance的接口代表负载均衡器的操作，比如有添加服务器操作、选择服务器操作、获取所有的服务器列表、获取可用的服务器列表等等。
+
+流程：
+
+LoadBalancerClient（RibbonLoadBalancerClient是实现类）在初始化的时候（execute方法），会通过ILoadBalance（BaseLoadBalancer是实现类）向Eureka注册中心获取服务注册列表，并且每10s一次向EurekaClient发送“ping”，来判断服务的可用性，如果服务的可用性发生了改变或者服务数量和之前的不一致，则从注册中心更新或者重新拉取。LoadBalancerClient有了这些服务注册列表，就可以根据具体的IRule（路由）来进行负载均衡。
+
+IRule接口代表负载均衡策略，choose方法时具体的选择服务器方法，其中RandomRule表示随机策略、RoundRobinRule表示轮询策略、WeightedResponseTimeRule表示加权策略、BestAvailableRule表示请求数最少策略等等。
+
+随机策略：
+
+```java
+int index = rand.nextInt(serverCount); // 使用jdk内部的Random类随机获取索引值index
+server = upList.get(index); // 得到服务器实例
+```
+
+轮询策略：
+
+最大权重：
+
+有一个默认每30秒更新一次权重列表的定时任务，该定时任务会根据实例的响应时间来更新权重列表，choose方法做的事情就是，用一个(0,1)的随机double数乘以最大的权重得到randomWeight，然后遍历权重列表，找出第一个比randomWeight大的实例下标，然后返回该实例
+
+最少并发请求：
+
+```java
+for (Server server: serverList) { // 遍历每个服务器
+        ServerStats serverStats = loadBalancerStats.getSingleServerStat(server); // 获取各个服务器的状态
+        if (!serverStats.isCircuitBreakerTripped(currentTime)) { // 没有触发断路器的话继续执行
+            int concurrentConnections = serverStats.getActiveRequestsCount(currentTime); // 获取当前服务器的请求个数
+            if (concurrentConnections < minimalConcurrentConnections) { // 比较各个服务器之间的请求数，然后选取请求数最少的服务器并放到chosen变量中
+                minimalConcurrentConnections = concurrentConnections;
+                chosen = server;
+            }
+        }
+    }
+```
+
+
 
 ### 使用 Ribbon:
 
