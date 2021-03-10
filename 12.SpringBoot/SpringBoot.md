@@ -6,6 +6,12 @@
 
 优点：独立运行，简化配置，自动装配
 
+与Spring的区别：
+
+
+
+
+
 ## 2、微服务
 
 微服务：架构风格（服务微化）一个应用应该是一组小型服务；可以通过 HTTP 的方式进行互通；
@@ -352,11 +358,9 @@ com.sgl.mystarter.sglhello.config.HelloServiceAutoConfiguration
 
 ### @SpringBootApplication
 
-SpringBoot 的核心注解：@SpringBootApplication，标在主类上，SpringBoot 就应该运行这个类的 main 方法来启动 SpringBoot 应用；主要组合包含了以下 3 个注解：
+标在主类上，SpringBoot 就应该运行这个类的 main 方法来启动 SpringBoot 应用；主要组合包含了以下 3 个注解：
 
-（1）@SpringBootConfiguration
-
-组合了@Configuration 注解，实现配置文件的功能；Spring Boot 的配置类；标注在某个类上，表示这是一个 Spring Boot 的配置类；配置文件；配置类也是容器中的一个组件；@Component
+（1）@Configuration 注解，实现配置文件的功能；
 
 （2）@EnableAutoConfiguration：打开自动配置的功能，也可以关闭某个自动配置的选项，如关闭数据源自动配置的功能：@SpringBootApplication(exclude={DataSourceAutoConfiguration.class})；
 
@@ -364,11 +368,15 @@ SpringBoot 的核心注解：@SpringBootApplication，标在主类上，SpringBo
 
 @AutoConfigurationPackage：自动配置包
 
-@Import(AutoConfigurationPackages.Registrar.class)：Spring 的底层注解@Import，给容器中导入一个组件；导入的组件由 AutoConfigurationPackages.Registrar.class；将主配置类（@SpringBootApplication 标注的类）的所在包及下面所有子包里面的所有组件扫描到 Spring 容器；
+@Import(AutoConfigurationPackages.Registrar.class)：导入一个类到IOC容器中，类路径为meta-inf的spring.factories配置进行导入。
 
 （3）@ComponentScan：Spring 组件扫描。
 
-@RequestMapping 和 @ GetMapping 的区别？
+就配置文件自动装配，装配到依赖的类里面，再以动态代理的方式注入到Spring容器里
+
+
+
+**@RequestMapping 和 @ GetMapping 的区别？**
 
 RequestMapping 具有类属性的，可以进行 GET、POST、PUT 或者其他的注释中具有的请求方法。
 
