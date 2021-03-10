@@ -1121,13 +1121,13 @@ Ribbon 在工作时分成两步：
 
 ### 原理
 
-ILoadBalance负载均衡器：ribbon是一个为客户端提供负载均衡功能的服务，它内部提供了一个叫做ILoadBalance的接口代表负载均衡器的操作，比如有添加服务器操作、选择服务器操作、获取所有的服务器列表、获取可用的服务器列表等等。
+ILoadBalance 负载均衡器：ribbon 是一个为客户端提供负载均衡功能的服务，它内部提供了一个叫做 ILoadBalance 的接口代表负载均衡器的操作，比如有添加服务器操作、选择服务器操作、获取所有的服务器列表、获取可用的服务器列表等等。
 
 流程：
 
-LoadBalancerClient（RibbonLoadBalancerClient是实现类）在初始化的时候（execute方法），会通过ILoadBalance（BaseLoadBalancer是实现类）向Eureka注册中心获取服务注册列表，并且每10s一次向EurekaClient发送“ping”，来判断服务的可用性，如果服务的可用性发生了改变或者服务数量和之前的不一致，则从注册中心更新或者重新拉取。LoadBalancerClient有了这些服务注册列表，就可以根据具体的IRule（路由）来进行负载均衡。
+LoadBalancerClient（RibbonLoadBalancerClient 是实现类）在初始化的时候（execute 方法），会通过 ILoadBalance（BaseLoadBalancer 是实现类）向 Eureka 注册中心获取服务注册列表，并且每 10s 一次向 EurekaClient 发送“ping”，来判断服务的可用性，如果服务的可用性发生了改变或者服务数量和之前的不一致，则从注册中心更新或者重新拉取。LoadBalancerClient 有了这些服务注册列表，就可以根据具体的 IRule（路由）来进行负载均衡。
 
-IRule接口代表负载均衡策略，choose方法时具体的选择服务器方法，其中RandomRule表示随机策略、RoundRobinRule表示轮询策略、WeightedResponseTimeRule表示加权策略、BestAvailableRule表示请求数最少策略等等。
+IRule 接口代表负载均衡策略，choose 方法时具体的选择服务器方法，其中 RandomRule 表示随机策略、RoundRobinRule 表示轮询策略、WeightedResponseTimeRule 表示加权策略、BestAvailableRule 表示请求数最少策略等等。
 
 随机策略：
 
@@ -1140,7 +1140,7 @@ server = upList.get(index); // 得到服务器实例
 
 最大权重：
 
-有一个默认每30秒更新一次权重列表的定时任务，该定时任务会根据实例的响应时间来更新权重列表，choose方法做的事情就是，用一个(0,1)的随机double数乘以最大的权重得到randomWeight，然后遍历权重列表，找出第一个比randomWeight大的实例下标，然后返回该实例
+有一个默认每 30 秒更新一次权重列表的定时任务，该定时任务会根据实例的响应时间来更新权重列表，choose 方法做的事情就是，用一个(0,1)的随机 double 数乘以最大的权重得到 randomWeight，然后遍历权重列表，找出第一个比 randomWeight 大的实例下标，然后返回该实例
 
 最少并发请求：
 
@@ -1156,8 +1156,6 @@ for (Server server: serverList) { // 遍历每个服务器
         }
     }
 ```
-
-
 
 ### 使用 Ribbon:
 
@@ -1458,8 +1456,6 @@ public class OrderFeignController {
 
 2：POST 方式：
 
-
-
 ### 性能优化
 
 #### gzip 压缩
@@ -1509,11 +1505,9 @@ server:
         mime-types:application/json,application/xml,text/html,text/xml,text/plain
 ```
 
+#### Http 连接池
 
-
-#### Http连接池
-
-Feign的Http客户端支持3种框架：HttpURLConnection，HttpClient，OKHttp，默认是HttpURLConnection，一般换成HttpClient
+Feign 的 Http 客户端支持 3 种框架：HttpURLConnection，HttpClient，OKHttp，默认是 HttpURLConnection，一般换成 HttpClient
 
 #### OpenFeign 超时机制
 
@@ -2945,7 +2939,16 @@ Stream 中处于同一个 group 中的多个消费者是竞争关系，就能够
 
 而配置分组后,我们可以自动获取未消费的数据
 
-# 第十一章：链路追踪 Sleuth
+# 第十一章：链路追踪
+
+实现：
+
+|            | 公司     | 实现方式                                       | 优缺点                 |
+| ---------- | -------- | ---------------------------------------------- | ---------------------- |
+| cat        | 大众点评 | 代码埋点（拦截器，注解，过滤器）               | 代码侵入性强，需要埋点 |
+| Zipkin     | 推特     | 拦截请求，发送（HTTP，目前）数据至 zipkin 服务 | zipkin 上报耗性能，    |
+| pinpoint   |          | Java 探针，字节码增强                          | 二次开发难度高         |
+| skywalking |          | Java 探针，字节码增强                          | 依赖的东西多           |
 
 **sleuth 要解决的问题:**
 
@@ -2960,30 +2963,50 @@ Stream 中处于同一个 group 中的多个消费者是竞争关系，就能够
 在复杂的调用链路中假设存在一条调用链路响应缓慢，如何定位其中延迟高的服务呢？
 
 - 日志： 通过分析调用链路上的每个服务日志得到结果
-
 - zipkin：使用`zipkin`的`web UI`可以一眼看出延迟高的服务
 
-  各业务系统在彼此调用时，将特定的跟踪消息传递至`zipkin`,zipkin 在收集到跟踪信息后将其聚合处理、存储、展示等，用户可通过`web UI`方便获得网络延迟、调用链路、系统依赖等等。
-  同时 zipkin 会根据调用关系通过 zipkin ui 生成依赖关系图，
+各业务系统在彼此调用时，将特定的跟踪消息传递至`zipkin`,zipkin 在收集到跟踪信息后将其聚合处理、存储、展示等，用户可通过`web UI`方便获得网络延迟、调用链路、系统依赖等等。
+同时 zipkin 会根据调用关系通过 zipkin ui 生成依赖关系图，
 
 ![image-20210304135039511](media/image-20210304135039511.png)
 
-在使用 zipkin 链路追踪的时候，需要提前启动 zipkin 服务
-
-来自 Twitte 的分布式日志收集工具，分为上传端(spring-cloud-starter-zipkin，集成到项目中)与服务端(独立部署，默认将数据存到内存中)
+在使用 zipkin 链路追踪的时候，需要提前启动 zipkin 服务，来自 Twitte 的分布式日志收集工具，分为上传端(spring-cloud-starter-zipkin，集成到项目中)与服务端(独立部署，默认将数据存到内存中)
 
 注意: Zipkin 仅对 RPC 通信过程进行记录，注意它与业务代码日志是无关的，如果你希望找到一款 LogAppender 来分析所有 Log4j 留下的日志，那么建议还是使用 Kakfa+ELK 这种传统的方法来实现。
 
 ### 概念：
 
-- Span：基本工作单元，一次链路调用(可以是 RPC，DB 等没有特定的限制)创建一个 span，通过一个 64 位 ID 标识它，span 通过还有其他的数据，例如描述信息，时间戳，key-value 对的(Annotation)tag 信息，parent-id 等,其中 parent-id 可以表示 span 调用链路来源，通俗的理解 span 就是一次请求信息
-- Trace：类似于树结构的 Span 集合，表示一条调用链路，存在唯一标识
-- Annotation：注解，用来记录请求特定事件相关信息（例如时间），通常包含四个注解信息
-  - cs： Client Start,表示客户端发起请求
-  - sr：Server Receive,表示服务端收到请求
-  - ss：Server Send,表示服务端完成处理，并将结果发送给客户端
-  - cr：Client Received,表示客户端获取到服务端返回信息
-- BinaryAnnotation：提供一些额外信息，一般已 key-value 对出现
+zipkin(服务端)包含四个组件，分别是 collector、storage、search、web UI。
+
+- collector 就是信息收集器,作为一个守护进程，它会时刻等待客户端传递过来的追踪数据，对这些数据进行验证、存储以及创建查询需要的索引。
+- storage 是存储组件。zipkin 默认直接将数据存在内存中，此外支持使用 Cassandra、ElasticSearch 和 Mysql。
+- search 是一个查询进程，它提供了简单的 JSON API 来供外部调用查询。
+- web UI 是 zipkin 的服务端展示平台，主要调用 search 提供的接口，用图表将链路信息清晰地展示给开发人员
+
+Span：基本工作单元，一次链路调用(可以是 RPC，DB 等没有特定的限制)创建一个 span，通过一个 64 位 ID 标识它，span 通过还有其他的数据，例如描述信息，时间戳，key-value 对的(Annotation)tag 信息，parent-id 等,其中 parent-id 可以表示 span 调用链路来源，通俗的理解 span 就是一次请求信息
+
+TraceId：类似于树结构的 Span 集合，表示一条调用链路，存在唯一标识
+
+Annotation：注解，用来记录请求特定事件相关信息（例如时间），通常包含四个注解信息
+
+- cs： Client Start,表示客户端发起请求
+- sr：Server Receive,表示服务端收到请求
+- ss：Server Send,表示服务端完成处理，并将结果发送给客户端
+- cr：Client Received,表示客户端获取到服务端返回信息
+
+BinaryAnnotation：提供一些额外信息，一般已 key-value 对出现
+
+### 原理
+
+**基本思路**是在服务调用的请求和响应中加入 ID，标明上下游请求的关系。利用这些信息，可以可视化地分析服务调用链路和服务间的依赖关系。
+
+在一次 Trace 中，每个服务的 **每一次调用** ，就是一个 **基本工作单元** ，称之为 **span** 。每一个 span 都有一个 **id 作为唯一标识** ，同样每一次 Trace 都会生成一个 **traceId 在 span 中作为追踪标识** ，另外再通过一个 **parentId 标明本次调用的发起者** （就是发起者的 span-id）。当 span 有了上面三个标识后，就可以很清晰的将多个 span 进行梳理串联，最终归纳出一条完整的跟踪链路。
+
+追踪器位于应用程序上，负责生成相关 ID、记录 span 需要的信息，最后通过传输层传递给服务端的收集器。
+
+一个 span 表示一次服务调用，那么追踪器必定是被服务调用发起的动作触发，生成基本信息，同时为了追踪服务提供方对其他服务的调用情况，便需要传递本次追踪链路的 traceId 和本次调用的 span-id。服务提供方完成服务将结果响应给调用方时，需要根据调用发起时记录的时间戳与当前时间戳计算本次服务的持续时间进行记录，至此这次调用的追踪 span 完成，就可以发送给 zipkin 服务端了。但是需要注意的是，发送 span 给 zipkin collector 不得影响此次业务结果，其发送成功与否跟业务无关，因此这里需要采用异步的方式发送，防止追踪系统发送延迟与发送失败导致用户系统的延迟与中断。
+
+![一文搞懂基于zipkin的分布式追踪系统原理与实现](media/ee19d66c117311849f6cad4328c2cd4c.png)
 
 ### 安装 zipkin:
 
