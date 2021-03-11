@@ -1,6 +1,4 @@
-﻿# 第一章：简介
-
-## 1：版本
+﻿## 1：版本
 
 SpringCloud 最早是从 2014 年推出的，在推出的前期更新迭代速度非常快，频繁发布新版本，目前更趋于稳定，变化稍慢一些；
 
@@ -1593,210 +1591,24 @@ Hystrix 能够保证在一个依赖出问题的情况下，不会导致整体服
 
 熔断器默认线程数阈值为3个，默认时长3000毫秒，比较短相对于，很容易出现服务间超时。
 
-
-
-### 使用 hystrix,服务降级
-
-1,创建带降级机制的 pay 模块
-
-名字: cloud-hystrix-pay-8007
-
-2,pom 文件
-
-3,配置文件
-
-![](.\media\Hystrix的5.png)
-
-4,主启动类
-
-![](.\media\Hystrix的8.png)
-
-5,service
-
-![](.\media\Hystrix的6.png)
-
-6controller
-
-![](.\media\Hystrix的7.png)
-
-7,先测试:
-
-```java
-此时使用压测工具,并发20000个请求,请求会延迟的那个方法,
-		压测中,发现,另外一个方法并没有被压测,但是我们访问它时,却需要等待
-		这就是因为被压测的方法它占用了服务器大部分资源,导致其他请求也变慢了
-```
-
-8,先不加入 hystrix,
-
-2,创建带降级的 order 模块:
-
-1,名字: cloud-hystrix-order-80
-
-2,pom
-
-3,配置文件
-
-![](.\media\Hystrix的9.png)
-
-4,主启动类
-
-![](.\media\Hystrix的11.png)
-
-5,远程调用 pay 模块的接口:
-
-![](.\media\Hystrix的12.png)
-
-6,controller:
-
-![](.\media\Hystrix的13.png)
-
-7,测试
-
-启动 order 模块,访问 pay
-
-再次压测 2 万并发,发现 order 访问也变慢了
-
-![](.\media\Hystrix的14.png)
-
-**解决:**
-
-![](.\media\Hystrix的15.png)
-
-##### ![](.\media\Hystrix的16.png)
-
-3,配置服务降级
-
-1,修改 pay 模块
-
-1,为 service 的指定方法(会延迟的方法)添加@HystrixCommand 注解
-
-![](.\media\Hystrix的17.png)
-
-2,主启动类上,添加激活 hystrix 的注解
-
-![](.\media\Hystrix的18.png)
-
-3,触发异常
-
-![](.\media\Hystrix的19.png)
-
-![](.\media\Hystrix的20.png)**可以看到,也触发了降级**
-
-2,修改 order 模块,进行服务降级
-
-一般服务降级,都是放在客户端(order 模块),
-
-![](.\media\Hystrix的21.png)
-
-1,修改配置文件:
-
-![](.\media\Hystrix的22.png)
-
-**2,主启动类添加直接,启用 hystrix:**
-
-![](.\media\Hystrix的23.png)
-
-3,修改 controller,添加降级方法什么的
-
-![](.\media\Hystrix的24.png)
-
-4,测试
-
-启动 pay 模块,order 模块,
-
-**注意:,这里 pay 模块和 order 模块都开启了服务降级**
-
-但是 order 这里,设置了 1.5 秒就降级,所以访问时,一定会降级
-
-##### 4,重构:
-
-**上面出现的问题:**
-1,降级方法与业务方法写在了一块,耦合度高
-
-2.每个业务方法都写了一个降级方法,重复代码多
-
-##### **解决重复代码的问题**:
-
-**配置一个全局的降级方法,所有方法都可以走这个降级方法,至于某些特殊创建,再单独创建方法**
-
-1,创建一个全局方法
-
-![](.\media\Hystrix的26.png)
-
-2,使用注解指定其为全局降级方法(默认降级方法)
-
-![](.\media\Hystrix的27.png)
-
-![](.\media\Hystrix的25.png)
-
-3,业务方法使用默认降级方法:
-
-![](.\media\Hystrix的28.png)
-
-4,测试:
-
-![](.\media\Hystrix的29.png)
-
-##### 解决代码耦合度的问题:
-
-修改 order 模块,这里开始,pay 模块就不服务降级了,服务降级写在 order 模块即可
-
-1,Payservice 接口是远程调用 pay 模块的,我们这里创建一个类实现 service 接口,在实现类中统一处理异常
-
-![](.\media\Hystrix的30.png)
-
-2,修改配置文件:添加:
-
-![](.\media\Hystrix的31.png)
-
-3,让 PayService 的实现类生效:
-
-![](.\media\Hystrix的32.png)
-
-```java
-它的运行逻辑是:
-		当请求过来,首先还是通过Feign远程调用pay模块对应的方法
-    但是如果pay模块报错,调用失败,那么就会调用PayMentFalbackService类的
-    当前同名的方法,作为降级方法
-```
-
-4,启动测试
-
-启动 order 和 pay 正常访问--ok
-
-==此时将 pay 服务关闭,order 再次访问==
-
-![](.\media\Hystrix的33.png)
-
-可以看到,并没有报 500 错误,而是降级访问==实现类==的同名方法
-
-这样,即使服务器挂了,用户要不要一直等待,或者报错
-
-问题:
-
-**这样虽然解决了代码耦合度问题,但是又出现了过多重复代码的问题,每个方法都有一个降级方法**
-
-### 使用服务熔断
+## 使用服务熔断
 
 类似保险丝达到最大访问服务后，直接拒绝访问，然后调用服务降级的方法并返回友好提示。
 
 **比如并发达到 1000,我们就拒绝其他用户访问,在有用户访问,就访问降级方法**
 
-1,修改前面的 pay 模块
+1,修改 Payservice 接口,添加服务熔断相关的方法:
 
-**1,修改 Payservice 接口,添加服务熔断相关的方法:**
+涉及到断路器的三个重要参数:快照时间窗、请求总数阀值、错误百分比阀值。
 
-![](.\media\Hystrix的37.png)
+- 快照时间窗:断路器确定是否打开需要统计一些请求和错误数据，而统计的时间范围就是快照时间窗，默认为最近的10秒。
+- 请求总数阀值:在快照时间窗内，必须满足请求总数阀值才有资格熔断。默认为20，意味着在10秒内，如果该hystrix命令的调用次数不足20次，即使所有的请求都超时或其他原因失败，断路器都不会打开。
+- 错误百分比阀值:当请求总数在快照时间窗内超过了阀值，比如发生了30次调用，如果在这30次调用中，有15次发生了超时异常，也就是超过50%的错误百分比，在默认设定50%阀值情况下，这时候就会将断路器打开。
 
 这里属性整体意思是:
 10 秒之内(窗口,会移动),如果并发==超过==10 个,或者 10 个并发中,失败了 6 个,就开启熔断器
 
-![image-20200414152637247](.\media\Hystrix的43.png)
-
 IdUtil 是 Hutool 包下的类,这个 Hutool 就是整合了所有的常用方法,比如 UUID,反射,IO 流等工具方法什么的都整合了
-
-![](.\media\Hystrix的36.png)
 
 ```java
 断路器的打开和关闭,是按照一下5步决定的
@@ -1810,9 +1622,7 @@ IdUtil 是 Hutool 包下的类,这个 Hutool 就是整合了所有的常用方�
 
 2,修改 controller
 
-添加一个测试方法;
-
-![](.\media\Hystrix的39.png)
+添加一个测试方法
 
 3,测试:
 
@@ -1834,9 +1644,7 @@ IdUtil 是 Hutool 包下的类,这个 Hutool 就是整合了所有的常用方�
 
 **全部在这个方法中记录,以成员变量的形式记录,**
 
-以后需要什么属性,查看这个类即可
-
-![](.\media\Hystrix的38.png)
+以后需要什么属性,查看这个类即可 ` HystrixCommandProperties.java ` 
 
 ### 总结
 
@@ -1860,15 +1668,7 @@ IdUtil 是 Hutool 包下的类,这个 Hutool 就是整合了所有的常用方�
 
 **==其他参数:==**
 
-![](.\media\Hystrix的45.png)
 
-![](.\media\Hystrix的46.png)
-
-![](.\media\Hystrix的47.png)
-
-![](.\media\Hystrix的48.png)
-
-![](.\media\Hystrix的49.png)
 
 **熔断整体流程:**
 
@@ -1891,7 +1691,7 @@ IdUtil 是 Hutool 包下的类,这个 Hutool 就是整合了所有的常用方�
 
 ```
 
-### Hystrix 服务监控:
+## Hystrix 服务监控:
 
 #### HystrixDashboard
 
@@ -1907,17 +1707,36 @@ IdUtil 是 Hutool 包下的类,这个 Hutool 就是整合了所有的常用方�
 
 3,配置文件
 
-![](.\media\Hystrix的52.png)
+```yml
+server
+	port:9001
+```
 
 4,主启动类
 
-![](.\media\Hystrix的53.png)
+```java
+@springBootApplication
+//表示开启HystrixDashboard
+@EnableHystrixDashboard
+public class HystrixDashboardMain9001
+{
+	public static void main(string[] args) {
+		springApplication.run(HystrixDashboardMain9001.class，args );
+	}
+}
+```
 
-5,修改所有 pay 模块(8001,8002,8003...)
+修改所有 pay 模块(8001,8002,8003...)
 
 **他们都添加一个 pom 依赖:**
 
-![](.\media\Hystrix的54.png)
+```xml
+<! -- actuator监控信息完善-->
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+```
 
 之前的 pom 文件中都添加过了,==这个是 springboot 的监控组件==
 
@@ -1931,7 +1750,20 @@ IdUtil 是 Hutool 包下的类,这个 Hutool 就是整合了所有的常用方�
 
 ==8001 的主启动类添加:==
 
-![](.\media\Hystrix的55.png)
+```java
+/**
+*此配置是为了服务监控而配置，与服务容错本身无关，springcLoud升级后的坑
+*ServLetRegistrationBean因为springboot的默认路径不是"/hystrix.stream"，*只要在自己的项目里配置上下面的servlet就可以了
+*入
+*/
+@Bean
+public servletRegistrationBean getservlet() {
+    HystrixMetricsstreamservlet streamServlet = new HystrixMetricsstreamServlet();
+    servletRegistrationBean registrationBean = new ServletRegistrationBean(streamServlet);registrationBean.setLoadonstartup(1);
+    registrationBean.addUrlMappings(" / hystrix.stream" );
+    registrationBean.setName("HystrixMetricsstreamservlet" );return registrationBean;
+}
+```
 
 **其他 8002,8003 都是一样的**
 
@@ -1945,11 +1777,9 @@ IdUtil 是 Hutool 包下的类,这个 Hutool 就是整合了所有的常用方�
 
 ![](.\media\Hystrix的57.png)
 
-![](.\media\Hystrix的59.png)
+7色，1圈，1线
 
-![](.\media\Hystrix的58.png)
-
-![](.\media\Hystrix的60.png)
+实心圆:共有两种含义。它通过颜色的变化代表了实例的健康程度，它的健康度从绿色<黄色<橙色<红色递减。该实心圆除了颜色的变化之外，它的大小也会根据实例的请求流量发生变化，流量越大该实心圆就越大。所以通过该实心圆的展示，就可以在大量的实例中快速的发现故障实例和高压力实例。
 
 ![](.\media\Hystrix的61.png)
 
