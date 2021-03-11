@@ -1129,6 +1129,8 @@ LoadBalancerClient（RibbonLoadBalancerClient 是实现类）在初始化的时�
 
 IRule 接口代表负载均衡策略，choose 方法时具体的选择服务器方法，其中 RandomRule 表示随机策略、RoundRobinRule 表示轮询策略、WeightedResponseTimeRule 表示加权策略、BestAvailableRule 表示请求数最少策略等等。
 
+#### 负载策略
+
 随机策略：
 
 ```java
@@ -1157,6 +1159,8 @@ for (Server server: serverList) { // 遍历每个服务器
     }
 ```
 
+HashCode
+
 ### 使用 Ribbon:
 
 1,默认我们使用 eureka 的新版本时,它默认集成了 ribbon
@@ -1168,7 +1172,7 @@ for (Server server: serverList) { // 遍历每个服务器
 </dependency>
 ```
 
-**==这个 starter 中集成了 reibbon 了==**
+**==这个 starter 中集成了 ribbon 了==**
 
 2,我们也可以手动引入 ribbon
 
@@ -1215,61 +1219,6 @@ RestTemplate的:
 		xxxForObject()方法,返回的是响应体中的数据
     xxxForEntity()方法.返回的是entity对象,这个对象不仅仅包含响应体数据,还包含响应体信息(状态码等)
 ```
-
-#### Ribbon 常用负载均衡算法:
-
-**IRule 接口,Riboon 使用该接口,根据特定算法从所有服务中,选择一个服务,**
-
-**Rule 接口有 7 个实现类,每个实现类代表一个负载均衡算法**
-
-- com.netflix.loadbalancer.RoundRobinRule : 轮询
-- com.netflix.loadbalancer.RandomRule：随机
-- com.netflix.loadbalancer.RetryRule：先轮询，如果获取失败则指定时间内重试
-- WeightedResponseTimeRule：响应速度越快的实例权重越大，越容易被选择
-- BestAvailableRule：先过滤多次访问故障的，再选择并发量最小的服务。
-- AvailabilityFilteringRule：先过滤故障，再选择并发量较小的实例
-- ZoneAvoidanceRule：默认规则，复合判断 server 所在区域的性能和可用性。
-
-**==这里使用 eureka 的那一套服务==**
-
-这个自定义配置类不能放在@ComponentScan 所扫描的当前包下以及子包下，否则自定义的配置类就会被所有的 Ribbon 客户端所共享，达不到特殊化定制的目的了。
-
-**==也就是不能放在主启动类所在的包及子包下==**
-
-1,修改 order 模块
-
-2,额外创建一个包
-
-![](.\media\Ribbon的16.png)
-
-3,创建配置类,指定负载均衡算法
-
-```java
-@Configuration
-public class MySelfRule
-{
-    @Bean
-	public IRule myRule(){
-		return new RandomRule();//定义为随机
-	}
-}
-```
-
-4,在主启动类上加一个注解
-
-```java
-@springBootApplication
-@EnableEurekaclient
-@Ribbonclient(name = "CLOUD-PAYMENT-SERVICE" ,configuration=MySelfRule.class)
-public class orderMain80
-{
-	public static void main(string[] args){
-        SpringApplication.run(Orderwain80.class，args);
-    }
-}
-```
-
-**表示,访问 CLOUD_pAYMENT_SERVICE 的服务时,使用我们自定义的负载均衡算法**
 
 #### 自定义负载均衡算法:
 
@@ -1620,7 +1569,7 @@ Hystrix 能够保证在一个依赖出问题的情况下，不会导致整体服
 
 断路器本身就是一种开关装置，当某个服务单元故障时，通过断路器的故障监控（类似熔断保险丝），向调用方返回一个符合预期的，可处理的备选响应（FallBack），而不是长时间的等待或者抛出调用方无法处理的异常。
 
-### hystrix 中的重要概念:
+## 概念
 
 1,服务降级
 
@@ -1639,6 +1588,12 @@ Hystrix 能够保证在一个依赖出问题的情况下，不会导致整体服
 多个微服务之间调用的时候，假设微服务 A 调用微服务 B 和微服务 C，微服务 B 和 C 又调用其他的微服务，这就是所谓的“扇出”。
 
 如果扇出的链路上某个微服务的调用响应时间过程或者不可用，对微服务 A 的调用就会占用越来越多的系统资源，进而引起系统崩溃，所谓的“雪崩效应”
+
+## 配置
+
+熔断器默认线程数阈值为3个，默认时长3000毫秒，比较短相对于，很容易出现服务间超时。
+
+
 
 ### 使用 hystrix,服务降级
 
