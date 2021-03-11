@@ -1781,11 +1781,31 @@ public servletRegistrationBean getservlet() {
 
 ![](.\media\Hystrix的62.png)
 
-# 第七章：服务网关:
+# 第七章：服务网关
 
-zuul 停更了,
+常用网关解决方案：
+
+1：Nginx + lua：比较适合做门户网关
+
+2：Kong：基于Nginx + lua，与SpringCloud整合没有较好的方案
+
+3：Tracy
+
+4：Zuul
+
+5：Gateway
 
 ## GateWay
+
+### 概念
+
+路由：路由是构建网关的基本模块，它由 ID，目标 URL，一系列的断言和过滤器组成，如果断言为 true 则匹配该路由。就是根据某些规则,将请求发送到指定服务上
+
+断言：参考 Java8 的 Predicate，开发人员可以匹配 HTTP 请求中所有内容（比如请求头或请求参数）如果请求与断言相匹配，则进行路，就是判断,如果符合条件就是 xxxx,反之 yyyy
+
+过滤：指的是 Spring 框架中 GateWayFilter 的实例，使用过滤器，可以请求被路由前或后对请求进行修改
+
+**路由前后,过滤请求**
 
 GateWay 旨在提供一种简单而有效的方法来对 API 进行路由，以及提供强大的过滤器功能，例如：熔断，限流，重试等。
 
@@ -1795,7 +1815,9 @@ GateWay 旨在提供一种简单而有效的方法来对 API 进行路由，以�
 
 ![](.\media\gateway的3.png)
 
-### GateWay 的特性
+
+
+#### 特性
 
 动态路由：能够匹配任何请求属性。
 
@@ -1811,7 +1833,7 @@ GateWay 旨在提供一种简单而有效的方法来对 API 进行路由，以�
 
 支持路径重写
 
-### GateWay 与 zuul 的区别:
+#### GateWay 与 zuul 的区别:
 
 1：Zuul 1.x 是一个基于阻塞 I/O 的 API Gateway
 
@@ -1821,35 +1843,13 @@ GateWay 旨在提供一种简单而有效的方法来对 API 进行路由，以�
 
 4：Gateway 使用非阻塞的 API，还支持 WebSocket，并且与 Spring 紧密集
 
-### zuul1.x 的模型:
+zuul1.x 的模型:基于 Servlet 的阻塞式处理模型
 
-基于 Servlet 的阻塞式处理模型
-
-### webflux:
-
-**是一个非阻塞的 web 框架,类似 springmvc 这样的**
+webflux:**是一个非阻塞的 web 框架,类似 springmvc 这样的**
 
 Servlet3 之后有了异步非阻塞的支持。而 WebFlux 是一个典型非阻塞异步的框架，它的核心是基于 Reactor 的相关 API 实现的。
 
-### GateWay 的一些概念:
 
-#### 1,路由
-
-路由是构建网关的基本模块，它由 ID，目标 URL，一系列的断言和过滤器组成，如果断言为 true 则匹配该路由。
-
-就是根据某些规则,将请求发送到指定服务上
-
-#### 2,断言
-
-参考 Java8 的 Predicate，开发人员可以匹配 HTTP 请求中所有内容（比如请求头或请求参数）如果请求与断言相匹配，则进行路
-
-就是判断,如果符合条件就是 xxxx,反之 yyyy
-
-#### 3,过滤
-
-指的是 Spring 框架中 GateWayFilter 的实例，使用过滤器，可以请求被路由前或后对请求进行修改
-
-**路由前后,过滤请求**
 
 ### 工作原理:
 
@@ -1865,31 +1865,58 @@ Filter 在“pre”类型的过滤器可以做参数校检，权限校检，零�
 
 在 post 类型的过滤器中可以做响应内容，响应头的修改，日志的输出，流量监控等作用
 
-### 使用 GateWay:
+### 路由规则
 
-想要新建一个 GateWay 的项目
+Path：
 
-名字: cloud_gateway_9527
+Query：请求中是否包含指定参数，包含则为true进行路由
 
-1,pom
+```yml
+routes:
+   - id: blog
+    uri: http://blog.yuqiyu.com
+    predicates:
+    # 匹配路径转发
+    - Query=token,abc. # 匹配请求参数中包含token并且参数值满足正则表达式abc.的请求
 
-2,配置文件
+Eg:localhost:9000/product/1?token=abc2
+```
 
-![](.\media\gateway的14.png)
+Method：匹配对应的请求方式
 
-3,主启动类
+```yml
+predicates:
+	- Method=POST
+```
 
-![](.\media\gateway的15.png)
+Datetime：匹配时间，有After，Between，Before
 
-4,针对 pay 模块,设置路由:
+```yml
+predicates:
+	- After=2019-04-29T00:00:00+08:00[Asia/Shanghai]
+```
 
-![](.\media\gateway的16.png)
+RemoteAddr：匹配远程地址，只对指定ip地址的客户端进行请求转发
 
-![](.\media\gateway的18.png)
+```yml
+predicates:
+	- RemoteAddr=192.168.1.56/24
+```
+
+Header：根据发送的请求的请求头信息进行匹配转发
+
+```yml
+predicates:
+	- Header=X-Request-Id, \d+ # 如果X-Request-Id的值为数字，那么就可以转发到
+```
+
+### 使用 GateWay
+
+针对 pay 模块,设置路由
 
 **==修改 GateWay 模块(9527)的配置文件==:**
 
-![](.\media\gateway的17.png)
+
 
 这里表示,
 
@@ -1920,8 +1947,6 @@ localhost:9527/payment/get/1
 
 创建配置类:
 
-![](.\media\gateway的20.png)
-
 8,然后重启服务即可
 
 ### 重构:
@@ -1946,7 +1971,11 @@ localhost:9527/payment/get/1
 
 就是判断,如果符合条件就是 xxxx,反之 yyyy
 
-![](.\media\gateway的24.png)
+Spring Cloud Gateway将路由匹配作为Spring WebFlux HandlerMapping基础架构的一部分。
+
+Spring Cloud Gateway包括许多内置的Route Predicate工厂。所有这些Predicate都与HTTP请求的不同属性匹配。多个RoutePredicate工厂可以进行组合。
+
+Spring Cloud Gateway创建Route对象时，使用RoutePredicateFactory 创建 Predicate对象，Predicate对象可以赋值给Route。Spring Cloud Gateway包含许多内置的Route Predicate Factories。
 
 **我们之前在配置文件中配置了断言:**
 
