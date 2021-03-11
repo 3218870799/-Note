@@ -70,13 +70,13 @@ public void findStudent() {
 
 MyBatis 框架：
 
-MyBatis 本是 apache 的一个开源项目 iBatis, 2010 年这个项目由 apache softwarefoundation 迁移到了 google code，并且改名为 MyBatis 。2013 年 11 月迁移到Github。
+MyBatis 本是 apache 的一个开源项目 iBatis, 2010 年这个项目由 apache softwarefoundation 迁移到了 google code，并且改名为 MyBatis 。2013 年 11 月迁移到 Github。
 
-iBATIS 一词来源于“internet”和“abatis”的组合，是一个基于 Java的持久层框架。iBATIS 提供的持久层框架包括 SQL Maps 和 Data AccessObjects（DAOs）当前，最新版本是 MyBatis 3.5.1 ，其发布时间是 2019 年 4 月 8日。
+iBATIS 一词来源于“internet”和“abatis”的组合，是一个基于 Java 的持久层框架。iBATIS 提供的持久层框架包括 SQL Maps 和 Data AccessObjects（DAOs）当前，最新版本是 MyBatis 3.5.1 ，其发布时间是 2019 年 4 月 8 日。
 
 ### 1.4.1Mybatis 解决的主要问题
 
-减轻使用 JDBC 的复杂性，不用编写重复的创建 Connetion , Statement ;不用编写关闭资源代码。直接使用 java 对象，表示结果数据。让开发者专注 SQL的处理。 其他分心的工作由 MyBatis 代劳。
+减轻使用 JDBC 的复杂性，不用编写重复的创建 Connetion , Statement ;不用编写关闭资源代码。直接使用 java 对象，表示结果数据。让开发者专注 SQL 的处理。 其他分心的工作由 MyBatis 代劳。
 
 MyBatis 可以完成：
 
@@ -101,19 +101,19 @@ ResultSet.close() , Statement.close() , Conenection.close()
 
 缺点：
 
-1、SQL语句的编写工作量较大，尤其当字段多、关联表多时，对开发人员编写SQL语句的功底有一定要求。
+1、SQL 语句的编写工作量较大，尤其当字段多、关联表多时，对开发人员编写 SQL 语句的功底有一定要求。
 
-2、SQL语句依赖于数据库，导致数据库移植性差，不能随意更换数据库
+2、SQL 语句依赖于数据库，导致数据库移植性差，不能随意更换数据库
 
-### 对Hibernate对比
+### 对 Hibernate 对比
 
-Mybatis是一个半自动的ORM框架，在查询关联对象或关联集合对象时，需要手动编写sql语句来完成;
+Mybatis 是一个半自动的 ORM 框架，在查询关联对象或关联集合对象时，需要手动编写 sql 语句来完成;
 
- Hibernate是全自动ORM映射工具，查询关联对象或者关联集合对象时，可以根据对象关系模型直接获取，不需要编写sql.
+Hibernate 是全自动 ORM 映射工具，查询关联对象或者关联集合对象时，可以根据对象关系模型直接获取，不需要编写 sql.
 
-Mybatis直接编写原生态sql，可以严格控制sql执行性能，灵活度高， 非常适合对性能要求高，需求变化频繁的项目；但是如果涉及到较多的字段或者关联多表时，sql语句编写量大且对开发人的sql语句编写功底要求高。
+Mybatis 直接编写原生态 sql，可以严格控制 sql 执行性能，灵活度高， 非常适合对性能要求高，需求变化频繁的项目；但是如果涉及到较多的字段或者关联多表时，sql 语句编写量大且对开发人的 sql 语句编写功底要求高。
 
-Hibernate对象/关系映射能力强，数据库无关性好，适合需求变化不大的项目，使用hibernate开发可以节省很多代码，提高效率。
+Hibernate 对象/关系映射能力强，数据库无关性好，适合需求变化不大的项目，使用 hibernate 开发可以节省很多代码，提高效率。
 
 # 第 2 章 MyBatis 框架快速入门
 
@@ -689,11 +689,11 @@ System.**out**.println(**"**使用**Dao**修改数据**:"**+nums);
 
 ### 2.4.2 传统 Dao 开发方式的分析
 
-在前面例子中自定义 Dao 接口实现类时发现一个问题：Dao的实现类其实并没有干什么实质性的工作，它仅仅就是通过 SqlSession 的相关 API定位到映射文件 mapper 中相应 id 的 SQL 语句，真正对 DB进行操作的工作其实是由框架通过 mapper 中的 SQL 完成的。
+在前面例子中自定义 Dao 接口实现类时发现一个问题：Dao 的实现类其实并没有干什么实质性的工作，它仅仅就是通过 SqlSession 的相关 API 定位到映射文件 mapper 中相应 id 的 SQL 语句，真正对 DB 进行操作的工作其实是由框架通过 mapper 中的 SQL 完成的。
 
-所以，MyBatis 框架就抛开了 Dao 的实现类，直接定位到映射文件 mapper 中的相应 SQL语句，对 DB 进行操作。这种对 Dao 的实现方式称为 Mapper 的动态代理方式。
+所以，MyBatis 框架就抛开了 Dao 的实现类，直接定位到映射文件 mapper 中的相应 SQL 语句，对 DB 进行操作。这种对 Dao 的实现方式称为 Mapper 的动态代理方式。
 
-Mapper 动态代理方式无需程序员实现 Dao 接口。接口是由 MyBatis结合映射文件自动生成的动态代理实现的。
+Mapper 动态代理方式无需程序员实现 Dao 接口。接口是由 MyBatis 结合映射文件自动生成的动态代理实现的。
 
 # 第 3 章 Dao 代理
 
@@ -2677,12 +2677,29 @@ Mybatis 中缓存分为一级缓存，二级缓存。
 
 ![](media/5109d80f05a963e35e69214a91c8be8a.png)
 
-1. 一级缓存: 基于 PerpetualCache 的 HashMap 本地缓存，其存储作用域为 Session，当 Session
-   flush 或 close 之后，该 Session 中的所有 Cache 就将清空。
-2. 二级缓存与一级缓存其机制相同，默认也是采用 PerpetualCache，HashMap 存储，不同在于
-   其存储作用域为 Mapper(Namespace)，并且可自定义存储源，如 Ehcache。
-3. 对于缓存数据更新机制，当某一个作用域(一级缓存 Session/二级缓存 Namespaces)的进行了
-   C/U/D 操作后，默认该作用域下所有 select 中的缓存将被 clear。
+一级缓存: 基于 PerpetualCache 的 HashMap 本地缓存，其存储作用域为 Session，当 Session
+flush 或 close 之后，该 Session 中的所有 Cache 就将清空。
+
+二级缓存与一级缓存其机制相同，默认也是采用 PerpetualCache，HashMap 存储，不同在于
+其存储作用域为 Mapper(Namespace)，并且可自定义存储源，如 Ehcache。
+
+对于缓存数据更新机制，当某一个作用域(一级缓存 Session/二级缓存 Namespaces)的进行了
+C/U/D 操作后，默认该作用域下所有 select 中的缓存将被 clear。
+
+**但是二级缓存会带来问题：**
+
+因为二级缓存时保存在 Mapper 对象中的，如果一个 user 的操作对应了两个 mapper，Amapper.xml 修改后 Bmapper.xml 是无法感知到的。
+
+例如：
+
+对于 tableA 与 tableB 的操作定义在两个 Mapper 中，分别叫做 MapperA 与 MapperB，即它们属于两个命名空间，如果此时启用缓存:
+
+MapperA 中执行上述 sql 语句查询这 6 个字段
+
+tableB 更新了 col1 与 col2 两个字段
+
+MapperA 再次执行上述 sql 语句查询这 6 个字段〈前提是没有执行过任何 insert、delete、update 操作)
+此时问题就来了，即使第(2）步 tableB 更新了 col1 与 col2 两个字段，第(3)步 MapperA 走二级缓存查询到的这 6 个字段依然是原来的这 6 个字段的值
 
 ## 1：Mybatis 一级缓存
 
@@ -2729,41 +2746,40 @@ select * from user where id = #{uid}
 * <p>Company: http://www.xqc.com/ </p>
 */
 public class UserTest {
-private InputStream in ;
-private SqlSessionFactory factory;
-private SqlSession session;
-private IUserDao userDao;
-@Test
-public void testFindById() {
-//6.执行操作
+    private InputStream in ;
+    private SqlSessionFactory factory;
+    private SqlSession session;
+    private IUserDao userDao;
+    @Test
+    public void testFindById() {
+        //6.执行操作
+        User user = userDao.findById(41);
+        System.out.println("第一次查询的用户："+user);
+        User user2 = userDao.findById(41);
+        System.out.println("第二次查询用户："+user2);
+        System.out.println(user == user2);
+    }
 
-User user = userDao.findById(41);
-System.out.println("第一次查询的用户："+user);
-User user2 = userDao.findById(41);
-System.out.println("第二次查询用户："+user2);
-System.out.println(user == user2);
-}
+    @Before//在测试方法执行之前执行
+    public void init()throws Exception {
+        //1.读取配置文件
+        in = Resources.getResourceAsStream("SqlMapConfig.xml");
+        //2.创建构建者对象
+        SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
+        //3.创建SqlSession工厂对象
+        factory = builder.build(in);
+        //4.创建SqlSession对象
+        session = factory.openSession();
+        //5.创建Dao的代理对象
+        userDao = session.getMapper(IUserDao.class);
+    }
 
-@Before//在测试方法执行之前执行
-public void init()throws Exception {
-//1.读取配置文件
-in = Resources.getResourceAsStream("SqlMapConfig.xml");
-//2.创建构建者对象
-SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
-//3.创建SqlSession工厂对象
-factory = builder.build(in);
-//4.创建SqlSession对象
-session = factory.openSession();
-//5.创建Dao的代理对象
-userDao = session.getMapper(IUserDao.class);
-}
-
-@After//在测试方法执行完成之后执行
-public void destroy() throws Exception{
-//7.释放资源
-session.close();
-in.close();
-}
+    @After//在测试方法执行完成之后执行
+    public void destroy() throws Exception{
+        //7.释放资源
+        session.close();
+        in.close();
+    }
 }
 
 ```
@@ -2792,41 +2808,41 @@ MyBatis 的一级缓存是默认开启的，不需要任何的配置。
 
 ```java
 public class UserTest {
-private InputStream in ;
-private SqlSessionFactory factory;
-private SqlSession session;
-private IUserDao userDao;
-@Test
-public void testFindById() {
-//6.执行操作
+    private InputStream in ;
+    private SqlSessionFactory factory;
+    private SqlSession session;
+    private IUserDao userDao;
+    @Test
+    public void testFindById() {
+        //6.执行操作
 
-User user = userDao.findById(41);
-System.out.println("第一次查询的用户："+user);
-User user2 = userDao.findById(41);
-System.out.println("第二次查询用户："+user2);
-System.out.println(user == user2);
-}
+        User user = userDao.findById(41);
+        System.out.println("第一次查询的用户："+user);
+        User user2 = userDao.findById(41);
+        System.out.println("第二次查询用户："+user2);
+        System.out.println(user == user2);
+    }
 
-@Before//在测试方法执行之前执行
-public void init()throws Exception {
-//1.读取配置文件
-in = Resources.getResourceAsStream("SqlMapConfig.xml");
-//2.创建构建者对象
-SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
-//3.创建SqlSession工厂对象
-factory = builder.build(in);
-//4.创建SqlSession对象
-session = factory.openSession();
-//5.创建Dao的代理对象
-userDao = session.getMapper(IUserDao.class);
-}
+    @Before//在测试方法执行之前执行
+    public void init()throws Exception {
+        //1.读取配置文件
+        in = Resources.getResourceAsStream("SqlMapConfig.xml");
+        //2.创建构建者对象
+        SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
+        //3.创建SqlSession工厂对象
+        factory = builder.build(in);
+        //4.创建SqlSession对象
+        session = factory.openSession();
+        //5.创建Dao的代理对象
+        userDao = session.getMapper(IUserDao.class);
+    }
 
-@After//在测试方法执行完成之后执行
-public void destroy() throws Exception{
-//7.释放资源
-session.close();
-in.close();
-}
+    @After//在测试方法执行完成之后执行
+    public void destroy() throws Exception{
+        //7.释放资源
+        session.close();
+        in.close();
+    }
 }
 
 ```
@@ -2836,17 +2852,17 @@ in.close();
 ```java
 @Test
 public void testClearlCache(){
-//1.根据id查询用户
-User user1 = userDao.findById(41);
-System.out.println(user1);
-//2.更新用户信息
-user1.setUsername("update user clear cache");
-user1.setAddress("北京市海淀区");
-userDao.updateUser(user1);
-//3.再次查询id为41的用户
-User user2 = userDao.findById(41);
-System.out.println(user2);
-System.out.println(user1 == user2);
+    //1.根据id查询用户
+    User user1 = userDao.findById(41);
+    System.out.println(user1);
+    //2.更新用户信息
+    user1.setUsername("update user clear cache");
+    user1.setAddress("北京市海淀区");
+    userDao.updateUser(user1);
+    //3.再次查询id为41的用户
+    User user2 = userDao.findById(41);
+    System.out.println(user2);
+    System.out.println(user1 == user2);
 }
 ```
 
@@ -2873,7 +2889,7 @@ MyBatis 的一级缓存是默认开启的，不需要任何的配置。
 
 ## 2 Mybatis 二级缓存
 
-二级缓存是 mapper 映射级别的缓存，多个 SqlSession 去操作同一个 Mapper 映射的 sql 语句，多个 SqlSession 可以共用二级缓存，二级缓存是跨 SqlSession 的。
+二级缓存是 mapper 映射级别的缓存，多个 SqlSession 去操作同一个 Mapper 映射的 sql 语句，多个 SqlSession 可以共用二级缓存，二级缓存是跨 SqlSession 的。二级缓存是用来解决以及缓存不能跨会话共享问题的
 
 ### 2.1 二级缓存结构图
 
@@ -2900,7 +2916,7 @@ sqlSession2 去查询与 sqlSession1 相同的用户信息，首先会去缓存�
 
 因 cacheEnabled 的取值默认就为 true，所以这一步可以省略不配置。为 true 代表开启二级缓存；为 false 代表不开启二级缓存。
 
-第二步：配置相关的**Mapper**映射文件
+第二步：配置相关的**Mapper**映射文件，在 Mapping 文件中打上<cache>标签
 
 \<cache\>标签表示当前这个 mapper 映射将使用二级缓存，区分的标准就看 mapper 的 namespace 值。
 
@@ -3007,7 +3023,6 @@ System.out.println(user1 == user2);
 ```java
 public class User implements Serializable {
 }
-
 ```
 
 如果你的 MyBatis 使用了二级缓存，并且你的 Mapper 和 select 语句也配置使用了二级缓存，那么在执行 select 查询的时候，MyBatis 会先从二级缓存中取输入，其次才是一级缓存，即 MyBatis 查询数据的顺序是：二级缓存 —> 一级缓存 —> 数据库。
@@ -4007,10 +4022,8 @@ public void scanFoo3(@PathVariable("limit") int limit) throws Exception {
 
 # 第十四章：原理
 
-##### 简述Mybatis的插件运行原理，以及如何编写一个插件。
+简述 Mybatis 的插件运行原理，以及如何编写一个插件。
 
-答：Mybatis仅可以编写针对ParameterHandler、ResultSetHandler、StatementHandler、Executor这4种接口的插件，Mybatis使用JDK的动态代理，为需要拦截的接口生成代理对象以实现接口方法拦截功能，每当执行这4种接口对象的方法时，就会进入拦截方法，具体就是InvocationHandler的invoke方法，当然，只会拦截那些你指定需要拦截的方法。
+答：Mybatis 仅可以编写针对 ParameterHandler、ResultSetHandler、StatementHandler、Executor 这 4 种接口的插件，Mybatis 使用 JDK 的动态代理，为需要拦截的接口生成代理对象以实现接口方法拦截功能，每当执行这 4 种接口对象的方法时，就会进入拦截方法，具体就是 InvocationHandler 的 invoke 方法，当然，只会拦截那些你指定需要拦截的方法。
 
-编写插件：实现Mybatis的Interceptor接口并复写intercept方法，然后在给插件编写注解，指定要拦截哪一个接口的哪些方法即可，记住，别忘了在配置文件中配置你编写的插件
-
-
+编写插件：实现 Mybatis 的 Interceptor 接口并复写 intercept 方法，然后在给插件编写注解，指定要拦截哪一个接口的哪些方法即可，记住，别忘了在配置文件中配置你编写的插件
