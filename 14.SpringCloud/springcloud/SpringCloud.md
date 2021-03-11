@@ -1,6 +1,4 @@
-﻿## 1：版本
-
-SpringCloud 最早是从 2014 年推出的，在推出的前期更新迭代速度非常快，频繁发布新版本，目前更趋于稳定，变化稍慢一些；
+﻿SpringCloud 最早是从 2014 年推出的，在推出的前期更新迭代速度非常快，频繁发布新版本，目前更趋于稳定，变化稍慢一些；
 
 SpringCloud 的版本并不是传统的使用数字的方式标识，而是使用诸如：Angel、Brixton、Camden......等伦敦的地名来命名版本，
 
@@ -1589,7 +1587,7 @@ Hystrix 能够保证在一个依赖出问题的情况下，不会导致整体服
 
 ## 配置
 
-熔断器默认线程数阈值为3个，默认时长3000毫秒，比较短相对于，很容易出现服务间超时。
+熔断器默认线程数阈值为 3 个，默认时长 3000 毫秒，比较短相对于，很容易出现服务间超时。
 
 ## 使用服务熔断
 
@@ -1601,9 +1599,9 @@ Hystrix 能够保证在一个依赖出问题的情况下，不会导致整体服
 
 涉及到断路器的三个重要参数:快照时间窗、请求总数阀值、错误百分比阀值。
 
-- 快照时间窗:断路器确定是否打开需要统计一些请求和错误数据，而统计的时间范围就是快照时间窗，默认为最近的10秒。
-- 请求总数阀值:在快照时间窗内，必须满足请求总数阀值才有资格熔断。默认为20，意味着在10秒内，如果该hystrix命令的调用次数不足20次，即使所有的请求都超时或其他原因失败，断路器都不会打开。
-- 错误百分比阀值:当请求总数在快照时间窗内超过了阀值，比如发生了30次调用，如果在这30次调用中，有15次发生了超时异常，也就是超过50%的错误百分比，在默认设定50%阀值情况下，这时候就会将断路器打开。
+- 快照时间窗:断路器确定是否打开需要统计一些请求和错误数据，而统计的时间范围就是快照时间窗，默认为最近的 10 秒。
+- 请求总数阀值:在快照时间窗内，必须满足请求总数阀值才有资格熔断。默认为 20，意味着在 10 秒内，如果该 hystrix 命令的调用次数不足 20 次，即使所有的请求都超时或其他原因失败，断路器都不会打开。
+- 错误百分比阀值:当请求总数在快照时间窗内超过了阀值，比如发生了 30 次调用，如果在这 30 次调用中，有 15 次发生了超时异常，也就是超过 50%的错误百分比，在默认设定 50%阀值情况下，这时候就会将断路器打开。
 
 这里属性整体意思是:
 10 秒之内(窗口,会移动),如果并发==超过==10 个,或者 10 个并发中,失败了 6 个,就开启熔断器
@@ -1644,7 +1642,7 @@ IdUtil 是 Hutool 包下的类,这个 Hutool 就是整合了所有的常用方�
 
 **全部在这个方法中记录,以成员变量的形式记录,**
 
-以后需要什么属性,查看这个类即可 ` HystrixCommandProperties.java ` 
+以后需要什么属性,查看这个类即可 `HystrixCommandProperties.java`
 
 ### 总结
 
@@ -1667,8 +1665,6 @@ IdUtil 是 Hutool 包下的类,这个 Hutool 就是整合了所有的常用方�
 如果请求仍然有问题，断路器就继续打开，重新计算休眠空窗期
 
 **==其他参数:==**
-
-
 
 **熔断整体流程:**
 
@@ -1709,7 +1705,7 @@ IdUtil 是 Hutool 包下的类,这个 Hutool 就是整合了所有的常用方�
 
 ```yml
 server
-	port:9001
+port:9001
 ```
 
 4,主启动类
@@ -1777,7 +1773,7 @@ public servletRegistrationBean getservlet() {
 
 ![](.\media\Hystrix的57.png)
 
-7色，1圈，1线
+7 色，1 圈，1 线
 
 实心圆:共有两种含义。它通过颜色的变化代表了实例的健康程度，它的健康度从绿色<黄色<橙色<红色递减。该实心圆除了颜色的变化之外，它的大小也会根据实例的请求流量发生变化，流量越大该实心圆就越大。所以通过该实心圆的展示，就可以在大量的实例中快速的发现故障实例和高压力实例。
 
@@ -2092,12 +2088,9 @@ GlobalFilter,全局过滤器:
 
 # 第八章：服务配置 Config
 
-==微服务面临的问题==
+微服务面临的问题
 
-```java
-可以看到,每个微服务都需要一个配置文件,并且,如果有几个微服务都需要连接数据库
-		那么就需要配4次数据库相关配置,并且当数据库发生改动,那么需要同时修改4个微服务的配置文件才可以
-```
+每个微服务都需要一个配置文件,并且,如果有几个微服务都需要连接数据库那么就需要配 4 次数据库相关配置,并且当数据库发生改动,那么需要同时修改 4 个微服务的配置文件才可以
 
 所以有了 springconfig 配置中心
 
@@ -2111,15 +2104,21 @@ SpringCloud Config 分为服务端和客户端两部分。
 
 客户端则是通过制定的配置中心来管理应用资源，以及与业务相关的配置内容，并在启动的时候从配置中心获取和加载配置信息配置信息。配置服务器默认采用 Git 来存储配置信息，这样就有助于对环境配置进行吧版本管理，并且可以通过 git 客户端工具来方便的管理和访问配置内容。
 
-![](.\media\springconfig的4.png)
+集中管理配置文件
+
+不同环境不同配置，动态化的配置更新，分环境部署比如 dev/test/prod/beta/release
+
+运行期间动态调整配置，不再需要在每个服务部署的机器上编写配置文件，服务会向配置中心统一拉取配置自己的信息
+
+当配置发生变动时，服务不需要重启即可感知到配置的变化并应用新的配置
+
+将配置信息以 RESR 接口的形式暴露，
 
 ## 使用配置中心:
 
-0,使用 github 作为配置中心的仓库:
+使用 github 作为配置中心的仓库:
 
 **初始化 git 环境:**
-
-![](.\media\springconfig的5.png)
 
 1,新建 config 模块:
 
@@ -2129,15 +2128,34 @@ SpringCloud Config 分为服务端和客户端两部分。
 
 3,配置文件
 
-![](.\media\springconfig的6.png)
+```yml
+server:
+	port: 3344
+spring:
+	application:
+		name: cloud-config-center #注册进Eureka服务器的微服务名
+	cloud:
+		config:
+			server:
+				git:
+					uri: git@github.com:zzyybs/springcloud-config.git #GitHub上:面的git仓库名字#拉##搜索目录
+					search-paths:
+						- springcloud-config # 将github上的这个目录作为配置文件存放仓库#搂哲转读取分支
+			# 读取分支
+			label: master
+#服务注册到eureka地址
+eureka:
+	client:
+		service-url:
+			defaultzone: http://localhost:7001/eureka
+
+```
 
 4,主启动类
 
-![](.\media\springconfig的7.png)
-
 5,修改 hosts:
 
-![](.\media\springconfig的8.png)
+Windows 下修改 hosts 文件，增加映射：127.0.0.1 config-3344.com
 
 6,配置完成
 
@@ -2151,25 +2169,15 @@ SpringCloud Config 分为服务端和客户端两部分。
 
 7,读取配置文件的规则:
 
-![](.\media\springconfig的10.png)
-
 ==2,==
-
-![](.\media\springconfig的11.png)
 
 **这里默认会读取 master 分支,因为我们配置文件中配置了**
 
-![](.\media\springconfig的12.png)
-
 ==3==
-
-![](.\media\springconfig的13.png)
 
 注意,这个方式读取到的配置是==json 格式==的
 
 **所有规则:**
-
-![](.\media\springconfig的14.png)
 
 ## 创建配置中心客户端:
 
@@ -2187,19 +2195,54 @@ SpringCloud Config 分为服务端和客户端两部分。
 
 这个配置文件的作用是,先到配置中心加载配置,然后加载到 application.yml 中
 
-![](.\media\springconfig的15.png)
+applicaiton.ym1 是用户级的资源配置项
 
-![](.\media\springconfig的16.png)
+bootstrap.yml 是系统级的，优先级更加高
+
+Spring Cloud 会创建一个“Bootstrap Context”，作为 Spring 应用的 Application Context'的父上下文。初始化的时候，`BootstrapContext`负责从外部源加载配置属性并解析配置。这两个上下文共享一个从外部获取的'Environment'。
+`Bootstrap`属性有高优先级，默认情况下，它们不会被本地配置覆盖。`Bootstrap context`和`Application Context`有着不同的约定，所以新增了一个`bootstrap.yml`文件，保证`Bootstrap Context`和`Application Context`配置的分离。
+
+要将 Client 模块下的 application.yml 文件改为 bootstrap.yml,这是很关键的，因为 bootstrap.yml 是比 application.yml 先加载的。bootstrap.yml 优先级高于 application.yml.
+
+```yml
+server:
+	port: 3355
+spring:
+	application:
+		name: config-client
+	cloud:
+	#Config客户端配置
+	config:
+	# 这四个整合在一起的意思是:客户端会读取http://localhost3344/master/config-dev.yml
+		label: master # 分支名称
+		name: config #定置文件名称
+		profile: dev #读取后缀名称上:述3个综合: master分支Iconfig-dev.yml的配置文件被读取http:/
+		uri: http://localhost:3344 # 配置中心地血卡
+#服务注册到eureka地址
+eureka:
+	client:
+		service-url:
+			defaultzone: http://localhost:7001/eureka
+
+```
 
 4,主启动类:
-
-![](.\media\springconfig的17.png)
 
 5,controller 类
 
 就是上面提到的,以 rest 风格将配置对外暴露
 
-![](.\media\springconfig的18.png)
+```java
+@RestController
+public class configclientController{
+	@Value("${config.info]"")
+    private String configInfo;
+    @GetMapping("/configInfo")
+    public String getConfigInfo(){
+		return configInfo;
+	}
+}
+```
 
 ![](.\media\springconfig的19.png)
 
@@ -2213,57 +2256,9 @@ SpringCloud Config 分为服务端和客户端两部分。
 
 ![](.\media\springconfig的21.png)
 
-7,问题::
 
-```java
-上面3355确实获取到了配置文件,但是如果此时配置文件修改了,3355是获取不到的
-		3344可以实时获取到最新配置文件,但是3355却获取不到
-  	除非重启服务
-```
 
-**8,实现动态刷新:**
-
-1,修改 3355,添加一个 pom 依赖:
-
-![](.\media\springconfig的22.png)
-
-2,修改配置文件,添加一个配置:
-
-![](.\media\springconfig的23.png)
-
-3,修改 controller:
-
-![](.\media\springconfig的24.png)
-
-4,此时重启服务
-
-**此时 3355 还不可以动态获取**
-
-因为此时,还需要==外部==发送 post 请求通知 3355
-
-![](.\media\springconfig的25.png)
-
-**此时在刷新 3355,发现可以获取到最新的配置文件了,这就实现了动态获取配置文件,因为 3355 并没有重启**
-
-具体流程就是:
-
-我们启动好服务后
-
-运维人员,修改了配置文件,然后发送一个 post 请求通知 3355
-
-3355 就可以获取最新配置文件
-
-**问题:**
-
-如果有多个客户端怎么办(3355,3356,3357.....)
-
-虽然可以使用 shell 脚本,循环刷新
-
-但是,可不可以使用广播,一次通知??
-
-这些 springconfig 做不到,需要使用 springcloud Bus 消息总线
-
-## 3：配置中心内容加密
+## 配置中心内容加密
 
 从配置获取的配置默认是明文的，有些像数据源这样的配置需要加密的话，需要对配置中心进行加密处理。
 
@@ -2329,7 +2324,7 @@ spring:   datasource:     username: '{cipher}0fb593294187a31f35dea15e8bafaf77745
 spring.cloud.config.server.encrypt.enabled=false
 ```
 
-## 4：动态刷新配置信息
+## 动态刷新配置信息
 
 有时候在配置中心有些参数是需要修改的，这时候如何不重启而达到实时生效的效果呢？
 
