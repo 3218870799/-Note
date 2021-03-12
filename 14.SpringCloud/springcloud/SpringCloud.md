@@ -1805,7 +1805,7 @@ public servletRegistrationBean getservlet() {
 
 过滤：指的是 Spring 框架中 GateWayFilter 的实例，使用过滤器，可以请求被路由前或后对请求进行修改
 
-**路由前后,过滤请求**
+**路由前后,过滤请求**；**在请求进入路由之前,和处理请求完成,再次到达路由之前**
 
 GateWay 旨在提供一种简单而有效的方法来对 API 进行路由，以及提供强大的过滤器功能，例如：熔断，限流，重试等。
 
@@ -1910,6 +1910,98 @@ predicates:
 	- Header=X-Request-Id, \d+ # 如果X-Request-Id的值为数字，那么就可以转发到
 ```
 
+### 动态路由
+
+根据ServiceId自动从注册中心获取服务地址并转发请求
+
+配置文件改成
+
+```yml
+uri:lb://product-service
+```
+
+服务名称转发：简化路由配置，不再写，直接写discovery
+
+```yml
+gateway:
+      discovery:
+        locator:
+          enabled: true  #开启根据微服务名称自动转发
+          lower-case-service-id: true  #微服务名称以小写形式呈现
+```
+
+### 过滤器
+
+请求根路由匹配后，需要作出其他的功能，比如url重写，url分割，请求添加额外参数，都可以使用网关过滤器实现，实现权限验证等功能就可以全局过滤器实现。
+
+根据作用范围划分为GatewayFilter和GlobalFilter
+
+GatewayFilter：网关过滤器，需要通过` spring,cloud,routes.filters` 配置在具体路由下，只作用在当前路由上或通过 ` spring.cloud.default-filters ` 配置在全局，作用在所有路由上
+
+GlobalFilter ： 全局过滤器，不需要在配置文件中配置，作用在所有的路由上，最终通过GatewayFilterAdapter包装成 GatewayFilterChain 可识别的过滤器，它为请求业务以及路由的URI转换为真实业务服务请求地址的核心过滤器，不需要配置系统初始化时加载，并作用在每个路由上。
+
+#### 网关过滤器
+
+底层都是一些工厂类，我们只需要配置就行。
+
+Path路径过滤器：
+
+
+
+AddRequestHeader：添加请求头网关过滤器工厂可以在请求头中添加一对键值对参数。
+
+**AddRequestParameter**：添加请求参数网关过滤器工厂可以在请求中添加一对请求参数的键值对。
+
+**AddResponseHeader**：添加响应头网关过滤器工厂可以在响应头中添加键值对。
+
+**PrefixPath** ：PrefixPath 网关过滤器工厂使用的是一个简单的 prefix 参数。
+
+```yml
+filters:
+	- PrefixPath=/mypath
+```
+
+这将使/mypath 为所有匹配请求的路径前缀。所以，向/hello 请求将被发送到/mypath/hello。
+
+**PreserveHostHeader** :
+
+
+
+
+
+
+
+#### 全局过滤器
+
+
+
+#### 自定义过滤器
+
+自定义网关过滤器：实现接口GatewayFilter，Ordered，数字越小，优先级越高。
+
+自定义全局过滤器：实现GobalFilter，Ordered，通过全局过滤器可以实现权限校检，安全性验证等功能
+
+```java
+@component
+@slf4j
+public class MyLogGatewayFilter implements 6lobalFilter ,ordered
+    @override
+    public Mono<void> filter(ServerwebExchange exchange，GatewayFilterchain chain){
+        log.info(“"**客章挛扉*事***come in MyLogGatewayFilter:“+new Date());
+        获取到请求参数uname
+        string uname = exchange.getRequest().getQueryParams( ).getFirst( key: "uname");
+        如果uname为空,就直接过滤掉,不走路由
+        if(uname == nul1)
+        {
+        Log.info("*家市容容**用户名为null，非法用户，o(-)o");
+        exchange.getResponse().setstatuscode(Httpstatus.NOT_ACCEPTABLE);return exchange.getResponse( ).setcomplete();
+        反之,调用下一个过滤器,也就是放行
+        return chain.filter(exchange) ;
+}  
+}
+
+```
+
 ### 使用 GateWay
 
 针对 pay 模块,设置路由
@@ -1949,171 +2041,7 @@ localhost:9527/payment/get/1
 
 8,然后重启服务即可
 
-### 重构:
 
-上面的配置虽然首先了网关,但是是在配置文件中写死了要路由的地址
-
-现在需要修改,不指定地址,而是根据微服务名字进行路由,我们可以在注册中心获取某组微服务的地址
-
-需要:
-
-1 个 eureka,2 个 pay 模块
-
-#### 修改 GateWay 模块的配置文件:
-
-![](.\media\gateway的21.png)
-
-然后就可以启动微服务.测试
-
-### Pridicate 断言
-
-参考 Java8 的 Predicate，开发人员可以匹配 HTTP 请求中所有内容（比如请求头或请求参数）如果请求与断言相匹配，则进行路
-
-就是判断,如果符合条件就是 xxxx,反之 yyyy
-
-Spring Cloud Gateway将路由匹配作为Spring WebFlux HandlerMapping基础架构的一部分。
-
-Spring Cloud Gateway包括许多内置的Route Predicate工厂。所有这些Predicate都与HTTP请求的不同属性匹配。多个RoutePredicate工厂可以进行组合。
-
-Spring Cloud Gateway创建Route对象时，使用RoutePredicateFactory 创建 Predicate对象，Predicate对象可以赋值给Route。Spring Cloud Gateway包含许多内置的Route Predicate Factories。
-
-**我们之前在配置文件中配置了断言:**
-
-![](.\media\gateway的22.png)
-
-**这个断言表示,如果外部访问路径是指定路径,就路由到指定微服务上**
-
-可以看到,这里有一个 Path,这个是断言的一种,==断言的类型==:
-
-![](.\media\gateway的23.png)
-
-```java
-After:
-		可以指定,只有在指定时间后,才可以路由到指定微服务
-```
-
-![](.\media\gateway的26.png)
-
-这里表示,只有在==2020 年的 2 月 21 的 15 点 51 分 37 秒==之后,访问==才可以路由==
-
-在此之前的访问,都会报 404
-
-如何获取当前时区?\*\*
-
-![](.\media\gateway的25.png)
-
-```java
-before:
-		与after类似,他说在指定时间之前的才可以访问
-between:
-		需要指定两个时间,在他们之间的时间才可以访问
-```
-
-![](.\media\gateway的27.png)
-
-```java
-cookie:
-		只有包含某些指定cookie(key,value),的请求才可以路由
-```
-
-![](.\media\gateway的28.png)
-
-![](.\media\gateway的29.png)
-
-```java
-Header:
-		只有包含指定请求头的请求,才可以路由
-```
-
-![](.\media\gateway的31.png)
-
-![](.\media\gateway的32.png)
-
-测试:
-![](.\media\gateway的33.png)
-
-```java
-host:
-		只有指定主机的才可以访问,
-		比如我们当前的网站的域名是www.aa.com
-    那么这里就可以设置,只有用户是www.aa.com的请求,才进行路由
-```
-
-![](.\media\gateway的34.png)
-
-![gateway的34](.\media\gateway的35.png)
-
-![](.\media\gateway的36.png)
-
-![](.\media\gateway的37.png)
-
-可以看到,如果带了域名访问,就可以,但是直接访问 ip 地址.就报错了
-
-```java
-method:
-		只有指定请求才可以路由,比如get请求...
-```
-
-![](.\media\gateway的38.png)
-
-```java
-path:
-		只有访问指定路径,才进行路由
-     比如访问,/abc才路由
-```
-
-![](.\media\gateway的39.png)
-
-```java
-Query:
-		必须带有请求参数才可以访问
-```
-
-![](.\media\gateway的40.png)
-
-### Filter 过滤器
-
-指的是 Spring 框架中 GateWayFilter 的实例，使用过滤器，可以请求被路由前或后对请求进行修改
-
-**路由前后,过滤请求**
-
-可用于修改进入的 Http 请求和返回的 HTTP 响应，路由过滤器只能指定路由进行使用，Gateway 内置了多种路由过滤器，他们都有 GatewayFilter 的工厂类来产生。
-
-#### 生命周期:
-
-**在请求进入路由之前,和处理请求完成,再次到达路由之前**
-
-#### 种类
-
-- GatewayFilter
-- GlobalFilter
-
-GateWayFilter,单一的过滤器
-
-**与断言类似,比如闲置,请求头,只有特定的请求头才放行,反之就过滤**
-
-```yml
-routes:
-	-id:paymet_routh # payment_route # 路由的ID，没有固定规则但要求唯一，建议配合服务名
-	uri:lb://cloud-provider-payment # 匹配后的目标服务地址，供服务的路由地址
-	#uri：http://localhost:8001 #匹配后提供服务的路由地址
-	filters:
-		-AddRequestParameter=X-Request-Id,1024 # 过滤器工厂会在匹配的请求头加上一堆请求头，名称为X-Request—Id值为1024
-```
-
-GlobalFilter,全局过滤器:
-
-#### **自定义过滤器:**
-
-实现两个接口
-
-![](.\media\gateway的44.png)
-
-**然后启动服务,即可,因为过滤器通过@COmponet 已经加入到容器了**
-
-![](.\media\gateway的46.png)
-
-![](.\media\gateway的45.png)
 
 # 第八章：服务配置 Config
 
