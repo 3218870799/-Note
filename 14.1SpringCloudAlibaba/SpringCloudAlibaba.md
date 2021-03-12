@@ -180,7 +180,7 @@ Nacos 直接集成了 Ribon,所以有负载均衡
 
 启动 83,访问 9001,9002,可以看到,实现了负载均衡
 
-### 使用 Nacos 作为配置中心:
+## 作配置中心
 
 Nacos 同 SpringCloud-Config 一样，在项目初始化时，要保证先从配置中心进行配置拉取，拉取配置后，才能保证项目的正常启动。
 
@@ -217,9 +217,7 @@ spring:
 
 ```
 
-```java
 可以看到
-```
 
 application.yml
 
@@ -294,7 +292,7 @@ file-extension
 
 因为 Nacos 支持 Bus 总线,会自动发送命令更新所有客户端
 
-### Nacos 配置中心之分类配置:
+### 分类配置:
 
 问题：实际开发中，通常一个系统会准备 dev 开发环境，test 测试环境，prod 生产环境，如果保证指定环境启动时服务能正确读取到 Nacos 上的响应配置文件呢？
 
@@ -374,7 +372,7 @@ Bootstrap + application
 
 OK,测试
 
-### Nacos 集群和持久化配置:
+## Nacos 集群和持久化配置
 
 ![](media/Alibaba%E7%9A%8445.png)
 
@@ -506,6 +504,8 @@ spring:
 
 ## 原理：
 
+### 熔断降级
+
 Sentinel 和 Hystrix 的原则是一致的: 当调用链路中某个资源出现不稳定，例如，表现为 timeout，异常比例升高的时候，则对这个资源的调用进行限制，并让请求快速失败，避免影响到其它的资源，最终产生雪崩的效果。
 
 在限制手段上，Sentinel 和 Hystrix 采取了完全不一样的方法。
@@ -518,9 +518,12 @@ Sentinel 采用了两种手段：
 - 通过响应时间对资源进行降级：当依赖的资源出现响应时间过长后，所有对资源的访问都会被直接拒绝，知道过了指定时间窗口之后才重新恢复。
 - 系统负载保护：Sentinel 同时对系统的维度提供保护，防止雪崩，让系统的入口流量和系统的负载达到一个平衡，保证系统在能力范围之内处理最多的请求。
 
-工作机制：
+### 工作机制：
 
-对主流框架提供适配或者显示的 API，来定义需要保护的资源，并提供设施对资源进行实时统计和调用链路分析；然后根据预设的规则，结合对资源的实时统计信息，对流量进行控制，
+- 对主流框架提供适配或者显示的 API，来定义需要保护的资源，并提供设施对资源进行实时统计和调用链路分析；
+
+- 然后根据预设的规则，结合对资源的实时统计信息，对流量进行控制，
+- 提供了实时的监控系统
 
 阿里官方也给出一份文档：[原理介绍](https://link.zhihu.com/?target=https%3A//github.com/alibaba/Sentinel/wiki/Sentinel%E5%B7%A5%E4%BD%9C%E4%B8%BB%E6%B5%81%E7%A8%8B)。
 
@@ -529,6 +532,14 @@ Sentinel 采用了两种手段：
 `StatisticSlot` 则用于记录、统计不同纬度的 runtime 指标监控信息；
 
 `ClusterBuilderSlot` 则用于存储资源的统计信息以及调用者信息，例如该资源的 RT, QPS, thread count 等等，这些信息将用作为多维度限流，降级的依据；
+
+### 流量控制
+
+角度：
+
+
+
+
 
 ## Window 安装
 
@@ -603,9 +614,12 @@ start java -jar sentinel-dashboard-1.8.1.jar --server.port=8070
 
 6. 可以看到.已经开始监听了
 
-## sentinel 的流控规则
+## 流控规则
 
-流量限制控制规则
+流量控制主要有两种方式：
+
+- 并发线程数
+- QPS
 
 ![](media/sentinel%E7%9A%847.png)
 
@@ -625,187 +639,87 @@ start java -jar sentinel-dashboard-1.8.1.jar --server.port=8070
 流控模式：
 
 - 直接：API 达到限流条件时，直接限流
-- 关联：当关联的资源达到阈值是，就限流自己
+- 关联：当关联的资源达到阈值是，就限流自己，比如**支付接口**达到阈值,就要限流下订单的接口,防止一直有订单
 - 链路：只记录指定链路上的流量（指定资源从入口资源进来的流量，如果达到阈值，就进行限流）
 
 流控效果
 
 - 快速失败：直接失败，跑一场
-- Warm UP：根据 CodeFactor（冷加载因子，默认 3）的值，从阈值 CodeFactor，经过预热时长，才达到设置的 QPS 的阈值。
+- Warm UP：根据 CodeFactor（冷加载因子，默认 3）的值，从阈值 CodeFactor，经过预热时长，才达到设置的 QPS 的阈值。当系统长期初一低水位的情况下，当流量突然增加时，直接把系统拉升可能瞬间把系统压垮。
+- 排队等待：严格控制请求通过的间隔时间，也即是让请求以匀速的速度通过，对应的是漏桶算法.阈值类型必须设置成QPS，否则无效。
 
-## 流控模式
+## 熔断降级规则
 
-1. 直接快速失败
+**熔断框架比较**
 
-   ![](media/sentinel%E7%9A%845.png)
+![](media/sentinel%E7%9A%84%E7%9A%8431.png)
 
-   ==直接失败的效果:==
-
-   ![](media/sentinel%E7%9A%846.png)
-
-2. 线程数:
-
-   线程数：当调用该 AP 的线程数达到阈值的时候，进行限流。
-
-   ![](media/sentinel%E7%9A%8410.png)
-
-   ```
-   比如a请求过来,处理很慢,在一直处理,此时b请求又过来了
-   		此时因为a占用一个线程,此时要处理b请求就只有额外开启一个线程
-   		那么就会报错
-   ```
-
-   ![](media/sentinel%E7%9A%8411.png)
-
-3. 关联:
-
-   当关联的资源达到阈值时，就限流自己
-
-   当与 A 关联的资源 B 达到阈值后，就限流 A 自己
-
-   ==应用场景: 比如**支付接口**达到阈值,就要限流下**订单的接口**,防止一直有订单==
-
-   ![](media/sentinel%E7%9A%8413.png)
-
-   **当 testA 达到阈值,qps 大于 1,就让 testB 之后的请求直接失败**
-
-   可以使用 postman 压测
-
-4. 链路:
-   多个请求调用同一个微服务
-
-5. 预热 Warm up:
-
-   Warm UP(RuleConstant.CONTROL_BEHAVIOR_WARM_UP)方式，即预热冷启动方式，当系统长期处于低水位的情况下，当流量突然增加时，直接把系统拉升到高水位可能瞬间把系统压垮，通过冷启动，让通过的李陆良缓慢增加，在一定时间内逐渐增加到阈值上限，给冷系统一个预热的时间，避免冷系统被压垮
-
-   Warm up：根据 codeFactor（冷加载因子，默认 3）的值，从阈值 codeFactor，经过预热时长，才达到设置的 QPS 阈值。
-
-   ![](media/sentinel%E7%9A%8416.png)
-
-   ==应用场景==
-
-   ![](media/sentinel%E7%9A%8417.png)
-
-6. 排队等待:
-
-   ![](media/sentinel%E7%9A%8418.png)
-
-   ![](media/sentinel%E7%9A%8419.png)
-
-## 降级规则
-
-**就是熔断降级**
-
-![image-20200416095515859](http://image.moguit.cn/c5be24e5cafc467da1b7c9ff652c2f43)
-
-- RT（平均响应时间，秒级）
-  - 平均响应时间，超过阈值 且 时间窗口内通过的请求 >= 5，两个条件同时满足后出发降级
-  - 窗口期过后，关闭断路器
-  - RT 最大 4900（更大的需要通过 -Dcsp.sentinel.staticstic.max.rt=XXXXX 才能生效）
-- 异常比例（秒级）
-  - QPA >= 5 且异常比例（秒级）超过阈值时，触发降级；时间窗口结束后，关闭降级
-- 异常数（分钟级）
-  - 异常数（分钟统计）超过阈值时，触发降级，时间窗口结束后，关闭降级
-
-Sentinel 熔断降级会在调用链路中某个资源出现不稳定状态时（例如调用超时或异常比例升高），对这个资源的调用进行限制，让请求快速失败，避免影响到其他的资源而导致级联错误。
+就是熔断降级，Sentinel 熔断降级会在调用链路中某个资源出现不稳定状态时（例如调用超时或异常比例升高），对这个资源的调用进行限制，让请求快速失败，避免影响到其他的资源而导致级联错误。
 
 当资源被降级后，在接下来的降级时间窗口之内，对该资源的调用都自动熔断（默认行为是抛出 DegradeException）
 
 Sentinel 的断路器是没有半开状态的：半开的状态，系统会自动检测是否请求有异常，没有异常就关闭断路器恢复使用，有异常则继续打开断路器不可用，具体可看 Hy
 
-#### 1,RT
 
-新增一个请求方法用于测试
 
-```java
-    @GetMapping("/testD")
-    public String testD()
-    {
-        try { TimeUnit.SECONDS.sleep(1); } catch (InterruptedException e) { e.printStackTrace(); }
-        log.info("testD 异常比例");
-        return "------testD";
-    }
-```
+![image-20200416095515859](media/c5be24e5cafc467da1b7c9ff652c2f43)
 
-==配置 RT:==
+降级策略：
 
-这里配置的 PT,默认是秒级的平均响应时间
+RT（平均响应时间，秒级）：当1s内持续进入N个请求，对应时刻的平均响应时间（秒级）均超过阈值（Count，以ms为单位），那么接下的时间（DegradeRule中的timeWindow，以s为单位）之内，对这个方法的调用都会自动地熔断（抛出DegradeException）
+- 平均响应时间，超过阈值 且 时间窗口内通过的请求 >= 5，两个条件同时满足后出发降级
+- 窗口期过后，关闭断路器
+- RT 最大 4900（更大的需要通过 -Dcsp.sentinel.staticstic.max.rt=XXXXX 才能生效）
 
-![](media/sentinel%E7%9A%8425.png)
+异常比例 (`DEGRADE_GRADE_EXCEPTION_RATIO`)秒级：当资源的每秒请求量 >= N（可配置），并且每秒异常总数占通过量的比值超过阈值（`DegradeRule` 中的 `count`）之后，资源进入降级状态，即在接下的时间窗口（`DegradeRule` 中的 `timeWindow`，以 s 为单位）之内，对这个方法的调用都会自动地返回。异常比率的阈值范围是 `[0.0, 1.0]`，代表 0% - 100%。
 
-默认计算平均时间是: 1 秒类进入 5 个请求,并且响应的平均值超过阈值(这里的 200ms),就报错]
+异常数（分钟级）：当资源一分钟的异常数超过阈值之后就会熔断，注意由于统计时间是分钟级别的，如果timeWindow小于60s，则结束熔断状态后仍可能再进入熔断状态。时间窗口一定要大于60S
 
-1 秒 5 请求是 Sentinel 默认设置的
-
-==测试==
-
-![](media/sentinel%E7%9A%8427.png)
-
-![](media/sentinel%E7%9A%8426.png)
-
-**默认熔断后.就直接抛出异常**
-
-#### 2,异常比例
-
-异常比例 (`DEGRADE_GRADE_EXCEPTION_RATIO`)：当资源的每秒请求量 >= N（可配置），并且每秒异常总数占通过量的比值超过阈值（`DegradeRule` 中的 `count`）之后，资源进入降级状态，即在接下的时间窗口（`DegradeRule` 中的 `timeWindow`，以 s 为单位）之内，对这个方法的调用都会自动地返回。异常比率的阈值范围是 `[0.0, 1.0]`，代表 0% - 100%。
-
-修改请求方法
-
-![](media/sentinel%E7%9A%8429.png)
-
-配置:
-
-![](media/sentinel%E7%9A%8431.png)
-
-==如果没触发熔断,这正常抛出异常==:
-
-![](media/sentinel%E7%9A%8432.png)
-
-==触发熔断==:
-
-![](media/sentinel%E7%9A%8433.png)
-
-#### 3, 异常数:
-
-![](media/sentinel%E7%9A%8434.png)
-
-![](media/sentinel%E7%9A%8435.png)
-
-一分钟之内,有 5 个请求发送异常,进入熔断
+- 异常数（分钟统计）超过阈值时，触发降级，时间窗口结束后，关闭降级
 
 ## 热点规则
 
-![](media/sentinel%E7%9A%8436.png)
+何为热点?热点即经常访问的数据。很多时候我们希望统计某个热点数据中访问频次最高的Top K数据，并对其访问进行限制。比如:
 
-![](media/sentinel%E7%9A%8437.png)
+- 商品ID为参数，统计一段时间内最常购买的商品ID并进行限制
+- 用户ID为参数，针对一段时间内频繁访问的用户ID进行限制
+
+热点参数限流会统计传入参数中的热点参数，并根据配置的限流阈值与模式，对包含热点参数的资源调用进行限流。热点参数限流可以看做是一种特殊的流量控制，仅对包含热点参数的资源调用生效。
 
 比如:
 
 localhost:8080/aa?name=aa
 
-localhost:8080/aa?name=b'b
+localhost:8080/aa?name=bb
 
 加入两个请求中,带有参数 aa 的请求访问频次非常高,我们就现在 name==aa 的请求,但是 bb 的不限制
 
 ==如何自定义降级方法,而不是默认的抛出异常?==
 
-![](media/sentinel%E7%9A%8438.png)
+兜底方法：分为系统默认和客户自定义，两种，之前限流出问题后，都是Sentinel系统默认的提示：Blocked by Sentinel；接下来就自己定义，某个方法出问题了，就找到对应的兜底降级方法：在Hystrix中用HystrixCommand，在Sentinel中用 ` @SentinelResource
 
 **使用@SentinelResource 直接实现降级方法,它等同 Hystrix 的@HystrixCommand**
 
-![](media/sentinel%E7%9A%8439.png)
+```java
+@GetMapping( "/testHotKey ")//定义一个名字,指定降级方法
+@SentinelResource(value = "testHotkey" ,blockHandler = "deal_testHotKey")
+public string testHotKey(@RequestParam(value = "p1" , required = false) string p1，
+						@RequestParam(value = "p2",required = false) string p2)
+{
+		return "------testHotKey" ;
+}
+public string deal_testHotkey (string p1，string p2，BlockException exception){
+    return "------deal_testHotKey,o(--)o"; //sentinel系统默认的提示: BLocked by Sentin
+}
+```
 
 ==定义热点规则:==
 
 ![](media/sentinel%E7%9A%8440.png)
 
-![](media/sentinel%E7%9A%8442.png)
-
 **此时我们访问/testHotkey 并且带上才是 p1**
 
 如果 qps 大于 1,就会触发我们定义的降级方法
-
-![](media/sentinel%E7%9A%8441.png)
 
 **但是我们的参数是 P2,就没有问题**
 
@@ -813,29 +727,13 @@ localhost:8080/aa?name=b'b
 
 只有带了 p1,才可能会触发热点限流
 
-![](media/sentinel%E7%9A%8443.png)
-
-#### 2,设置热点规则中的其他选项:
+设置热点规则中的其他选项:
 
 ![](media/sentinel%E7%9A%8445.png)
-
-**需求:**
-
-![](media/sentinel%E7%9A%8446.png)
-
-![](media/sentinel%E7%9A%8447.png)
-
-==测试==
-
-![](media/sentinel%E7%9A%8448.png)
-
-![](media/sentinel%E7%9A%8449.png)
 
 **注意:**
 
 参数类型只支持,8 种基本类型+String 类
-
-==注意:==
 
 如果我们程序出现异常,是不会走 blockHander 的降级方法的,因为这个方法只配置了热点规则,没有配置限流规则
 
@@ -843,252 +741,68 @@ localhost:8080/aa?name=b'b
 
 只有触发热点规则才会降级
 
-![](media/sentinel%E7%9A%8450.png)
+@SentinelResource：处理的是Sentinel控制台配置的违规情况，有blockHander方法配置的兜底处理
 
-### 3,系统规则:
+RuntimeException：Java运行时异常还是RuntimeException
 
-系统自适应限流:
-从整体维度对应用入口进行限流
+## 系统自适应保护规则
+
+Sentinel系统自适应限流从整体维度对应用入口流量进行控制，结合应用的Load、CPU使用率、总体平均RT。入口QPS和并发线程数等几个维度的监控指标，通过自适应的流控策略，让系统的入口流量和系统的负载达到一个平衡，让系统尽可能保持最大吞吐量的同时保证系统整体的稳定性。
+
+系统保护规则是应用整体维度的，而不是资源维度的，并且仅对入口流量生效。入口流量指的是进入应用的流量Ⅰ(EntryType.IN)，比如Web 服务或 Dubbo服务霭接收的请求，都属于入口流量。
 
 对整体限流,比如设置 qps 到达 100,这里限流会限制整个系统不可以
 
 _![](media/sentinel%E7%9A%8451.png)_
 
-![](media/sentinel%E7%9A%8452.png)
+系统规则支持一下模式：
 
-==测试==:
-![](media/sentinel%E7%9A%8453.png)
+- Load自适应（权对 Linux/Unix-like机器生效)︰系统的load1作为启发指标，进行自适应系统保护。当系统load1超过没定的启发值，且系统当前的并发线程数超过估算的系统容量时才会触发系统保护（BBR阶段)。系统容量由系统的maxQps * minRt估算得出。设定参考值一般是CPu cores * 2.5
+- CPU usage (1.5.0+版本)︰当系统CPU使用率超过阈值即触发系统保护（取值范围0.0-1.0)，比较灵敏。
+- 平均RT:当单台机器上所有入口流量的平均RT达到阈值即触发系统保护。单位是毫秒。·并发线程数:当单台机器上所有入口流量
+- 并发线程数达到阈值即触发系统保护。
+- 入口QPS:当单台机器上所有入口流量的QPS达到阈值即触发系统保护。
 
-![](media/sentinel%E7%9A%8454.png)
+重要的属性：
 
-### @SentinelResource 注解:
+| Field             | 说明                                | 默认值   |
+| ----------------- | ----------------------------------- | -------- |
+| highestSystemLoad | load1触发值，用于触发自适应控制阶段 | -1不生效 |
+| avgRt             | 所有入口流量的平均响应时间          | -1不生效 |
+| maxThread         | 入口流量的最大并发数                | -1不生效 |
+| QPS               | 所有入口资源的QPS                   | -1不生效 |
+| highestCpuUsage   | 当前系统的CPU使用率（0.0-1.0)       | -1不生效 |
 
-**用于配置降级等功能**
+本地代码设置，在Sentinel控制台动态设置
 
-1,环境搭建
 
-1. 为 8401 添加依赖
 
-   添加我们自己的 commone 包的依赖
+## 授权控制
 
-   ![](media/sentinel%E7%9A%8455.png)
+很多时候，我们需要根据调用来源来判断该次请求是否允许放行，这时候可以使用Sentinel的来源访问控制（黑白名单控制)的功能。来源访问控制根据资源的请求来源（origin）判斯资源访问是否通过，若配置白名单则只有请求来源位于白名单内时才可通过;若配置黑名单则请求来源位于黑名单时不通过，其余的请求通过。
 
-2. 额外创建一个 controller 类
+来源访问控制规则(AuthorityRule)非常简单，主要有以下配置项:
 
-   ![](media/sentinel%E7%9A%8456.png)
+- resource:资源名，即限流规则的作用对象。
+- limitApp:请求来源。对应的黑名单/白名单，多个用","分隔，如 appAappB.
+- strategy :限制模式。AUTHORITY_WHITE为白名单模式，AUTHORITY_BLACK为黑名单模式，默认为白名单模式。
 
-3. 配置限流
 
-   **注意,我们这里配置规则,资源名指定的是@SentinelResource 注解 value 的值,**
 
-   **这样也是可以的,也就是不一定要指定访问路径**
+## 动态规则扩展
 
-   ![](media/sentinel%E7%9A%8457.png)
+前面不管是通过Java代码还是通过Sentinel控制台的方式去设置限流规则，都属于手动方式，不够灵活。这种方式一般仅用于测试和演示，生产环境上一般通过动态规则源的方式来动态管理限流规则。也就是说，很多时候限流规则会被存储在文件、数据库或者配置中心当中。Sentinel的Datasource接口给我们提供了对接任意配置源的能力。
 
-4. 测试.
+官方推荐通过控制台设置规则后将规则推送到统一的规则管理中心。客户端实现ReadableDataSource 接口端监听规则中心实时获取变更，流程如下:
 
-   可以看到已经进入降级方法了
+![image-20210312202724097](media/image-20210312202724097.png)
 
-   ![](media/sentinel%E7%9A%8458.png)
+常见的实现方式有:
 
-5. ==此时我们关闭 8401 服务==
+- 拉取式:客户端主动向菜个规则管理中心定期轮询拉取规则，这个规则管理中心可以是文件，甚至是VCS等。这样做的方式是简单。缺点是无法及时获取变更;实现拉模式的数据源最简单的方式是继承AutcRefreshDatasource 抽象类，然后实现 readsource()方法，在该方法里从指定数据源读取字符串格式的配置数据。
+- 推送式：常用，规则管理中心统一推送，客户惴通过注册监听器的方式时刻监听变化，比如使用Zookeeper ,Apollo等作为规则管理中心。这种方式有更好的实时性和一致性保证。"实现推模式的数据源最简单的方式是继承 AbstractDatasource抽象类，在其构造方法中添加监听器，并实现readsource(O从指定数据源读取字符串格式的配置数据。
 
-   可以看到,这些定义的规则是临时的,关闭服务,规则就没有了
 
-   ![](media/sentinel%E7%9A%8459.png)
-
-**可以看到,上面配置的降级方法,又出现 Hystrix 遇到的问题了**
-
-降级方法与业务方法耦合
-
-每个业务方法都需要对应一个降级方法
-
-#### 自定义限流处理逻辑:
-
-1. ==单独创建一个类,用于处理限流==
-
-   ![](media/sentinel%E7%9A%84%E7%9A%841.png)
-
-2. ==在 controller 中,指定使用自定义类中的方法作为降级方法==
-
-   ![](media/sentinel%E7%9A%84%E7%9A%842.png)
-
-3. ==Sentinel 中定义流控规则==:
-
-   这里资源名,是以 url 指定,也可以使用@SentinelResource 注解 value 的值指定
-
-   ![](media/sentinel%E7%9A%84%E7%9A%845.png)
-
-4. ==测试==:
-
-   ![](media/sentinel%E7%9A%84%E7%9A%843.png)
-
-5. ==整体==:
-
-   ![](media/sentinel%E7%9A%84%E7%9A%844.png)
-
-6.
-
-#### @SentinelResource 注解的其他属性:
-
-![](media/sentinel%E7%9A%84%E7%9A%847.png)
-
-![](media/sentinel%E7%9A%84%E7%9A%846.png)
-
-### 服务熔断:
-
-1. **启动 nacos 和 sentinel**
-
-2. **新建两个 pay 模块 9003 和 9004**
-
-   1. pom
-
-   2. 配置文件
-
-      ![](media/sentinel%E7%9A%84%E7%9A%848.png)\*
-
-   3. 主启动类
-
-      ```java
-      @SpringBootApplication
-      @EnableDiscoveryClient
-      public class PaymentMain9003 {
-
-          public static void main(String[] args) {
-              SpringApplication.run(PaymentMain9003.class,args);
-          }
-      }
-      ```
-
-      ```
-
-      ```
-
-   4. controller
-
-      ![](media/sentinel%E7%9A%84%E7%9A%849.png)
-
-      **然后启动 9003.9004**
-
-3. **新建一个 order-84 消费者模块:**
-
-   1. pom
-
-      与上面的 pay 一模一样
-
-   2. 配置文件
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8410.png)
-
-   3. 主启动类
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8411.png)
-
-   4. 配置类
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8412.png)
-
-   5. controller
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8413.png)
-
-   6. **==为业务方法添加 fallback 来指定降级方法==**:
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8414.png)
-
-      ==重启 order==
-
-      测试:
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8415.png)
-
-      ==所以,fallback 是用于管理异常的,当业务方法发生异常,可以降级到指定方法==
-
-      注意,我们这里==并没有使用 sentinel 配置任何规则==,但是却降级成功,就是因为
-
-      fallback 是用于管理异常的,当业务方法发生异常,可以降级到指定方法==
-
-   7. **==为业务方法添加 blockHandler,看看是什么效果==**
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8416.png)
-
-      **重启 84,访问业务方法:**
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8417.png)
-
-      可以看到.,直接报错了,并没有降级
-
-      也就是说,blockHandler==只对 sentienl 定义的规则降级==
-
-   8. **==如果 fallback 和 blockHandler 都配置呢?==**]
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8418.png)
-
-      **设置 qps 规则,阈值 1**
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8419.png)
-
-      ==测试:==
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8420.png)
-
-      可以看到,当两个都同时生效时,==blockhandler 优先生效==
-
-   9. **==@SentinelResource 还有一个属性,exceptionsToIgnore==**
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8421.png)
-
-      **exceptionsToIgnore 指定一个异常类,**
-
-      **表示如果当前方法抛出的是指定的异常,不降级,直接对用户抛出异常**
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8422.png)
-
-### sentinel 整合 ribbon+openFeign+fallback
-
-1. 修改 84 模块,使其支持 feign
-
-   1. pom
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8423.png)
-
-   2. 配置文件
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8424.png)
-
-   3. 主启动类,也要修改
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8425.png)
-
-   4. 创建远程调用 pay 模块的接口
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8426.png)
-
-   5. 创建这个接口的实现类,用于降级
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8427.png)
-
-   6. 再次修改接口,指定降级类
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8428.png)
-
-   7. controller 添加远程调用
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8429.png)
-
-   8. 测试
-
-      启动 9003,84
-
-   9. 测试,如果关闭 9003.看看 84 会不会降级
-
-      ![](media/sentinel%E7%9A%84%E7%9A%8430.png)
-
-      **可以看到,正常降级了**
-
-**熔断框架比较**
-
-![](media/sentinel%E7%9A%84%E7%9A%8431.png)
 
 ## 持久化规则
 
@@ -1315,8 +1029,6 @@ seata_storage：建 t_storage 表
 seata_account：建 t_account 表
 
 3：创建回滚日志表,方便查看
-
-![](media/seala%E7%9A%8411.png)
 
 **注意==每个库都要执行一次==这个 sql,生成回滚日志表**
 
@@ -1771,10 +1483,6 @@ seata_account：建 t_account 表
 
     }
 
-    ```
-
-    ```
-
 7.  **entity 类(也叫 domain 类)**
 
     ```java
@@ -1793,8 +1501,6 @@ seata_account：建 t_account 表
 
     ```
 
-    ![](media/seala%E7%9A%8412.png)
-
 8.  config 配置类
 
     ```java
@@ -1803,82 +1509,43 @@ seata_account：建 t_account 表
     public class MyBatisConfig {
     ```
 
-    }
-
-    ````
-
-    ​```java
+    ````java
 
     /**
-     * @Author EiletXie
+ * @Author EiletXie
      * @Since 2020/3/18 21:51
-     * 使用Seata对数据源进行代理
+ * 使用Seata对数据源进行代理
      */
     @Configuration
     public class DataSourceProxyConfig {
-
+    
         @Value("${mybatis.mapperLocations}")
         private String mapperLocations;
-
-        @Bean
+    
+    @Bean
         @ConfigurationProperties(prefix = "spring.datasource")
         public DataSource druidDataSource() {
-            return new DruidDataSource();
+        return new DruidDataSource();
         }
-
+    
         @Bean
         public DataSourceProxy dataSourceProxy(DataSource druidDataSource) {
             return new DataSourceProxy(druidDataSource);
-        }
-
+    }
+    
         @Bean
         public SqlSessionFactory sqlSessionFactoryBean(DataSourceProxy dataSourceProxy) throws Exception {
             SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
-            bean.setDataSource(dataSourceProxy);
+        bean.setDataSource(dataSourceProxy);
             ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
             bean.setMapperLocations(resolver.getResources(mapperLocations));
             return bean.getObject();
         }
     }
     ````
+    
 
-    ```
-
-    ```
-
-9.
-
-10.
-
-11.
-
-==库存==,seta-storage-2002
-
-**==看脑图==**
-
-1. pom
-2. 配置文件
-3. 主启动类
-4. service 层
-5. dao 层
-6. controller 层 7. 8.
-
-==账号==,seta-account-2003
-
-**==看脑图==**
-
-1. pom
-2. 配置文件
-3. 主启动类
-4. service 层
-5. dao 层
-6. controller 层 7. 8.
-
-7. **全局创建完成后,首先测试不加 seata**
-
-   ![](media/seala%E7%9A%8414.png)
-
-   ![](media/seala%E7%9A%8413.png)
+![](media/seala%E7%9A%8414.png)
 
 8. 使用 seata:
 
