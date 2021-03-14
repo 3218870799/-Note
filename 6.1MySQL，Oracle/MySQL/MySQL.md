@@ -642,20 +642,20 @@ select empno "员工编号", ename "员工姓名", sal*12 "年薪" from emp;
 
 支持如下运算符
 
-| 运算符           | 说明                                                                                  |
-| ---------------- | ------------------------------------------------------------------------------------- |
-| =                | 等于                                                                                  |
-| \<\>或!=         | 不等于                                                                                |
-| \<               | 小于                                                                                  |
-| \<=              | 小于等于                                                                              |
-| \>               | 大于                                                                                  |
-| \>=              | 大于等于                                                                              |
-| between … and …. | 两个值之间,**等同于 \>= and \<=**                                                     |
-| is null          | 为 null（is not null 不为空）                                                         |
-| **and**          | 并且                                                                                  |
-| **or**           | 或者                                                                                  |
-| in               | 包含，相当于多个 or（not in 不在这个范围中）                                          |
-| not              | not 可以取非，主要用在 is 或 in 中                                                    |
+| 运算符           | 说明                                                         |
+| ---------------- | ------------------------------------------------------------ |
+| =                | 等于                                                         |
+| \<\>或!=         | 不等于                                                       |
+| \<               | 小于                                                         |
+| \<=              | 小于等于                                                     |
+| \>               | 大于                                                         |
+| \>=              | 大于等于                                                     |
+| between … and …. | 两个值之间,**等同于 \>= and \<=**                            |
+| is null          | 为 null（is not null 不为空）                                |
+| and              | 并且                                                         |
+| or               | 或者                                                         |
+| in               | 包含，相当于多个 or（not in 不在这个范围中）                 |
+| not              | not 可以取非，主要用在 is 或 in 中                           |
 | like             | like 称为模糊查询，支持%或下划线匹配 %匹配任意个字符 下划线，一个下划线只匹配一个字符 |
 
 注意：
@@ -1035,6 +1035,8 @@ select 字段 from 表名 where ……. group by …….. having …….(就是�
 
 left join ，right join ，all join
 
+做连接查询的时候一定要写上关联条件
+
 ### 9.1、SQL92 语法
 
 连接查询：也可以叫跨表查询，需要关联多个表进行查询
@@ -1042,27 +1044,7 @@ left join ，right join ，all join
 - 显示每个员工信息，并显示所属的部门名称
 
 ```sql
-select ename, dname from emp, dept;
-```
-
-以上输出，不正确，输出了 56 条数据，其实就是两个表记录的成绩，这种情况我们称为：“笛卡儿乘积”，出现错误的原因是：没有指定连接条件
-
-指定连接条件
-
-select emp.ename, dept.dname from emp, dept where emp.deptno=dept.deptno;
-
-也可以使用别名
-
 select e.ename, d.dname from emp e, dept d where e.deptno=d.deptno;
-
-以上结果输出正确，因为加入了正确的连接条件
-
-以上查询也称为 “内连接”，只查询相等的数据（连接条件相等的数据）
-
-- 取得员工和所属的领导的姓名
-
-```sql
-select e.ename, m.ename from emp e, emp m where e.mgr=m.empno;
 ```
 
 以上称为“自连接”，只有一张表连接，具体的查询方法，把一张表看作两张表即可，如以上示例：第一个表 empe 代码了员工表，emp m 代表了领导表，相当于员工表和部门表一样
@@ -1095,142 +1077,51 @@ select e.name,e.sal,d.dname from emp e right join dept d on e.deptno = d.deptno
 select e.name,e.sal,d.dname from dept d left join emp e on e.deptno = d.deptno;
 ```
 
-连接分类：
+左外连接（左连接）和右外连接（右连接）的区别：
 
-内链接
-
-表 1 inner join 表 2 on 关联条件
-
-做连接查询的时候一定要写上关联条件 inner 可以省略
-
-外连接
-
-左外连接
-
-\* 表 1 left outer join 表 2 on 关联条件
-
-\* 做连接查询的时候一定要写上关联条件
-
-\* outer 可以省略\*右外连接
-
-\* 表 1 right outer join 表 2 on 关联条件
-
-\* 做连接查询的时候一定要写上关联条件
-
-\* outer 可以省略
-
-\*左外连接（左连接）和右外连接（右连接）的区别：
-
-\*左连接以左面的表为准和右边的表比较，和左表相等的不相等都会显示出来，右表符合条件的显示,不符合条件的不显示
-
-\*右连接恰恰相反，以上左连接和右连接也可以加入 outer 关键字，但一般不建议这种写法，如：
-
-select e.ename, e.sal, d.dname from emp e right outer join dept d on e.deptno=d.deptno; select e.ename, e.sal, d.dname from dept d left outer join emp e on e.deptno=d.deptno;
-
-左连接能完成的功能右连接一定可以完成
+左连接以左面的表为准和右边的表比较，和左表相等的不相等都会显示出来，右表符合条件的显示,不符合条件的不显示，右连接恰恰相反
 
 ## 10、子查询
 
 子查询就是嵌套的 select 语句，可以理解为子查询是一张表
 
-10.1、where……(select )
+**1：where （select ……）**
 
-在 where 语句中使用子查询，也就是在 where 语句中加入 select 语句
+例：查询员工信息，查询哪些人是管理者，要求显示出其员工编号和员工姓名
 
-- 查询员工信息，查询哪些人是管理者，要求显示出其员工编号和员工姓名
+思路：首先取得管理者的编号，去除重复的，查询员工编号包含管理者编号的
 
-实现思路：
-
-1、首先取得管理者的编号，去除重复的
-
-select distinct mgr from emp where mgr is not null;
-
-distinct 去除重复行
-
-2、查询员工编号包含管理者编号的
-
+```sql
 select empno, ename from emp where empno in(select mgr from emp where mgr is not null);
+```
 
-!
+例：查询哪些人的薪水高于员工的平均薪水，需要显示员工编号，员工姓名，薪水
 
-- 查询哪些人的薪水高于员工的平均薪水，需要显示员工编号，员工姓名，薪水
+思路：取得平均薪水，取得大于平均薪水的员工
 
-  实现思路
+```sql
+select empno, ename, sal from emp where sal > (select avg(sal) from emp);
+```
 
-1.  取得平均薪水
+**2、from (select……)**
 
-select avg(sal) from emp;
+例：查询员工信息，查询哪些人是管理者，要求显示出其员工编号和员工姓名
 
-2.  取得大于平均薪水的员工
+思路：首先取得管理者的编号，去除重复的
 
-select empno, ename, sal from emp where sal \> (select avg(sal) from emp);
-
-10.2、from (select……)
-
-在 from 语句中使用子查询，可以将该子查询看做一张表
-
-- 查询员工信息，查询哪些人是管理者，要求显示出其员工编号和员工姓名
-
-  首先取得管理者的编号，去除重复的
-
-select distinct mgr from emp where mgr is not null;
-
-将以上查询作为一张表，放到 from 语句的后面
-
-使用 92 语法：
-
-select e.empno, e.ename from emp e, (select distinct mgr from emp where mgr is not null) m where e.empno=m.mgr;
-
-使用 99 语法：
-
+```sql
 select e.empno, e.ename from emp e join (select distinct mgr from emp where mgr is not null) m on e.empno=m.mgr;
+```
 
-!
+**3、select(select……)**
 
-- 查询各个部门的平均薪水所属等级，需要显示部门编号，平均薪水，等级编号
 
-实现思路
-
-1、首先取得各个部门的平均薪水
-
-| select deptno, avg(sal) avg_sal from emp group by deptno;
-
-2、将部门的平均薪水作为一张表与薪水等级表建立连接，取得等级
-
-| select deptno,avg(sal) avg_sal from emp group by deptno;                                                                                                    |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| select \* from salgrade;                                                                                                                                    |
-| select a.deptno,a.avg_sal,g.grade from (select deptno,avg(sal) avg_sal from emp group by deptno ) a join salgrade g on a.avg_sal between g.losal and hisal; |
-
-10.3、select(select……)
-
-- 查询员工信息，并显示出员工所属的部门名称
-
-第一种做法，将员工表和部门表连接
-
-| select e.ename, d.dname from emp e, dept d where e.deptno=d.deptno;
-
-第二种做法，在 select 语句中再次嵌套 select 语句完成部分名称的查询
-
-| select e.ename, (select d.dname from dept d where e.deptno=d.deptno) as dname from emp e;
-
-!
 
 ## 11、union
 
-11.1、union 合并集合（相加）
+union 合并集合（相加）：合并结果集的时候，**需要查询字段对应个数相同。**在 Oracle 中更严格，不但要求个数相同，而且还要求类型对应相同。
 
-1、查询 job 包含 MANAGER 和包含 SALESMAN 的员工
 
-| select \* from emp where job in('MANAGER', 'SALESMAN');
-
-2、采用 union 来合并
-
-select \* from emp where job='MANAGER' union select \* from emp where job='SALESMAN'
-
-合并结果集的时候，**需要查询字段对应个数相同。**
-
-在 Oracle 中更严格，不但要求个数相同，而且还要求类型对应相同。
 
 **union 与 union all 的区别：**
 
@@ -1238,14 +1129,15 @@ union all 只是合并查询结果，并不会进行去重和排序操作，在�
 
 一、区别 1：取结果的交集
 
-1、union: 对两个结果集进 zhi 行并集操作 dao, 不包括重复行,相当于 zhuandistinct, 同时进行默认规 shu 则的排序;
+1、union： 对两个结果集进行并集操作 , 不包括重复行,相当于 distinct, 同时进行默认规则的排序;
 
-2、union all: 对两个结果集进行并集操作, 包括重复行, 即所有的结果全部显示, 不管是不是重复;
+2、union all： 对两个结果集进行并集操作, 包括重复行, 即所有的结果全部显示, 不管是不是重复;
 
 二、区别 2：获取结果后的操作
-1、union: 会对获取的结果进行排序操作
 
-2、union all: 不会对获取的结果进行排序操作
+union: 会对获取的结果进行排序操作
+
+union all: 不会对获取的结果进行排序操作
 
 ## 12、limit 的使用
 
@@ -1263,6 +1155,10 @@ n 是指从第 m+1 条开始，取 n 条。
 --取得前 5 条数据
 select * from emp limit 5;
 ```
+
+
+
+
 
 # 第四部分、存储引擎
 
@@ -1790,6 +1686,12 @@ Redo buffer 持久化到 Redo log 的策略有三种：
 
 undolog：回滚日志，用于记录数据被修改前的信息，实现事务的原子性。update 操作会将当前数据加入到 undolog 中，然后使用行中的隐藏字段 DB_ROLL——PTR 回滚字段执行的前一个版本的数据。
 
+binglog 是一个二进制的日志文件，会记录mysql的数据更新或潜在个跟新 （delete from table where id =xxx）
+
+主从复制就是依靠binglog
+
+
+
 ### MVCC
 
 Multi-Version Concurrency Control，多版本并发控制，MVCC 在 MySQL InnoDB 中的实现主要是为了提高数据库并发性能，用更好的方式去处理读-写冲突，做到即使有读写冲突时，也能做到不加锁，非阻塞并发读。
@@ -1902,6 +1804,10 @@ Search），这就是为什么性能能得到本质上的提高。MYISAM 和 INN
 **从 innodb 的索引结构分析，为什么索引的 key 长度不能太长？**
 
 key 太长会导致一个页当中能够存放的 key 的数目变少，间接导致索引树的页数目变多，索引层次增加，从而影响整体查询变更的效率。
+
+### mysql数据结构
+
+主要支持Hash和B+数，Hash对于范围查询时不支持的，Myisam和Innodb都支持。
 
 ### B+数索引
 
@@ -2097,15 +2003,15 @@ MySQL 每次只使用一个索引，与其说 数据库查询只能用一个索�
 
 - 表记录太少
 
-- 经常增删改的表
+- 经常增删改的表，经常修改的字段（建立索引修改索引代价较高）
 
 Why:提高了查询速度，同时却会降低更新表的速度，如对表进行 INSERT、UPDATE 和 DELETE。
 
 因为更新表时，MySQL 不仅要保存数据，还要保存一下索引文件
 
 - Where 条件里用不到的字段不创建索引
-
 - 数据重复且分布平均的表字段，因此应该只为最经常查询和最经常排序的数据列建立索引。
+- 不能超过16个索引
 
 注意，如果某个数据列包含许多重复的内容，为它建立索引就没有太大的实际效果。
 
