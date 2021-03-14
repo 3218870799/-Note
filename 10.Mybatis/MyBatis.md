@@ -332,10 +332,10 @@ insert ,update ,delete
 int insertStudent(Student student);
 ```
 
-（2） StudentDao.xml 加入sql 语句
+（2） StudentDao.xml 加入 sql 语句
 
 ```xml
-<insert id="insertStudent"> insert into student(id,name,email,age) 
+<insert id="insertStudent"> insert into student(id,name,email,age)
     values(#{id},#{name},#{email},#{age})
 </insert>
 ```
@@ -344,31 +344,29 @@ int insertStudent(Student student);
 
 ```java
 @Test
-public void testInsert() throws IOException { 
-    //1.mybatis主配置文件 
-    String config = "mybatis-config.xml"; 
-    //2.读取配置文件 
-    InputStream in = Resources.getResourceAsStream(config); 
-    //3.创建SqlSessionFactory对象 
-    SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(in); 
-    //4.获取SqlSession 
-    SqlSession session = factory.openSession(); 
-    //5.创建保存数据的对象 
-    Student student = new Student();    
-    student.setId(1005);    
-    student.setName("张丽");     
-    student.setEmail("zhangli@163.com");     
-    student.setAge(20);     
-    //6.执行插入insert     
+public void testInsert() throws IOException {
+    //1.mybatis主配置文件
+    String config = "mybatis-config.xml";
+    //2.读取配置文件
+    InputStream in = Resources.getResourceAsStream(config);
+    //3.创建SqlSessionFactory对象
+    SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(in);
+    //4.获取SqlSession
+    SqlSession session = factory.openSession();
+    //5.创建保存数据的对象
+    Student student = new Student();
+    student.setId(1005);
+    student.setName("张丽");
+    student.setEmail("zhangli@163.com");
+    student.setAge(20);
+    //6.执行插入insert
     int rows =  session.insert("com.xqc.dao.StudentDao.insertStudent",student);
     //7.提交事务
-    System.out.println("增加记录的行数:"+rows); 
-    //8.关闭SqlSession     
-    session.close(); 
-} 
+    System.out.println("增加记录的行数:"+rows);
+    //8.关闭SqlSession
+    session.close();
+}
 ```
-
-
 
 ### 2.2.2 update
 
@@ -536,8 +534,6 @@ public Object execute( SqlSession sqlSession，0bject[] args){
 
 ```
 
-
-
 ## 3.2 **深入理解参数**
 
 ### 3.2.1 parameterType
@@ -670,7 +666,7 @@ Map 集合可以存储多个值，使用 Map 向 mapper 文件一次传入多个
 ```java
 Map<String,Object> data = new HashMap<String,Object>();
 data.put(“myname”,”李力”);
-data.put(“myage”,20); 
+data.put(“myage”,20);
 
 ```
 
@@ -683,9 +679,9 @@ List<Student> selectMultiMap(Map<String,Object> map)
 mapper 文件：
 
 ```xml
-<select id="selectMultiMap" resultType="com.xqc.domain.Student">    
- select id,name,email,age from student where name=#{myname} or age =#{myage} 
-</select> 
+<select id="selectMultiMap" resultType="com.xqc.domain.Student">
+ select id,name,email,age from student where name=#{myname} or age =#{myage}
+</select>
 ```
 
 ### 3.2.8 \#和\$
@@ -706,7 +702,7 @@ $将传入的数据直接显示生成在 sql 中。
 
 $这样的参数会直接参与 sql 编译,从而不能避免注入攻击
 
-\#占位符，告诉 mybatis 使用实际的参数值代替。并使用 PrepareStatement对象执行 sql 语句,
+\#占位符，告诉 mybatis 使用实际的参数值代替。并使用 PrepareStatement 对象执行 sql 语句,
 
 \#{…}代替 sql 语句的“?”。这样做更安全，更迅速，通常也是首选做法
 
@@ -714,11 +710,11 @@ $这样的参数会直接参与 sql 编译,从而不能避免注入攻击
 
 ### 3.3.1：resultType
 
-resultType: 执行 sql 得到 ResultSet 转换的类型，使用类型的完全限定名或别名。注意如果返回的是集合，那应该设置为集合包含的类型，而不是集合本身。resultType 和resultMap，不能同时使用。
+resultType: 执行 sql 得到 ResultSet 转换的类型，使用类型的完全限定名或别名。注意如果返回的是集合，那应该设置为集合包含的类型，而不是集合本身。resultType 和 resultMap，不能同时使用。
 
 ### 3.3.2 resultMap
 
-resultMap 可以自定义 sql 的结果和 java对象属性的映射关系。更灵活的把列值赋值给指定属性。常用在列名和 java对象属性名不一样的情况。
+resultMap 可以自定义 sql 的结果和 java 对象属性的映射关系。更灵活的把列值赋值给指定属性。常用在列名和 java 对象属性名不一样的情况。
 
 ### 3.3.3 实体类属性名和列名不同
 
@@ -730,13 +726,13 @@ resultMap 可以自定义 sql 的结果和 java对象属性的映射关系。更
 
 模糊查询的实现有两种方式，
 
- 一是 java 代码中给查询数据加上“%” ; 
+一是 java 代码中给查询数据加上“%” ;
 
-二是在 mapper文件 sql 语句的条件位置加上“%”
+二是在 mapper 文件 sql 语句的条件位置加上“%”
 
 需求：查询姓名有“力”的
 
-例 1: java代码中提供要查询的 “%力%” 接口方法：
+例 1: java 代码中提供要查询的 “%力%” 接口方法：
 
 ```java
 List<Student> selectLikeFirst(String name);
@@ -745,10 +741,11 @@ List<Student> selectLikeFirst(String name);
 mapper 文件：
 
 ```xml
-<select id="selectLikeFirst" resultType="com.bjpowernode.domain.Student">     select id,name,email,age from student     where name like #{studentName} 
+<select id="selectLikeFirst" resultType="com.bjpowernode.domain.Student">     select id,name,email,age from student     where name like #{studentName}
 </select>
 ```
-此时传入的studentName为应该为` % 力 % ` 
+
+此时传入的 studentName 为应该为`% 力 %`
 
 例 2：mapper 文件中使用 like name "%" \#{xxx} "%"
 
@@ -761,26 +758,26 @@ List<Student> selectLikeSecond(String name);
 mapper 文件：
 
 ```xml
-<select id="selectLikeSecond" resultType="com.bjpowernode.domain.Student">     
-    select id,name,email,age from student     where name like "%" #{studentName} "%" 
+<select id="selectLikeSecond" resultType="com.bjpowernode.domain.Student">
+    select id,name,email,age from student     where name like "%" #{studentName} "%"
 </select>
 ```
 
 # 第 4 章 动态 SQL
 
-动态 SQL，通过 MyBatis 提供的各种标签对条件作出判断以实现动态拼接 SQL语句。这里的条件判断使用的表达式为 OGNL 表达式。常用的动态 SQL
+动态 SQL，通过 MyBatis 提供的各种标签对条件作出判断以实现动态拼接 SQL 语句。这里的条件判断使用的表达式为 OGNL 表达式。常用的动态 SQL
 标签有\<if\>、\<where\>、\<choose/\>、\<foreach\>等。
 
 MyBatis 的动态 SQL 语句，与 JSTL 中的语句非常相似。
 
-动态SQL，主要用于解决查询条件不确定的情况：在程序运行期间，根据用户提交的查询条件进行查询。提交的查询条件不同，执行的SQL语句不同。若将每种可能的情况均逐一列出，对所有条件进行排列组合，将会出现大量的SQL 语句。此时，可使用动态 SQL 来解决这样的问题
+动态 SQL，主要用于解决查询条件不确定的情况：在程序运行期间，根据用户提交的查询条件进行查询。提交的查询条件不同，执行的 SQL 语句不同。若将每种可能的情况均逐一列出，对所有条件进行排列组合，将会出现大量的 SQL 语句。此时，可使用动态 SQL 来解决这样的问题
 
 ## **4.1** 环境准备
 
-在 mapper 的动态 SQL中若出现大于号（\>）、小于号（\<）、大于等于号（\>=），小于等于号（\<=）等符号，最好将其转换为实体符号。否则，XML
+在 mapper 的动态 SQL 中若出现大于号（\>）、小于号（\<）、大于等于号（\>=），小于等于号（\<=）等符号，最好将其转换为实体符号。否则，XML
 可能会出现解析出错问题。
 
-特别是对于小于号（\<），在 XML 中是绝不能出现的。否则解析 mapper文件会出错。
+特别是对于小于号（\<），在 XML 中是绝不能出现的。否则解析 mapper 文件会出错。
 
 实体符号表：
 
@@ -833,10 +830,10 @@ Mybatis 映射几种：
 
 ## 4.3 \<where\>
 
-\<if/\>标签的中存在一个比较麻烦的地方：需要在 where 后手工添加 1=1的子句。因为，若 where 后的所有\<if/\>条件均为 false，而 where 后若又没有 1=1
-子句，则 SQL 中就会只剩下一个空的 where，SQL 出错。所以，在 where后，需要添加永为真子句1=1，以防止这种情况的发生。但当数据量很大时，会严重影响查询效率。
+\<if/\>标签的中存在一个比较麻烦的地方：需要在 where 后手工添加 1=1 的子句。因为，若 where 后的所有\<if/\>条件均为 false，而 where 后若又没有 1=1
+子句，则 SQL 中就会只剩下一个空的 where，SQL 出错。所以，在 where 后，需要添加永为真子句 1=1，以防止这种情况的发生。但当数据量很大时，会严重影响查询效率。
 
-使用\<where/\>标签，在有查询条件时，可以自动添加上 where子句；没有查询条件时，不会添加 where 子句。需要注意的是，第一个\<if/\>标签中的SQL 片断，可以不包含 and。不过，写上 and 也不错，系统会将多出的 and去掉。但其它\<if/\>中 SQL 片断的 and，必须要求写上。否则 SQL 语句将拼接出错 。
+使用\<where/\>标签，在有查询条件时，可以自动添加上 where 子句；没有查询条件时，不会添加 where 子句。需要注意的是，第一个\<if/\>标签中的 SQL 片断，可以不包含 and。不过，写上 and 也不错，系统会将多出的 and 去掉。但其它\<if/\>中 SQL 片断的 and，必须要求写上。否则 SQL 语句将拼接出错 。
 
 接口方法：
 
@@ -845,16 +842,14 @@ List\<Student\> selectStudentWhere (Student student);
 mapper 文件：
 
 ```xml
-<select id="selectStudentWhere" resultType="com.bjpowernode.domain.Student">     
-	select id,name,email,age from student 
+<select id="selectStudentWhere" resultType="com.bjpowernode.domain.Student">
+	select id,name,email,age from student
     <where>
-        <if test="name != null and name !='' "> and name = #{name} </if> 
-        <if test="age > 0 "> and age &gt; #{age} </if> 
-    </where> 
-</select> 
+        <if test="name != null and name !='' "> and name = #{name} </if>
+        <if test="age > 0 "> and age &gt; #{age} </if>
+    </where>
+</select>
 ```
-
-
 
 ## 4.4 \<foreach\>
 
@@ -877,19 +872,17 @@ List\<Student\> selectStudentForList(List\<Integer\> idList);
 mapper 文件：
 
 ```xml
-<select id="selectStudentForList" resultType="com.xqc.domain.Student">     
-	select id,name,email,age from student     
-		<if test="list !=null and list.size > 0 ">         
-			where id in 
-            <foreach collection="list" open="(" close=")"  item="stuid" separator=","> 
-                #{stuid} 
-            </foreach> 
-    	</if> 
-</select> 
+<select id="selectStudentForList" resultType="com.xqc.domain.Student">
+	select id,name,email,age from student
+		<if test="list !=null and list.size > 0 ">
+			where id in
+            <foreach collection="list" open="(" close=")"  item="stuid" separator=",">
+                #{stuid}
+            </foreach>
+    	</if>
+</select>
 
 ```
-
-
 
 （**2**） 遍历 List\<对象类型\>
 
@@ -900,25 +893,25 @@ List\<Student\> selectStudentForList2(List\<Student\> stuList);
 mapper 文件：
 
 ```xml
-<select id="selectStudentForList2" resultType="com.bjpowernode.domain.Student">     
-    select id,name,email,age from student    
-     	<if test="list !=null and list.size > 0 ">        
-     	where id in 
-            <foreach collection="list" open="(" close=")"  item="stuobject" separator=","> 
-                #{stuobject.id} 
-            </foreach> 
-        </if> 
-</select> 
+<select id="selectStudentForList2" resultType="com.bjpowernode.domain.Student">
+    select id,name,email,age from student
+     	<if test="list !=null and list.size > 0 ">
+     	where id in
+            <foreach collection="list" open="(" close=")"  item="stuobject" separator=",">
+                #{stuobject.id}
+            </foreach>
+        </if>
+</select>
 
 ```
 
 ## 4.5 \<sql/\>与\<include/\>
 
-\<sql/\>标签用于定义 SQL 片断，以便其它 SQL 标签复用。而其它标签使用该 SQL片断，需要使用\<include/\>子标签。
+\<sql/\>标签用于定义 SQL 片断，以便其它 SQL 标签复用。而其它标签使用该 SQL 片断，需要使用\<include/\>子标签。
 
 ## 4.6 \<choose/\>，\<When\>
 
-choose 标签是按顺序判断其内部 when 标签中的 test 条件出否成立，如果有一个成立，则choose 结束。当 choose 中所有 when 的条件都不满则时，则执行 otherwise 中的 sql
+choose 标签是按顺序判断其内部 when 标签中的 test 条件出否成立，如果有一个成立，则 choose 结束。当 choose 中所有 when 的条件都不满则时，则执行 otherwise 中的 sql
 
 ## 4.7\<trim\>
 
@@ -956,48 +949,48 @@ choose 标签是按顺序判断其内部 when 标签中的 test 条件出否成�
 3.主要包含内容：
 
 ```xml
-<!-- settings是 MyBatis 中全局的调整设置，它们会改变 MyBatis 的运行时行为,应谨慎设置 -->  
-	    <settings>  
-	        <!-- 该配置影响的所有映射器中配置的缓存的全局开关。默认值true -->  
-	      <setting name="cacheEnabled" value="true"/>  
-	      <!--延迟加载的全局开关。当开启时，所有关联对象都会延迟加载。 特定关联关系中可通过设置fetchType属性来覆盖该项的开关状态。默认值false  --> 
-	      <setting name="lazyLoadingEnabled" value="true"/>  
-	        <!-- 是否允许单一语句返回多结果集（需要兼容驱动）。 默认值true -->  
-	      <setting name="multipleResultSetsEnabled" value="true"/>  
-	      <!-- 使用列标签代替列名。不同的驱动在这方面会有不同的表现， 具体可参考相关驱动文档或通过测试这两种不同的模式来观察所用驱动的结果。默认值true -->  
-	      <setting name="useColumnLabel" value="true"/>  
-	      <!-- 允许 JDBC 支持自动生成主键，需要驱动兼容。 如果设置为 true 则这个设置强制使用自动生成主键，尽管一些驱动不能兼容但仍可正常工作（比如 Derby）。 默认值false  -->  
-	      <setting name="useGeneratedKeys" value="false"/>  
-	     <!--  指定 MyBatis 应如何自动映射列到字段或属性。 NONE 表示取消自动映射；PARTIAL 只会自动映射没有定义嵌套结果集映射的结果集。 FULL 会自动映射任意复杂的结果集（无论是否嵌套）。 -->   
-	     <!-- 默认值PARTIAL -->  
-	      <setting name="autoMappingBehavior" value="PARTIAL"/>  
-	        
-	      <setting name="autoMappingUnknownColumnBehavior" value="WARNING"/>  
-	     <!--  配置默认的执行器。SIMPLE 就是普通的执行器；REUSE 执行器会重用预处理语句（prepared statements）； BATCH 执行器将重用语句并执行批量更新。默认SIMPLE  -->  
-	      <setting name="defaultExecutorType" value="SIMPLE"/>  
-	      <!-- 设置超时时间，它决定驱动等待数据库响应的秒数。 -->  
-	      <setting name="defaultStatementTimeout" value="25"/>  
-	        
-	      <setting name="defaultFetchSize" value="100"/>  
-	      <!-- 允许在嵌套语句中使用分页（RowBounds）默认值False -->  
-	      <setting name="safeRowBoundsEnabled" value="false"/>  
-	      <!-- 是否开启自动驼峰命名规则（camel case）映射，即从经典数据库列名 A_COLUMN 到经典 Java 属性名 aColumn 的类似映射。  默认false -->  
-	      <setting name="mapUnderscoreToCamelCase" value="false"/>  
-	      <!-- MyBatis 利用本地缓存机制（Local Cache）防止循环引用（circular references）和加速重复嵌套查询。  
-	             默认值为 SESSION，这种情况下会缓存一个会话中执行的所有查询。  
-	            若设置值为 STATEMENT，本地会话仅用在语句执行上，对相同 SqlSession 的不同调用将不会共享数据。  -->  
-	      <setting name="localCacheScope" value="SESSION"/>  
-	      <!-- 当没有为参数提供特定的 JDBC 类型时，为空值指定 JDBC 类型。 某些驱动需要指定列的 JDBC 类型，多数情况直接用一般类型即可，比如 NULL、VARCHAR 或 OTHER。  -->  
-	      <setting name="jdbcTypeForNull" value="OTHER"/>  
-	    <!--   指定哪个对象的方法触发一次延迟加载。  -->  
-	      <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>  
-	    </settings>  
+<!-- settings是 MyBatis 中全局的调整设置，它们会改变 MyBatis 的运行时行为,应谨慎设置 -->
+	    <settings>
+	        <!-- 该配置影响的所有映射器中配置的缓存的全局开关。默认值true -->
+	      <setting name="cacheEnabled" value="true"/>
+	      <!--延迟加载的全局开关。当开启时，所有关联对象都会延迟加载。 特定关联关系中可通过设置fetchType属性来覆盖该项的开关状态。默认值false  -->
+	      <setting name="lazyLoadingEnabled" value="true"/>
+	        <!-- 是否允许单一语句返回多结果集（需要兼容驱动）。 默认值true -->
+	      <setting name="multipleResultSetsEnabled" value="true"/>
+	      <!-- 使用列标签代替列名。不同的驱动在这方面会有不同的表现， 具体可参考相关驱动文档或通过测试这两种不同的模式来观察所用驱动的结果。默认值true -->
+	      <setting name="useColumnLabel" value="true"/>
+	      <!-- 允许 JDBC 支持自动生成主键，需要驱动兼容。 如果设置为 true 则这个设置强制使用自动生成主键，尽管一些驱动不能兼容但仍可正常工作（比如 Derby）。 默认值false  -->
+	      <setting name="useGeneratedKeys" value="false"/>
+	     <!--  指定 MyBatis 应如何自动映射列到字段或属性。 NONE 表示取消自动映射；PARTIAL 只会自动映射没有定义嵌套结果集映射的结果集。 FULL 会自动映射任意复杂的结果集（无论是否嵌套）。 -->
+	     <!-- 默认值PARTIAL -->
+	      <setting name="autoMappingBehavior" value="PARTIAL"/>
+
+	      <setting name="autoMappingUnknownColumnBehavior" value="WARNING"/>
+	     <!--  配置默认的执行器。SIMPLE 就是普通的执行器；REUSE 执行器会重用预处理语句（prepared statements）； BATCH 执行器将重用语句并执行批量更新。默认SIMPLE  -->
+	      <setting name="defaultExecutorType" value="SIMPLE"/>
+	      <!-- 设置超时时间，它决定驱动等待数据库响应的秒数。 -->
+	      <setting name="defaultStatementTimeout" value="25"/>
+
+	      <setting name="defaultFetchSize" value="100"/>
+	      <!-- 允许在嵌套语句中使用分页（RowBounds）默认值False -->
+	      <setting name="safeRowBoundsEnabled" value="false"/>
+	      <!-- 是否开启自动驼峰命名规则（camel case）映射，即从经典数据库列名 A_COLUMN 到经典 Java 属性名 aColumn 的类似映射。  默认false -->
+	      <setting name="mapUnderscoreToCamelCase" value="false"/>
+	      <!-- MyBatis 利用本地缓存机制（Local Cache）防止循环引用（circular references）和加速重复嵌套查询。
+	             默认值为 SESSION，这种情况下会缓存一个会话中执行的所有查询。
+	            若设置值为 STATEMENT，本地会话仅用在语句执行上，对相同 SqlSession 的不同调用将不会共享数据。  -->
+	      <setting name="localCacheScope" value="SESSION"/>
+	      <!-- 当没有为参数提供特定的 JDBC 类型时，为空值指定 JDBC 类型。 某些驱动需要指定列的 JDBC 类型，多数情况直接用一般类型即可，比如 NULL、VARCHAR 或 OTHER。  -->
+	      <setting name="jdbcTypeForNull" value="OTHER"/>
+	    <!--   指定哪个对象的方法触发一次延迟加载。  -->
+	      <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>
+	    </settings>
 
 ```
 
-## 5.2 dataSource连接池
+## 5.2 dataSource 连接池
 
-Mybatis 中访问数据库，可以连接池技术，但它采用的是自己的连接池技术。在 Mybatis的 mybatis.xml 配置文件中，通过\<dataSource type=”pooled”\>来实现 Mybatis中连接池的配置。
+Mybatis 中访问数据库，可以连接池技术，但它采用的是自己的连接池技术。在 Mybatis 的 mybatis.xml 配置文件中，通过\<dataSource type=”pooled”\>来实现 Mybatis 中连接池的配置。
 
 dataSource 类型：Mybatis 将数据源分成三类
 
@@ -1007,35 +1000,33 @@ POOLED 使用连接池的数据源
 
 JNDI 使用 JNDI 实现的数据源
 
-其中 UNPOOLED ,POOLED 数据源实现了 javax.sq.DataSource 接口， JNDI和前面两个实现方式不同，
+其中 UNPOOLED ,POOLED 数据源实现了 javax.sq.DataSource 接口， JNDI 和前面两个实现方式不同，
 
 dataSource 配置
 
 ```xml
-<dataSource type="POOLED">  
-	<property name="driver" value="com.mysql.jdbc.Driver"/>    
-    <property name="url"  value="jdbc:mysql://localhost:3306/ssm?charset=utf-8"/>     
-    <property name="username" value="root"/>     
-    <property name="password" value="123456"/> 
-</dataSource> 
+<dataSource type="POOLED">
+	<property name="driver" value="com.mysql.jdbc.Driver"/>
+    <property name="url"  value="jdbc:mysql://localhost:3306/ssm?charset=utf-8"/>
+    <property name="username" value="root"/>
+    <property name="password" value="123456"/>
+</dataSource>
 
 ```
 
-MyBatis 在初始化时，根据\<dataSource\>的 type 属性来创建相应类型的的数据源DataSource，即： type=”POOLED”：MyBatis 会创建 PooledDataSource 实例type=”UNPOOLED” ： MyBatis 会创建 UnpooledDataSource 实例 type=”JNDI”：MyBatis会从 JNDI 服务上查找 DataSource 实例，然后返回使用
+MyBatis 在初始化时，根据\<dataSource\>的 type 属性来创建相应类型的的数据源 DataSource，即： type=”POOLED”：MyBatis 会创建 PooledDataSource 实例 type=”UNPOOLED” ： MyBatis 会创建 UnpooledDataSource 实例 type=”JNDI”：MyBatis 会从 JNDI 服务上查找 DataSource 实例，然后返回使用
 
 ## 5.3 事务
 
 （1） 默认需要手动提交事务
 
-Mybatis 框架是对 JDBC 的封装，所以 Mybatis 框架的事务控制方式，本身也是用 JDBC的 Connection 对象的 commit(), rollback() .Connection 对象的 setAutoCommit()方法来设置事务提交方式的。自动提交和手工提交、该标签用于指定 MyBatis 所使用的事务管理器。MyBatis支持两种事务管理器类型：**JDBC** 与 **MANAGED**。
+Mybatis 框架是对 JDBC 的封装，所以 Mybatis 框架的事务控制方式，本身也是用 JDBC 的 Connection 对象的 commit(), rollback() .Connection 对象的 setAutoCommit()方法来设置事务提交方式的。自动提交和手工提交、该标签用于指定 MyBatis 所使用的事务管理器。MyBatis 支持两种事务管理器类型：**JDBC** 与 **MANAGED**。
 
-- JDBC：使用 JDBC 的事务管理机制。即，通过 Connection 的 commit()方法提交，通过rollback()方法回滚。但默认情况下，MyBatis将自动提交功能关闭了，改为了手动提交。即程序中需要显式的对事务进行提交或回滚。从日志的输出信息中可以看到。
-
+- JDBC：使用 JDBC 的事务管理机制。即，通过 Connection 的 commit()方法提交，通过 rollback()方法回滚。但默认情况下，MyBatis 将自动提交功能关闭了，改为了手动提交。即程序中需要显式的对事务进行提交或回滚。从日志的输出信息中可以看到。
 
 ![](media/ca43a096480c53e5266c9b5592e41124.jpg)
 
 - MANAGED：由容器来管理事务的整个生命周期（如 Spring 容器）。
-
 
 （**2**） 自动提交事务
 
@@ -1050,7 +1041,7 @@ SqlSession openSession(boolean autoCommit);
 
 ## 5.4 使用数据库属性配置文件
 
-为 了方便对数据库连接的管理，DB连接四要素数据一般都是存放在一个专门的属性文件中的。MyBatis主配置文件需要从这个属性文件中读取这些数据。
+为 了方便对数据库连接的管理，DB 连接四要素数据一般都是存放在一个专门的属性文件中的。MyBatis 主配置文件需要从这个属性文件中读取这些数据。
 
 步骤：
 
@@ -1068,8 +1059,6 @@ SqlSession openSession(boolean autoCommit);
 
 Mybatis 支持默认别名，我们也可以采用自定义别名方式来开发，主要使用在\<select resultType=”别名”\> mybatis.xml 主配置文件定义别名
 
-
-
 ## 5.6 mappers（映射器）
 
 （1） \<mapper resource=" " /\>使用相对于类路径的资源,从 classpath 路径查找文件
@@ -1078,7 +1067,7 @@ Mybatis 支持默认别名，我们也可以采用自定义别名方式来开发
 
 （2） \<package name=""/\>指定包下的所有 Dao 接口
 
-如：\<package name="com.xqc.dao"/\> 注意：此种方法要求 Dao 接口名称和mapper 映射文件名称相同，且在同一个目录中。
+如：\<package name="com.xqc.dao"/\> 注意：此种方法要求 Dao 接口名称和 mapper 映射文件名称相同，且在同一个目录中。
 
 # 第 7 章 扩展
 
@@ -1150,15 +1139,19 @@ select * from{
 select... from ...where...limit  x, y
 ```
 
-优化：
+### 优化：
 
+使用 id 进行分页
 
+```sql
+select * from tableA where id > 8000000 limit 10;
+```
 
+但是这种可能会出现问题，要是第一次查了 1 到 10，记录 ID 为 10 现在，然后我把第 7 条记录删除了，那查出的就错乱了。
 
+https://mp.weixin.qq.com/s?__biz=MzI1NDQ3MjQxNA==&mid=2247493234&idx=2&sn=ade716af50bde91bd2b554fe663ac002&chksm=e9c61fc3deb196d5273e1f645cbdf5c914537a3e0b3e0d9c970a02faff25c857d61394cfe08b&mpshare=1&scene=23&srcid=0314G21ZMghwYncHwfaLf6a2&sharer_sharetime=1615719630444&sharer_shareid=36a11a4ebb04967d7698241b47b50050#rd
 
 # 第八章：Mybatis 连接池与事务深入
-
-
 
 # 第九章：多表查询
 
@@ -1176,7 +1169,7 @@ SQL 语句：
 SELECT u.*,acc.id id,acc.uis,acc.money FROM user u LEFT JOIN account acc ON u.id = acc.uid
 ```
 
-User类
+User 类
 
 ```java
 public class User implements Serializable {
@@ -1219,8 +1212,6 @@ PUBLIC "-//mybatis.org// DTD Mapper 3.0//EN""http: / /mybatis.org/dtd/mybatis-3-
 </mapper>
 ```
 
-
-
 Collection:部分定义了用户关联的账户信息
 
 Property：关联结果集存储在 User 对象上的那个属性
@@ -1231,7 +1222,13 @@ OfType：指定关联查询的结果集中的对象类型即 List 中的对象�
 
 ![](media/042e6b4ebe197268206bcc2e094c1bfc.png)
 
-查询角色我们要用到 Role 表，但角色分配的用户信息我们并不能直接找到用户信息，而是要通过中间表（User_ROLE）才能关联到用户信息，
+查询角色我们要用到 Role 表，但角色分配的用户信息我们并不能直接找到用户信息，而是要通过中间表（User_ROLE）才能关联到用户信息
+
+## 嵌套查询与嵌套结果查询
+
+嵌套结果查询及一对多，多对多等情况的查询。Mybatis 通过联合查询，将结果从数据库内一次性查出来，然后根据其一对多，多对一，多对多的关系和 ResultMap 中的配置，进行结果的转换，构建需要的对象。
+
+嵌套查询，就是下边的懒加载，使用 assocation 等关键字。
 
 # 第 10 章：延迟加载策略
 
@@ -1264,25 +1261,25 @@ List<Account> findAll();
 账户持久层映射
 
 ```xml
-<?xml version="1.0" encoding="UTF-8"?> 
-<!DOCTYPE mapper 
-    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
-    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
-    <mapper namespace="com.itheima.dao.IAccountDao"> 
-        <!-- 建立对应关系 --> 
-        <resultMap type="account" id="accountMap"> 
-            <id column="aid" property="id"/> 
-            <result column="uid" property="uid"/> 
-            <result column="money" property="money"/> 
-            <!-- 它是用于指定从表方的引用实体属性的 --> 
-            <association property="user" javaType="user" 
-                select="com.xqc.dao.IUserDao.findById" column="uid"> 
-            </association> 
-        </resultMap> 
-        <select id="findAll" resultMap="accountMap"> 
-        	select * from account 
-        </select> 
-    </mapper> 
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <mapper namespace="com.itheima.dao.IAccountDao">
+        <!-- 建立对应关系 -->
+        <resultMap type="account" id="accountMap">
+            <id column="aid" property="id"/>
+            <result column="uid" property="uid"/>
+            <result column="money" property="money"/>
+            <!-- 它是用于指定从表方的引用实体属性的 -->
+            <association property="user" javaType="user"
+                select="com.xqc.dao.IUserDao.findById" column="uid">
+            </association>
+        </resultMap>
+        <select id="findAll" resultMap="accountMap">
+        	select * from account
+        </select>
+    </mapper>
 
 ```
 
@@ -1461,7 +1458,7 @@ public class UserTest {
         System.out.println("第二次查询用户："+user2);
         System.out.println(user == user2);
     }
-    
+
     @Before//在测试方法执行之前执行
     public void init()throws Exception {
         //1.读取配置文件
@@ -1475,7 +1472,7 @@ public class UserTest {
         //5.创建Dao的代理对象
         userDao = session.getMapper(IUserDao.class);
     }
-    
+
     @After//在测试方法执行完成之后执行
     public void destroy() throws Exception{
         //7.释放资源
