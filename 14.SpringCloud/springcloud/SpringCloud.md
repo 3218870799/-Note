@@ -24,6 +24,22 @@ Spring Cloud 抛弃了 Dubbo 的 RPC 通信，采用的是基于 HTTP 的 REST �
 
 ![](media/8fd569cc4f2ec9ee695d52d1df0b71ec.png)
 
+服务间的通信：
+
+Dubbo，PRC的方式，底层采用Netty来实现，基于TCP建立的长连接
+
+注意：BIO，NIO只是一种网络通信模式，BIO为每个连接创建一个线程，NIO一个线程服务多个连接；Netty封装了NIO，添加了主从处理组，BossGroup，WorkerGroup
+
+编程模型：Reactor（反应堆）思想，NIO和Netty是其一种实现。
+
+SpringCloud：使用Restful，http的方式，短连接的方式
+
+性能：Dubbo>SpringCloud
+
+
+
+
+
 ## 2：SpringCloud 升级,部分组件停用:
 
 1,Eureka 停用,可以使用 zk 作为服务注册中心，Consul 也可以，阿里的 Nacos 推荐使用。
@@ -2041,7 +2057,21 @@ localhost:9527/payment/get/1
 
 8,然后重启服务即可
 
+## 网关限流
 
+限流算法：
+
+计数器算法：
+
+内部计数器Count = 100，规定一分钟的访问次数不能超过100个，但是有临界问题，在59秒的时候100个请求过来，第二分钟刚开始，就把第二分钟能用的100个请求全部消耗，这样服务器还是压力很大。而且剩余时间还造成了资源浪费。
+
+漏桶算法：
+
+容易出现桶溢出，桶是网关，网关压力大出现问题更有问题
+
+令牌桶算法：
+
+固定速率生成令牌，令牌的数量与桶中能放的数量相同了就将令牌丢弃，拿到令牌才能进入桶里，没拿到令牌直接拒绝掉。
 
 # 第八章：服务配置 Config
 
