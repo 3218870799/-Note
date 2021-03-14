@@ -20,7 +20,7 @@
 
 类：不能被继承，方法：不能被重写，变量：不能被改变。final 成员变量表示常量，只能被赋值一次，赋值后值不再改变
 
-final 修饰对象：
+final 修饰对象：表示对象引用的地址不能改变，但是该地址的内容是可以改变的
 
 ```java
 final Eog eog=new Eog("欧欧");
@@ -321,7 +321,7 @@ do……while
 
 ## 4：面向对象
 
-封装，继承，多台
+封装，继承，多态
 
 ### 4.1：封装
 
@@ -331,7 +331,7 @@ do……while
 
 ### 4.2：继承
 
-如果子类父类中出现重名的成员变量
+为了复用，如果子类父类中出现重名的成员变量
 
 Java 中的向上转型与向下转型
 
@@ -479,6 +479,14 @@ FlyAble f = new FlyAble(){
 抽象类可以在不提供接口方法实现的情况下实现接口。  
 Java 接口中声明的变量默认都是 final 的。抽象类可以包含非 final 的变量。  
 Java 接口中的成员函数默认是 public 的。抽象类的成员函数可以是 private，protected 或者是 public。
+
+设计：
+
+抽象类：同一类事务的抽取，比如对Dao层操作的封装
+
+接口：通常更像是一种标准的制定，定制系统之间的对接的标准
+
+
 
 ## 5：方法
 
@@ -665,16 +673,43 @@ String s , 这个语句声明一个类 String 的引用变量 s
 3：判断
 
 ```java
-String a = "AAA";
-String b = new String("AAA");
+String a = "AAA";//常量池地址
+String b = new String("AAA");//堆的地址
 a==b;//false
+String s3 = "zs";
+String s4 = "AAAzs";
+String s5 = a + s3;//会new一个对象进行拼接重新指向
+s4 == s5;//false
+final String s7 ="zs";
+final String s8 ="zs";
+String s9 = s7 + s8;//进行优化，变成常量
+String s10 ="zszs";
+s5 == s9//true
 ```
 
 “AAA”在常量池里，对象在堆里
 
 ### 5：StringBuilder 与 StringBuffer
 
+线程安全：
+
 StringBuild 线程不安全，StringBuffer 线程安全
+
+执行效率：
+
+StringBuilder > StringBuffer > String
+
+存储空间：
+
+String 的值是不可变的，每次对String的操作都会生成新的String对象，效率低耗费大量内存空间，从而引起GC。StringBuffer和StringBuilder都是可变。
+
+使用场景：
+
+1如果要操作少量的数据用 String 
+
+2.单线程操作字符串缓冲区 下操作大量数据 = StringBuilder 
+
+3.多线程操作字符串缓冲区 下操作大量数据 = StringBuffer
 
 构造
 
@@ -979,6 +1014,10 @@ List.toArray(); Arrays.asList(array);
 
 重构即重写：子类重写父类的方法
 
+### 序列化接口
+
+根据类的结构生成序列化版本号 serialVersionUID，进行反序列化时，程序会比较磁盘中的序列化版本ID跟当前的类结构生成的版本号ID是否一致，如果一致则反序列化成功。
+
 # 三：集合
 
 ![img](media/1174906-20180906205331943-217494251.png)
@@ -1118,6 +1157,8 @@ List<String> list = Collections.synchronizedList(new ArrayList<>());
 
 Array 可以包含基本类型和对象类型，ArrayList 只能包含对象类型。
 
+
+
 **ArrayList，Vector，linkedList 的区别？**
 
 ArrayList 和 Vector 都是使用数组方式存储数据，此数组元素数大于实际存储的数据以便增加和插入元素，它们都允许直接按序号索引元素，但是插入元素要涉及数组元素移动等内存操作，所以索引数据快而插入数据慢，
@@ -1126,9 +1167,9 @@ Vector 由于使用了 synchronized 方法（线程安全），通常性能上�
 
 LinkedList 使用双向链表实现存储，按序号索引数据需要进行前向或后向遍历，但是插入数据时只需要记录本项的前后项即可，所以插入速度较快。
 
-ArrayList 是基于数组实现的，要求一段连续的空间
+ArrayList 是基于数组实现的，要求一段连续的空间，对于索引查找有优势
 
-LinkedList 是基于链表实现的，是一个双向循环列表。不是线程安全的。
+LinkedList 是基于链表实现的，是一个双向循环列表。不是线程安全的，对于插入，删除有优势。而且他还需要内存存放指针。
 
 
 
@@ -1186,7 +1227,7 @@ ArrayList有两种方法移除元素，一种传递要删除的元素的索引�
 
 ### LinkedList
 
-双向链表，允许插入 null，线程不同步
+双向链表，允许插入 null，线程不同步，有头尾两个指针
 
 Vector
 
@@ -1312,6 +1353,10 @@ Resize 效率很低
 
 HashMap 不是线程安全的，如果想要线程安全的 HashMap，可以通过 Collections 类的静态方法 synchronizedMap 获得线程安全的 HashMap。
 
+hashcode：计算键的hashcode作为存储键信息的数组下标用于查找键对象的存储位置。
+
+equals：HashMap使用equals()判断当前的键是否与表中存在的键相同。
+
 #### 1.7 至 1.8 的变化
 
 1：插入时由 1.7 的头插法（最后插入的放到最前面）改成尾插法
@@ -1330,6 +1375,10 @@ JDK1.8 变为：数组 + 链表 + 红黑树
 
 HashMap 的底层主要是基于数组，链表和红黑树来实现的，HashMap 会根据 key.hashCode() 计算出 hash 值，根据 hash 值将 value 保存在 bucket 里。
 
+影响 HashMap 性能的两个重要参数，“initial capacity”（初始化容量默认为16）和”load factor“（负载因子0.75）
+
+容量就是哈希表桶的个数，负载因子就是键值对个数与哈希表长度的一个比值
+
 HashMap 类中有一个非常重要的字段，就是 Node[] table，即哈希桶数组，明显它是一个 Node 的数组
 
 **当冲突时 HashMap 的做法是用链表和红黑树存储相同 hash 值的 value。当 hash 冲突的个数比较少时，使用链表否则使用红黑树。**
@@ -1342,9 +1391,7 @@ HashMap 中关于红黑树的三个关键参数：
 
 ![](media/587309242992088d200c973008ad2bce.png)
 
-影响 HashMap 性能的两个重要参数，“initial capacity”（初始化容量）和”load factor“（负载因子）
 
-容量就是哈希表桶的个数，负载因子就是键值对个数与哈希表长度的一个比值
 
 当比值超过负载因子之后，HashMap 就会进行 rehash 操作来进行扩容。
 
@@ -1924,6 +1971,8 @@ volatile
 - public static Thread currentThread() :返回对当前正在执行的线程对象的引用。
 
 ## 5.2：ThreadLocal
+
+为每一个线程创建一个副本，实现线程上下文的变量传递。
 
 线程变量
 
@@ -2652,7 +2701,7 @@ CountDownLatch
 
 它们都属于 Object 的一部分，而不属于 Thread。
 
-只能用在同步方法或者同步控制块中使用，否则会在运行时抛出 IllegalMonitorStateException。
+只能用在同步方法或者同步控制块中使用，否则会在运行时抛出 IllegalMonitorStateException。这是因为设计者为了避免使用出现lost wake up 问题而搞出来的。 （初始的时候count等于0，这个时候消费者检查count的值，发现count小于等于0的条件成立；就在这个时候，发生了上下文切换，生产者进来了，噼噼啪啪一顿操作，把两个步骤都执行完了，也就是发出了通知，准备唤醒一个线程。这个时候消费者刚决定睡觉，还没睡呢，所以这个通知就会被丢掉。紧接着，消费者就睡过去了……没有来唤醒的了，造成死锁）
 
 使用 wait() 挂起期间，线程会释放锁。这是因为，如果没有释放锁，那么其它线程就无法进入对象的同步方法或者同步控制块中，那么就无法执行 notify() 或者 notifyAll() 来唤醒挂起的线程，造成死锁。
 
@@ -3344,6 +3393,24 @@ linux 的步骤：
 实现 getConnection 从 LinkedList 中返回一个连接
 
 提供将连接放回连接池中方法
+
+
+
+流程：
+
+载入JDBC驱动程序；
+
+定义连接URL，建立连接；
+
+创建PrepareStatement或则Statement语句；
+
+执行查询或者更新语句；
+
+对查询或者更新的语句进行处理；
+
+关闭连接
+
+
 
 # 九：特性
 
