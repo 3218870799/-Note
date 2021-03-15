@@ -8,10 +8,6 @@
 
 与Spring的区别：
 
-
-
-
-
 ## 2、微服务
 
 微服务：架构风格（服务微化）一个应用应该是一组小型服务；可以通过 HTTP 的方式进行互通；
@@ -381,6 +377,40 @@ com.sgl.mystarter.sglhello.config.HelloServiceAutoConfiguration
 RequestMapping 具有类属性的，可以进行 GET、POST、PUT 或者其他的注释中具有的请求方法。
 
 GetMapping 是 Get 请求方法中的一个特例，它只是 RequestMapping 的一个延伸，目的是为了提高清晰度。
+
+
+
+### @Component
+
+把普通的pojo实例化到spring绒球中，相当于配置文件中的，泛指各种组件，就是说类不属于@Controller，@Service等的时候
+
+### @Bean
+
+作用在方法上边，将方法的返回值纳入spring管理，告诉Spring这个方法将会返回一个对象，这个对象要注册为Spring应用上下文中的bean。
+
+如果想将第三方的类变成组件，你又没有没有源代码，也就没办法使用`@Component`进行自动配置，这种时候使用`@Bean`就比较合适了。不过同样的也可以通过xml方式来定义。
+
+另外@Bean注解的方法返回值是对象，可以在方法中为对象设置属性。
+
+### @Configuration
+
+标注当前类是配置类，并会将当前类内声明的一个或多个以@Bean注解标记的方法的实例纳入到srping容器中，并且实例名就是方法名。
+
+### @Value
+
+### @Repository
+
+用于标注数据访问组件，即DAO组件。
+
+### @ComponentScan
+
+组件扫描。相当于，如果扫描到有@Component @Controller @Service等这些注解的类，则把
+
+这些类注册为bean。
+
+### @Qualifier
+
+当有多个同一类型的Bean时，可以用@Qualifier("name")来指定。与@Autowired配合使用
 
 # 二、配置文件
 
