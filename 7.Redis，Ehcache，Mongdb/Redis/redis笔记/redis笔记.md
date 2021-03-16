@@ -63,9 +63,7 @@ Redis 是使用 c 语言开发的一个高性能键值数据库。Redis 可以�
 ## 1.4：redis 历史发展
 
 2008 年，意大利的一家创业公司 Merzia 推出了一款基于 MySQL 的网站实时统计系统 LLOOGG，然而没过多久该公司的创始人
-Salvatore Sanfilippo 便对 MySQL 的性能感到失望，于是他决定亲自为 LLOOGG 量身定做一个数据库，并于 2009 年开发完成，这个数据库就是 Redis。
-不过 SalvatoreSanfilippo 并不满足只将 Redis 用于 LLOOGG 这一款产品，而是希望更多的人使用它，于是在同一年 Salvatore
-Sanfilippo 将 Redis 开源发布，并开始和 Redis 的另一名主要的代码贡献者 PieterNoordhuis 一起继续着 Redis 的开发，直到今天。
+Salvatore Sanfilippo 便对 MySQL 的性能感到失望，于是他决定亲自为 LLOOGG 量身定做一个数据库，并于 2009 年开发完成，这个数据库就是 Redis。不过 SalvatoreSanfilippo 并不满足只将 Redis 用于 LLOOGG 这一款产品，而是希望更多的人使用它，于是在同一年 Salvatore Sanfilippo 将 Redis 开源发布，并开始和 Redis 的另一名主要的代码贡献者 PieterNoordhuis 一起继续着 Redis 的开发，直到今天。
 
 ## 优点
 
@@ -114,8 +112,6 @@ redis 可以用分布式锁防止重复点击
 （2）在 releases 页面下载最新版
 
 msi 是可执行文件，按安装步骤安装即可。zip 直接解压就可以了。
-
-![image-20210124203236202](media/image-20210124203236202.png)
 
 端口号可保持默认的 6379，并选择防火墙例外，从而保证外部可以正常访问 Redis 服务。
 
@@ -256,27 +252,31 @@ cp /root/redis-3.0.0/redis.conf ./
 
 - 启动
 
-启动客户端命令：[root\@xqc bin]\# ./redis-cli -h 127.0.0.1 -p 6379
+启动客户端命令
+
+```shell
+./redis-cli -h 127.0.0.1 -p 6379
+```
 
 \-h：指定访问的 redis 服务器的 ip 地址
 
 \-p：指定访问的 redis 服务器的 port 端口
 
-还可以写成：[root\@xqc bin]\# ./redis-cli
+还可以写成：
+
+```shell
+./redis-cli
+```
 
 使用默认配置：默认的 ip【127.0.0.1】，默认的 port【6379】
 
 - 关闭
 
-      Ctrl+c
-
-  127.0.0.1:6379\> quit
+  Ctrl + c 或则输入Quit
 
 ## 3.2：图形界面客户端
 
 安装文件位置：
-
-![](media/5ccb7e3d64479aa1ce11cefc57eede90.png)
 
 安装之后，打开如下：
 
@@ -284,10 +284,7 @@ cp /root/redis-3.0.0/redis.conf ./
 
 防火墙设置：
 
-```shell
 
-
-```
 
 ![](media/c07563023d5999a75c41aa25bd37a54f.png)
 
@@ -297,11 +294,10 @@ Redis.conf 中的数据库数量的设置：
 
 使用 select 加上数据库的下标 就可以选择指定的数据库来使用，下标从 0 开始
 
-127.0.0.1:6379\> select 15
-
+```sql
+select 15
 OK
-
-127.0.0.1:6379[15]\>
+```
 
 ## 3.3：Jedis 客户端
 
@@ -309,8 +305,7 @@ OK
 
 Redis 不仅是使用命令来操作，现在基本上主流的语言都有客户端支持，比如 java、C、C\#、C++、php、Node.js、Go 等。
 
-在官方网站里列一些 Java 的客户端，有**Jedis**、Redisson、Jredis、JDBC-Redis、等其中官方推荐使用 Jedis 和 Redisson。
-在企业中用的最多的就是 Jedis，下面我们就重点学习下 Jedis。
+在官方网站里列一些 Java 的客户端，有**Jedis**、Redisson、Jredis、JDBC-Redis、等其中官方推荐使用 Jedis 和 Redisson。在企业中用的最多的就是 Jedis，下面我们就重点学习下 Jedis。
 
 Jedis 同样也是托管在 github 上，地址：https://github.com/xetorthio/jedis
 
@@ -320,11 +315,38 @@ Jedis 同样也是托管在 github 上，地址：https://github.com/xetorthio/j
 
 ### 单实例连接 redis
 
-![](media/6c85a876fb83c7140cb103f554a09888.png)
+```java
+@Test
+public void jedisclient (){
+    // Jedis
+    Jedis jedis = new Jedis ( "192.168.242.137"，6379);//通过redis赋值
+    jedis.set ("s2", "222");//通过redis取值
+    string result = jedis.get ( "s2");
+    system. out.println (result);
+    //关闭jedis
+    jedis.close ();
+}
+
+```
 
 ### 使用 jedis 连接池连接 redis 服务器
 
-![](media/3b488c6ffab2f760dc6ce09232363e0c.png)
+```java
+@Test
+public void jedisPool() {
+    // JedisPool
+    JedisPool pool = new JedisPool ("192.168.242.137",6379);/通过连接池获取jedis对象
+    Jedis jedis = pool.getResource () ;
+    jedis.set ( "s4","444");
+    string result = jedis.get ("s3");
+    system.out.println (result);
+    //关闭jedis客户端
+    jedis.close ( );
+    //关闭连接池
+    pool.close () ;
+}
+
+```
 
 ### Spring 整合 jedisPool（自学）
 
@@ -419,19 +441,10 @@ value 可以是 String 也可以是数字。一般做一些复杂的计数功能
 
 商品编号、订单号采用 string 的递增数字特性生成。
 
-定义商品编号 key：items:id
-
-192.168.101.3:7003\> INCR items:id
-
-(integer) 2
-
-192.168.101.3:7003\> INCR items:id
-
-(integer) 3
-
 ### 命令
 
 ```cmd
+
 # 赋值
 语法：SET key value
 set s1 111
@@ -461,41 +474,14 @@ OK
 语法：DEL key
 del s1
 
+# 递增
+INCR item:Id
 
+# 递减
+DECR key
+# 减少指定的整数
+DECRBY key decrement
 ```
-
-数值增减
-
-- 递增数字
-
-当存储的字符串是整数时，Redis 提供了一个实用的命令 INCR，其作用是让当前键值递增，并返回递增后的值。
-
-语法：INCR key
-
-- 增加指定的整数
-
-语法：INCRBY key increment
-
-- 递减数值
-
-语法：DECR key
-
-- 减少指定的整数
-
-语法：DECRBY key decrement
-
-向尾部追加值
-
-APPEND 的作用是向键值的末尾追加 value。如果键不存在则将该键的值设置为 value，即相当于
-SET key value。返回值是追加后字符串的总长度。
-
-_语法：APPEND key value_
-
-获取字符串长度
-
-STRLEN 命令返回键值的长度，如果键不存在则返回 0。
-
-_语法：STRLEN key_
 
 ## 4.2：Hash
 
@@ -511,8 +497,7 @@ _语法：STRLEN key_
 
 User 对象 json(string) redis
 
-如果在业务上只是更新 age 属性，其他的属性并不做更新我应该怎么做呢？
-如果仍然采用上边的方法在传输、处理时会造成资源浪费，下边讲的 hash 可以很好的解决这个问题。
+如果在业务上只是更新 age 属性，其他的属性并不做更新我应该怎么做呢？如果仍然采用上边的方法在传输、处理时会造成资源浪费，下边讲的 hash 可以很好的解决这个问题。
 
 ### redis hash 介绍
 
@@ -640,13 +625,11 @@ hlen user
 
 - 存储商品信息
 
-| 192.168.101.3:7003\> HMSET items:1001 id 3 name apple price 999.9 OK |
-| -------------------------------------------------------------------- |
+| 192.168.101.3:7003\> HMSET items:1001 id 3 name apple price 999.9 OK 
 
 - 获取商品信息
 
-| 192.168.101.3:7003\> HGET items:1001 id "3" 192.168.101.3:7003\> HGETALL items:1001 1) "id" 2) "3" 3) "name" 4) "apple" 5) "price" 6) "999.9" |
-| --------------------------------------------------------------------------------------------------------------------------------------------- |
+| 192.168.101.3:7003\> HGET items:1001 id "3" 192.168.101.3:7003\> HGETALL items:1001 1) "id" 2) "3" 3) "name" 4) "apple" 5) "price" 6) "999.9" 
 
 ## 4.3：List
 
@@ -1239,9 +1222,7 @@ TTL key 查看 key 生于的生存时间 PERSIST key 清除生存时间
 
 PEXPIRE key milliseconds 生存时间设置单位为：毫秒
 
-```cmd
 
-```
 
 # 第五章：Redis 持久化方案
 
@@ -1472,7 +1453,7 @@ Redis 增量复制是指 Slave 初始化后开始正常工作时主服务器发�
 
 ### 主机挂了
 
-1：选择一台从机作为新的主机，参考的一句是偏移量
+1：选择一台从机作为新的主机，参考的依据是偏移量
 
 2：将选中的从机变成新主机，命令slaveof  no one 
 
@@ -1558,9 +1539,15 @@ Sentinel 也支持集群分布
 
 支持做数据迁移。
 
-#### Redis replicSpring Cloud Alibaba Nacos Config目前提供了三种配置能力从Nacos拉取相关的配·A:通过spring.cloud.nacos.config.shared-dataids支持多个共享Data ld 的配
-·B:通过spring.cloud.nacos.config .ext-config[n].data-id 的方式支持多个扩展Data ld的配置，多个Data ld同时配置时，他的优先级关系是 spring.cloud.nacos.config.ext-config[n].data-id其中 n的值越大，优先级越高。
-·C:通过内部相关规则(应用名、扩展名)自动生成相关的Data ld配置当三种方式共同使用时，他们的一个优先级关系是:C>B>Aation + sentinel：高可用模式
+Redis replicSpring Cloud Alibaba Nacos Config目前提供了三种配置能力从Nacos拉取相关的配
+
+A:通过spring.cloud.nacos.config.shared-dataids支持多个共享Data ld 的配
+
+B:通过spring.cloud.nacos.config .ext-config[n].data-id 的方式支持多个扩展Data ld的配置，多个Data ld同时配置时，他的优先级关系是 spring.cloud.nacos.config.ext-config[n].data-id其中 n的值越大，优先级越高。
+
+C:通过内部相关规则(应用名、扩展名)自动生成相关的Data ld配置当三种方式共同使用时，他们的一个优先级关系是:C>B>A
+
+ation + sentinel：高可用模式
 
 如果你的数据量很少，主要是承载高并发高性能的场景，比如你的缓存一般就几个 G，单机足够了，replication，一个 mater，多个 slave，要几个 slave 跟你的要求的读吞吐量有关系，然后自己搭建一个 sentinal 集群，去保证 redis 主从架构的高可用性，就可以了
 
