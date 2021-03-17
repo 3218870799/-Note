@@ -615,6 +615,8 @@ Java 语言中的根类，即所有类的父类。它中描述的所有方法子
 
 深拷贝 ：拷贝对象和原始对象的引用类型引用不同对象。
 
+wait ，notify notifyall 
+
 ### 1：Scanner 类
 
 ```java
@@ -3625,7 +3627,11 @@ Class 的常用方法
 在运行状态中，对于任意一个类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；这种动态获取的信息以及动态调用对象的方法的功能称为
 Java 语言的反射机制。
 
-ClassLoader
+ClassLoader与Class.forName的区别？
+
+（1）class.forName()除了将类的.class文件加载到jvm中之外，还会对类进行解释，执行类中的static块。当然还可以指定是否执行静态块。
+
+（2）classLoader只干一件事情，就是将.class文件加载到jvm中，不会执行static中的内容,只有在newInstance才会去执行static块。
 
 ### 反射的应用：动态代理
 
