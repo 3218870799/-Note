@@ -1,6 +1,4 @@
-# 第一章、数据库概述
 
-### 1.1、SQL 概述
 
 SQL，一般发音为 sequel，SQL 的全称 Structured QueryLanguage)，SQL 用来和数据库打交道，完成和数据库的通信，SQL 是一套标准。但是每一个数据库都有自己的特性别的数据库没有,当使用这个数据库特性相关的功能,这时 SQL 语句可能就不是标准了.(90%以上的 SQL 都是通用的)
 
@@ -526,27 +524,21 @@ insert into t_student(
 
 我们也可以通过表级约束为约束起个名称：
 
+```sql
 drop table if exists t_student;
-
-create table t_student(
-
-student_id int(10),
-
-student_name varchar(20) not null,
-
-sex char(2) default 'm',
-
-birthday date,
-
-email varchar(30) ,
-
-classes_id int(3),
-
-CONSTRAINT p_id PRIMARY key (student_id)
-
-)
-
+    create table t_student(
+        student_id int(10),
+        student_name varchar(20) not null,
+        sex char(2) default 'm',
+        birthday date,
+        email varchar(30) ,
+        classes_id int(3),
+        CONSTRAINT p_id PRIMARY key (student_id)
+    )
 insert into t_student(student_id, student_name , sex, birthday, email, classes_id) values (1001,'zhangsan','m', '1988-01-01', 'qqq\@163.com', 10)
+```
+
+
 
 外键主要是维护表之间的关系的，主要是为了保证参照完整性，如果表中的某个字段为外键字段，那么该字段的值必须来源于参照的表的主键，如：emp 中的 deptno 值必须来源于 dept 表中的 deptno 字段值。
 
@@ -572,25 +564,27 @@ create table t_classes( classes_id int(3), classes_name varchar(40), constraint 
 
 存在外键的表就是子表，参照的表就是父表，所以存在一个父子关系，也就是主从关系，主表就是班级表，从表就是学生表
 
-![](media/9bad9a2ca20a695dc84025a411359b10.png)
-
 以上成功的插入了学生信息，当时 classes_id 没有值，这样会影响参照完整性，所以我们建议将外键字段设置为非空
 
-| drop table if exists t_student; create table t_student( student_id int(10), student_name varchar(20), sex char(2), birthday date, email varchar(30), classes_id int (3) not null, constraint student_id_pk primary key(student_id), constraint fk_classes_id foreign key(classes_id) references t_classes(classes_id) ) insert into t_student(student_id, student_name, sex, birthday, email, cla sses_id) values(1001, 'zhangsan', 'm', '1988-01-01', 'qqq\@163.com', null);
+```sql
+drop table if exists t_student; create table t_student( student_id int(10), student_name varchar(20), sex char(2), birthday date, email varchar(30), classes_id int (3) not null, constraint student_id_pk primary key(student_id), constraint fk_classes_id foreign key(classes_id) references t_classes(classes_id) ) insert into t_student(student_id, student_name, sex, birthday, email, cla sses_id) values(1001, 'zhangsan', 'm', '1988-01-01', 'qqq\@163.com', null);
+```
 
 再次插入班级编号为 null 的数据
 
-![](media/2ec98612d068eda8202dd007278ee9e4.png)
-
 添加数据到班级表，添加数据到学生表，删除班级数据，将会出现如下错误：
 
-| insert into t_classes (classes_id,classes_name) values (10,'366'); insert into t_student( student_id, student_name, sex, birthday, email, classes_id ) values( 1001, 'zhangsan', 'm', '1988-01-01', 'qqq\@163.com', 10 ) mysql\> update t_classes set classes_id = 20 where classes_name = '366';
+```sql
+insert into t_classes (classes_id,classes_name) values (10,'366'); insert into t_student( student_id, student_name, sex, birthday, email, classes_id ) values( 1001, 'zhangsan', 'm', '1988-01-01', 'qqq\@163.com', 10 ) mysql\> update t_classes set classes_id = 20 where classes_name = '366';
+```
 
-![media1/4a9d08a6e20422892104c933f2cb3882.png](media/4a9d08a6e20422892104c933f2cb3882.png)
+因为子表（t_student）存在一个外键 classes_id，它参照了父表（t_classes）中的主键，所以先删除子表中的引用记录，再修改父表中的数据。 我们也可以采取以下措施 级联更新。
 
-因为子表（t_student）存在一个外键 classes_id，它参照了父表（t_classes）中的主键，所以先删除子表中的引用记录，再修改父表中的数据。 我们也可以采取以下措施 级联更新。 mysql\> delete from t_classes where classes_id = 10;
+```sql
+delete from t_classes where classes_id = 10;
+```
 
-![media1/1963d5bf9dc207fc9e77347a49724fd2.png](media/1963d5bf9dc207fc9e77347a49724fd2.png)
+
 
 因为子表（t_student）存在一个外键 classes_id，它参照了父表（t_classes）中的主键，所以先删除父表，那么将会影响子表的参照完整性，所以正确的做法是，先删除子表中的数据，再删除父表中的数据，采用 drop table 也不行，必须先 drop 子表，再 drop 父表 我们也可以采取以下措施 级联删除。
 
@@ -598,18 +592,15 @@ create table t_classes( classes_id int(3), classes_name varchar(40), constraint 
 
 13.4.5.1、on update cascade;
 
-| mysql 对有些约束的修改比较麻烦，所以我们可以先删除，再添加 alter table t_student drop foreign key fk_classes_id; alter table t_student add constraint fk_classes_id_1 foreign key(classes_id) references t_classes(classes_id) on update cascade; [media1/4eb19ace853232f9b78f76b6d2e543c8.png](media1/4eb19ace853232f9b78f76b6d2e543c8.png) 我们只修改了父表中的数据，但是子表中的数据也会跟着变动。 |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+ mysql 对有些约束的修改比较麻烦，所以我们可以先删除，再添加 alter table t_student drop foreign key fk_classes_id; alter table t_student add constraint fk_classes_id_1 foreign key(classes_id) references t_classes(classes_id) on update cascade; 我们只修改了父表中的数据，但是子表中的数据也会跟着变动。
 
 13.4.5.2、on delete cascade;
 
-| mysql 对有些约束的修改时不支持的，所以我们可以先删除，再添加 alter table t_student drop foreign key fk_classes_id; alter table t_student add constraint fk_classes_id_1 foreign key(classes_id) references t_classes(classes_id) on delete cascade; delete from t_classes where classes_id = 20; [media1/fd8f6edb5f27c7a65e9e7ca090332804.png](media1/fd8f6edb5f27c7a65e9e7ca090332804.png) 我们只删除了父表中的数据，但是子表也会中的数据也会删除。 |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| mysql 对有些约束的修改时不支持的，所以我们可以先删除，再添加 alter table t_student drop foreign key fk_classes_id; alter table t_student add constraint fk_classes_id_1 foreign key(classes_id) references t_classes(classes_id) on delete cascade; delete from t_classes where classes_id = 20; 我们只删除了父表中的数据，但是子表也会中的数据也会删除。
 
 13.5、t_student 和 t_classes 完整示例
 
-| drop table if exists t_classes; create table t_classes( classes_id int (3), classes_name varchar(30) not null, constraint pk_classes_id primary key(classes_id) ) drop table if exists t_student; create table t_student( student_id int(10), student_name varchar(50) not null, sex char(2) not null, birthday date not null, email varchar(30) unique, classes_id int (3) not null, constraint pk_student_id primary key(student_id), constraint fk_classes_id foreign key(classes_id) references t_classes(classes_id) ) |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| drop table if exists t_classes; create table t_classes( classes_id int (3), classes_name varchar(30) not null, constraint pk_classes_id primary key(classes_id) ) drop table if exists t_student; create table t_student( student_id int(10), student_name varchar(50) not null, sex char(2) not null, birthday date not null, email varchar(30) unique, classes_id int (3) not null, constraint pk_student_id primary key(student_id), constraint fk_classes_id foreign key(classes_id) references t_classes(classes_id) )
 
 ## 4、简单的查询
 
@@ -1340,35 +1331,21 @@ InnoDB 默认可以创建 16 个索引
 
 2. 查询表中数据
 
-   ![](media/1ce34c06c6b3d67f2cc50ec1484b92cb.png)
-
 3. 开启事务 START TRANSACTION;
 
 4. 插入数据
 
    insert into user (username,password) values ('zhangsan','123');
 
-![](media/66d31b63d95723da7e3abad8e1839784.png)
-
 1.  查看数据
 
-![](media/46bcecd9f7aa32d17173f81dd54f8301.png)
-
-1. 修改数据
-
-   ![](media/08eeb1b8c117d8447f585eb1e32b67bb.png)
+1. 修改数
 
 2. 查看数据
 
-   ![](media/966743e5b15d408b8ca498028be0c1d3.png)
-
 3. 回滚事务
 
-![](media/861f0690fe83717a9cc22c8a0ead1376.png)
-
 1.  查看数据
-
-![](media/8c3292602b4bdb42fbfb18196225ef21.png)
 
 ### 15.3、自动提交模式
 
@@ -2317,6 +2294,22 @@ index
 索引的使用顺序和建立索引的顺序一致，但是可能自己没遵循，但是优化器会帮助你进行优化。
 
 ## 16.6：优化
+
+1：索引有没有起作用
+
+2：优化数据库结构
+
+将字段多的表分解成多个表，增加中间表
+
+3：分解关联查询
+
+缓存效率高，分解后，单个表改变可能少，命中率就高了。
+
+减少数据库锁竞争
+
+微服务化友好，易于做数据库拆分
+
+减少冗余查询，减少传输
 
 ### 单表优化
 
