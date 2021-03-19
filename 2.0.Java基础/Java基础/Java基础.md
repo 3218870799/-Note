@@ -2494,6 +2494,12 @@ synchronized 会自动释放锁，而 Lock 一定要求程序员手工释放，�
 
 自适应意味着自旋的时间（次数）不再固定，而是由前一次在同一个锁上的自旋时间及锁的拥有者的状态来决定。如果在同一个锁对象上，自旋等待刚刚成功获得过锁，并且持有锁的线程正在运行中，那么虚拟机就会认为这次自旋也是很有可能再次成功，进而它将允许自旋等待持续相对更长的时间。如果对于某个锁，自旋很少成功获得过，那在以后尝试获取这个锁时将可能省略掉自旋过程，直接阻塞线程，避免浪费处理器资源。
 
+为什么线程切换浪费资源？
+
+第一：因为CPU运行状态分为用户态和内核态。线程切换状态会使CPU运行状态从用户态转换到内核态。
+
+第二：每个线程在运行时的指令是被放在CPU的寄存器中的，如果切换内存状态，需要先把本线程的代码和变量写入内存。这样经常切换会耗费时间。
+
 #### 3：无锁 VS 偏向锁 VS 轻量级锁 VS 重量级锁
 
 **什么 Synchronized 能实现线程同步？**
@@ -2782,13 +2788,37 @@ Q：**synchronized 和 volatile 的区别是什么？**
 
 ### CAS
 
-CAS（比较交换）是一种无锁非阻塞的算法实现
+CAS（比较交换）是一种无锁非阻塞的算法实现，包含三个操作数：内存位置（V）、预期原值（A）和新值(B)
 
 CAS 会导致 ABA 问题，线程 1 准备用 CAS 将变量的值由 A 替换为 B，在此之前，线程 2 将变量的值由 A 替换为 C，又由 C 替换为 A，然后线程 1 执行 CAS 时发现变量的值仍然为 A，所以 CAS 成功。但实际上这时的现场已经和最初不同了，尽管 CAS 成功，但可能存在潜藏的问题。
 
 解决办法（版本号 AtomicStampedReference），基础类型简单值不需要版本号
 
-unsafe 类是 CAS 的核心类，Java 无法直接访问底层操作系统，而是通过本地 native 方法来访问，尽管如此，JVM 还是开了一个后门：Unsafe 它提供了硬件级别的原子操作。在底层调用汇编指令`cmpxchg`指令，这是一条汇编指令，所以 CPU 一次通过，是原子操作。
+### Unsafe类
+
+AQS等也是用来CAS算法，unsafe 类是 CAS 的核心类，原子等无锁操作，自旋操作都是unsafe类，Java 无法直接访问底层操作系统，而是通过本地 native 方法来访问，尽管如此，JVM 还是开了一个后门：Unsafe 它提供了硬件级别的原子操作。在底层调用汇编指令`cmpxchg`指令，这是一条汇编指令，所以 CPU 一次通过，是原子操作。
+
+但是它设置了限制，不让上层开发者使用，可以通过反射进行获取，
+
+```java
+
+	 // 对于使用不安全的操作，一个比较推荐的语法：
+      class MyTrustedClass {
+        private static final Unsafe unsafe = Unsafe.getUnsafe();
+       private long myCountAddress = ...;
+        public int getCount() { return unsafe.getByte(myCountAddress); }
+
+```
+
+方法声明为native
+
+单例的，
+
+申请内存：All
+
+
+
+
 
 3：ConcurrentHashMap
 
@@ -2826,7 +2856,7 @@ CopyOnWriteArraySet 基于 CopyOnWriteArrayList 实现，其唯一的不同是�
 
 **6.6 ArrayBlockingQueue**
 
-**6.7 ThreadPoolExecutor**
+**6.7 ThreadPoolExecutor
 
 ### ReentrantLock
 
@@ -3284,6 +3314,16 @@ IO 是面向流的，NIO 是面向缓冲区的
 
 ## 1：TCP 通信
 
+### linux通信
+
+![img](media/1697781-20200327092249958-278747055.png)
+
+文件描述符是内核提供给用户来安全操作文件的标识。
+
+TCP服务端：
+
+
+
 ### Socket 类
 
 该类实现客户端套接字，套接字指的是两台设备之间通讯的端点。
@@ -3359,6 +3399,108 @@ linux 的步骤：
 第五步：处理客户端的连接请求。
 
 第六步：终止连接
+
+### NIOSocket
+
+服务端NIOSocket的处理过程:
+
+1. 创建ServerSocketChannel并设置相应的端口号、是否为阻塞模式
+2. 创建Selector并注册到ServerSocketChannel上
+3. 调用Selector的selector方法等待请求
+4. Selector接收到请求后使用selectdKeys返回SelectionKey集合
+5. 使用SelectionKey获取到channel、selector和操作类型并进行具体操作。
+
+代码如下：
+
+```java
+public class NIOServer {
+ 
+    public static void main(String[] args) {
+        // TODO Auto-generated method stub
+        try {
+            //创建ServerSocketChannel，监听8080端口
+            ServerSocketChannel ssc = ServerSocketChannel.open();
+            ssc.socket().bind(new InetSocketAddress(8080));
+            //设置为非阻塞模式
+            ssc.configureBlocking(false);
+            //为ssc注册选择器
+            Selector selector = Selector.open();
+            ssc.register(selector, SelectionKey.OP_ACCEPT);
+            //创建处理器
+            Handler handler = new Handler(1024);
+            while(true){
+                //等待请求，每次等待阻塞3s，超过3s后线程继续向下运行，如果传入0或者不传入参数则一直阻塞
+                if(selector.select(3000) == 0){
+                    System.out.println("等待请求超时----");
+                    continue;
+                }
+                System.out.println("处理请求----");
+                //获取处理的SelectionKey
+                Iterator<SelectionKey> keyIter = selector.selectedKeys().iterator();
+                while(keyIter.hasNext()){
+                    SelectionKey key = keyIter.next();
+                    try{
+                        //接收到连接请求时
+                        if(key.isAcceptable()){
+                            handler.handleAccept(key);
+                        }
+                        //读数据
+                        if(key.isReadable()){
+                            handler.handleRead(key);
+                        }
+                    }catch(IOException ex){
+                        keyIter.remove();
+                        continue;
+                    }
+                    //处理完后，从待处理的SelectionKey迭代器中移除当前所使用的key
+                    keyIter.remove();
+                }
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    private static class Handler{
+        private int bufferSize = 1024;
+        private String localCharset = "UTF-8";
+        public Handler(int bufferSize){
+            this.bufferSize = bufferSize;
+        }
+        public void handleAccept(SelectionKey key) throws IOException{
+            SocketChannel sc = ((ServerSocketChannel) key.channel()).accept();
+            sc.configureBlocking(false);
+            sc.register(key.selector(), SelectionKey.OP_READ, ByteBuffer.allocate(bufferSize));
+        }
+        public void handleRead(SelectionKey key) throws IOException{
+            //获取Channel
+            SocketChannel sc = (SocketChannel) key.channel();
+            //获取buffer并重置
+            ByteBuffer buffer = (ByteBuffer)key.attachment();
+            buffer.clear();
+            //没有读到内容则关闭
+            if(sc.read(buffer) == -1)
+                sc.close();
+            else{
+                //将buffer转换为读状态
+                buffer.flip();
+                //将buffer中接收到的值按localCharset格式编码后保存到receivedString
+                String receivedString = Charset.forName(localCharset).newDecoder().decode(buffer).toString();
+                System.out.println("received from client:" + receivedString);
+                //返回数据给客户端
+                String sendString = "this data is from Server";
+                buffer = ByteBuffer.wrap(sendString.getBytes(localCharset));
+                sc.write(buffer);
+                sc.close();
+            }
+        }
+    }
+}
+```
+
+
+
+　客户端代码通普通Socket一样，Socket socket = new Socket("192.168.6.42",8080);表示与服务器端建立连接，从而执行服务器端的handleAccept()方法，给ServerSocketChannel注册selector以及添加SelectionKey.OP_READ参数，表示selector关心读方法。然后通过PrintWrite在客户端将内容发送给服务器端，服务器端执行handleRead方法对接收到的内容进行处理，并将结果返回给客户端，客户端通过BufferedReader接受数据，最后关闭连接。
 
 ## 2：UDP 通信
 
