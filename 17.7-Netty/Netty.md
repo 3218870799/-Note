@@ -78,8 +78,6 @@ HTTP2.0使用了多路复用的技术，做到同一个连接并发处理多个�
 
 与Socket类和ServerSocket类相对应，NIO也提供了SocketChannel和ServerSocketChannel两种套接字通道实现。
 
-
-
 ### Select选择器
 
 Selector能够检测多个注册的通道上是否有事件发生(注意:多个Channel 以事件的方式可以注册到同一个Selector)，如果有事件发生，便获取事件然后针对每个事件进行相应的处理。这样就可以只用一个单线程去管理多个通道，也就是管理多个连接和请求。
@@ -115,10 +113,6 @@ SendFile可以利用DMA 方式，减少CPU拷贝，mmap则不能（必须从内�
 JDK7引入了Asynchronous l/O，即 AIO。在进行IO 编程中，常用到两种模式:Reactor和 Proactor。 Java 的NIO 就是 Reactor，当有事件触发时，服务器端得到通知，进行相应的处理。
 
 AIO 即 NIO2.0，叫做异步不阻塞的IO。AIO引入异步通道的概念，采用了Proactor 模式，简化了程序编写，有效的请求才启动线程，它的特点是先由操作系统完成后才通知服务端程序启动线程去处理，一般适用于连接数较多且连接时间较长的应用
-
-
-
-
 
 
 

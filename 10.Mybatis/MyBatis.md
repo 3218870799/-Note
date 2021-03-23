@@ -696,7 +696,7 @@ $将传入的数据直接显示生成在 sql 中。
 
 如：where username=${username}会解析成 where username = 111
 
-#方式可以很大程度防止 sql 注入
+\#方式可以很大程度防止 sql 注入
 
 2：防止注入攻击
 

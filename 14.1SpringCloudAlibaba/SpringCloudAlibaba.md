@@ -94,7 +94,7 @@ http://localhost:8848/nacos
 
 流程：
 
-客户端在启动时，首先穿件一个心跳定时任务，如果返回 404，就向注册中心发送注册请求；客户端将服务实例信息发送到服务端，服务端将客户信息放在一个 ConcurrentHashMap 中；客户端定时任务拉取服务端注册信息，每次拉取后刷新本地已保存的信息，需要用时直接从本地获取。
+客户端在启动时，首先创建一个心跳定时任务，如果返回 404，就向注册中心发送注册请求；客户端将服务实例信息发送到服务端，服务端将客户信息放在一个 ConcurrentHashMap 中；客户端定时任务拉取服务端注册信息，每次拉取后刷新本地已保存的信息，需要用时直接从本地获取。
 
 心跳机制：启动微服务时会向 Nacos 建立连接，并发送心跳请求，Nacos 会将其记录下来，如果某个微服务挂掉了，Nacos 定时任务监听微服务是否超出心跳时间，先标记为不健康，还是不行就直接干掉
 
@@ -106,9 +106,7 @@ Nacos 同 SpringCloud-Config 一样，在项目初始化时，要保证先从配
 
 将各个服务的配置发布到配置中心，各个服务从配置中心拉取相关配置，当配置中心有更改时，配置中心通知各个服务，从配置中心再拉取相关配置。
 
-常用的有携程的Apollo，阿里的Nacos，和SpringCloud Config
-
-
+常用的有携程的 Apollo，阿里的 Nacos，和 SpringCloud Config
 
 问题：实际开发中，通常一个系统会准备 dev 开发环境，test 测试环境，prod 生产环境，如果保证指定环境启动时服务能正确读取到 Nacos 上的响应配置文件呢？
 
@@ -140,11 +138,11 @@ Service 就是微服务：一个 Service 可以包含多个 Cluster（集群）�
 
 比方说为了容灾，将 Service 微服务分别部署在杭州机房和广州机房，这是就可以给杭州机房的 Service 微服务起一个集群名称（HZ），给广州机房的 Service 微服务起一个集群名称（GZ），还可以尽量让同一个机房的微服务相互调用，以提高性能。
 
-#### DataId配置集
+#### DataId 配置集
 
-在系统中，一个配置文件通常就是一个配置集，一个配置集可以包含了系统的各种配置信息，例如，一个配置集可 能包含了数据源、线程池、日志级别等配置项。每个配置集都可以定义一个有意义的名称，就是配置集的ID即Data ID。
+在系统中，一个配置文件通常就是一个配置集，一个配置集可以包含了系统的各种配置信息，例如，一个配置集可 能包含了数据源、线程池、日志级别等配置项。每个配置集都可以定义一个有意义的名称，就是配置集的 ID 即 Data ID。
 
-指定spring.profile.active和配置文件的DataID来使不同环境读取不同的配置新建dev配置DataID，新建test配置DataID，通过spring.profile.active属性就能进行多环境下配置文件的读取。
+指定 spring.profile.active 和配置文件的 DataID 来使不同环境读取不同的配置新建 dev 配置 DataID，新建 test 配置 DataID，通过 spring.profile.active 属性就能进行多环境下配置文件的读取。
 
 ![](media/Alibaba%E7%9A%8433.png)
 
@@ -158,19 +156,17 @@ spring:
 		active:test
 ```
 
+#### GroupID 配置分组
 
+配置分组是对配置集进行分组，通过一个有意义的字符串（如 Buy 或 Trade ）来表示，不同的配置分组下可以有 相同的配置集（Data ID）。当您在 Nacos 上创建一个配置时，如果未填写配置分组的名称，则配置分组的名称默 认采用 DEFAULT_GROUP 。配置分组的常见场景：可用于区分不同的项目或应用，例如：学生管理系统的配置集 可以定义一个 group 为：STUDENT_GROUP。
 
-#### GroupID配置分组
+#### namespace 命名空间
 
-配置分组是对配置集进行分组，通过一个有意义的字符串（如 Buy 或 Trade ）来表示，不同的配置分组下可以有 相同的配置集（Data ID）。当您在 Nacos 上创建一个配置时，如果未填写配置分组的名称，则配置分组的名称默 认采用 DEFAULT_GROUP 。配置分组的常见场景：可用于区分不同的项目或应用，例如：学生管理系统的配置集 可以定义一个group为：STUDENT_GROUP。
+命名空间（namespace）可用于进行不同环境的配置隔离。例如可以隔离开发环境、测试环境和生产环境，因为 它们的配置可能各不相同，或者是隔离不同的用户，不同的开发人员使用同一个 nacos 管理各自的配置，可通过 namespace 隔离。不同的命名空间下，可以存在相同名称的配置分组(Group) 或 配置集。默认 public 的 namespace，每个命名空间有对应的 namespaceId，项目的 yml 文件中配置的就是 namespaceId
 
-#### namespace命名空间
+Namespace：代表不同环境，如开发、测试、生产环境。
 
-命名空间（namespace）可用于进行不同环境的配置隔离。例如可以隔离开发环境、测试环境和生产环境，因为 它们的配置可能各不相同，或者是隔离不同的用户，不同的开发人员使用同一个nacos管理各自的配置，可通过 namespace隔离。不同的命名空间下，可以存在相同名称的配置分组(Group) 或 配置集。默认public 的namespace，每个命名空间有对应的namespaceId，项目的yml文件中配置的就是namespaceId
-
-Namespace：代表不同环境，如开发、测试、生产环境。 
-
-Group：代表某项目，如青岛项目、广州项目 
+Group：代表某项目，如青岛项目、广州项目
 
 DataId：每个项目下往往有若干个工程，每个配置集(DataId)是一个工程的主配置文件
 
@@ -180,13 +176,13 @@ DataId：每个项目下往往有若干个工程，每个配置集(DataId)是一
 
 ### 优先级
 
-Spring Cloud Alibaba Nacos Config目前提供了三种配置能力从Nacos拉取相关的配
+Spring Cloud Alibaba Nacos Config 目前提供了三种配置能力从 Nacos 拉取相关的配
 
-- A:通过spring.cloud.nacos.config.shared-dataids支持多个共享Data ld 的配置，不建议使用
-- B:通过spring.cloud.nacos.config .ext-config[n].data-id 的方式支持多个扩展Data ld的配置，多个Data ld同时配置时，他的优先级关系是 spring.cloud.nacos.config.ext-config[n].data-id其中 n的值越大，优先级越高。
-- C:通过内部相关规则(应用名、扩展名)自动生成相关的Data ld配置
+- A:通过 spring.cloud.nacos.config.shared-dataids 支持多个共享 Data ld 的配置，不建议使用
+- B:通过 spring.cloud.nacos.config .ext-config[n].data-id 的方式支持多个扩展 Data ld 的配置，多个 Data ld 同时配置时，他的优先级关系是 spring.cloud.nacos.config.ext-config[n].data-id 其中 n 的值越大，优先级越高。
+- C:通过内部相关规则(应用名、扩展名)自动生成相关的 Data ld 配置
 
-当三种方式共同使用时，他们的一个优先级关系是:C>B>A，扩展中重复，n越大，优先级越高
+当三种方式共同使用时，他们的一个优先级关系是:C>B>A，扩展中重复，n 越大，优先级越高
 
 ## Nacos 集群和持久化配置
 
@@ -226,9 +222,7 @@ db. password=123456
 
 2：修改集群配置文件
 
-会有集群控制台的集群节点。项目配置中就可以指定一个虚拟Vip
-
-
+会有集群控制台的集群节点。项目配置中就可以指定一个虚拟 Vip
 
 **需要一个 Nginx 作为 VIP**
 
@@ -316,9 +310,9 @@ spring:
 
 ## 服务发现
 
-
-
 # Sentinel
+
+当服务不可用时，用来避免连锁故障，雪崩等，通常在调用时做熔断处理。
 
 实现熔断与限流,就是 Hystrix
 
@@ -364,10 +358,6 @@ Sentinel 采用了两种手段：
 ### 流量控制
 
 角度：
-
-
-
-
 
 ## Window 安装
 
@@ -474,7 +464,7 @@ start java -jar sentinel-dashboard-1.8.1.jar --server.port=8070
 
 - 快速失败：直接失败，跑一场
 - Warm UP：根据 CodeFactor（冷加载因子，默认 3）的值，从阈值 CodeFactor，经过预热时长，才达到设置的 QPS 的阈值。当系统长期初一低水位的情况下，当流量突然增加时，直接把系统拉升可能瞬间把系统压垮。
-- 排队等待：严格控制请求通过的间隔时间，也即是让请求以匀速的速度通过，对应的是漏桶算法.阈值类型必须设置成QPS，否则无效。
+- 排队等待：严格控制请求通过的间隔时间，也即是让请求以匀速的速度通过，对应的是漏桶算法.阈值类型必须设置成 QPS，否则无效。
 
 ## 熔断降级规则
 
@@ -488,29 +478,28 @@ start java -jar sentinel-dashboard-1.8.1.jar --server.port=8070
 
 Sentinel 的断路器是没有半开状态的：半开的状态，系统会自动检测是否请求有异常，没有异常就关闭断路器恢复使用，有异常则继续打开断路器不可用，具体可看 Hy
 
-
-
 ![image-20200416095515859](media/c5be24e5cafc467da1b7c9ff652c2f43)
 
 降级策略：
 
-RT（平均响应时间，秒级）：当1s内持续进入N个请求，对应时刻的平均响应时间（秒级）均超过阈值（Count，以ms为单位），那么接下的时间（DegradeRule中的timeWindow，以s为单位）之内，对这个方法的调用都会自动地熔断（抛出DegradeException）
+RT（平均响应时间，秒级）：当 1s 内持续进入 N 个请求，对应时刻的平均响应时间（秒级）均超过阈值（Count，以 ms 为单位），那么接下的时间（DegradeRule 中的 timeWindow，以 s 为单位）之内，对这个方法的调用都会自动地熔断（抛出 DegradeException）
+
 - 平均响应时间，超过阈值 且 时间窗口内通过的请求 >= 5，两个条件同时满足后出发降级
 - 窗口期过后，关闭断路器
 - RT 最大 4900（更大的需要通过 -Dcsp.sentinel.staticstic.max.rt=XXXXX 才能生效）
 
 异常比例 (`DEGRADE_GRADE_EXCEPTION_RATIO`)秒级：当资源的每秒请求量 >= N（可配置），并且每秒异常总数占通过量的比值超过阈值（`DegradeRule` 中的 `count`）之后，资源进入降级状态，即在接下的时间窗口（`DegradeRule` 中的 `timeWindow`，以 s 为单位）之内，对这个方法的调用都会自动地返回。异常比率的阈值范围是 `[0.0, 1.0]`，代表 0% - 100%。
 
-异常数（分钟级）：当资源一分钟的异常数超过阈值之后就会熔断，注意由于统计时间是分钟级别的，如果timeWindow小于60s，则结束熔断状态后仍可能再进入熔断状态。时间窗口一定要大于60S
+异常数（分钟级）：当资源一分钟的异常数超过阈值之后就会熔断，注意由于统计时间是分钟级别的，如果 timeWindow 小于 60s，则结束熔断状态后仍可能再进入熔断状态。时间窗口一定要大于 60S
 
 - 异常数（分钟统计）超过阈值时，触发降级，时间窗口结束后，关闭降级
 
 ## 热点规则
 
-何为热点?热点即经常访问的数据。很多时候我们希望统计某个热点数据中访问频次最高的Top K数据，并对其访问进行限制。比如:
+何为热点?热点即经常访问的数据。很多时候我们希望统计某个热点数据中访问频次最高的 Top K 数据，并对其访问进行限制。比如:
 
-- 商品ID为参数，统计一段时间内最常购买的商品ID并进行限制
-- 用户ID为参数，针对一段时间内频繁访问的用户ID进行限制
+- 商品 ID 为参数，统计一段时间内最常购买的商品 ID 并进行限制
+- 用户 ID 为参数，针对一段时间内频繁访问的用户 ID 进行限制
 
 热点参数限流会统计传入参数中的热点参数，并根据配置的限流阈值与模式，对包含热点参数的资源调用进行限流。热点参数限流可以看做是一种特殊的流量控制，仅对包含热点参数的资源调用生效。
 
@@ -524,7 +513,7 @@ localhost:8080/aa?name=bb
 
 ==如何自定义降级方法,而不是默认的抛出异常?==
 
-兜底方法：分为系统默认和客户自定义，两种，之前限流出问题后，都是Sentinel系统默认的提示：Blocked by Sentinel；接下来就自己定义，某个方法出问题了，就找到对应的兜底降级方法：在Hystrix中用HystrixCommand，在Sentinel中用 ` @SentinelResource
+兜底方法：分为系统默认和客户自定义，两种，之前限流出问题后，都是 Sentinel 系统默认的提示：Blocked by Sentinel；接下来就自己定义，某个方法出问题了，就找到对应的兜底降级方法：在 Hystrix 中用 HystrixCommand，在 Sentinel 中用 ` @SentinelResource
 
 **使用@SentinelResource 直接实现降级方法,它等同 Hystrix 的@HystrixCommand**
 
@@ -569,15 +558,15 @@ public string deal_testHotkey (string p1，string p2，BlockException exception)
 
 只有触发热点规则才会降级
 
-@SentinelResource：处理的是Sentinel控制台配置的违规情况，有blockHander方法配置的兜底处理
+@SentinelResource：处理的是 Sentinel 控制台配置的违规情况，有 blockHander 方法配置的兜底处理
 
-RuntimeException：Java运行时异常还是RuntimeException
+RuntimeException：Java 运行时异常还是 RuntimeException
 
 ## 系统自适应保护规则
 
-Sentinel系统自适应限流从整体维度对应用入口流量进行控制，结合应用的Load、CPU使用率、总体平均RT。入口QPS和并发线程数等几个维度的监控指标，通过自适应的流控策略，让系统的入口流量和系统的负载达到一个平衡，让系统尽可能保持最大吞吐量的同时保证系统整体的稳定性。
+Sentinel 系统自适应限流从整体维度对应用入口流量进行控制，结合应用的 Load、CPU 使用率、总体平均 RT。入口 QPS 和并发线程数等几个维度的监控指标，通过自适应的流控策略，让系统的入口流量和系统的负载达到一个平衡，让系统尽可能保持最大吞吐量的同时保证系统整体的稳定性。
 
-系统保护规则是应用整体维度的，而不是资源维度的，并且仅对入口流量生效。入口流量指的是进入应用的流量Ⅰ(EntryType.IN)，比如Web 服务或 Dubbo服务霭接收的请求，都属于入口流量。
+系统保护规则是应用整体维度的，而不是资源维度的，并且仅对入口流量生效。入口流量指的是进入应用的流量 Ⅰ(EntryType.IN)，比如 Web 服务或 Dubbo 服务霭接收的请求，都属于入口流量。
 
 对整体限流,比如设置 qps 到达 100,这里限流会限制整个系统不可以
 
@@ -585,52 +574,46 @@ _![](media/sentinel%E7%9A%8451.png)_
 
 系统规则支持一下模式：
 
-- Load自适应（权对 Linux/Unix-like机器生效)︰系统的load1作为启发指标，进行自适应系统保护。当系统load1超过没定的启发值，且系统当前的并发线程数超过估算的系统容量时才会触发系统保护（BBR阶段)。系统容量由系统的maxQps * minRt估算得出。设定参考值一般是CPu cores * 2.5
-- CPU usage (1.5.0+版本)︰当系统CPU使用率超过阈值即触发系统保护（取值范围0.0-1.0)，比较灵敏。
-- 平均RT:当单台机器上所有入口流量的平均RT达到阈值即触发系统保护。单位是毫秒。·并发线程数:当单台机器上所有入口流量
+- Load 自适应（权对 Linux/Unix-like 机器生效)︰系统的 load1 作为启发指标，进行自适应系统保护。当系统 load1 超过没定的启发值，且系统当前的并发线程数超过估算的系统容量时才会触发系统保护（BBR 阶段)。系统容量由系统的 maxQps _ minRt 估算得出。设定参考值一般是 CPu cores _ 2.5
+- CPU usage (1.5.0+版本)︰当系统 CPU 使用率超过阈值即触发系统保护（取值范围 0.0-1.0)，比较灵敏。
+- 平均 RT:当单台机器上所有入口流量的平均 RT 达到阈值即触发系统保护。单位是毫秒。·并发线程数:当单台机器上所有入口流量
 - 并发线程数达到阈值即触发系统保护。
-- 入口QPS:当单台机器上所有入口流量的QPS达到阈值即触发系统保护。
+- 入口 QPS:当单台机器上所有入口流量的 QPS 达到阈值即触发系统保护。
 
 重要的属性：
 
-| Field             | 说明                                | 默认值   |
-| ----------------- | ----------------------------------- | -------- |
-| highestSystemLoad | load1触发值，用于触发自适应控制阶段 | -1不生效 |
-| avgRt             | 所有入口流量的平均响应时间          | -1不生效 |
-| maxThread         | 入口流量的最大并发数                | -1不生效 |
-| QPS               | 所有入口资源的QPS                   | -1不生效 |
-| highestCpuUsage   | 当前系统的CPU使用率（0.0-1.0)       | -1不生效 |
+| Field             | 说明                                 | 默认值    |
+| ----------------- | ------------------------------------ | --------- |
+| highestSystemLoad | load1 触发值，用于触发自适应控制阶段 | -1 不生效 |
+| avgRt             | 所有入口流量的平均响应时间           | -1 不生效 |
+| maxThread         | 入口流量的最大并发数                 | -1 不生效 |
+| QPS               | 所有入口资源的 QPS                   | -1 不生效 |
+| highestCpuUsage   | 当前系统的 CPU 使用率（0.0-1.0)      | -1 不生效 |
 
-本地代码设置，在Sentinel控制台动态设置
-
-
+本地代码设置，在 Sentinel 控制台动态设置
 
 ## 授权控制
 
-很多时候，我们需要根据调用来源来判断该次请求是否允许放行，这时候可以使用Sentinel的来源访问控制（黑白名单控制)的功能。来源访问控制根据资源的请求来源（origin）判斯资源访问是否通过，若配置白名单则只有请求来源位于白名单内时才可通过;若配置黑名单则请求来源位于黑名单时不通过，其余的请求通过。
+很多时候，我们需要根据调用来源来判断该次请求是否允许放行，这时候可以使用 Sentinel 的来源访问控制（黑白名单控制)的功能。来源访问控制根据资源的请求来源（origin）判斯资源访问是否通过，若配置白名单则只有请求来源位于白名单内时才可通过;若配置黑名单则请求来源位于黑名单时不通过，其余的请求通过。
 
 来源访问控制规则(AuthorityRule)非常简单，主要有以下配置项:
 
 - resource:资源名，即限流规则的作用对象。
 - limitApp:请求来源。对应的黑名单/白名单，多个用","分隔，如 appAappB.
-- strategy :限制模式。AUTHORITY_WHITE为白名单模式，AUTHORITY_BLACK为黑名单模式，默认为白名单模式。
-
-
+- strategy :限制模式。AUTHORITY_WHITE 为白名单模式，AUTHORITY_BLACK 为黑名单模式，默认为白名单模式。
 
 ## 动态规则扩展
 
-前面不管是通过Java代码还是通过Sentinel控制台的方式去设置限流规则，都属于手动方式，不够灵活。这种方式一般仅用于测试和演示，生产环境上一般通过动态规则源的方式来动态管理限流规则。也就是说，很多时候限流规则会被存储在文件、数据库或者配置中心当中。Sentinel的Datasource接口给我们提供了对接任意配置源的能力。
+前面不管是通过 Java 代码还是通过 Sentinel 控制台的方式去设置限流规则，都属于手动方式，不够灵活。这种方式一般仅用于测试和演示，生产环境上一般通过动态规则源的方式来动态管理限流规则。也就是说，很多时候限流规则会被存储在文件、数据库或者配置中心当中。Sentinel 的 Datasource 接口给我们提供了对接任意配置源的能力。
 
-官方推荐通过控制台设置规则后将规则推送到统一的规则管理中心。客户端实现ReadableDataSource 接口端监听规则中心实时获取变更，流程如下:
+官方推荐通过控制台设置规则后将规则推送到统一的规则管理中心。客户端实现 ReadableDataSource 接口端监听规则中心实时获取变更，流程如下:
 
 ![image-20210312202724097](media/image-20210312202724097.png)
 
 常见的实现方式有:
 
-- 拉取式:客户端主动向菜个规则管理中心定期轮询拉取规则，这个规则管理中心可以是文件，甚至是VCS等。这样做的方式是简单。缺点是无法及时获取变更;实现拉模式的数据源最简单的方式是继承AutcRefreshDatasource 抽象类，然后实现 readsource()方法，在该方法里从指定数据源读取字符串格式的配置数据。
-- 推送式：常用，规则管理中心统一推送，客户惴通过注册监听器的方式时刻监听变化，比如使用Zookeeper ,Apollo等作为规则管理中心。这种方式有更好的实时性和一致性保证。"实现推模式的数据源最简单的方式是继承 AbstractDatasource抽象类，在其构造方法中添加监听器，并实现readsource(O从指定数据源读取字符串格式的配置数据。
-
-
+- 拉取式:客户端主动向菜个规则管理中心定期轮询拉取规则，这个规则管理中心可以是文件，甚至是 VCS 等。这样做的方式是简单。缺点是无法及时获取变更;实现拉模式的数据源最简单的方式是继承 AutcRefreshDatasource 抽象类，然后实现 readsource()方法，在该方法里从指定数据源读取字符串格式的配置数据。
+- 推送式：常用，规则管理中心统一推送，客户惴通过注册监听器的方式时刻监听变化，比如使用 Zookeeper ,Apollo 等作为规则管理中心。这种方式有更好的实时性和一致性保证。"实现推模式的数据源最简单的方式是继承 AbstractDatasource 抽象类，在其构造方法中添加监听器，并实现 readsource(O 从指定数据源读取字符串格式的配置数据。
 
 ## 持久化规则
 
@@ -1337,44 +1320,43 @@ seata_account：建 t_account 表
     public class MyBatisConfig {
     ```
 
-    ````java
+    ```java
 
     /**
-    ````
- * @Author EiletXie
-     
-     * @Since 2020/3/18 21:51
- * 使用Seata对数据源进行代理
-     */
-    @Configuration
-    public class DataSourceProxyConfig {
-    
-        @Value("${mybatis.mapperLocations}")
-        private String mapperLocations;
-    
-    @Bean
-        @ConfigurationProperties(prefix = "spring.datasource")
-        public DataSource druidDataSource() {
-        return new DruidDataSource();
-        }
-    
-        @Bean
-        public DataSourceProxy dataSourceProxy(DataSource druidDataSource) {
-            return new DataSourceProxy(druidDataSource);
-    }
-    
-        @Bean
-        public SqlSessionFactory sqlSessionFactoryBean(DataSourceProxy dataSourceProxy) throws Exception {
-            SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
-        bean.setDataSource(dataSourceProxy);
-            ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-            bean.setMapperLocations(resolver.getResources(mapperLocations));
-            return bean.getObject();
-        }
-    }
-    ````
-    
-    ````
+    ```
+
+- @Author EiletXie
+
+  - @Since 2020/3/18 21:51
+
+- 使用 Seata 对数据源进行代理
+  \*/
+  @Configuration
+  public class DataSourceProxyConfig {
+  @Value("${mybatis.mapperLocations}")
+  private String mapperLocations;
+  @Bean
+  @ConfigurationProperties(prefix = "spring.datasource")
+  public DataSource druidDataSource() {
+  return new DruidDataSource();
+  }
+  @Bean
+  public DataSourceProxy dataSourceProxy(DataSource druidDataSource) {
+  return new DataSourceProxy(druidDataSource);
+  }
+  @Bean
+  public SqlSessionFactory sqlSessionFactoryBean(DataSourceProxy dataSourceProxy) throws Exception {
+  SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
+  bean.setDataSource(dataSourceProxy);
+  ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+  bean.setMapperLocations(resolver.getResources(mapperLocations));
+  return bean.getObject();
+  }
+  }
+
+  ```
+
+  ```
 
 ![](media/seala%E7%9A%8414.png)
 

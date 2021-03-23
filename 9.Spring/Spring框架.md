@@ -142,7 +142,7 @@ Ioc 的实现：
 
   - 第三方的主要用于处理日志
 
-2.2.3 定义接口与实体类
+    2.2.3 定义接口与实体类
 
 ```java
 **public interface** SomeService { **void** doSome();
@@ -207,8 +207,7 @@ ApplicationContext 用于加载 Spring 的配置文件，在程序中充当“�
 
 A、 配置文件在类路径下
 
-若 Spring 配置文件存放在项目的类路径下，则使用 ClassPathXmlApplicationContext
-实现类进行加载。
+若 Spring 配置文件存放在项目的类路径下，则使用 ClassPathXmlApplicationContext 实现类进行加载。
 
 ```java
 @Test
@@ -226,8 +225,7 @@ public void test02(){
 
 B**、** ApplicationContext **容器中对象的装配时机**
 
-ApplicationContext
-容器，会在容器对象初始化时，将其中的所有对象一次性全部装配好。以后代码中若要使用到这些对象，只需从内存中直接获取即可。执行效率较高。但占用内存。
+ApplicationContext 容器，会在容器对象初始化时，将其中的所有对象一次性全部装配好。以后代码中若要使用到这些对象，只需从内存中直接获取即可。执行效率较高。但占用内存。
 
 ```java
 // ApplicationContext容器对对象的装配时机@Test
@@ -350,10 +348,9 @@ public class MyBeanFactory {
 
 - BeanFactory 和 FactoryBean 对比？
 
-BeanFactory：工厂，用于生成任意 bean。
+BeanFactory：工厂，用于生成任意 bean。是 ApplicationContext 顶级接口，底层是利用 工厂 + 反射 + 配置文件
 
-FactoryBean：特殊 bean，用于生成另一个特定的 bean。例如：ProxyFactoryBean，此工厂 bean 用于生产代理。\<bean id="" class="....ProxyFactoryBean"\>
-获得代理对象实例。AOP 使用
+FactoryBean：特殊 bean，用于生成另一个特定的 bean。例如：ProxyFactoryBean，此工厂 bean 用于生产代理。\<bean id="" class="....ProxyFactoryBean"\>获得代理对象实例。AOP 使用
 
 ### 2.3.3：作用域
 
@@ -954,7 +951,8 @@ public object getProxy(classLoader classLoader) {
     logger.debug( "creating JDK dynamic proxy: target source is
     " + this.advised.getTargetsource());
     }
-    class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.advised,true);findDefinedEqualsAndHashCodeMethods(proxiedInterfaces);
+    class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.advised,true);
+                 findDefinedEqualsAndHashCodeMethods(proxiedInterfaces);
     return Proxy.newProxyInstance(classLoader, proxiedInterfaces,this);
 }
 ```
@@ -1945,8 +1943,6 @@ Step4：获取 Spring 容器对象
 
 从对监听器 ContextLoaderListener 的源码分析可知，容器对象在 ServletContext 的中存放的 key 为
 WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE。所以，可以直接通过 ServletContext 的 getAttribute()方法，按照指定的 key 将容器对象获取到。
-
-
 
 （2） 通过 WebApplicationContextUtils 获取
 

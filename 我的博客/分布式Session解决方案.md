@@ -2,101 +2,87 @@
 
 Cookie：缓存在浏览器的，每次客户端向服务器发送请求时都会带上的特殊信息。
 
-Cookie的产生：第一次服务器向客户端回传响应的超文本是，也发回一些信息，当然这些信息并不是存放在HTTP响应体（Response Body）中的，而是存放于HTTP响应头（Response Header）；
+Cookie 的产生：第一次服务器向客户端回传响应的超文本是，也发回一些信息，当然这些信息并不是存放在 HTTP 响应体（Response Body）中的，而是存放于 HTTP 响应头（Response Header）；
 
-cookie的内容主要包括：名字，值，过期时间，路径和域。路径与域合在一起就构成了cookie的作用范围。
+cookie 的内容主要包括：名字，值，过期时间，路径和域。路径与域合在一起就构成了 cookie 的作用范围。
 
-如果不设置过期时间，则表示这个cookie的生命期为浏览器会话期间，只要关闭浏览器窗口，cookie就消失了，这种生命期为浏览器会话期的 cookie被称为会话cookie。会话cookie一般不存储在硬盘上而是保存在内存里。如果设置了过期时间，浏览器就会把cookie保存到硬盘上，关闭后再次打开浏览器，这些cookie仍然有效直到超过设定的过期时间。
+如果不设置过期时间，则表示这个 cookie 的生命期为浏览器会话期间，只要关闭浏览器窗口，cookie 就消失了，这种生命期为浏览器会话期的 cookie 被称为会话 cookie。会话 cookie 一般不存储在硬盘上而是保存在内存里。如果设置了过期时间，浏览器就会把 cookie 保存到硬盘上，关闭后再次打开浏览器，这些 cookie 仍然有效直到超过设定的过期时间。
 
-存储在硬盘上的cookie 不可以在不同的浏览器间共享，可以在同一浏览器的不同进程间共享，比如两个IE窗口。这是因为每中浏览器存储cookie的位置不一样，比如
+存储在硬盘上的 cookie 不可以在不同的浏览器间共享，可以在同一浏览器的不同进程间共享，比如两个 IE 窗口。这是因为每中浏览器存储 cookie 的位置不一样，比如
 
-Chrome下的cookie放在：C:\Users\sharexie\AppData\Local\Google\Chrome\User Data\Default\Cache
+Chrome 下的 cookie 放在：C:\Users\sharexie\AppData\Local\Google\Chrome\User Data\Default\Cache
 
-Firefox下的cookie放在：C:\Users\sharexie\AppData\Roaming\Mozilla\Firefox\Profiles\tq2hit6m.default\cookies.sqlite （倒数第二个文件名是随机的文件名字）
+Firefox 下的 cookie 放在：C:\Users\sharexie\AppData\Roaming\Mozilla\Firefox\Profiles\tq2hit6m.default\cookies.sqlite （倒数第二个文件名是随机的文件名字）
 
-Ie下的cookie放在：C:\Users\Administrator\AppData\Roaming\Microsoft\Windows\Cookies
+Ie 下的 cookie 放在：C:\Users\Administrator\AppData\Roaming\Microsoft\Windows\Cookies
 
-
-
-Session：一个浏览器和服务器的交互的会话，Cookie中保存着SessionId，Session保存在服务器上。
-
-
+Session：一个浏览器和服务器的交互的会话，Cookie 中保存着 SessionId，Session 保存在服务器上。
 
 # 问题
 
-因为分布式的，客户端发送了一个请求，经过负载均衡后该请求会被分配到下列服务器中的任意一个，这是用户验证了，如果用户再次请求，该请求被负载到另一台服务器上，此时检查Cookie中的sessionId发现该服务器没有，这是会让用户重新登录，这就会出现问题。
+因为分布式的，客户端发送了一个请求，经过负载均衡后该请求会被分配到下列服务器中的任意一个，这是用户验证了，如果用户再次请求，该请求被负载到另一台服务器上，此时检查 Cookie 中的 sessionId 发现该服务器没有，这是会让用户重新登录，这就会出现问题。
 
 # 解决方案
 
-
-
 ![image-20210120142815995](media/image-20210120142815995.png)
-
-
 
 ## 一：请求分发到相同服务器上
 
-一种是nginx使用ip_hash策略进行，将同一个请求分发到相同的服务器上，（还有一个类似于王者荣耀选取，由客户手动负载）
+一种是 nginx 使用 ip_hash 策略进行，将同一个请求分发到相同的服务器上，（还有一个类似于王者荣耀选取，由客户手动负载）
 
-在Nginx中配置ip_hash，配置了IP绑定就不支持负载均衡了。
+在 Nginx 中配置 ip_hash，配置了 IP 绑定就不支持负载均衡了。
 
-## 二：Session复制
+## 二：Session 复制
 
-将所有服务器中的Session都同步复制到所有服务器上。在所有服务器间做一个Session的同步。部署两台Tomcat，开启集群配置。
+将所有服务器中的 Session 都同步复制到所有服务器上。在所有服务器间做一个 Session 的同步。部署两台 Tomcat，开启集群配置。
 
-在项目中在WEB-INF目录下的web.xml文件中添加开启
+在项目中在 WEB-INF 目录下的 web.xml 文件中添加开启
 
 ```xml
 <!--tomcat session复制开启-->
 <distributable/>
 ```
 
+## 三：使用 Token 代替 Session
 
+当 Web 服务器接收到请求后，请求会进入对应的 Filter 进行过滤，将原本需要由 Web 服务器创建会话的过程转交给 Spring-Session 进行创建。Spring-Session 会将原本应该保存在 Web 服务器内存的 Session 存放到 Redis 中。然后 Web 服务器之间通过连接 Redis 来共享数据，达到 Sesson 共享的目的。
 
-## 三：使用Token代替Session
+使用基于 Token 的身份验证方法，在服务端不需要存储用户的登录记录。大概的流程是这样的：
 
-　　当Web服务器接收到请求后，请求会进入对应的Filter进行过滤，将原本需要由Web服务器创建会话的过程转交给Spring-Session进行创建。Spring-Session会将原本应该保存在Web服务器内存的Session存放到Redis中。然后Web服务器之间通过连接Redis来共享数据，达到Sesson共享的目的。
-
-使用基于 Token 的身份验证方法，在服务端不需要存储用户的登录记录。大概的流程是这样的： 
-
-   1、客户端通过用户名和密码登录服务器；
+1、客户端通过用户名和密码登录服务器；
 
 2、服务端对客户端身份进行验证；
-   3、服务端对该用户生成Token，返回给客户端；
-   4、客户端将Token保存到本地浏览器，一般保存到cookie中；
-   5、客户端发起请求，需要携带该Token；
-   6、服务端收到请求后，首先验证Token，之后返回数据。
+3、服务端对该用户生成 Token，返回给客户端；
+4、客户端将 Token 保存到本地浏览器，一般保存到 cookie 中；
+5、客户端发起请求，需要携带该 Token；
+6、服务端收到请求后，首先验证 Token，之后返回数据。
 
-浏览器第一次访问服务器，根据传过来的唯一标识userId，服务端会通过一些算法，如常用的HMAC-SHA256算法，然后加一个密钥，生成一个token，然后通过BASE64编码一下之后将这个token发送给客户端；客户端将token保存起来，下次请求时，带着token，服务器收到请求后，然后会用相同的算法和密钥去验证token，如果通过，执行业务操作，不通过，返回不通过信息。
+浏览器第一次访问服务器，根据传过来的唯一标识 userId，服务端会通过一些算法，如常用的 HMAC-SHA256 算法，然后加一个密钥，生成一个 token，然后通过 BASE64 编码一下之后将这个 token 发送给客户端；客户端将 token 保存起来，下次请求时，带着 token，服务器收到请求后，然后会用相同的算法和密钥去验证 token，如果通过，执行业务操作，不通过，返回不通过信息。
 
 优缺点：
 
-- 无状态、可扩展 ：在客户端存储的Token是无状态的，并且能够被扩展。基于这种无状态和不存储Session信息，负载均衡器能够将用户信息从一个服务传到其他服务器上。
-- 安全：请求中发送token而不再是发送cookie能够防止CSRF(跨站请求伪造)。
-- 可提供接口给第三方服务：使用token时，可以提供可选的权限给第三方应用程序。
+- 无状态、可扩展 ：在客户端存储的 Token 是无状态的，并且能够被扩展。基于这种无状态和不存储 Session 信息，负载均衡器能够将用户信息从一个服务传到其他服务器上。
+- 安全：请求中发送 token 而不再是发送 cookie 能够防止 CSRF(跨站请求伪造)。
+- 可提供接口给第三方服务：使用 token 时，可以提供可选的权限给第三方应用程序。
 - 多平台跨域
 
-
-
-## 四：Redis存储的session
+## 四：Redis 存储的 session
 
 这是企业中使用的最多的一种方式
 
-spring为我们封装好了spring-session，直接引入依赖即可
+spring 为我们封装好了 spring-session，直接引入依赖即可
 
-数据保存在redis中，无缝接入，不存在任何安全隐患
+数据保存在 redis 中，无缝接入，不存在任何安全隐患
 
-redis自身可做集群，搭建主从，同时方便管理
+redis 自身可做集群，搭建主从，同时方便管理
 
-多了一次网络调用，web容器需要向redis访问
-
-
+多了一次网络调用，web 容器需要向 redis 访问
 
 ### 1：Tomact+Redis
 
-就是使用session的代码跟以前一样，还是基于tomcat原生的session支持即可，然后就是用一个叫做Tomcat RedisSessionManager的东西，让所有我们部署的tomcat都将session数据存储到redis即可。
+就是使用 session 的代码跟以前一样，还是基于 tomcat 原生的 session 支持即可，然后就是用一个叫做 Tomcat RedisSessionManager 的东西，让所有我们部署的 tomcat 都将 session 数据存储到 redis 即可。
 
-在tomcat的配置文件中，配置一下
+在 tomcat 的配置文件中，配置一下
 
 ```
 <Valve className="com.orangefunction.tomcat.redissessions.RedisSessionHandlerValve" />
@@ -112,7 +98,7 @@ redis自身可做集群，搭建主从，同时方便管理
     maxInactiveInterval="60"/>
 ```
 
-搞一个类似上面的配置即可，你看是不是就是用了RedisSessionManager，然后指定了redis的host和 port就ok了。
+搞一个类似上面的配置即可，你看是不是就是用了 RedisSessionManager，然后指定了 redis 的 host 和 port 就 ok 了。
 
 ```
 <Valve className="com.orangefunction.tomcat.redissessions.RedisSessionHandlerValve" />
@@ -126,19 +112,11 @@ redis自身可做集群，搭建主从，同时方便管理
      maxInactiveInterval="60"/>
 ```
 
-还可以用上面这种方式基于redis哨兵支持的redis高可用集群来保存session数据，都是ok的
+还可以用上面这种方式基于 redis 哨兵支持的 redis 高可用集群来保存 session 数据，都是 ok 的
 
-但我们从Session获取数据，其实tomcat就是会从redis中获取到session了。
+但我们从 Session 获取数据，其实 tomcat 就是会从 redis 中获取到 session 了。
 
-但是存在的问题，就是严重依赖于Web容器
-
-
-
-
-
-
-
-
+但是存在的问题，就是严重依赖于 Web 容器
 
 ### 2：Spring Session +Redis
 
@@ -157,7 +135,7 @@ pom.xml
 </dependency>
 ```
 
-### spring配置文件
+### spring 配置文件
 
 ```
 <bean id="redisHttpSessionConfiguration"
@@ -213,21 +191,15 @@ public class TestController {
 }
 ```
 
-
-
-
-
-
-
-重写了getSession方法，
+重写了 getSession 方法，
 
 步骤：
 
-添加Redis依赖
+添加 Redis 依赖
 
-配置application.properties,本地开启redis服务
+配置 application.properties,本地开启 redis 服务
 
-添加Session配置类
+添加 Session 配置类
 
 ```java
 /**
@@ -261,4 +233,3 @@ public class SessionConfig {
     }
 }
 ```
-

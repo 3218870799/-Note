@@ -60,11 +60,7 @@ SpringCloud：使用Restful，http的方式，短连接的方式
 
 ## 1：创建父工程,pom 依赖
 
-![image-20201102110637824](Media/image-20201102110637824.png)
-
 选择 Maven 自己的 3.5 以上的
-
-![image-20201102110832233](Media/image-20201102110832233.png)
 
 约定>配置》编码
 
@@ -188,8 +184,6 @@ FileType 过滤，让一些文件不显示
 ![image-20201102134744754](Media/image-20201102134744754.png)
 
 步骤
-
-![](.\media\sc的3.png)
 
 ### 2.1：建 module
 
@@ -415,17 +409,67 @@ public interface PaymentDao {
 
 ```
 
-6,写 service 和 serviceImpl
+6：写 service 和 serviceImpl
 
-![](.\media\sc的9.png)
+```java
+@Service
+public class PaymentServiceImpl implements PaymentService
+{
+    @Resource
+    private PaymentDao paymentDao;
+    public int create(Payment payment){
+    	return paymentDao.create(payment) ;
+    }
+    public Payment getPaymentById( Long id){
+    	return paymentDao.getPaymentById(id);
+    }
 
-![sc的9](.\media\sc的10.png)
+}
+```
 
-7,controller
+7：controller
 
-![](.\media\sc的11.png)
+```java
+@Restcontroller
+@Slf4j
+public class PaymentController{
+    @Resource
+	private Paymentservice paymentservice;
+	@PostMapping(value = "/ payment/ create" )
+	public CommonResult create(Payment payment){
+        int result = paymentservice.create(payment);
+        log.info("*****插入结果:"+result);
+        if(result > o)
+        {
+        	return new commonResult( code: 20o,message:"插入数据库成功" ,result);
+        }else{
+        	return new CommonResult( code: 444,message:"插入数据库失败" , data: null);
+        }
+        @GetMapping(value = "/ payment/get/{id}")
+        public CommonResult getPaymentById(@Pathvariable("id") Long id){
+        	Payment payment = paymentservice.getPaymentById(id);log.info( "*****插入结果:"+payment);
+        	if(payment != nul1)
+        	{
+        		return new CommonResult( code: 200,message: "查询成功" , payment);
+            }else{
+        		return new CommonResult( code: 444,message: "没有对应记录,大败" , data: null);
+            }
+		}
+    }
+    @GetMapping(value = "/payment/get/{id}")
+	public CommonResult getpaymentById(@Pathvariable("id") Long id){
+        Payment payment = paymentservice.getPaymentById(id);log.info("*****插入结果:"+payment);
+        if(payment != null)
+        {
+        	return new CommonResult( code: 200,message: "查询成功" , payment);
+        }else{
+        	return new CommonResult( code: 444,message: "没有对应记录,大败", data: null);
+        }
 
-![](.\media\sc的12.png)
+
+```
+
+
 
 ## 3：热部署
 
@@ -502,11 +546,11 @@ controller 类
 
 因为这里是消费者类,主要是消费,那么就没有 service 和 dao,需要调用 pay 模块的方法。并且这里还没有微服务的远程调用,那么如果要调用另外一个模块,则需要使用基本的 api 调用
 
-使用 RestTemplate 调用 pay 模块
+使用 RestTemplate 调用 pay 模块，RestTemplate提供了多种便捷访问远程Http服务的方法，是一种简单便捷的访问restful服务模板类，是Spring提供的用于访问Rest服务的客户端模板工具集。
 
-![](.\media\order模块2.png)
+使用：
 
-![](.\media\order模块3.png)
+使用restTemplate访问restful接口非常的简单粗暴无脑。(url, requestMap, ResponseBean.class)这三个参数分别代表REST请求地址、请求参数、HTTP响应转换被转换成的对象类型。
 
 使用配置类将 restTemplate 注入到容器
 
@@ -525,7 +569,23 @@ public class ApplicationContextConfig
 
 编写 controller
 
-![](.\media\order模块5.png)
+```java
+@Restcontroller
+@slf4j
+public class ordercontroller{
+    public static final string PAYMENT_URL = "http://localhost:8001";
+    @Resource
+    private RestTemplate restTemplate;
+    @GetMapping( "/consumer/payment/create")
+    public CommonResult<Payment> create(Payment payment){
+    	return restTemplate.postForobject(url:PAYMENT_URL +"/payment/create" ,payment , commonResult.class);
+    }
+    @GetMapping("/consumer/payment/get/{id”)
+    public commonResult<Payment> getPayment(@Pathvariable("id") Long id){
+        return restTemplate.getForobject( url:PAYMENT_URL+"/payment/get/"+id,CommonResult.class);
+    }
+                }
+```
 
 测试启动两个服务，访问消费者路径
 
@@ -751,7 +811,7 @@ public class PaymentMain8001{
 
 ### 1.3：集群版 eureka
 
-#### 集群原理:
+#### 集群原理
 
 ![](.\media\Eureka的11.png)
 
@@ -816,9 +876,20 @@ _![](.\media\Eureka的16.png)_
 
 ### 1.4：将 pay,order 模块注册到 eureka 集群中:
 
-1,只需要修改配置文件即可:
+1,只需要修改配置文件即可
 
-![](.\media\Eureka的17.png)
+```yml
+eureka:
+    client:
+    #表示是否将自己注册进EurekaServer默认为true 
+    register-with-eureka: true
+    #是否从EurekaServer抓取已有的注册信息，默认为true。单节点无所谓，集群必须没置为true才能配合ribbon使用负载均衡
+    fetchRegistry: true
+    	service-ur1:
+    	#tdefaultZone: http://localhost:7001/eureka改这一条即可,添加多个eureka地址
+    	defaultZone: http://eureka7001.com:7001/eureka,http:/ /eureka7002.com:7002/eureka #集群版
+
+```
 
 2,两个模块都修改上面的都一样即可
 
@@ -1581,6 +1652,12 @@ Hystrix 能够保证在一个依赖出问题的情况下，不会导致整体服
 
 断路器本身就是一种开关装置，当某个服务单元故障时，通过断路器的故障监控（类似熔断保险丝），向调用方返回一个符合预期的，可处理的备选响应（FallBack），而不是长时间的等待或者抛出调用方无法处理的异常。
 
+区别：
+
+- 降级（丢车保帅）：在秒杀时，通过服务降级把注册、修改个人信息等非核心功能关闭掉。
+- 熔断：支付依赖第三方服务，要设置熔断策略，熔断后要给出友好提示，比如10分钟后再来支付。
+- 限流：抢购下单接口采用限流方式，如抢购1000件商品，则设置2000大小的队列，请求超过2000后直接拒绝掉。
+
 ## 概念
 
 1,服务降级
@@ -1685,20 +1762,12 @@ IdUtil 是 Hutool 包下的类,这个 Hutool 就是整合了所有的常用方�
 **熔断整体流程:**
 
 ```java
-1请求进来,首先查询缓存,如果缓存有,直接返回
-  	如果缓存没有,--->2
+1请求进来,首先查询缓存,如果缓存有,直接返回如果缓存没有,--->2
 2,查看断路器是否开启,如果开启的,Hystrix直接将请求转发到降级返回,然后返回
-  	如果断路器是关闭的,
-				判断线程池等资源是否已经满了,如果已经满了
-  					也会走降级方法
-  			如果资源没有满,判断我们使用的什么类型的Hystrix,决定调用构造方法还是run方法
-        然后处理请求
-        然后Hystrix将本次请求的结果信息汇报给断路器,因为断路器此时可能是开启的
-          			(因为断路器开启也是可以接收请求的)
-        		断路器收到信息,判断是否符合开启或关闭断路器的条件,
-				如果本次请求处理失败,又会进入降级方法
-        如果处理成功,判断处理是否超时,如果超时了,也进入降级方法
-        最后,没有超时,则本次请求处理成功,将结果返回给controller
+  	如果断路器是关闭的,判断线程池等资源是否已经满了,
+			如果已经满了也会走降级方法
+  			如果资源没有满,判断我们使用的什么类型的Hystrix,决定调用构造方法还是run方法然后处理请求 然后Hystrix将本次请求的结果信息汇报给断路器,因为断路器此时可能是开启的(因为断路器开启也是可以接收请求的)断路器收到信息,判断是否符合开启或关闭断路器的条件,如果本次请求处理失败,又会进入降级方法如果处理成功,判断处理是否超时,如果超时了,也进入降级方法
+   最后,没有超时,则本次请求处理成功,将结果返回给controller
 
 
 ```

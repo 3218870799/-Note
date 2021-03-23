@@ -6,7 +6,7 @@
 
 优点：独立运行，简化配置，自动装配
 
-与Spring的区别：
+与 Spring 的区别：
 
 ## 2、微服务
 
@@ -364,13 +364,11 @@ com.sgl.mystarter.sglhello.config.HelloServiceAutoConfiguration
 
 @AutoConfigurationPackage：自动配置包
 
-@Import(AutoConfigurationPackages.Registrar.class)：导入一个类到IOC容器中，类路径为meta-inf的spring.factories配置进行导入。
+@Import(AutoConfigurationPackages.Registrar.class)：导入一个类到 IOC 容器中，类路径为 meta-inf 的 spring.factories 配置进行导入。
 
 （3）@ComponentScan：Spring 组件扫描。
 
-就配置文件自动装配，装配到依赖的类里面，再以动态代理的方式注入到Spring容器里
-
-
+就配置文件自动装配，装配到依赖的类里面，再以动态代理的方式注入到 Spring 容器里
 
 **@RequestMapping 和 @ GetMapping 的区别？**
 
@@ -378,39 +376,37 @@ RequestMapping 具有类属性的，可以进行 GET、POST、PUT 或者其他�
 
 GetMapping 是 Get 请求方法中的一个特例，它只是 RequestMapping 的一个延伸，目的是为了提高清晰度。
 
-
-
 ### @Component
 
-把普通的pojo实例化到spring绒球中，相当于配置文件中的，泛指各种组件，就是说类不属于@Controller，@Service等的时候
+把普通的 pojo 实例化到 spring 绒球中，相当于配置文件中的，泛指各种组件，就是说类不属于@Controller，@Service 等的时候
 
 ### @Bean
 
-作用在方法上边，将方法的返回值纳入spring管理，告诉Spring这个方法将会返回一个对象，这个对象要注册为Spring应用上下文中的bean。
+作用在方法上边，将方法的返回值纳入 spring 管理，告诉 Spring 这个方法将会返回一个对象，这个对象要注册为 Spring 应用上下文中的 bean。
 
-如果想将第三方的类变成组件，你又没有没有源代码，也就没办法使用`@Component`进行自动配置，这种时候使用`@Bean`就比较合适了。不过同样的也可以通过xml方式来定义。
+如果想将第三方的类变成组件，你又没有没有源代码，也就没办法使用`@Component`进行自动配置，这种时候使用`@Bean`就比较合适了。不过同样的也可以通过 xml 方式来定义。
 
-另外@Bean注解的方法返回值是对象，可以在方法中为对象设置属性。
+另外@Bean 注解的方法返回值是对象，可以在方法中为对象设置属性。
 
 ### @Configuration
 
-标注当前类是配置类，并会将当前类内声明的一个或多个以@Bean注解标记的方法的实例纳入到srping容器中，并且实例名就是方法名。
+标注当前类是配置类，并会将当前类内声明的一个或多个以@Bean 注解标记的方法的实例纳入到 srping 容器中，并且实例名就是方法名。
 
 ### @Value
 
 ### @Repository
 
-用于标注数据访问组件，即DAO组件。
+用于标注数据访问组件，即 DAO 组件。
 
 ### @ComponentScan
 
-组件扫描。相当于，如果扫描到有@Component @Controller @Service等这些注解的类，则把
+组件扫描。相当于，如果扫描到有@Component @Controller @Service 等这些注解的类，则把
 
-这些类注册为bean。
+这些类注册为 bean。
 
 ### @Qualifier
 
-当有多个同一类型的Bean时，可以用@Qualifier("name")来指定。与@Autowired配合使用
+当有多个同一类型的 Bean 时，可以用@Qualifier("name")来指定。与@Autowired 配合使用
 
 # 二、配置文件
 

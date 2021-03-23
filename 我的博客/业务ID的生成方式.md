@@ -1,8 +1,8 @@
 https://blog.csdn.net/weixin_42586723/article/details/106499751
 
-数据库出现重复ID
+数据库出现重复 ID
 
-单一mysql——>读写分离——>数据库同步
+单一 mysql——>读写分离——>数据库同步
 
 写数据水平扩展，复制数据库集群，双活
 
@@ -12,63 +12,49 @@ https://blog.csdn.net/weixin_42586723/article/details/106499751
 
 第二个也是自增，则同步时会冲突
 
-两个节点的话可以设置步长不同，一个从1开始，一个从2开始
-
-
+两个节点的话可以设置步长不同，一个从 1 开始，一个从 2 开始
 
 如果对接其他产品或则公司，
 
-ID必须唯一：
-
-
+ID 必须唯一：
 
 UUID
 
-mysql官方明确ID尽量越短越好，不建议使用UUID作为主键，
+mysql 官方明确 ID 尽量越短越好，不建议使用 UUID 作为主键，
 
-而且对MYSQL索引不利，如果主键在Innodb引擎下，由于UUID的无序性，可能会导致数据位置频繁变动，严重影响性能
-
-
+而且对 MYSQL 索引不利，如果主键在 Innodb 引擎下，由于 UUID 的无序性，可能会导致数据位置频繁变动，严重影响性能
 
 推特的雪花算法：
 
 ![Snowflake64bit](media/20200602165652943.png)
 
-
-
 ![image-20201223161006594](media/image-20201223161006594.png)
 
+Snowflake 生成的是 Long 类型的 ID，一个 Long 类型占 8 个字节，每个字节占 8 比特，也就是说一个 Long 类型占 64 个比特。
 
+符号位第一位恒为 0
 
-Snowflake生成的是Long类型的ID，一个Long类型占8个字节，每个字节占8比特，也就是说一个Long类型占64个比特。
-
-符号位第一位恒为0
-
-41位时间戳表示所能容纳的总的毫秒数
+41 位时间戳表示所能容纳的总的毫秒数
 
 工作进程位：
 
-Java进程中唯一，
+Java 进程中唯一，
 
 序列号位：
 
-根据这个算法的逻辑，只需要将这个算法用Java语言实现出来，封装为一个工具方法，那么各个业务应用可以直接使用该工具方法来获取分布式ID，只需保证每个业务应用有自己的工作机器id即可，而不需要单独去搭建一个获取分布式ID的应用。**理论上Snowflake算法方案的QPS大约为409.6w/s**
-
-
+根据这个算法的逻辑，只需要将这个算法用 Java 语言实现出来，封装为一个工具方法，那么各个业务应用可以直接使用该工具方法来获取分布式 ID，只需保证每个业务应用有自己的工作机器 id 即可，而不需要单独去搭建一个获取分布式 ID 的应用。**理论上 Snowflake 算法方案的 QPS 大约为 409.6w/s**
 
 缺点：
 
-**强依赖于机器时钟**，如果时钟回拨，会导致重复的ID生成，所以一般基于此的算法发现时钟回拨，都会抛异常处理，阻止ID生成，这可能导致服务不可用
-
-
+**强依赖于机器时钟**，如果时钟回拨，会导致重复的 ID 生成，所以一般基于此的算法发现时钟回拨，都会抛异常处理，阻止 ID 生成，这可能导致服务不可用
 
 全局时钟：
 
-多个JVM获取的时间不同，
+多个 JVM 获取的时间不同，
 
-NTP网络时间协议取时间
+NTP 网络时间协议取时间
 
-如果JVM已经跑到了45秒，但是全局时钟慢了一秒，去取时间时发现慢了一秒，需要回拨一秒，但是44秒的数据已经生成，回拨后再生成出错
+如果 JVM 已经跑到了 45 秒，但是全局时钟慢了一秒，去取时间时发现慢了一秒，需要回拨一秒，但是 44 秒的数据已经生成，回拨后再生成出错
 
 服务部署在内网，只能自己部署时间服务器，导致回退
 
@@ -76,37 +62,35 @@ NTP网络时间协议取时间
 
 不进行回拨，直接等待，所有暂停，等待时间到达这一时间，再进行生产
 
-
-
-# 分布式ID的生成特性
+# 分布式 ID 的生成特性
 
 - 全局唯一
 
-  必须保证ID是全局性唯一
+  必须保证 ID 是全局性唯一
 
 - 高可用低延时
 
-  ID生成响应要快，能够扛住高并发，延时足够低不至于成为业务瓶颈
+  ID 生成响应要快，能够扛住高并发，延时足够低不至于成为业务瓶颈
 
 - 数字类型趋势递增
 
-  从MySQL存储引擎考虑，后面的ID必须必前面的大，并需要保证写入数据的性能
+  从 MySQL 存储引擎考虑，后面的 ID 必须必前面的大，并需要保证写入数据的性能
 
 - 长度短
 
-  能够提高查询效率，从MySQL数据库规范考虑，尤其是ID作为主键
+  能够提高查询效率，从 MySQL 数据库规范考虑，尤其是 ID 作为主键
 
 - 信息安全
 
-  如果ID连续生成，会导致被猜出从而泄漏业务信息，所以需要无规则
+  如果 ID 连续生成，会导致被猜出从而泄漏业务信息，所以需要无规则
 
-# 分布式ID生成方式
+# 分布式 ID 生成方式
 
 ## UUID
 
 - 简介
 
-  UUID具有全球唯一的特性，可以做分布式ID，但不推荐
+  UUID 具有全球唯一的特性，可以做分布式 ID，但不推荐
 
 - 生成方式
 
@@ -115,14 +99,11 @@ NTP网络时间协议取时间
       String uuid = UUID.randomUUID().toString().replaceAll("-", "");
       System.out.println(uuid);
     }
-  
-  
-  1234567
   ```
 
 - 分析
 
-  UUID不适用于实际的业务需求，像用作订单号UUID这样的字符串没有丝毫意义，看不出和订单相关的有用信息；而对于数据库来说**用作业务主键ID，它不仅太长而且还是字符串，存储性能差查询也很耗时**
+  UUID 不适用于实际的业务需求，像用作订单号 UUID 这样的字符串没有丝毫意义，看不出和订单相关的有用信息；而对于数据库来说**用作业务主键 ID，它不仅太长而且还是字符串，存储性能差查询也很耗时**
 
 - 优点
 
@@ -130,91 +111,85 @@ NTP网络时间协议取时间
 
 - 缺点
 
-  长度过长16 字节128位，36位长度的字符串，存储以及查询对MySQL的性能消耗较大，MySQL官方明确建议主键要尽量越短越好，作为**数据库主键 UUID 的无序性会导致数据位置频繁变动，严重影响性能**
+  长度过长 16 字节 128 位，36 位长度的字符串，存储以及查询对 MySQL 的性能消耗较大，MySQL 官方明确建议主键要尽量越短越好，作为**数据库主键 UUID 的无序性会导致数据位置频繁变动，严重影响性能**
 
-## 数据库自增ID
+## 数据库自增 ID
 
 - 简介
 
-  基于数据库的auto_increment自增ID完全可以充当分布式ID，具体实现：**需要一个单独的MySQL实例用来生成ID**
+  基于数据库的 auto_increment 自增 ID 完全可以充当分布式 ID，具体实现：**需要一个单独的 MySQL 实例用来生成 ID**
 
 - 生成方式
 
   ```sql
     CREATE DATABASE `SEQ_ID`;
-  
+
     CREATE TABLE SEQID.SEQUENCE_ID (
-        id bigint(20) unsigned NOT NULL auto_increment, 
+        id bigint(20) unsigned NOT NULL auto_increment,
         value char(10) NOT NULL default '',
         PRIMARY KEY (id),
     ) ENGINE=MyISAM;
-  
-  
+
+
     insert into SEQUENCE_ID(value)  VALUES ('values');
-  
-  123456789101112
   ```
 
 - 分析
 
-  当需要一个ID的时候，向表中插入一条记录返回主键ID，但存在致命缺点，访问量激增时MySQL本身就是系统瓶颈，不推荐
+  当需要一个 ID 的时候，向表中插入一条记录返回主键 ID，但存在致命缺点，访问量激增时 MySQL 本身就是系统瓶颈，不推荐
 
 - 优点
 
-  实现简单，ID单调自增，数值类型查询速度快
+  实现简单，ID 单调自增，数值类型查询速度快
 
 - 缺点
 
-  DB单点存在宕机风险，无法扛住高并发场景
+  DB 单点存在宕机风险，无法扛住高并发场景
 
 ## 数据库多主模式
 
 - 简介
 
-  此方式是对上面数据库自增ID的高可用优化，采用主从模式集群。也就是两个MySQL实例都能单独生产自增ID
+  此方式是对上面数据库自增 ID 的高可用优化，采用主从模式集群。也就是两个 MySQL 实例都能单独生产自增 ID
 
-  **需要设置起始值和自增步长**，避免生成重复ID
+  **需要设置起始值和自增步长**，避免生成重复 ID
 
 - 生成方式
 
-  1. MySQL_1配置
+  1. MySQL_1 配置
 
   ```sql
     set @@auto_increment_offset = 1; --起始值
     set @@auto_increment_increment = 2; --步长
-  
-  1234
   ```
 
-  1. MySQL_2配置
+  1. MySQL_2 配置
 
   ```sql
-    set @@auto_increment_offset = 2; --起始值
+  set @@auto_increment_offset = 2; --起始值
     set @@auto_increment_increment = 2; --步长
-  
-  1234
   ```
 
   1. 运行结果
 
-  两个MySQL实例的自增ID分别是：
+  两个 MySQL 实例的自增 ID 分别是：
 
   1、3、5、7、9
   2、4、6、8、10
 
 - 分析
 
-  如果集群后的性能还是扛不住高并发，就要进行MySQL扩容增加节点
+  如果集群后的性能还是扛不住高并发，就要进行 MySQL 扩容增加节点
 
   ![数据库扩容增加节点](https://img-blog.csdnimg.cn/20200602165554106.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjU4NjcyMw==,size_16,color_FFFFFF,t_70#pic_center)
 
-  水平扩展的数据库集群，有利于解决数据库单点压力的问题，同时为了ID生成特性，将**自增步长按照机器数量来设置**。
+  水平扩展的数据库集群，有利于解决数据库单点压力的问题，同时为了 ID 生成特性，将**自增步长按照机器数量来设置**。
 
-  增加第三台MySQL实例需要人工修改一、二两台MySQL实例的起始值和步长，把第三台机器的ID起始生成位置设定在比现有最大自增ID的位置远一些，但必须在一、二两台MySQL实例ID还没有增长到第三台MySQL实例的起始ID值的时候，否则自增ID就要出现重复了，**必要时可能还需要停机修改**。
+  增加第三台 MySQL 实例需要人工修改一、二两台 MySQL 实例的起始值和步长，把第三台机器的 ID 起始生成位置设定在比现有最大自增 ID 的位置远一些，但必须在一、二两台 MySQL 实例 ID 还没有增长到第三台 MySQL 实例的起始 ID 值的时候，否则自增 ID 就要出现重复了，**必要时可能还需要停机修改**。
 
 - 优点
 
-  解决DB单点问题
+  解决 DB 单点问题
 
 - 缺点
 
@@ -224,7 +199,7 @@ NTP网络时间协议取时间
 
 - 简介
 
-  号段模式是当下分布式ID生成器的主流实现方式之一，号段模式可以理解为从数据库批量的获取自增ID，每次从数据库取出一个号段范围，例如 (1,1000] 代表1000个ID，**具体的业务服务将本号段，生成1~1000的自增ID并加载到内存**。
+  号段模式是当下分布式 ID 生成器的主流实现方式之一，号段模式可以理解为从数据库批量的获取自增 ID，每次从数据库取出一个号段范围，例如 (1,1000] 代表 1000 个 ID，**具体的业务服务将本号段，生成 1~1000 的自增 ID 并加载到内存**。
 
 - 生成方式
 
@@ -236,79 +211,72 @@ NTP网络时间协议取时间
       biz_type	int(20) NOT NULL COMMENT '业务类型',
       version int(20) NOT NULL COMMENT '版本号',
       PRIMARY KEY (`id`)
-    ) 
-  
-  
-  
-  123456789101112
+    )
   ```
 
   biz_type ：代表不同业务类型
 
-  max_id ：当前最大的可用id
+  max_id ：当前最大的可用 id
 
   step ：代表号段的长度
 
-  version ：是一个乐观锁，每次都更新version，保证并发时数据的正确性
+  version ：是一个乐观锁，每次都更新 version，保证并发时数据的正确性
 
 - 分析
 
-  该批号段ID用完，再次向数据库申请新号段，对max_id字段做一次update操作，update max_id= max_id + step，update成功则说明新号段获取成功，新的号段范围是(max_id ,max_id +step]
+  该批号段 ID 用完，再次向数据库申请新号段，对 max_id 字段做一次 update 操作，update max_id= max_id + step，update 成功则说明新号段获取成功，新的号段范围是(max_id ,max_id +step]
 
   ```sql
     update id_generator set max_id = #{max_id+step}, version = version + 1 where version = # {version} and biz_type = XXX
-  
-  123
   ```
 
-  获取分布式ID流程：
+  获取分布式 ID 流程：
 
-  1. 用户服务在注册一个用户时，需要一个用户ID；会请求生成ID服务(是独立的应用)的接口
-  2. 生成ID的服务会去查询数据库，找到user_tag的id，现在的max_id为0，step=1000
-  3. 生成ID的服务把max_id和step返回给用户服务，并且把max_id更新为max_id = max_id + step，即更新为1000
-  4. 用户服务获得max_id=0，step=1000；
-  5. 这个用户服务可以用[max_id + 1，max_id+step]区间的ID，即为[1，1000]
-  6. 用户服务把这个区间保存到jvm中
-  7. 用户服务需要用到ID的时候，在区间[1，1000]中依次获取id，可采用AtomicLong中的getAndIncrement方法。
-  8. 如果把区间的值用完了，再去请求生产ID的服务的接口，获取到max_id为1000，即可以用[max_id + 1，max_id+step]区间的ID，即为[1001，2000]
+  1. 用户服务在注册一个用户时，需要一个用户 ID；会请求生成 ID 服务(是独立的应用)的接口
+
+2. 生成 ID 的服务会去查询数据库，找到 user_tag 的 id，现在的 max_id 为 0，step=1000
+3. 生成 ID 的服务把 max_id 和 step 返回给用户服务，并且把 max_id 更新为 max_id = max_id + step，即更新为 1000
+4. 用户服务获得 max_id=0，step=1000；
+5. 这个用户服务可以用[max_id + 1，max_id+step]区间的 ID，即为[1，1000]
+6. 用户服务把这个区间保存到 jvm 中
+7. 用户服务需要用到 ID 的时候，在区间[1，1000]中依次获取 id，可采用 AtomicLong 中的 getAndIncrement 方法。
+8. 如果把区间的值用完了，再去请求生产 ID 的服务的接口，获取到 max_id 为 1000，即可以用[max_id + 1，max_id+step]区间的 ID，即为[1001，2000]
 
 - 优点
 
   1. 扩张灵活，性能强能够撑起大部分业务场景。
-  2. ID号码是趋势递增的，满足数据库存储和查询性能要求。
-  3. 可用性高，即使ID生成服务器不可用，也能够使得业务在短时间内可用，为排查问题争取时间。
-  4. 可以自定义max_id的大小，方便业务迁移，方便机器横向扩张。
+  2. ID 号码是趋势递增的，满足数据库存储和查询性能要求。
+  3. 可用性高，即使 ID 生成服务器不可用，也能够使得业务在短时间内可用，为排查问题争取时间。
+  4. 可以自定义 max_id 的大小，方便业务迁移，方便机器横向扩张。
 
 - 缺点
 
-  由于多业务端可能同时操作，所以**采用版本号version乐观锁方式更新**
+  由于多业务端可能同时操作，所以**采用版本号 version 乐观锁方式更新**
 
-  1. ID号码不够随机，完整的顺序递增可能带来安全问题。
-  2. DB宕机可能导致整个系统不可用，仍然存在这种风险，因为号段只能撑一段时间。
-  3. 可能存在分布式环境各节点同一时间争抢分配ID号段的情况，这可能导致并发问题而出现ID重复生成
+  1. ID 号码不够随机，完整的顺序递增可能带来安全问题。
+  2. DB 宕机可能导致整个系统不可用，仍然存在这种风险，因为号段只能撑一段时间。
+  3. 可能存在分布式环境各节点同一时间争抢分配 ID 号段的情况，这可能导致并发问题而出现 ID 重复生成
 
 ## Redis
 
 - 简介
 
-  Redis也同样可以实现，原理就是利用redis的 incr命令实现ID的原子性自增
+  Redis 也同样可以实现，原理就是利用 redis 的 incr 命令实现 ID 的原子性自增
 
 - 生成方式
 
   ```sh
     set seq_id 1     // 初始化自增ID为1
-  
+
     incr seq_id      // 增加1，并返回递增后的数值
-  
-  12345
   ```
 
 - 分析
 
-  用redis实现需要注意一点，要考虑到redis持久化的问题。redis有两种持久化方式RDB和AOF：
+  用 redis 实现需要注意一点，要考虑到 redis 持久化的问题。redis 有两种持久化方式 RDB 和 AOF：
 
-  1. RDB会定时打一个快照进行持久化，假如连续自增但redis没及时持久化，而这会Redis挂掉了，重启Redis后会出现ID重复的情况。
-  2. AOF会对每条写命令进行持久化，即使Redis挂掉了也不会出现ID重复的情况，但由于incr命令的特殊性，会导致Redis重启恢复的数据时间过长。
+  1. RDB 会定时打一个快照进行持久化，假如连续自增但 redis 没及时持久化，而这会 Redis 挂掉了，重启 Redis 后会出现 ID 重复的情况。
+  2. AOF 会对每条写命令进行持久化，即使 Redis 挂掉了也不会出现 ID 重复的情况，但由于 incr 命令的特殊性，会导致 Redis 重启恢复的数据时间过长。
 
 - 优点
 
@@ -318,7 +286,7 @@ NTP网络时间协议取时间
 
 - 缺点
 
-  强依赖于Redis，可能存在单点问题。
+  强依赖于 Redis，可能存在单点问题。
 
   占用宽带，而且需要考虑网络延时等问题带来地性能冲击。
 
@@ -326,7 +294,7 @@ NTP网络时间协议取时间
 
 - 简介
 
-  雪花算法（Snowflake）是twitter公司内部分布式项目采用的ID生成算法
+  雪花算法（Snowflake）是 twitter 公司内部分布式项目采用的 ID 生成算法
 
   ![Snowflake64bit](https://img-blog.csdnimg.cn/20200602165652943.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjU4NjcyMw==,size_16,color_FFFFFF,t_70#pic_center)
 
@@ -339,38 +307,38 @@ NTP网络时间协议取时间
     * https://github.com/beyondfengyu/SnowFlake
     */
     public class SnowFlakeShortUrl {
-  
+
         /**
         * 起始的时间戳
         */
         private final static long START_TIMESTAMP = 1480166465631L;
-  
+
         /**
         * 每一部分占用的位数
         */
         private final static long SEQUENCE_BIT = 12;   //序列号占用的位数
         private final static long MACHINE_BIT = 5;     //机器标识占用的位数
         private final static long DATA_CENTER_BIT = 5; //数据中心占用的位数
-  
+
         /**
         * 每一部分的最大值
         */
         private final static long MAX_SEQUENCE = -1L ^ (-1L << SEQUENCE_BIT);
         private final static long MAX_MACHINE_NUM = -1L ^ (-1L << MACHINE_BIT);
         private final static long MAX_DATA_CENTER_NUM = -1L ^ (-1L << DATA_CENTER_BIT);
-  
+
         /**
         * 每一部分向左的位移
         */
         private final static long MACHINE_LEFT = SEQUENCE_BIT;
         private final static long DATA_CENTER_LEFT = SEQUENCE_BIT + MACHINE_BIT;
         private final static long TIMESTAMP_LEFT = DATA_CENTER_LEFT + DATA_CENTER_BIT;
-  
+
         private long dataCenterId;  //数据中心
         private long machineId;     //机器标识
         private long sequence = 0L; //序列号
         private long lastTimeStamp = -1L;  //上一次时间戳
-  
+
         private long getNextMill() {
             long mill = getNewTimeStamp();
             while (mill <= lastTimeStamp) {
@@ -378,11 +346,11 @@ NTP网络时间协议取时间
             }
             return mill;
         }
-  
+
         private long getNewTimeStamp() {
             return System.currentTimeMillis();
         }
-  
+
         /**
         * 根据指定的数据中心ID和机器标志ID生成指定的序列号
         *
@@ -399,7 +367,7 @@ NTP网络时间协议取时间
             this.dataCenterId = dataCenterId;
             this.machineId = machineId;
         }
-  
+
         /**
         * 产生下一个ID
         *
@@ -410,7 +378,7 @@ NTP网络时间协议取时间
             if (currTimeStamp < lastTimeStamp) {
                 throw new RuntimeException("Clock moved backwards.  Refusing to generate id");
             }
-  
+
             if (currTimeStamp == lastTimeStamp) {
                 //相同毫秒内，序列号自增
                 sequence = (sequence + 1) & MAX_SEQUENCE;
@@ -422,19 +390,19 @@ NTP网络时间协议取时间
                 //不同毫秒内，序列号置为0
                 sequence = 0L;
             }
-  
+
             lastTimeStamp = currTimeStamp;
-  
+
             return (currTimeStamp - START_TIMESTAMP) << TIMESTAMP_LEFT //时间戳部分
                     | dataCenterId << DATA_CENTER_LEFT       //数据中心部分
                     | machineId << MACHINE_LEFT             //机器标识部分
                     | sequence;                             //序列号部分
         }
-        
-  
+
+
         public static void main(String[] args) {
             SnowFlakeShortUrl snowFlake = new SnowFlakeShortUrl(2, 3);
-  
+
             /**
               * 小知识点：
               * 1 << 4 指将数字1左移4位
@@ -449,38 +417,36 @@ NTP网络时间协议取时间
             }
         }
     }
-  
-  123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899100101102103104105106107108109110111112113114115116117118
   ```
 
 - 分析
 
-  Snowflake生成的是Long类型的ID，一个Long类型占8个字节，每个字节占8比特，也就是说一个Long类型占64个比特。
+  Snowflake 生成的是 Long 类型的 ID，一个 Long 类型占 8 个字节，每个字节占 8 比特，也就是说一个 Long 类型占 64 个比特。
 
-  Snowflake ID组成结构：**正数位（占1比特）+ 时间戳（占41比特）+ 机器ID（占5比特）+ 数据中心（占5比特）+ 自增值（占12比特），总共64比特组成的一个Long类型**。
+  Snowflake ID 组成结构：**正数位（占 1 比特）+ 时间戳（占 41 比特）+ 机器 ID（占 5 比特）+ 数据中心（占 5 比特）+ 自增值（占 12 比特），总共 64 比特组成的一个 Long 类型**。
 
-  1. 第一个bit位（1bit）：Java中long的最高位是符号位代表正负，正数是0，负数是1，一般生成ID都为正数，所以默认为0。
-  2. 时间戳部分（41bit）：毫秒级的时间，不建议存当前时间戳，而是用（当前时间戳 - 固定开始时间戳）的差值，可以使产生的ID从更小的值开始；41位的时间戳可以使用69年，(1L << 41) / (1000L * 60 * 60 * 24 * 365) = 69年
-  3. 工作机器id（10bit）：也被叫做workId，这个可以灵活配置，机房或者机器号组合都可以。
-  4. 序列号部分（12bit），自增值支持同一毫秒内同一个节点可以生成4096个ID
+  1. 第一个 bit 位（1bit）：Java 中 long 的最高位是符号位代表正负，正数是 0，负数是 1，一般生成 ID 都为正数，所以默认为 0。
+  2. 时间戳部分（41bit）：毫秒级的时间，不建议存当前时间戳，而是用（当前时间戳 - 固定开始时间戳）的差值，可以使产生的 ID 从更小的值开始；41 位的时间戳可以使用 69 年，(1L << 41) / (1000L _ 60 _ 60 _ 24 _ 365) = 69 年
+  3. 工作机器 id（10bit）：也被叫做 workId，这个可以灵活配置，机房或者机器号组合都可以。
+  4. 序列号部分（12bit），自增值支持同一毫秒内同一个节点可以生成 4096 个 ID
 
-  根据这个算法的逻辑，只需要将这个算法用Java语言实现出来，封装为一个工具方法，那么各个业务应用可以直接使用该工具方法来获取分布式ID，只需保证每个业务应用有自己的工作机器id即可，而不需要单独去搭建一个获取分布式ID的应用。**理论上Snowflake算法方案的QPS大约为409.6w/s**
+  根据这个算法的逻辑，只需要将这个算法用 Java 语言实现出来，封装为一个工具方法，那么各个业务应用可以直接使用该工具方法来获取分布式 ID，只需保证每个业务应用有自己的工作机器 id 即可，而不需要单独去搭建一个获取分布式 ID 的应用。**理论上 Snowflake 算法方案的 QPS 大约为 409.6w/s**
 
 - 优点
 
-  1. 每秒能够生成百万个不同的ID，性能佳。
-  2. 时间戳值在高位，中间是固定的机器码，自增的序列在低位，整个ID是趋势递增的。
-  3. 能够根据业务场景数据库节点布置灵活挑战bit位划分，灵活度高
+  1. 每秒能够生成百万个不同的 ID，性能佳。
+  2. 时间戳值在高位，中间是固定的机器码，自增的序列在低位，整个 ID 是趋势递增的。
+  3. 能够根据业务场景数据库节点布置灵活挑战 bit 位划分，灵活度高
 
 - 缺点
 
-  **强依赖于机器时钟**，如果时钟回拨，会导致重复的ID生成，所以一般基于此的算法发现时钟回拨，都会抛异常处理，阻止ID生成，这可能导致服务不可用
+  **强依赖于机器时钟**，如果时钟回拨，会导致重复的 ID 生成，所以一般基于此的算法发现时钟回拨，都会抛异常处理，阻止 ID 生成，这可能导致服务不可用
 
 ## 百度 （Uidgenerator）
 
 - 简介
 
-  uid-generator是由百度技术部开发，项目GitHub地址 https://github.com/baidu/uid-generator
+  uid-generator 是由百度技术部开发，项目 GitHub 地址 https://github.com/baidu/uid-generator
 
 - 生成方式
 
@@ -488,28 +454,28 @@ NTP网络时间协议取时间
 
 - 分析
 
-  **uid-generator是基于Snowflake算法实现的**，与原始的snowflake算法不同在于，uid-generator**支持自定义时间戳、工作机器ID和序列号**等各部分的位数，而且uid-generator中采用用户自定义workId的生成策略。
+  **uid-generator 是基于 Snowflake 算法实现的**，与原始的 snowflake 算法不同在于，uid-generator**支持自定义时间戳、工作机器 ID 和序列号**等各部分的位数，而且 uid-generator 中采用用户自定义 workId 的生成策略。
 
-  对于uid-generator ID组成结构：
+  对于 uid-generator ID 组成结构：
 
-  workId，占用了22个bit位，时间占用了28个bit位，序列化占用了13个bit位，需要注意的是，和原始的snowflake不太一样，**时间的单位是秒，而不是毫秒，workId也不一样，而且同一应用每次重启就会消费一个workId**
+  workId，占用了 22 个 bit 位，时间占用了 28 个 bit 位，序列化占用了 13 个 bit 位，需要注意的是，和原始的 snowflake 不太一样，**时间的单位是秒，而不是毫秒，workId 也不一样，而且同一应用每次重启就会消费一个 workId**
 
-  **uid-generator需要与数据库配合使用**，需要新增一个WORKER_NODE表。当应用启动时会向数据库表中去插入一条数据，**插入成功后返回的自增ID就是该机器的workId数据由host，port组成**
+  **uid-generator 需要与数据库配合使用**，需要新增一个 WORKER_NODE 表。当应用启动时会向数据库表中去插入一条数据，**插入成功后返回的自增 ID 就是该机器的 workId 数据由 host，port 组成**
 
 ## 滴滴出品（TinyID）
 
 - 简介
 
-  Tinyid由滴滴开发，Github地址：https://github.com/didi/tinyid
+  Tinyid 由滴滴开发，Github 地址：https://github.com/didi/tinyid
 
-  Tinyid是基于号段模式原理实现的与Leaf如出一辙，每个服务获取一个号段（1000,2000]、（2000,3000]、（3000,4000]
+  Tinyid 是基于号段模式原理实现的与 Leaf 如出一辙，每个服务获取一个号段（1000,2000]、（2000,3000]、（3000,4000]
   ![tinyID生成方式](https://img-blog.csdnimg.cn/20200602165755649.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjU4NjcyMw==,size_16,color_FFFFFF,t_70#pic_center)
 
 ### 生成方式
 
-- Http方式
+- Http 方式
 
-  1. 导入TInyid源码
+  1. 导入 TInyid 源码
 
   git clone https://github.com/didi/tinyid.git
 
@@ -530,7 +496,7 @@ NTP网络时间协议取时间
       PRIMARY KEY (`id`),
       UNIQUE KEY `uniq_biz_type` (`biz_type`)
     ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT 'id信息表';
-  
+
     CREATE TABLE `tiny_id_token` (
       `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
       `token` varchar(255) NOT NULL DEFAULT '' COMMENT 'token',
@@ -540,57 +506,48 @@ NTP网络时间协议取时间
       `update_time` timestamp NOT NULL DEFAULT '2010-01-01 00:00:00' COMMENT '更新时间',
       PRIMARY KEY (`id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT 'token信息表';
-  
+
     INSERT INTO `tiny_id_info` (`id`, `biz_type`, `begin_id`, `max_id`, `step`, `delta`, `remainder`, `create_time`, `update_time`, `version`)
     VALUES
       (1, 'test', 1, 1, 100000, 1, 0, '2018-07-21 23:52:58', '2018-07-22 23:19:27', 1);
-  
+
     INSERT INTO `tiny_id_info` (`id`, `biz_type`, `begin_id`, `max_id`, `step`, `delta`, `remainder`, `create_time`, `update_time`, `version`)
     VALUES
       (2, 'test_odd', 1, 1, 100000, 2, 1, '2018-07-21 23:52:58', '2018-07-23 00:39:24', 3);
-  
-  
+
+
     INSERT INTO `tiny_id_token` (`id`, `token`, `biz_type`, `remark`, `create_time`, `update_time`)
     VALUES
       (1, '0f673adf80504e2eaa552f5d791b644c', 'test', '1', '2017-12-14 16:36:46', '2017-12-14 16:36:48');
-  
+
     INSERT INTO `tiny_id_token` (`id`, `token`, `biz_type`, `remark`, `create_time`, `update_time`)
     VALUES
       (2, '0f673adf80504e2eaa552f5d791b644c', 'test_odd', '1', '2017-12-14 16:36:46', '2017-12-14 16:36:48');
-  
-  
-  1234567891011121314151617181920212223242526272829303132333435363738394041424344
   ```
 
   1. 配置数据库
 
-  ```properties
+```properties
     datasource.tinyid.names=primary
-    datasource.tinyid.primary.driver-class-name=com.mysql.jdbc.Driver
+  datasource.tinyid.primary.driver-class-name=com.mysql.jdbc.Driver
     datasource.tinyid.primary.url=jdbc:mysql://ip:port/databaseName?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8
     datasource.tinyid.primary.username=root
     datasource.tinyid.primary.password=123456
-  
-  
-  12345678
-  ```
+```
 
-  1. 启动tinyid-server后测试
+1. 启动 tinyid-server 后测试
 
-  ```html
-    获取分布式自增ID: http://localhost:9999/tinyid/id/nextIdSimple?bizType=test&token=0f673adf80504e2eaa552f5d791b644c'
-    返回结果: 3
-  
-    批量获取分布式自增ID:
-    http://localhost:9999/tinyid/id/nextIdSimple?bizType=test&token=0f673adf80504e2eaa552f5d791b644c&batchSize=10'
-    返回结果:  4,5,6,7,8,9,10,11,12,13
-  
-  12345678
-  ```
+```html
+获取分布式自增ID:
+http://localhost:9999/tinyid/id/nextIdSimple?bizType=test&token=0f673adf80504e2eaa552f5d791b644c'
+返回结果: 3 批量获取分布式自增ID:
+http://localhost:9999/tinyid/id/nextIdSimple?bizType=test&token=0f673adf80504e2eaa552f5d791b644c&batchSize=10'
+返回结果: 4,5,6,7,8,9,10,11,12,13
+```
 
-- tinyid-client(Java客户端)
+- tinyid-client(Java 客户端)
 
-  1. 重复Http方式的（2）（3）操作
+  1. 重复 Http 方式的（2）（3）操作
   2. 引入依赖
 
   ```xml
@@ -599,33 +556,26 @@ NTP网络时间协议取时间
         <artifactId>tinyid-client</artifactId>
         <version>${tinyid.version}</version>
     </dependency>
-  
-  
-  12345678
   ```
 
   1. 配置文件
 
-  ```properties
+```properties
     tinyid.server =localhost:9999
-    tinyid.token =0f673adf80504e2eaa552f5d791b644c
-  
-  1234
-  ```
+  tinyid.token =0f673adf80504e2eaa552f5d791b644c
+```
 
-  test 、tinyid.token是在数据库表中预先插入的数据，test 是具体业务类型，tinyid.token表示可访问的业务类型
+test 、tinyid.token 是在数据库表中预先插入的数据，test 是具体业务类型，tinyid.token 表示可访问的业务类型
 
-  1. 测试方式
+1. 测试方式
 
-  ```java
+```java
     // 获取单个分布式自增ID
-    Long id =  TinyId.nextId("test");
-  
-    // 按需批量分布式自增ID
+  Long id =  TinyId.nextId("test");
+
+  // 按需批量分布式自增ID
     List<Long> ids =  TinyId.nextId("test" ,10);
-  
-  1234567
-  ```
+```
 
 ### 分析
 
@@ -638,20 +588,20 @@ Tinyid是基于号段模式原理实现的与Leaf如出一辙，每个服务获�
 
 - 简介
 
-  Leaf由美团开发，github地址：https://github.com/Meituan-Dianping/Leaf
+  Leaf 由美团开发，github 地址：https://github.com/Meituan-Dianping/Leaf
 
-  Leaf同时支持**号段模式和snowflake算法模式**，可以切换使用
+  Leaf 同时支持**号段模式和 snowflake 算法模式**，可以切换使用
 
 ### 号段模式
 
 - 生成方式
 
   1. 先导入源码 https://github.com/Meituan-Dianping/Leaf
-  2. 在建一张表leaf_alloc
+  2. 在建一张表 leaf_alloc
 
   ```sql
     DROP TABLE IF EXISTS `leaf_alloc`;
-  
+
     CREATE TABLE `leaf_alloc` (
       `biz_tag` varchar(128)  NOT NULL DEFAULT '' COMMENT '业务key',
       `max_id` bigint(20) NOT NULL DEFAULT '1' COMMENT '当前已经分配了的最大id',
@@ -660,79 +610,68 @@ Tinyid是基于号段模式原理实现的与Leaf如出一辙，每个服务获�
       `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '数据库维护的更新时间',
       PRIMARY KEY (`biz_tag`)
     ) ENGINE=InnoDB;
-  
-  
-  
-  1234567891011121314
   ```
 
-  1. 然后在项目中开启号段模式，配置对应的数据库信息，并关闭snowflake模式
+  1. 然后在项目中开启号段模式，配置对应的数据库信息，并关闭 snowflake 模式
 
   ```properties
-    leaf.name=com.sankuai.leaf.opensource.test
+  leaf.name=com.sankuai.leaf.opensource.test
     leaf.segment.enable=true
-    leaf.jdbc.url=jdbc:mysql://localhost:3306/leaf_test?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8
+  leaf.jdbc.url=jdbc:mysql://localhost:3306/leaf_test?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8
     leaf.jdbc.username=root
     leaf.jdbc.password=root
-  
+
     leaf.snowflake.enable=false
     #leaf.snowflake.zk.address=
     #leaf.snowflake.port=
-  
-  
-  
-  12345678910111213
   ```
 
-  1. 启动leaf-server 模块的 LeafServerApplication
+  1. 启动 leaf-server 模块的 LeafServerApplication
 
-  号段模式获取分布式自增ID的测试url ：http：//localhost：8080/api/segment/get/leaf-segment-test
+  号段模式获取分布式自增 ID 的测试 url ：http：//localhost：8080/api/segment/get/leaf-segment-test
 
   监控号段模式：http://localhost:8080/cache
 
 - 分析
 
-  美团技术团队Leaf-segment对此做了优化，**将获取一个号段的方式优化成获取两个号段，在一个号段用完之后不用立马去更新号段，还有一个缓存号段备用**，这样能够有效解决这种冲突问题，而且采用双buffer的方式，**在当前号段消耗了10%的时候就去检查下一个号段有没有准备好，如果没有准备好就去更新下一个号段，当当前号段用完了就切换到下一个已经缓存好的号段去使用，同时在下一个号段消耗到10%的时候，又去检测下一个号段有没有准备好，如此往复**。
+  美团技术团队 Leaf-segment 对此做了优化，**将获取一个号段的方式优化成获取两个号段，在一个号段用完之后不用立马去更新号段，还有一个缓存号段备用**，这样能够有效解决这种冲突问题，而且采用双 buffer 的方式，**在当前号段消耗了 10%的时候就去检查下一个号段有没有准备好，如果没有准备好就去更新下一个号段，当当前号段用完了就切换到下一个已经缓存好的号段去使用，同时在下一个号段消耗到 10%的时候，又去检测下一个号段有没有准备好，如此往复**。
 
-  1. 当前获取ID在buffer1中，每次获取ID在buffer1中获取
-  2. 当buffer1中的Id已经使用到了100，也就是达到区间的10%
-  3. 达到了10%，先判断buffer2中有没有去获取过，如果没有就立即发起请求获取ID线程，此线程把获取到的ID，设置到buffer2中。
-  4. 如果buffer1用完了，会自动切换到buffer2
-  5. buffer2用到10%了，也会启动线程再次获取，设置到buffer1中
+  1. 当前获取 ID 在 buffer1 中，每次获取 ID 在 buffer1 中获取
+  2. 当 buffer1 中的 Id 已经使用到了 100，也就是达到区间的 10%
+  3. 达到了 10%，先判断 buffer2 中有没有去获取过，如果没有就立即发起请求获取 ID 线程，此线程把获取到的 ID，设置到 buffer2 中。
+  4. 如果 buffer1 用完了，会自动切换到 buffer2
+  5. buffer2 用到 10%了，也会启动线程再次获取，设置到 buffer1 中
   6. 依次往返
 
 - 优点
 
   1. 基本的数据库问题都解决了，而且行之有效。
-  2. 基于JVM存储双buffer的号段，减少了数据库查询，减少了网络依赖，效率更高。
+  2. 基于 JVM 存储双 buffer 的号段，减少了数据库查询，减少了网络依赖，效率更高。
 
 - 缺点
 
-  1. segment号段长度是固定的，业务量大时可能会频繁更新号段，因为原本分配的号段会一下子用完。
+  1. segment 号段长度是固定的，业务量大时可能会频繁更新号段，因为原本分配的号段会一下子用完。
   2. 如果号段长度设置的过长，但凡缓存中有号段没有消耗完，其他节点重新获取的号段与之前相比可能跨度会很大。
 
 - 其他
 
   针对上面的缺点，美团有重新提出**动态调整号段长度**的方案
 
-  假设服务QPS为Q，号段长度为L，号段更新周期为T，那么Q * T = L。**最开始L长度是固定的，导致随着Q的增长，T会越来越小**。但是本方案本质的需求是希望T是固定的。那么如果L可以和Q正相关的话，T就可以趋近一个定值了。所以本方案每次更新号段的时候，会根据上一次更新号段的周期T和号段长度step，来决定下一次的号段长度nextStep，下面是一个简单的算法，意在说明动态更新的意思：
+  假设服务 QPS 为 Q，号段长度为 L，号段更新周期为 T，那么 Q \* T = L。**最开始 L 长度是固定的，导致随着 Q 的增长，T 会越来越小**。但是本方案本质的需求是希望 T 是固定的。那么如果 L 可以和 Q 正相关的话，T 就可以趋近一个定值了。所以本方案每次更新号段的时候，会根据上一次更新号段的周期 T 和号段长度 step，来决定下一次的号段长度 nextStep，下面是一个简单的算法，意在说明动态更新的意思：
 
   ```java
     T < 15min，nextStep = step * 2
     15min < T < 30min，nextStep = step
     T > 30min，nextStep = step / 2
-  
-  
-  123456
   ```
 
-### snowflake模式
+### snowflake 模式
 
 - 生成方式
 
   1. 配置说明
 
-  Leaf的snowflake模式依赖于ZooKeeper，不同于原始snowflake算法也主要是在workId的生成上，Leaf中workId是基于ZooKeeper的顺序Id来生成的，**每个应用在使用Leaf-snowflake时，启动时都会都在Zookeeper中生成一个顺序Id，相当于一台机器对应一个顺序节点，也就是一个workId**。
+  Leaf 的 snowflake 模式依赖于 ZooKeeper，不同于原始 snowflake 算法也主要是在 workId 的生成上，Leaf 中 workId 是基于 ZooKeeper 的顺序 Id 来生成的，**每个应用在使用 Leaf-snowflake 时，启动时都会都在 Zookeeper 中生成一个顺序 Id，相当于一台机器对应一个顺序节点，也就是一个 workId**。
 
   1. 配置
 
@@ -740,14 +679,10 @@ Tinyid是基于号段模式原理实现的与Leaf如出一辙，每个服务获�
     leaf.snowflake.enable=true
     leaf.snowflake.zk.address=127.0.0.1
     leaf.snowflake.port=2181
-  
-  
-  123456
   ```
 
   1. 测试
 
-  snowflake模式获取分布式自增ID的测试url：http://localhost:8080/api/snowflake/get/test
+snowflake 模式获取分布式自增 ID 的测试 url：http://localhost:8080/api/snowflake/get/test
 
 ## 自研设计
-

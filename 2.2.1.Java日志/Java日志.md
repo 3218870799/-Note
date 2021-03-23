@@ -384,3 +384,11 @@ datePattern: 设置将当前时间（解析配置文件的时间）转换为字�
 （6）子节点<loger>：用来设置某一个包或具体的某一个类的日志打印级别、以及指定<appender>。<loger>仅有一个 name 属性，一个可选的 level 和一个可选的 addtivity 属性。可以包含零个或多个<appender-ref>元素，标识这个 appender 将会添加到这个 loger，name: 用来指定受此 loger 约束的某一个包或者具体的某一个类。level: 用来设置打印级别，大小写无关：TRACE, DEBUG, INFO, WARN, ERROR, ALL 和 OFF，还有一个特俗值 INHERITED 或者同义词 NULL，代表强制执行上级的级别。 如果未设置此属性，那么当前 loger 将会继承上级的级别。addtivity: 是否向上级 loger 传递打印信息。默认是 true。同<loger>一样，可以包含零个或多个<appender-ref>元素，标识这个 appender 将会添加到这个 loger。
 
 （7）子节点<root>:它也是<loger>元素，但是它是根 loger,是所有<loger>的上级。只有一个 level 属性，因为 name 已经被命名为"root",且已经是最上级了。level: 用来设置打印级别，大小写无关：TRACE, DEBUG, INFO, WARN, ERROR, ALL 和 OFF，不能设置为 INHERITED 或者同义词 NULL。 默认是 DEBUG。
+
+## 项目出现问题怎么排查日志
+
+1、能通过 less 命令打开文件，通过 Shift+G 到达文件底部，再通过?+关键字的方式来根据关键来搜索信息。
+
+2、能通过 grep 的方式查关键字，具体用法是, grep 关键字 文件名，如果要两次在结果里查找的话，就用 grep 关键字 1 文件名 | 关键字 2 --color。最后--color 是高亮关键字。
+
+3、能通过 vi 来编辑文件。
