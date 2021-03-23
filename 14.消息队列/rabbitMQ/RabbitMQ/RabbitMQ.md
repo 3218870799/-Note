@@ -429,7 +429,7 @@ confirm：一旦 channel 进入 confirm 模式，所有在该信道上发布的�
 
 ```java
 if(ack){
-    
+
 }
 ```
 
@@ -1621,15 +1621,19 @@ public class Application {
 
 # 第 5 章 RabbitMQ 集群
 
-普通模式（默认）：
+普通集群：
 
-对于 Queue 来说,消息实体只存在于其中的一个节点,A/B 两个节点仅有相同的元数据,即队列结构.(交换机的所有元数据在所有节点上是一致的,而队列的完整信息只有在创建它的节点上,各个节点仅有相同的元数据,即队列结构)当消息进入 A 节点的 Queue 中后,consumer 从 B 节点拉取数据时,RabbitMQ 会临时在 A.B 间进行消息传输,把 A 中的消息实体取出并经过 B 发送给 consumer.所以 consumer 应尽量连接每个节点,从中取消息.即对于同一个逻辑队列,要在多个节点建立物理 Queue,否则无论 consumer 连 A 或 B,出口总在 A,会产生瓶颈.该模式存在一个问题就是当 A 节点故障后,B 节点无法取到 A 节点中还未消费的消息实体.如果做个消息持久化,那么等 A 几点恢复,然后才可被消费;如果没有做持久化,然后就...该模式非常适合非持久化队列,只有该队列是非持久化的,客户端才能重新连接到集群中的其他节点,并且重新创建队列,如果该队列是持久化的,那么唯一的办法就是将故障节点恢复起来.
+![image-20210322172628688](media/image-20210322172628688.png)
 
-镜像模式（高可用模式）
+只有一台机器上存储着原本的数据，其他两台服务器上只存储数据所在的位置，如果通过第一第三台去查，还是去第二台查，查完后返回一三，然后再返回消费者。
 
-把需要的队列做成镜像模式,存在于多个节点,数据 Rabbitmq 的 HA 方案。
+缺点：第二台服务器性能消耗比较大，如果第二台服务器挂了，所有的数据就都没了。
 
-该模式解决了上述问题,其实质和普通模式的不同之处在于,消息实体会主动在镜像节点间同步,而不会在 consumer 取数据时临时拉取.该模式带来的副作用也很明显,除了降低系统性能意外,如果镜像队列过多,加之有大量的消息进入,集群内部的网络带宽将会被这种同步通讯大大消耗掉,所以在对可靠性要求较高的场合中适用.
+镜像集群：
+
+![image-20210322173051586](media/image-20210322173051586.png)
+
+每个节点上都保存了数据。生产者给一个发，发完交给 RabbitMQ 去同步，如果其中一个挂了，就换一个发消息。该模式也带来了副作用，除了降低系统性能外，如果镜像队列过多，加之有大量的消息进入，集群内部的网络带宽将会被这种同步通讯大大消耗掉。
 
 ## 5.1 镜像模式集群实现
 
@@ -1783,7 +1787,7 @@ rabbitmqctl add*user root root rabbitmqctl set_user_tags root administrator rabb
 
 ## 路由
 
-生成者生产消息后消息带有 routing Key，通过routing Key 消费者队列被绑定到交换器上，消息到达交换器根据交换器规则匹配，常见交换器如下：
+生成者生产消息后消息带有 routing Key，通过 routing Key 消费者队列被绑定到交换器上，消息到达交换器根据交换器规则匹配，常见交换器如下：
 
 **fanout**：如果交换器收到消息，将会广播到所有绑定的队列上
 
@@ -1807,15 +1811,57 @@ rabbitmqctl add*user root root rabbitmqctl set_user_tags root administrator rabb
 
 **解决方案：**
 
-（1）保证生产者—MQ—消费者是一对一的关系：将一个放到一个 MQ 服务器上，拆分多个 queue，每个 queue 一个 consumer，将三个有先后顺序的消息根据用户订单id 哈希后发送到同一个queue中，来保证消息的先后性。
+局部顺序消费：
 
-缺点：并行度不够，消费端出现问题，就会导致整个处理流程阻塞。
+（1）保证生产者—MQ—消费者是一对一的关系
 
-一个 queue 对应一个 consumer，在 consumer 内部根据ID映射到不同内存队列，然后用内存队列做排队 分发给底层不同的 worker 来处理
+缺点：并行度不够，消费端出现问题，就会导致整个处理流程阻塞。全局有序才用，导致不能高可用了
+
+（2）生产者依据消息 ID 将同组消息发送到一个 Queue 中。多个消费者同时获取 Queue 中的消息进行消费。MQ 使用分段锁保证单个 Queue 中的有序消费。
+
+比如：张三发送消息：M3，M2，M1，李四发送消息：S3，S2，S1
+
+将张三和李四发送的消息分别发送到两个 Queue 中，如果张三要求顺序消费，当消费者 1 消费了 Queue1 中的数据后，就给 Queue1 加上一个分段锁，直到消费者 1ack 以后才释放分段锁，其他队列不受影响。
+
+![image-20210322170351819](media/image-20210322170351819.png)
+
+RocketMQ 的实现：
+
+生产者实现发送到同一个队列：
+
+```java
+//匿名内部类，选择队列
+sendResult sendResult = producer.send(msg，new MessageQueueselector(){
+    @Override
+    public MessageQueue select(List<MessageQueue> mqs，Message msg，object arg) {
+        Long id = (Long)arg;//根据订单id选择发送queue
+        long index = id % mqs.size();
+        return mqs.get((int) index);
+},orderList.get(i).getOrderId());//订单id，需要唯一的id
+
+```
+
+消费者：
+
+```java
+//匿名内部类，直接给队列加锁，
+consumer.registerMessageListener(new MessageListenerOrderly(){
+    @Override
+    public ConsumeOrderlyStatus consumMessage(List<MessageExt context){
+        for(MessageExt msg:msgs){
+            //业务处理
+            ……
+            return ConsumeOrderlyStatus.SUCCESS;
+        }
+    }
+})
+```
+
+将一个放到一个 MQ 服务器上，拆分多个 queue，每个 queue 一个 consumer，将三个有先后顺序的消息根据用户订单 id 哈希后发送到同一个 queue 中，来保证消息的先后性。
+
+一个 queue 对应一个 consumer，在 consumer 内部根据 ID 映射到不同内存队列，然后用内存队列做排队 分发给底层不同的 worker 来处理
 
 （2）：单线程消费保证消息的顺序性；对消息进行编号，消费者处理消息是根据编号处理消息；
-
-
 
 ## 6.2：重复消费
 
@@ -1825,7 +1871,7 @@ rabbitmqctl add*user root root rabbitmqctl set_user_tags root administrator rabb
 
 消息消费时 要求消息体中必须要有一个 bizId（对于同一业务全局唯一，如支付 ID、订单 ID、帖子 ID 等）作为去重的依据，避免同一条消息被重复消费。
 
-在 RocketMQ 中生产者发送消息前询问 RocketMQ 信息是否已发送过，或者通过Redis记录已查询记录。不过最好的还是直接在消费端去重消费。
+在 RocketMQ 中生产者发送消息前询问 RocketMQ 信息是否已发送过，或者通过 Redis 记录已查询记录。不过最好的还是直接在消费端去重消费。
 
 如果消费端收到两条一样的信息，应该怎么处理？
 
@@ -1932,6 +1978,12 @@ TTL 则刚好能让消息在延迟多久之后成为死信，另一方面，成�
 RabbitMQ 丢失数据：开启持久化（持久化标识 durable 设置为 true），及时 RabbitMQ 挂了，也会恢复，但是如果有那种写入到了 RabbitMQ 中，但是还没来得及持久化的时候，RabbitMQ 挂了，可以重新灌入。还可以使用死信队列。防止数据丢失。
 
 消费者丢失数据：开启 ack 机制。
+
+## 补偿措施
+
+生产者可靠性投递，消费者 ACK 确认机制，死信队列，基本可以保证消息投递成功。但是：可能还有其他问题导致，持久化机制机制会保存到硬盘上，要是硬盘也坏了，消息丢了怎么把？
+
+消息补偿机制需要建立在业务数据库和 MQ 数据库的基础之上 , 当我们发送消息时 , 需要同时将消息数据保存在数据库中, 两者的状态必须记录。 然后通过业务数据库和 MQ 数据库的对比检查消费是否成功，不成功，进行消息补偿措施，重新发送消息处理
 
 # 第六章：项目中的应用
 
