@@ -34,6 +34,10 @@ eog=new Eog("亚亚");//错误的
 
 Java 中**static 方法不能被覆盖**，因为方法覆盖是基于运行时动态绑定的，而 static 方法是**编译时静态绑定**的。static 方法跟类的任何实例都不相关，所以概念上不适用。
 
+- **Native**
+
+本地方法，本地方法与平台相关，因此使用了Native的程序可移植性不高。另外native方法在JVM中运行时数据区也和其它方法不一样，它有专门的本地方法栈。native方法主要用于加载文件和动态链接库，由于Java语言无法访问操作系统底层信息。使用Native关键字说明这个方法时原生函数，与其他语言协作时使用这个方法可以被其他语言进行实现。
+
 - #### synchronized
 
 synchronized：保证在同一时刻，只有一个线程可以执行某个方法或某个代码块
@@ -1764,22 +1768,15 @@ Exception 和 Error 都是 Throwable 的子类。Exception 用于用户程序可
 ## 2：常见异常
 
 - NullPointerException 空指针异常
-
 - ClassNotFoundException 指定类不存在
-
 - NumberFormatException 字符串转换为数字异常
-
 - IndexOutOfBoundsException 数组下标越界异常
-
 - ClassCastException 数据类型转换异常
-
 - FileNotFoundException 文件未找到异常
-
 - NoSuchMethodException 方法不存在异常
-
 - IOException IO 异常
-
 - SocketException Socket 异常
+- 
 
 ## 3：处理异常
 
@@ -1951,9 +1948,19 @@ volatile
 
 要确保调用 wait()方法的时候**拥有锁**，即，wait()方法的调用必须放在**synchronized**方法或**synchronized**块中。
 
-(b)notify()方法：`notify()方法会唤醒一个等待当前对象的锁的线程。唤醒在此对象监视器上等待的单个线程。`
+(b)notify()方法：`唤醒一个等待当前对象的锁的线程。唤醒在此对象监视器上等待的单个线程。`
 
-(c)` notifAll()方法：**``**notifyAll（）方法会唤醒在此对象监视器上等待的所有线程。** `
+(c)notifAll()方法：唤醒在此对象监视器上等待的所有线程。
+
+sleep执行后线程进入阻塞状态，sleep（0）表示当前线程被冻结了一下，让其他线程有机会优先执行，当前线程暂时放弃了CPU，相当于一个让位动作，让当前线程立即回到就绪队列
+
+yield执行后线程进入就绪状态
+
+join执行后线程进入阻塞状态
+
+join（）中止当前线程（也就是a），等待指定（也就是b）线程结束，然后再运行当前线程
+
+
 
 ## 5.2：Thread 类
 
