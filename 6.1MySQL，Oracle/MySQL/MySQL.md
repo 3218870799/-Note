@@ -1,5 +1,3 @@
-
-
 SQL，一般发音为 sequel，SQL 的全称 Structured QueryLanguage)，SQL 用来和数据库打交道，完成和数据库的通信，SQL 是一套标准。但是每一个数据库都有自己的特性别的数据库没有,当使用这个数据库特性相关的功能,这时 SQL 语句可能就不是标准了.(90%以上的 SQL 都是通用的)
 
 ### 1.2、什么是数据库
@@ -538,8 +536,6 @@ drop table if exists t_student;
 insert into t_student(student_id, student_name , sex, birthday, email, classes_id) values (1001,'zhangsan','m', '1988-01-01', 'qqq\@163.com', 10)
 ```
 
-
-
 外键主要是维护表之间的关系的，主要是为了保证参照完整性，如果表中的某个字段为外键字段，那么该字段的值必须来源于参照的表的主键，如：emp 中的 deptno 值必须来源于 dept 表中的 deptno 字段值。
 
 建立学生和班级表之间的连接
@@ -584,15 +580,13 @@ insert into t_classes (classes_id,classes_name) values (10,'366'); insert into t
 delete from t_classes where classes_id = 10;
 ```
 
-
-
 因为子表（t_student）存在一个外键 classes_id，它参照了父表（t_classes）中的主键，所以先删除父表，那么将会影响子表的参照完整性，所以正确的做法是，先删除子表中的数据，再删除父表中的数据，采用 drop table 也不行，必须先 drop 子表，再 drop 父表 我们也可以采取以下措施 级联删除。
 
 13.4.5、级联更新与级联删除
 
 13.4.5.1、on update cascade;
 
- mysql 对有些约束的修改比较麻烦，所以我们可以先删除，再添加 alter table t_student drop foreign key fk_classes_id; alter table t_student add constraint fk_classes_id_1 foreign key(classes_id) references t_classes(classes_id) on update cascade; 我们只修改了父表中的数据，但是子表中的数据也会跟着变动。
+mysql 对有些约束的修改比较麻烦，所以我们可以先删除，再添加 alter table t_student drop foreign key fk_classes_id; alter table t_student add constraint fk_classes_id_1 foreign key(classes_id) references t_classes(classes_id) on update cascade; 我们只修改了父表中的数据，但是子表中的数据也会跟着变动。
 
 13.4.5.2、on delete cascade;
 
@@ -1337,15 +1331,15 @@ InnoDB 默认可以创建 16 个索引
 
    insert into user (username,password) values ('zhangsan','123');
 
-1.  查看数据
+5. 查看数据
 
-1. 修改数
+6. 修改数
 
-2. 查看数据
+7. 查看数据
 
-3. 回滚事务
+8. 回滚事务
 
-1.  查看数据
+9. 查看数据
 
 ### 15.3、自动提交模式
 
@@ -1430,9 +1424,7 @@ InnoDB 引擎，可重复读隔离级别，，使用**当前读**时。
 - 将两行记录间的空隙加上锁，阻止新记录的插入；这个锁称为**间隙锁**。
 - 间隙锁与间隙锁之间没有冲突关系。跟间隙锁存在冲突关系的，是**往这个间隙中插入一个记录**这个操作。
 
-当前读情况下加间隙锁，快照读情况下mysql会自动使用MVCC机制解决幻读。
-
-
+当前读情况下加间隙锁，快照读情况下 mysql 会自动使用 MVCC 机制解决幻读。
 
 #### 15.4.2、四个隔离级别
 
@@ -2180,6 +2172,17 @@ index
 
 减少冗余查询，减少传输
 
+4：大于小于，IN，OR，between
+
+```sql
+SELECT * FROM tin where c1 >= 100 and c1 <= 104;
+SELECT * FROM tin where c1 bewteen 100 and 104;
+SELECT * FROM tin where c1 in (100, 101, 102, 103, 104);
+SELECT * FROM tin where c1 = 100 or c1 = 101 or c1 = 102 or c1 = 103 or c1 = 104;
+```
+
+语句 1 应该是最少的，其次是 IN，最差的就是 OR
+
 ### 单表优化
 
 ### 多表优化
@@ -2223,6 +2226,8 @@ select …… from table where 字段 in (子查询);
 ```
 
 **3：order by**
+
+处理：1：根据 where 条件和统计信息生成执行计划，得到数据。 二：当执行处理数据（order by）时，数据库会先查看第一步的执行计划，看 order by 的字段是否在执行计划中利用了索引。如果是，则可以利用索引顺序而直接取得已经排好序的数据。三：返回排序后的数据。
 
 排序按索引顺序排，（a,b,c)无法复用已经创建好的索引。
 
@@ -2527,7 +2532,7 @@ MyISAM 使用的是非聚簇索引，**非聚簇索引的两棵 B+树看上去�
 
 ### 17.3、修改视图
 
-| alter view v_dept_emp as select ename,dname,sal,hiredate,e.deptno from e mp e,dept d where e.deptno = 20; 
+| alter view v_dept_emp as select ename,dname,sal,hiredate,e.deptno from e mp e,dept d where e.deptno = 20;
 
 ### 17.4、删除视图
 
@@ -2659,7 +2664,7 @@ mysqldump bjpowernode\>D:\\bjpowernode.sql -uroot -p123
 
 只有通过索引进行检索的时候才会使用行级锁，如果不是通过索引进行检索就会升级成表锁。
 
-行锁是为了最大并发化所提供的一种锁，封锁某一行数据。我知道的mysql行锁有三种，就间隙锁使用场景，我分成了`唯一索引`和`非唯一索引`两种情况。`记住所有的for update都是当前读并且加上行锁，跟快照读不一样，`
+行锁是为了最大并发化所提供的一种锁，封锁某一行数据。我知道的 mysql 行锁有三种，就间隙锁使用场景，我分成了`唯一索引`和`非唯一索引`两种情况。`记住所有的for update都是当前读并且加上行锁，跟快照读不一样，`
 
 （1）按对数据操作：
 
@@ -2701,17 +2706,17 @@ select ... for update;　　　　　　 要设置IX锁；
 
 事务要获得某些行的 S/X 锁，必须先获得表对应的 IS/IX 锁，意向锁仅仅表明意向，意向锁之间相互兼容，兼容互斥表如下：
 
-|      | IS    | IX    |
-| ---- | ----- | ----- |
-| IS   | 兼 容 | 兼 容 |
-| IX   | 兼 容 | 兼 容 |
+|     | IS    | IX    |
+| --- | ----- | ----- |
+| IS  | 兼 容 | 兼 容 |
+| IX  | 兼 容 | 兼 容 |
 
 虽然意向锁之间互相兼容，但是它与共享锁/排它锁互斥，其兼容互斥表如下:
 
-| S    | X     |       |
-| ---- | ----- | ----- |
-| IS   | 兼 容 | 互 斥 |
-| IX   | 互 斥 | 互 斥 |
+| S   | X     |       |
+| --- | ----- | ----- |
+| IS  | 兼 容 | 互 斥 |
+| IX  | 互 斥 | 互 斥 |
 
 ## 记录锁（Record Locks）
 
@@ -2815,8 +2820,6 @@ insert into t values(12, ooo);
 2. 记录锁锁定索引记录；间隙锁锁定间隔，防止间隔中被其他事务插入；临键锁锁定索引记录+间隔，防止幻读；
 3. InnoDB 使用插入意向锁，可以提高插入并发；
 4. 间隙锁(gap lock)与临键锁(next-key lock)**只在 RR 以上的级别生效，RC 下会失效**；
-
-
 
 4：间隙锁：
 
@@ -3211,11 +3214,11 @@ mysql 使用 PrepareStatement
 
 ## 读写分离
 
-读写分离，基本的原理是让主数据库处理事务性增、改、删操作（INSERT、UPDATE、DELETE），而从数据库处理SELECT查询操作。数据库复制被用来把事务性操作导致的变更同步到集群中的从数据库。
+读写分离，基本的原理是让主数据库处理事务性增、改、删操作（INSERT、UPDATE、DELETE），而从数据库处理 SELECT 查询操作。数据库复制被用来把事务性操作导致的变更同步到集群中的从数据库。
 
-mysql支持复制的类型：
+mysql 支持复制的类型：
 
-1） 基于语句的复制。在服务器上执行sql语句，在从服务器上执行同样的语句，mysql默认采用基于语句的复制，执行效率高。
+1） 基于语句的复制。在服务器上执行 sql 语句，在从服务器上执行同样的语句，mysql 默认采用基于语句的复制，执行效率高。
 
 2） 基于行的复制。把改变的内容复制过去，而不是把命令在从服务器上执行一遍。
 
@@ -3229,7 +3232,6 @@ mysql支持复制的类型：
 
 一：基于程序代码实现：
 
-在代码中根据select 、insert进行路由分类，这类方法也是目前生产环境下应用最广泛的。优点是性能较好，因为程序在代码中实现，不需要增加额外的硬件开支，缺点是需要开发人员来实现，运维人员无从下手。
+在代码中根据 select 、insert 进行路由分类，这类方法也是目前生产环境下应用最广泛的。优点是性能较好，因为程序在代码中实现，不需要增加额外的硬件开支，缺点是需要开发人员来实现，运维人员无从下手。
 
 二：代理中间件
-
