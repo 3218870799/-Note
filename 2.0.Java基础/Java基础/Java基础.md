@@ -34,9 +34,22 @@ eog=new Eog("亚亚");//错误的
 
 Java 中**static 方法不能被覆盖**，因为方法覆盖是基于运行时动态绑定的，而 static 方法是**编译时静态绑定**的。static 方法跟类的任何实例都不相关，所以概念上不适用。
 
+加载过程：
+
+```txt
+加载父类静态代码块
+加载父类静态变量
+加载子类静态代码块
+加载子类静态变量
+加载父类普通代码块
+加载父类构造函数
+加载子类普通代码块
+加载子类构造函数
+```
+
 - **Native**
 
-本地方法，本地方法与平台相关，因此使用了Native的程序可移植性不高。另外native方法在JVM中运行时数据区也和其它方法不一样，它有专门的本地方法栈。native方法主要用于加载文件和动态链接库，由于Java语言无法访问操作系统底层信息。使用Native关键字说明这个方法时原生函数，与其他语言协作时使用这个方法可以被其他语言进行实现。
+本地方法，本地方法与平台相关，因此使用了 Native 的程序可移植性不高。另外 native 方法在 JVM 中运行时数据区也和其它方法不一样，它有专门的本地方法栈。native 方法主要用于加载文件和动态链接库，由于 Java 语言无法访问操作系统底层信息。使用 Native 关键字说明这个方法时原生函数，与其他语言协作时使用这个方法可以被其他语言进行实现。
 
 - #### synchronized
 
@@ -255,6 +268,12 @@ LongNum.inValue();
 
 equals 比较的是字符串，如果不重写比较的也是地址。
 
+基本数据类型使用==比较的是他们的值
+
+引用数据类型，== 比较的是他们的堆内存地址
+
+equals 引用类型比较的是地址
+
 ### 值传递和引用传递
 
 值传递（pass by value）是指在调用函数时将实际参数复制一份传递到函数中，这样在函数中如果对参数进行修改，将不会影响到实际参数。
@@ -459,6 +478,16 @@ FlyAble f = new FlyAble(){
 
 接口的内部主要就是封装了方法，包含抽象方法（JDK 7 及以前），默认方法和静态方法（JDK 8），私有方法（JDK 9）。
 
+接口中所有的方法隐含的都是抽象的。而抽象类则可以同时包含抽象和非抽象的方法。
+
+类可以不实现抽象类和接口声明的所有方法，当然，在这种情况下，类也必须得声明成是抽象的。
+
+抽象类可以在不提供接口方法实现的情况下实现接口。
+
+Java 接口中声明的变量默认都是 final 的。抽象类可以包含非 final 的变量。
+
+Java 接口中的成员函数默认是 public 的。抽象类的成员函数可以是 private，protected 或者是 public。
+
 抽象方法：使用 abstract 关键字修饰，可以省略，没有方法体。该方法供子类实现使用。
 
 默认方法：使用 default 修饰，不可省略，供子类调用或者子类重写。
@@ -477,20 +506,11 @@ FlyAble f = new FlyAble(){
 
 一个类可以实现多个接口，只能继承一个抽象类
 
-接口中所有的方法隐含的都是抽象的。而抽象类则可以同时包含抽象和非抽象的方法。
-
-类可以不实现抽象类和接口声明的所有方法，当然，在这种情况下，类也必须得声明成是抽象的。  
-抽象类可以在不提供接口方法实现的情况下实现接口。  
-Java 接口中声明的变量默认都是 final 的。抽象类可以包含非 final 的变量。  
-Java 接口中的成员函数默认是 public 的。抽象类的成员函数可以是 private，protected 或者是 public。
-
 设计：
 
-抽象类：同一类事务的抽取，比如对Dao层操作的封装
+抽象类：同一类事务的抽取，比如对 Dao 层操作的封装
 
 接口：通常更像是一种标准的制定，定制系统之间的对接的标准
-
-
 
 ## 5：方法
 
@@ -619,7 +639,7 @@ Java 语言中的根类，即所有类的父类。它中描述的所有方法子
 
 深拷贝 ：拷贝对象和原始对象的引用类型引用不同对象。
 
-wait ，notify notifyall 
+wait ，notify notifyall
 
 ### 1：Scanner 类
 
@@ -707,13 +727,13 @@ StringBuilder > StringBuffer > String
 
 存储空间：
 
-String 的值是不可变的，每次对String的操作都会生成新的String对象，效率低耗费大量内存空间，从而引起GC。StringBuffer和StringBuilder都是可变。
+String 的值是不可变的，每次对 String 的操作都会生成新的 String 对象，效率低耗费大量内存空间，从而引起 GC。StringBuffer 和 StringBuilder 都是可变。
 
 使用场景：
 
-1如果要操作少量的数据用 String 
+1 如果要操作少量的数据用 String
 
-2.单线程操作字符串缓冲区 下操作大量数据 = StringBuilder 
+2.单线程操作字符串缓冲区 下操作大量数据 = StringBuilder
 
 3.多线程操作字符串缓冲区 下操作大量数据 = StringBuffer
 
@@ -935,6 +955,13 @@ Equals 方法用来比较对象时，若没有对 equals 进行重写，其都�
 
 ### 11： Comparable 接口和 Comparator 接口
 
+```java
+List<Integer> a = new LinkedList<>();
+a.sort((o1,o2)->o2-o1);
+//数组只能正着排
+Arrays.sort(arr);
+```
+
 Comparable 接口只包含 compareTo()方法
 
 Comparator 接口包含 compare（Object ，Object ）方法和 equals（）方法
@@ -1022,7 +1049,11 @@ List.toArray(); Arrays.asList(array);
 
 ### 序列化接口
 
-根据类的结构生成序列化版本号 serialVersionUID，进行反序列化时，程序会比较磁盘中的序列化版本ID跟当前的类结构生成的版本号ID是否一致，如果一致则反序列化成功。
+把对象转换成可传输的字节序列的过程。
+
+作用：便于对象的保存于重建，跨平台存储，方便网络传输，安全
+
+根据类的结构生成序列化版本号 serialVersionUID，进行反序列化时，程序会比较磁盘中的序列化版本 ID 跟当前的类结构生成的版本号 ID 是否一致，如果一致则反序列化成功。
 
 # 三：集合
 
@@ -1129,7 +1160,7 @@ JDK1.7 ：ArrayList 像饿汉式，直接创建一个初始容量为 10 的数�
 
 JDK1.8：ArrayList 像懒汉式，一开始创建个长度为 0 的数组，当添加第一个元素时再创建一个始容量 10 的数组
 
-**与Vector对比**
+**与 Vector 对比**
 
 1、ArrayList 创建时的大小为 0；当加入第一个元素时，进行第一次扩容时，默认容量大小为 10。
 
@@ -1163,8 +1194,6 @@ List<String> list = Collections.synchronizedList(new ArrayList<>());
 
 Array 可以包含基本类型和对象类型，ArrayList 只能包含对象类型。
 
-
-
 **ArrayList，Vector，linkedList 的区别？**
 
 ArrayList 和 Vector 都是使用数组方式存储数据，此数组元素数大于实际存储的数据以便增加和插入元素，它们都允许直接按序号索引元素，但是插入元素要涉及数组元素移动等内存操作，所以索引数据快而插入数据慢，
@@ -1177,11 +1206,9 @@ ArrayList 是基于数组实现的，要求一段连续的空间，对于索引�
 
 LinkedList 是基于链表实现的，是一个双向循环列表。不是线程安全的，对于插入，删除有优势。而且他还需要内存存放指针。
 
-
-
 **删除**
 
-ArrayList有两种方法移除元素，一种传递要删除的元素的索引，一种传递要移除的元素本身，删除最低索引的元素
+ArrayList 有两种方法移除元素，一种传递要删除的元素的索引，一种传递要移除的元素本身，删除最低索引的元素
 
 迭代器删除
 
@@ -1204,19 +1231,19 @@ ArrayList有两种方法移除元素，一种传递要删除的元素的索引�
 		    }
 		}
 		System.out.println(list);
-		
+
 		//迭代器遍历
 		//安全，调用Iterator的方法
-		Iterator<String> iterator = list.iterator(); 
+		Iterator<String> iterator = list.iterator();
 		while (iterator.hasNext()){
 		    String str = iterator.next();
 		    System.out.println(str);
 		    if("2".equals(str)) {
-		        iterator.remove(); 
+		        iterator.remove();
 		    }
 		}
 		System.out.println(list);
-		
+
 		//foreach遍历，删除头尾元素
 		//出错：
 		//原因：foreach实质上也是使用Iterator进行遍历。不同的地方在于，一个使用Iterator的删除方法，一个使用List的删除方法。
@@ -1245,6 +1272,8 @@ Vector
 
 虽然集合号称存储的是 Java 对象，但实际上并不会真正将 Java 对象放入 Set 集合中，只是在 Set 集合中保留这些对象的引用而言。也就是说：Java 集合实际上是多个引用变量所组成的集合，这些引用变量指向实际的 Java 对象。
 
+如果存储自定义的对象，无法体现元素唯一性是因为，在堆中的每 new 一个 对象,都有一个存储位置，都有一个独一无二的哈希值，如果存储需要重写 HashCode 方法。
+
 ### HashSet（常用）
 
 基本上都是直接调用底层 **HashMap** 的相关方法来完成，
@@ -1261,6 +1290,10 @@ HashSet 不能保证元素的排列顺序，HashSet 不是线程安全的，集�
 ![哈希流程图](media/哈希流程图.png)
 
 HashSet 线程不安全，同样也可以使用 CopyOnWriteArraySet，其底层依然还是使用 CopyOnWriteArrayList 实现的。
+
+HashSet 是有序的还是无序的？
+
+Q：无序的，但是在特定条件下，当数组小于 65535 时，其 hash 值就是其本身，插入到 HashMap 中的顺序即 hash 的数值顺序，就会出现有序的情况。
 
 ### LinkedHashSet
 
@@ -1359,9 +1392,9 @@ Resize 效率很低
 
 HashMap 不是线程安全的，如果想要线程安全的 HashMap，可以通过 Collections 类的静态方法 synchronizedMap 获得线程安全的 HashMap。
 
-hashcode：计算键的hashcode作为存储键信息的数组下标用于查找键对象的存储位置。
+hashcode：计算键的 hashcode 作为存储键信息的数组下标用于查找键对象的存储位置。
 
-equals：HashMap使用equals()判断当前的键是否与表中存在的键相同。
+equals：HashMap 使用 equals()判断当前的键是否与表中存在的键相同。
 
 #### 1.7 至 1.8 的变化
 
@@ -1381,7 +1414,7 @@ JDK1.8 变为：数组 + 链表 + 红黑树
 
 HashMap 的底层主要是基于数组，链表和红黑树来实现的，HashMap 会根据 key.hashCode() 计算出 hash 值，根据 hash 值将 value 保存在 bucket 里。
 
-影响 HashMap 性能的两个重要参数，“initial capacity”（初始化容量默认为16）和”load factor“（负载因子0.75）
+影响 HashMap 性能的两个重要参数，“initial capacity”（初始化容量默认为 16）和”load factor“（负载因子 0.75）
 
 容量就是哈希表桶的个数，负载因子就是键值对个数与哈希表长度的一个比值
 
@@ -1396,8 +1429,6 @@ HashMap 类中有一个非常重要的字段，就是 Node[] table，即哈希�
 HashMap 中关于红黑树的三个关键参数：
 
 ![](media/587309242992088d200c973008ad2bce.png)
-
-
 
 当比值超过负载因子之后，HashMap 就会进行 rehash 操作来进行扩容。
 
@@ -1470,17 +1501,15 @@ HashMap 在进行扩容时，使用的 rehash 方式非常巧妙，因为每次�
 
 总的来说：扩容时总是扩容到原来的两倍，使用位运算，可以很容易的将原本的元素转移到新的数组中去。
 
-
-
 Q：HashMap 为什么是线程不安全的，怎么解决呢？
 
 不安全：
 
-（1）put的时候导致的多线程数据不一致。
+（1）put 的时候导致的多线程数据不一致。
 
-比如有两个线程A和B，首先A希望插入一个key-value对到HashMap中，首先计算记录所要落到的桶的索引坐标，然后获取到该桶里面的链表头结点，此时线程A的时间片用完了，而此时线程B被调度得以执行，和线程A一样执行，只不过线程B成功将记录插到了桶里面，假设线程A插入的记录计算出来的桶索引和线程B要插入的记录计算出来的桶索引是一样的，那么当线程B成功插入之后，线程A再次被调度运行时，它依然持有过期的链表头但是它对此一无所知，以至于它认为它应该这样做，如此一来就覆盖了线程B插入的记录，这样线程B插入的记录就凭空消失了，造成了数据不一致的行为。
+比如有两个线程 A 和 B，首先 A 希望插入一个 key-value 对到 HashMap 中，首先计算记录所要落到的桶的索引坐标，然后获取到该桶里面的链表头结点，此时线程 A 的时间片用完了，而此时线程 B 被调度得以执行，和线程 A 一样执行，只不过线程 B 成功将记录插到了桶里面，假设线程 A 插入的记录计算出来的桶索引和线程 B 要插入的记录计算出来的桶索引是一样的，那么当线程 B 成功插入之后，线程 A 再次被调度运行时，它依然持有过期的链表头但是它对此一无所知，以至于它认为它应该这样做，如此一来就覆盖了线程 B 插入的记录，这样线程 B 插入的记录就凭空消失了，造成了数据不一致的行为。
 
-（2）另外一个比较明显的线程不安全的问题是HashMap的get操作可能因为resize而引起死循环（cpu100%）
+（2）另外一个比较明显的线程不安全的问题是 HashMap 的 get 操作可能因为 resize 而引起死循环（cpu100%）
 
 ![img](media/7853175-ab75cd3738471507.png)
 
@@ -1609,25 +1638,19 @@ hashCode & n-1
 
 并更新 sizeCtl 的大小为新数组的 0.75 倍
 
+**Q：concurrenthashmap 为什么安全，加锁在什么位置，读数据用加锁么？**
 
+采用 CAS 和 synchronized 方式处理并发。以 put 操作为例，CAS 方式确定 key 的数组下标，synchronized 保证链表节点的同步效果。
 
-**Q：concurrenthashmap为什么安全，加锁在什么位置，读数据用加锁么？**
+加锁时 synchronized 是加在 Node 节点上。
 
-采用CAS和synchronized方式处理并发。以put操作为例，CAS方式确定key的数组下标，synchronized保证链表节点的同步效果。
-
-加锁时synchronized是加在Node节点上。
-
-在1.8中ConcurrentHashMap的get操作全程不需要加锁，get操作全程不需要加锁是因为Node的成员val是用volatile修饰的，数组用volatile修饰主要是保证在数组扩容的时候保证可见性。
-
-
+在 1.8 中 ConcurrentHashMap 的 get 操作全程不需要加锁，get 操作全程不需要加锁是因为 Node 的成员 val 是用 volatile 修饰的，数组用 volatile 修饰主要是保证在数组扩容的时候保证可见性。
 
 ### HashTable
 
-线程安全：所有涉及到多线程操作的都加上了 synchronized 关键字来锁住整个 table，HashTable容器使用synchronized来保证线程安全，但在线程竞争激烈的情况下HashTable的效率非常低下。因为多个线程访问HashTable的同步方法时，可能会进入阻塞或轮询状态。如线程1使用put进行添加元素，线程2不但不能使用put方法添加元素，并且也不能使用get方法来获取元素，所以竞争越激烈效率越低。
+线程安全：所有涉及到多线程操作的都加上了 synchronized 关键字来锁住整个 table，HashTable 容器使用 synchronized 来保证线程安全，但在线程竞争激烈的情况下 HashTable 的效率非常低下。因为多个线程访问 HashTable 的同步方法时，可能会进入阻塞或轮询状态。如线程 1 使用 put 进行添加元素，线程 2 不但不能使用 put 方法添加元素，并且也不能使用 get 方法来获取元素，所以竞争越激烈效率越低。
 
 现在很少用了，多被 HahsMap 或 ConcurrentHashMap 代替，不允许插入 null 值
-
-
 
 ### LinkedHashMap
 
@@ -1670,8 +1693,6 @@ HashMap：适用于在 Map 中插入、删除和定位元素。
 TreeMap：适用于按自然顺序或自定义顺序遍历键（key)。
 
 HashMap 通常比 TreeMap 快一点（树和哈希表的数据结构使然），建议多使用 HashMap,在需要排序的 Map 时候才用 TreeMap.
-
-
 
 2：HashMap 与 HashTable 的区别？
 
@@ -1776,7 +1797,7 @@ Exception 和 Error 都是 Throwable 的子类。Exception 用于用户程序可
 - NoSuchMethodException 方法不存在异常
 - IOException IO 异常
 - SocketException Socket 异常
-- 
+-
 
 ## 3：处理异常
 
@@ -1952,15 +1973,13 @@ volatile
 
 (c)notifAll()方法：唤醒在此对象监视器上等待的所有线程。
 
-sleep执行后线程进入阻塞状态，sleep（0）表示当前线程被冻结了一下，让其他线程有机会优先执行，当前线程暂时放弃了CPU，相当于一个让位动作，让当前线程立即回到就绪队列
+sleep 执行后线程进入阻塞状态，sleep（0）表示当前线程被冻结了一下，让其他线程有机会优先执行，当前线程暂时放弃了 CPU，相当于一个让位动作，让当前线程立即回到就绪队列
 
-yield执行后线程进入就绪状态
+yield 执行后线程进入就绪状态
 
-join执行后线程进入阻塞状态
+join 执行后线程进入阻塞状态
 
-join（）中止当前线程（也就是a），等待指定（也就是b）线程结束，然后再运行当前线程
-
-
+join（）中止当前线程（也就是 a），等待指定（也就是 b）线程结束，然后再运行当前线程
 
 ## 5.2：Thread 类
 
@@ -2212,10 +2231,10 @@ keepAliveTime 的单位
 线程池的饱和策略，当阻塞队列满了，且没有空闲的工作线程，如果继续提交任务，必须采取一种策略处理该任务，线程池提供了 4 种策略：
 
 ```java
-AbortPolicy：直接抛出异常，默认策略；
+AbortPolicy：直接抛出异常，默认策略；关键业务，并发量高德时候抛出异常能够及时发现
 CallerRunsPolicy：用调用者所在的线程来执行任务；
 DiscardOldestPolicy：丢弃阻塞队列中靠最前的任务，并执行当前任务；
-DiscardPolicy：直接丢弃任务,当然也可以根据应用场景实现
+DiscardPolicy：直接丢弃任务,主要用于无关紧要的任务，博客阅读量
 ```
 
 RejectedExecutionHandler 接口，自定义饱和策略，如记录日志或持久化存储不能处理的任务。
@@ -2328,6 +2347,18 @@ ThreadPoolExecutor 执行 execute()流程：
 
 3.判断**线程池里的线程是否都在执行任务**。如果不是，则创建一个新的工作线程来执行。如果线程池满了，则交给饱和策略来处理任务。
 
+源码实现：
+
+Executor：最顶级接口，提供了`execute()`方法将任务提交和任务执行分离。当你把一个`Runnable`任务提交给`Executor`后，如何执行任务要看它的实现类。
+
+ExecutorService：增加了对线程池中任务生命周期的管理，可强制取消正在执行的任务，拒绝再接受任务。提供了`submit()`方法来扩展`Executor.execute()`，使任务执行有返回值。
+
+AbstractExecutorService：`ExecutorService`接口的默认实现，线程池的大部分功能已在这个类中被编写。
+
+ThreadPoolExecutor：**线程池最核心的一个类**，继承了`AbstractExecutorService`，完整的实现了一个线程池。
+
+线程池的重要变量主要两个：`runState`（线程池运行状态：运行还是关闭）和`workerCount`（线程池中的线程数目），在 JDK1.8 中，这两个变量被放入了一个线程安全的 int 类型变量中
+
 ### 6：自定义线程池
 
 实际开发中，上诉线程池我们一个都不用，都是自己自定义的
@@ -2389,6 +2420,10 @@ Notify 方法：
 
 ### 6：线程池中遇到的问题
 
+（3）：Java 县城次是如何保证核心线程不被销毁的？
+
+Q：线程池是通过队列的 take 方法来阻塞核心线程 Worker 的 run 方法，保证核心线程不会因执行完 run 方法而被系统终止。
+
 （1）如果你提交任务时，线程池队列已满，这时会发生什么？
 
 如果你使用的 LinkedBlockingQueue，也就是无界队列的话，没关系，继续添加任务到阻塞队列中等待执行，因为 LinkedBlockingQueue 可以近乎认为是一个无穷大的队列，可以无限存放任务；
@@ -2404,6 +2439,13 @@ Notify 方法：
 　　　　 3）并发高、业务执行时间长，解决这种类型任务的关键不在于线程池而在于整体架构的设计，看看这些业务里面某些数据是否能做缓存是第一步，增加服务器是第二步，至于线程池的设置，设置参考 2）。最后，业务执行时间长的问题，也可能需要分析一下，看看能不能使用中间件对任务进行拆分和解耦。
 
 ## 5.4：线程间通信
+
+- 锁机制：包括互斥锁，条件变量，读写锁
+  - 互斥锁提供了以排他方式防止数据结构被并发修改的问题
+  - 读写锁运行多线程同时读共享数据，而对写操作是互斥的
+  - 条件变量可以以原子方式阻塞进程，知道某个特定条件为真为止。对条件的测试是在互斥锁的保护下进行的，条件变量始终与互斥锁一起使用。
+- 信号量机制（Semaphore）：包括无名线程信号量和命名线程信号量
+- 信号机制（Signal）：类似进程间的信号处理，线程间的通信目的主要是用于线程同步，所以线程没有像进程通信中的用于数据交换的通信机制。
 
 wait()：
 
@@ -2503,9 +2545,9 @@ synchronized 会自动释放锁，而 Lock 一定要求程序员手工释放，�
 
 为什么线程切换浪费资源？
 
-第一：因为CPU运行状态分为用户态和内核态。线程切换状态会使CPU运行状态从用户态转换到内核态。
+第一：因为 CPU 运行状态分为用户态和内核态。线程切换状态会使 CPU 运行状态从用户态转换到内核态。
 
-第二：每个线程在运行时的指令是被放在CPU的寄存器中的，如果切换内存状态，需要先把本线程的代码和变量写入内存。这样经常切换会耗费时间。
+第二：每个线程在运行时的指令是被放在 CPU 的寄存器中的，如果切换内存状态，需要先把本线程的代码和变量写入内存。这样经常切换会耗费时间。
 
 #### 3：无锁 VS 偏向锁 VS 轻量级锁 VS 重量级锁
 
@@ -2594,6 +2636,18 @@ Lock lock = new ReentrantLock(true);
 
 因为非公平锁的优点在于吞吐量比公平锁大，`对于synchronized而言，也是一种非公平锁`
 
+在 ReentrantLock 中一句用于实现公平锁和非公平锁
+
+```java
+public ReentrantLock(boolean fair){
+    sync = fair ? FairSync() : new NonfairSync();
+}
+```
+
+非公锁实现方式就是：首先获取到当前线程，判断当前锁的状态是否为 0，如果是，说明当前锁没有被其他线程占有，则利用 CAS 操作将锁的状态从 0 置为 1 成功后，将锁的持有者置为当前线程。
+
+公平锁的实现，就是在非公平锁的实现上，加了一层判断 hasQueuedPredecessors()，该方法的大概意思是判断是否有线程等待的时间比当前线程等待时间还要久，如果有返回 true,则当前线程获取锁失败，如果没有返回 false，当前线程获取到锁，也就是判断当前线程是否是等待队列的队头元素
+
 #### 5：可重入锁和非可重入锁
 
 可重入锁又名递归锁，是指在同一个线程在外层方法获取锁的时候，再进入该线程的内层方法会自动获取锁（前提锁对象得是同一个对象或者 class），不会因为之前已经获取过还没释放而阻塞。
@@ -2633,7 +2687,6 @@ ReentrantLock 和 NonReentrantLock 都继承父类 AQS，其父类 AQS 中维护
 ```
 // 创建一个写锁
 rwLock.writeLock().lock();
-
 // 写锁 释放
 rwLock.writeLock().unlock();
 ```
@@ -2643,12 +2696,23 @@ rwLock.writeLock().unlock();
 ```
 // 创建一个读锁
 rwLock.readLock().lock();
-
 // 读锁 释放
 rwLock.readLock().unlock();
 ```
 
 这里的读锁和写锁的区别在于，写锁一次只能一个线程进入，执行写操作，而读锁是多个线程能够同时进入，进行读取的操作
+
+获取锁的过程：
+
+- 当线程调用 acquireShared()申请获取锁资源时，如果成功，则进入临界区。
+- 当获取锁失败时，则创建一个共享类型的节点并进入一个 FIFO 等待队列，然后被挂起等待唤醒。
+- 当队列中的等待线程被唤醒以后就重新尝试获取锁资源，如果成功则唤醒后面还在等待的共享节点并把该唤醒事件传递下去，即会依次唤醒在该节点后面的所有共享节点，然后进入临界区，否则继续挂起等待。
+
+释放锁过程：
+
+- 当线程调用 releaseShared()进行锁资源释放时，如果释放成功，则唤醒队列中等待的节点，如果有的话。
+
+跟独占锁相比，共享锁的主要特征在于当一个在等待队列中的共享节点成功获取到锁以后，要依次唤醒后面所有可以跟它一起共享当前锁资源的节点，毫无疑问，这些节点必须也是在等待共享锁（这是大前提，如果等待的是独占锁，那前面已经有一个共享节点获取锁了，它肯定是获取不到的）。当共享锁被释放的时候，可以用读写锁为例进行思考，当一个读锁被释放，此时不论是读锁还是写锁都是可以竞争资源的。
 
 ### AQS
 
@@ -2716,7 +2780,7 @@ CountDownLatch
 
 它们都属于 Object 的一部分，而不属于 Thread。
 
-只能用在同步方法或者同步控制块中使用，否则会在运行时抛出 IllegalMonitorStateException。这是因为设计者为了避免使用出现lost wake up 问题而搞出来的。 （初始的时候count等于0，这个时候消费者检查count的值，发现count小于等于0的条件成立；就在这个时候，发生了上下文切换，生产者进来了，噼噼啪啪一顿操作，把两个步骤都执行完了，也就是发出了通知，准备唤醒一个线程。这个时候消费者刚决定睡觉，还没睡呢，所以这个通知就会被丢掉。紧接着，消费者就睡过去了……没有来唤醒的了，造成死锁）
+只能用在同步方法或者同步控制块中使用，否则会在运行时抛出 IllegalMonitorStateException。这是因为设计者为了避免使用出现 lost wake up 问题而搞出来的。 （初始的时候 count 等于 0，这个时候消费者检查 count 的值，发现 count 小于等于 0 的条件成立；就在这个时候，发生了上下文切换，生产者进来了，噼噼啪啪一顿操作，把两个步骤都执行完了，也就是发出了通知，准备唤醒一个线程。这个时候消费者刚决定睡觉，还没睡呢，所以这个通知就会被丢掉。紧接着，消费者就睡过去了……没有来唤醒的了，造成死锁）
 
 使用 wait() 挂起期间，线程会释放锁。这是因为，如果没有释放锁，那么其它线程就无法进入对象的同步方法或者同步控制块中，那么就无法执行 notify() 或者 notifyAll() 来唤醒挂起的线程，造成死锁。
 
@@ -2735,15 +2799,19 @@ java.util.concurrent 类库中提供了 Condition 类来实现线程之间的协
 
 JUC 包增加了并发编程中常用的工具类，用于定义类似于线程的自定义子 系统，包括线程池、异步 IO 和轻量级任务框架。提供可调的、灵活的线程池。还提供了设计用于多线程上下文中的 Collection 实现等。
 
+### 并发容器
+
+JUC 包下的容器类分为两部分，一部分是**并发集合类**，一部分是**并发队列类**，
+
+![在这里插入图片描述](media/20210306105116240.png)
+
 #### synchronized
 
 JDK 早期，synchronized 叫做重量级锁， 因为申请锁资源必须通过 kernel, 系统调用，后来调整为锁升级的过程：无锁 - 偏向锁 - 轻量级锁 （自旋锁，自适应自旋）- 重量级锁
 
-synchronized：保证在同一时刻，只有一个线程可以执行某个方法或某个代码块，同时 synchronized 可以保证一个线程的变化可见（可见性），即可以代替 volatile。悲观锁，非公平锁（底层调用mutex锁，内核提供的这个锁并不保证公平）
+synchronized：保证在同一时刻，只有一个线程可以执行某个方法或某个代码块，同时 synchronized 可以保证一个线程的变化可见（可见性），即可以代替 volatile。悲观锁，非公平锁（底层调用 mutex 锁，内核提供的这个锁并不保证公平）
 
 可以修饰代码块，方法，静态方法，类
-
-
 
 #### volatile
 
@@ -2801,9 +2869,9 @@ CAS 会导致 ABA 问题，线程 1 准备用 CAS 将变量的值由 A 替换为
 
 解决办法（版本号 AtomicStampedReference），基础类型简单值不需要版本号
 
-### Unsafe类
+### Unsafe 类
 
-AQS等也是用来CAS算法，unsafe 类是 CAS 的核心类，原子等无锁操作，自旋操作都是unsafe类，Java 无法直接访问底层操作系统，而是通过本地 native 方法来访问，尽管如此，JVM 还是开了一个后门：Unsafe 它提供了硬件级别的原子操作。在底层调用汇编指令`cmpxchg`指令，这是一条汇编指令，所以 CPU 一次通过，是原子操作。
+AQS 等也是用来 CAS 算法，unsafe 类是 CAS 的核心类，原子等无锁操作，自旋操作都是 unsafe 类，Java 无法直接访问底层操作系统，而是通过本地 native 方法来访问，尽管如此，JVM 还是开了一个后门：Unsafe 它提供了硬件级别的原子操作。在底层调用汇编指令`cmpxchg`指令，这是一条汇编指令，所以 CPU 一次通过，是原子操作。
 
 但是它设置了限制，不让上层开发者使用，可以通过反射进行获取，
 
@@ -2817,15 +2885,11 @@ AQS等也是用来CAS算法，unsafe 类是 CAS 的核心类，原子等无锁�
 
 ```
 
-方法声明为native
+方法声明为 native
 
 单例的，
 
 申请内存：All
-
-
-
-
 
 3：ConcurrentHashMap
 
@@ -2863,7 +2927,7 @@ CopyOnWriteArraySet 基于 CopyOnWriteArrayList 实现，其唯一的不同是�
 
 **6.6 ArrayBlockingQueue**
 
-**6.7 ThreadPoolExecutor
+\*\*6.7 ThreadPoolExecutor
 
 ### ReentrantLock
 
@@ -2893,15 +2957,32 @@ Read 的时候是共享锁，Write 的时候是排它锁（互斥锁），默认
 
 ### 1，CountDownLatch
 
-让一些线程阻塞直到另一些线程完成一系列操作才被唤醒
+使一个线程等待其他线程各自执行完毕后再执行。
 
-CountDownLatch 主要有两个方法，当一个或多个线程调用 await 方法时，调用线程就会被阻塞。其它线程调用 CountDown 方法会将计数器减 1（调用 CountDown 方法的线程不会被阻塞），当计数器的值变成零时，因调用 await 方法被阻塞的线程会被唤醒，继续执行
+是通过一个计数器来实现的，计数器的初始值是线程的数量。每当一个线程执行完毕后，计数器的值就-1，当计数器的值为 0 时，表示所有线程都执行完毕，然后在闭锁上等待的线程就可以恢复工作了。
+
+```java
+CountDownLatch .await();//当前线程阻塞，等待其他线程完成
+CountDownLatch .countDown();//当前子线程结束，通知等待线程可以减一
+```
 
 ### 2，CyclicBarrier
 
 与 CountDownLatch 相反，这个类是为了帮助猿友们方便的实现多个线程一起启动的场景，就像赛跑一样，只要大家都准备好了，那就开始一起冲。也就是做加法。
 
-CyclicBarrier 的字面意思就是可循环（cyclic）使用的屏障（Barrier）。它要求做的事情是，让一组线程到达一个屏障（也可以叫同步点）时被阻塞，直到最后一个线程到达屏障时，屏障才会开门，所有被屏障拦截的线程才会继续干活，线程进入屏障通过 CyclicBarrier 的 await 方法。都是通过维护计数器来实现的。线程执行 await() 方法之后计数器会减 1，
+CyclicBarrier 的字面意思就是可循环（cyclic）使用的屏障（Barrier）。它要求做的事情是，让一组线程到达一个屏障（也可以叫同步点）时被阻塞，直到最后一个线程到达屏障时，屏障才会开门，所有被屏障拦截的线程才会继续干活，线程进入屏障通过 CyclicBarrier 的 await 方法。
+
+```java
+barrier.await();//通知主可以加一了
+```
+
+区别：
+
+CountDownLatch 和 CyclicBarrier 都能够实现线程之间的等待，只不过它们侧重点不同：
+
+- CountDownLatch 一般用于一个或多个线程，等待其他线程执行完任务后，再才执行
+- CyclicBarrier 一般用于一组线程互相等待至某个状态，然后这一组线程再同时执行
+  另外，CountDownLatch 是减计数，计数减为 0 后不能重用；而 CyclicBarrier 是加计数，可置 0 后复用。
 
 ### ConditionObject 通知
 
@@ -3150,11 +3231,11 @@ ObjectInputStream 和 OjbectOutputSteam
 
 用于存储和读取基本数据类型数据或对象的处理流。它的强大之处就是可以把 Java 中的对象写入到数据源中，也能把对象从数据源中还原回来。
 
- 序列化：用 ObjectOutputStream 类保存基本类型数据或对象的机制
+序列化：用 ObjectOutputStream 类保存基本类型数据或对象的机制
 
- 反序列化：用 ObjectInputStream 类读取基本类型数据或对象的机制
+反序列化：用 ObjectInputStream 类读取基本类型数据或对象的机制
 
-ObjectOutputStream 和 ObjectInputStream 不能序列化 static 和 transient 修饰的成员变量
+ObjectOutputStream 和 ObjectInputStream 不能序列化 static 和 transient 修饰的成员变量
 
 ## 10：随机存取文件流
 
@@ -3294,14 +3375,11 @@ Asynchronous IO：异步的，也称 nio2
 
 1：Java 对 BIO、NIO、AIO 的支持：
 
-Java BIO (blocking I/O)：
-同步并阻塞，服务器实现模式为一个连接一个线程，即客户端有连接请求时服务器端就需要启动一个线程进行处理，如果这个连接不做任何事情会造成不必要的线程开销，当然可以通过线程池机制改善。
+Java BIO (blocking I/O)：同步并阻塞，服务器实现模式为一个连接一个线程，即客户端有连接请求时服务器端就需要启动一个线程进行处理，如果这个连接不做任何事情会造成不必要的线程开销，当然可以通过线程池机制改善。
 
-Java NIO (non-blocking I/O)：
-同步非阻塞，服务器实现模式为一个请求一个线程，即客户端发送的连接请求都会注册到多路复用器上，多路复用器轮询到连接有 I/O 请求时才启动一个线程进行处理。
+Java NIO (non-blocking I/O)：同步非阻塞，服务器实现模式为一个请求一个线程，即客户端发送的连接请求都会注册到多路复用器上，多路复用器轮询到连接有 I/O 请求时才启动一个线程进行处理。
 
-Java AIO(NIO.2) (Asynchronous I/O) ：
-异步非阻塞，服务器实现模式为一个有效请求一个线程，客户端的 I/O 请求都是由 OS 先完成了再通知服务器应用去启动线程进行处理，
+Java AIO(NIO.2) (Asynchronous I/O) ：异步非阻塞，服务器实现模式为一个有效请求一个线程，客户端的 I/O 请求都是由 OS 先完成了再通知服务器应用去启动线程进行处理。但是其实现较为复杂，还有一个 Selector 空轮询的 bug，可能会导致 CPU 占用 100%，他是使用了 Future 来实现即时返回
 
 2：BIO、NIO、AIO 适用场景分析:
 
@@ -3321,15 +3399,13 @@ IO 是面向流的，NIO 是面向缓冲区的
 
 ## 1：TCP 通信
 
-### linux通信
+### linux 通信
 
 ![img](media/1697781-20200327092249958-278747055.png)
 
 文件描述符是内核提供给用户来安全操作文件的标识。
 
-TCP服务端：
-
-
+TCP 服务端：
 
 ### Socket 类
 
@@ -3409,19 +3485,19 @@ linux 的步骤：
 
 ### NIOSocket
 
-服务端NIOSocket的处理过程:
+服务端 NIOSocket 的处理过程:
 
-1. 创建ServerSocketChannel并设置相应的端口号、是否为阻塞模式
-2. 创建Selector并注册到ServerSocketChannel上
-3. 调用Selector的selector方法等待请求
-4. Selector接收到请求后使用selectdKeys返回SelectionKey集合
-5. 使用SelectionKey获取到channel、selector和操作类型并进行具体操作。
+1. 创建 ServerSocketChannel 并设置相应的端口号、是否为阻塞模式
+2. 创建 Selector 并注册到 ServerSocketChannel 上
+3. 调用 Selector 的 selector 方法等待请求
+4. Selector 接收到请求后使用 selectdKeys 返回 SelectionKey 集合
+5. 使用 SelectionKey 获取到 channel、selector 和操作类型并进行具体操作。
 
 代码如下：
 
 ```java
 public class NIOServer {
- 
+
     public static void main(String[] args) {
         // TODO Auto-generated method stub
         try {
@@ -3505,9 +3581,7 @@ public class NIOServer {
 }
 ```
 
-
-
-　客户端代码通普通Socket一样，Socket socket = new Socket("192.168.6.42",8080);表示与服务器端建立连接，从而执行服务器端的handleAccept()方法，给ServerSocketChannel注册selector以及添加SelectionKey.OP_READ参数，表示selector关心读方法。然后通过PrintWrite在客户端将内容发送给服务器端，服务器端执行handleRead方法对接收到的内容进行处理，并将结果返回给客户端，客户端通过BufferedReader接受数据，最后关闭连接。
+客户端代码通普通 Socket 一样，Socket socket = new Socket("192.168.6.42",8080);表示与服务器端建立连接，从而执行服务器端的 handleAccept()方法，给 ServerSocketChannel 注册 selector 以及添加 SelectionKey.OP_READ 参数，表示 selector 关心读方法。然后通过 PrintWrite 在客户端将内容发送给服务器端，服务器端执行 handleRead 方法对接收到的内容进行处理，并将结果返回给客户端，客户端通过 BufferedReader 接受数据，最后关闭连接。
 
 ## 2：UDP 通信
 
@@ -3545,23 +3619,19 @@ public class NIOServer {
 
 提供将连接放回连接池中方法
 
-
-
 流程：
 
-载入JDBC驱动程序；
+载入 JDBC 驱动程序；
 
-定义连接URL，建立连接；
+定义连接 URL，建立连接；
 
-创建PrepareStatement或则Statement语句；
+创建 PrepareStatement 或则 Statement 语句；
 
 执行查询或者更新语句；
 
 对查询或者更新的语句进行处理；
 
 关闭连接
-
-
 
 # 九：特性
 
@@ -3572,6 +3642,10 @@ public class NIOServer {
 加载完类之后，在堆内存的方法区中就产生了一个 Class 类型的对象（一个 类只有一个 Class 对象），这个对象就包含了完整的类的结构信息。我们可 以通过这个对象看到类的结构。这个对象就像一面镜子，透过这个镜子看 到类的结构，所以，我们形象的称之为：反射。
 
 ### 基本反射技术：
+
+ClassLoader.loadClass() 与 Class.forName()的区别？
+
+forName 方法在初始化之前执行静态方法，但 loadClass 不会，表示目标对象被装载后不进行链接，
 
 **根据一个字符串得到一个类**
 
@@ -3776,17 +3850,23 @@ Class 的常用方法
 在运行状态中，对于任意一个类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；这种动态获取的信息以及动态调用对象的方法的功能称为
 Java 语言的反射机制。
 
-ClassLoader与Class.forName的区别？
+ClassLoader 与 Class.forName 的区别？
 
-（1）class.forName()除了将类的.class文件加载到jvm中之外，还会对类进行解释，执行类中的static块。当然还可以指定是否执行静态块。
+（1）class.forName()除了将类的.class 文件加载到 jvm 中之外，还会对类进行解释，执行类中的 static 块。当然还可以指定是否执行静态块。
 
-（2）classLoader只干一件事情，就是将.class文件加载到jvm中，不会执行static中的内容,只有在newInstance才会去执行static块。
+（2）classLoader 只干一件事情，就是将.class 文件加载到 jvm 中，不会执行 static 中的内容,只有在 newInstance 才会去执行 static 块。
 
 ### 反射的应用：动态代理
 
 反射机制：
 
 1：代理模式的原理：使用一个代理将对象包装起来，然后用该代理对象取代原始对象，任何对原始对象的调用都要通过代理，代理对象决定是否以及何时将方法转移到原始对象
+
+与静态代理的区别？
+
+在程序运行前，代理类的.class 文件就已经存在了，代理类和委托类的关系在运行前就已经确定了。
+
+缺点：代理对象的一个接口只服务于一种类型的对象，如果要代理的方法很多，撕逼每个方法都要进行代理，静态代理的程序规模稍大时就不行了。
 
 2：静态代理：
 
@@ -4039,6 +4119,8 @@ TreeSet<Integer> set = new TreeSet<>(new Comparator<Integer>() {
 ### 1.3：四大内置函数
 
 ![image-20201122142257998](media/image-20201122142257998.png)
+
+函数式接口，只包含一个方法的特殊接口。
 
 ### 1.4：方法引用和构造器引用
 
