@@ -497,6 +497,26 @@ DecoratingClassLoader 很简单，内部维护了两个集合，如果你不想�
 
 OverridingClassLoader 是 Spring 自定义的类加载器，默认会先自己加载，(excludedPackages 或 excludedClasses 例外)，只有加载不到才会委托给双亲加载，这就破坏了 JDK 的双亲委派模式。方法 loadClassForOverriding 也是从 classpath 直接找到对应的 .class 文件，然后重新加载。
 
+### IOC 步骤
+
+大体上：创建 BenaFactory——>读取资源——>实例化 Bean——>放入 Map 中，具体如下
+
+加载并且保存 Spring 配置文件路径信息然后保存到 configLocation 中，
+
+刷新 Spring 上下文环境
+
+创建并且载入 DefaultListableBeanFactory（即 BeanFactory）
+
+根据 DefaultListableBeanFactory 创建 XMLBeanDefinitionReader，用于后面读取 xml 配置文件信息
+
+创建 BeanDefinitionDelegate 代理类，用于解析 XML 配置信息，便于可以使用不同的解析器进行解析；
+
+通过 XMLBeanDefinitionReader 结合 location 路径信息读取 Resource 资源信息，并保存到 BeanDefinitionRegistry 中；
+
+容器扫描 BeanDefinitionRegistry 中的 BeanDefinition，使用 Java 的反射机制自动识别出 Bean 工厂后处理后器（实现 BeanFactoryPostProcessor 接口）的 Bean，然后调用这些 Bean 工厂后处理器对 BeanDefinitionRegistry 中的 BeanDefinition 进行加工处理。
+
+使用 BeanDefinitionDelegate 代理类解析 Bean 元素并且依次进行实例化，实例化完毕之后将 Bean 信息注册（put）到 BeanDefinitionMap 中以便于下次使用。
+
 ## 2.3 基于 XML 的 DI
 
 property 注入属性，还有构造方法注入属性，还有 map，list 等数据结构注入的方式又是什么？P 命名空间注入
@@ -1005,18 +1025,15 @@ spring-core..jar 已经整合以上两个内容
 
 > 切入点指声明的一个或多个连接点的集合。通过切入点指定一组方法。
 
-被标记为 final
-的方法是不能作为连接点与切入点的。因为最终的是不能被修改的，不能被增强的。
+被标记为 final 的方法是不能作为连接点与切入点的。因为最终的是不能被修改的，不能被增强的。
 
 ### （4） 目标对象（Target）
 
-目标对象指将要被增强的对象。即包含主业务逻辑的类的对象。上例中的
-StudentServiceImpl 的对象若被增强，则该类称为目标类，该类对象称为目标对象。当然，不被增强，也就无所谓目标不目标了。
+目标对象指将要被增强的对象。即包含主业务逻辑的类的对象。上例中的 StudentServiceImpl 的对象若被增强，则该类称为目标类，该类对象称为目标对象。当然，不被增强，也就无所谓目标不目标了。
 
 ### （5） 通知（Advice）
 
-通知表示切面的执行时间，Advice 也叫增强。上例中的 MyInvocationHandler
-就可以理解为是一种通知。换个角度来说，通知定义了增强代码切入到目标代码的时间点，是目标方法执行之前执行，还是之后执行等。通知类型不同，切入时间不同。
+通知表示切面的执行时间，Advice 也叫增强。上例中的 MyInvocationHandler 就可以理解为是一种通知。换个角度来说，通知定义了增强代码切入到目标代码的时间点，是目标方法执行之前执行，还是之后执行等。通知类型不同，切入时间不同。
 
 > 切入点定义切入的位置，通知定义切入的时间。
 
