@@ -406,7 +406,25 @@ GetMapping 是 Get 请求方法中的一个特例，它只是 RequestMapping 的
 
 ### @Qualifier
 
-当有多个同一类型的 Bean 时，可以用@Qualifier("name")来指定。与@Autowired 配合使用
+当有多个同一类型的 Bean 时，可以用@Qualifier("name")来指定。与@Autowired 配合使用，@Autowired @Qualifie("userService") 两个结合起来可以根据名字和类型注入
+
+### @Autowired
+
+原理：
+
+当 Spring 容器启动时，注解解析器会被注册到容器中，扫描代码，如果带有@Autowired 注解，则将依赖注入信息封装到 InjectionMetadata 中，创建 Bean 时，会调用各种 BeanPostProcessor 对 bean 初始化，注解解析器 AutowiredAnnotationBeanPostProcessor 负责将相关的依赖注入进来；
+
+### @Resource
+
+和@Autowired 注解都是用来实现依赖注入的。只是@AutoWried 按 by type 自动注入，而@Resource 默认按 byName 自动注入。
+
+@Resource 有两个重要属性，分别是 name 和 type
+
+spring 将 name 属性解析为 bean 的名字，而 type 属性则被解析为 bean 的类型。所以如果使用 name 属性，则使用 byName 的自动注入策略，如果使用 type 属性则使用 byType 的自动注入策略。如果都没有指定，则通过反射机制使用 byName 自动注入策略。
+
+### @Controller
+
+默认是单例的，主要是为了性能，单例不用每次都创建；还有就是不需要多例，只要 controller 中不定义属性，那么单例够用了，如果定义了就会出现竞争访问，则通过注解@Scope（“prototype”）将其设置为多例模式
 
 # 二、配置文件
 
