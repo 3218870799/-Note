@@ -1018,6 +1018,8 @@ public class HelloServiceImpl implements HelloService {
 
 # 四、dubbo 原理
 
+高性能的 RPC 远程服务调用，提供了基于长连接的 NOI 框架封装抽象，
+
 ## 1、RPC 原理
 
 ![](media/7c188c54508b0b91a2130a0b43f2b687.png)
@@ -1105,6 +1107,8 @@ Netty 基本原理：
 
 ### 3、服务暴露
 
+流程：首先 provider 启动时，先把想要提供的服务暴露在本地，然后再把服务暴露到远程，启动 Netty 服务，建立长连接，连接到注册中心 ZK 上，然后监控 ZK 上的消费服务。
+
 服务的暴露起始于 Spring IOC 容器刷新完毕之后，会根据配置参数组装成 URL， 然后根据 URL 的参数来进行本地或者远程调用。
 
 在第一次暴露的时候会调用 createServer 来创建 Server，默认是 NettyServer。
@@ -1131,7 +1135,37 @@ Dubbo 会在 Spring 实例化完 bean 之后，在刷新容器最后一步发布
 
 ### 5、服务调用
 
+它有几个角色，服务提供者，服务消费者，注册中心，注册中心保存一个 List<URL>,提供者有多个实例，加上 ip 和路径，消费者负载均衡的调用其中一个。
+
 ![image-20210224145120017](media/image-20210224145120017.png)
+
+服务提供者：
+
+提供服务的接口，提供服务的实现类，注册服务（向注册中心注册，本地注册），暴露服务（启动 Tomact，Netty，从而接受以及处理请求。）
+
+服务消费者：
+
+启动时根据接口名从服务中心获取服务地址并缓存，根据负载均衡策略选出一个服务器地址进行服务调用。
+
+注册中心：
+
+保存服务名与服务器地址映射关系，服务地址变动主动通知服务消费者。
+
+Socket 通信是一个全双工的方式，如果有多个线程同时进行远程方法调用，这时建立在 client server 之间的 socket 连接上会有很多双方发送的消息传递，这里使用了一个唯一 ID，然后传递给服务端，再服务端又回传回来，这样就知道结果是原先哪个线程的了。
+
+整体流程：
+
+1：客户端线程调用远程接口，生成唯一 ID，Dubbo 是使用 AtomicLong 从 0 开始累计数字的，将打包的方法信息（接口名称，方法名称，参数值列表）和处理结果的回调对象 callback 全部封装在一起，组成一个对象 Object
+
+2：向专门存放调用信息的全局 ConcurrentHashMap 里面 put（ID，object）
+
+3：将 ID 和打包信息封装成一对象 connRequest，使用 IOSession.writer(connRequest)异步发送出去。
+
+4：当前线程再使用 callback()的 get()方法视图获取远程的返回结果。在 get()内部，则使用 synchronized 获取回调对象 callback 的锁， 再先检测是否已经获取到结果，如果没有，然后调用 callback 的 wait()方法，释放 callback 上的锁，让当前线程处于等待状态。
+
+5：服务端接收到请求并处理，将结果发送给客户端，客户端 Socket 连接上专门监听消息的线程收到消息，分析结果，取到 ID，再从前面的 ConcurrentHashMap 中 get(ID)，从而找到 callback，将方法调用结果设置到 callBack 对象里。
+
+6：监听线程接着使用 synchronized 获取回调=对象 callBack 的锁（因为前面调用了 wait（）方法，那个线程已经释放 callback 锁了）再 notifyAll()，唤醒前面处于等待状态的线程继续执行（callback 的 get 方法继续执行就能拿到调用结果了），到此，整个过程结束。
 
 - 服务容器负责启动，加载，运行服务提供者。
 - 服务提供者在启动时，向注册中心注册自己提供的服务。
@@ -1264,3 +1298,7 @@ Shop-consume.xml
 6：执行消费者
 
 ![](media/ed850c234cf4ebaeadea0cdf33f247ec.png)
+
+## 当前线程怎么暂停，等结果回来后，再向后执行？
+
+A：先生成一个对象 OBJ，在全局 Map 里 put(ID，Obj)，再用 synchronized 获取 Obj 锁，再调用 Obj.wait()让当前线程处于等待状态，然后另一消息监听线程等到服 务端结果来了后，再 map.get(ID)找到 obj，再用 synchronized 获取 obj 锁，再调用 obj.notifyAll()唤醒前面处于等待状态的线程。
