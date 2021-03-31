@@ -445,47 +445,88 @@ A 依赖 B，B 依赖 A，Spring 容器启动时会创建对象时就会产生�
 
 3：Spring 中为什么要使用三级缓存解决循环依赖
 
-**源码分析循环依赖的创建过程**
+#### 三级缓存
 
-在项目启动时 refresh 方法，创建对象
+Spring 中的三级缓存分别为：
 
-源码中：
+- singletonObjects：完成初始化的单例对象的 cache（一级缓存）
+- earlySingletonObjects ：完成实例化但是尚未初始化的，提前暴光的单例对象的 Cache （二级缓存）
+- singletonFactories ： 进入实例化阶段的单例对象工厂的 cache （三级缓存）
 
-singletonObjects
+Spring 获取 Bean 的过程
 
-earlySingletonObjects
+```java
+protected Object getSingleton(String beanName, boolean allowEarlyReference) {
+	// Quick check for existing instance without full singleton lock
+	// 从一级缓存中获取
+	Object singletonObject = this.singletonObjects.get(beanName);
+	// 如果没有，且依赖的A正在初始化，那我们去尝试看看earlySingletonObjects（二级缓存）是否有对象
+	// earlySingletonObjects（二级缓存）存放的是还未实例化好对象
+	if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+		// 从二级缓存中获取
+		singletonObject = this.earlySingletonObjects.get(beanName);
+		// 如果获取不到 但是支持获取EarlyReference
+		if (singletonObject == null && allowEarlyReference) {
+			// 这里应该是Spring 5.x的优化，只有一二级缓存中都获取不到的时候才进行加锁，相对于5.x以前的一开始就加锁后移了，提高了性能
+			synchronized (this.singletonObjects) {
+				// Consistent creation of early reference within full singleton lock
+				// 这里与5.x以前的一致
+				singletonObject = this.singletonObjects.get(beanName);
+				if (singletonObject == null) {
+					singletonObject = this.earlySingletonObjects.get(beanName);
+					if (singletonObject == null) {
+						// 从三级缓存中获取,需要注意的是这里获取的不是singletonObject了，而是一个ObjectFactory
+						// 这个ObjectFactory就是 addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean)); 中的() -> getEarlyBeanReference(beanName, mbd, bean)
+						ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
+						if (singletonFactory != null) {
+							// 通过从三级缓存中拿到的是一个工厂对象，这个工厂对象可以用于生产singletonObject并放入二级缓存中
+							singletonObject = singletonFactory.getObject();
+							// 把工厂生产出来的singletonObject放入二级缓存中
+							this.earlySingletonObjects.put(beanName, singletonObject);
+							this.singletonFactories.remove(beanName);
 
-singletonFactories
 
-分别代表一二三级缓存
+							// 也就是说，这里的逻辑是 从三级缓存中拿到的是一个工厂对象，这个工厂对象可以用于生产singletonObject并放入二级缓存中
+							// 为什么不把原对象直接放入二级缓存中呢？因为可能有AOP，所以需要生成代理对象
+							// 那为什么不直接把生成好的代理对象放入二级缓存中呢？因为为了性能考虑，如果没有循环引用，是不需要生成对象的。如果我们早早的就在doCreateBean方法中生成好了对象并放入二级缓存中，那是不是影响性能呢？
+						}
+					}
+				}
+			}
+		}
+	}
+	return singletonObject;
+}
 
-获取单例实例
+```
 
-先从一级缓存中是否有对象，如果该对象正在创建（发生了循环依赖）
+如果一二三级缓存都没有，就会走新建方法，走三步：
 
-一级缓存没有，调三级缓存 singletonFactory
+- createBeanInstance：实例化，其实也就是调用对象的构造方法实例化对象
+- populateBean：填充属性，这一步主要是多 bean 的依赖属性进行填充
+- initializeBean：调用 spring xml 中的 init 方法。
 
-<img src="media/image-20210114161822547.png" alt="image-20210114161822547"  />
+循环依赖创建流程：
 
-三级缓存的类型是 ObjectFactory
+A 实例化，放到半成品池中，填充属性填充 B，B 没有，创建 B，实例化 B，填充属性 A，先到单例池，单例池没有，再到半成品池，有直接注入，B 填充属性完成初始化，放入单例池，A 继续将 B 填充给自己，初始化完成
 
-![image-20210114162006289](media/image-20210114162006289.png)
+二级缓存可以解决循环依赖吗？
 
-先实例化 A 放到三级缓存，给 A 注入实例化 B，放到三级缓存，给 B 赋值从三级缓存获取 A，此时发现 A 没有注入完成，将放入二级缓存，然后将三级缓存中的 A 清除掉，直接返回给 B，使 B 完成初始化，此时 B 还在三级缓存，
+如果仅仅解决循环依赖，二级缓存也可以，但是对象使用了代理对象（AOP 的几乎都用了），那注入的时候拿到的不是最终的代理对象，而是原始对象。如果使用三级缓存，就会创建一个代理对象暴露在二级缓存中，这样就可以拿到代理对象了。
 
-![image-20210114164037272](media/image-20210114164037272.png)
-
-然后将 B 放入到一级缓存，然后将三级缓存中的 B 清除掉，然后再初始化注入 A，
-
-为什么使用构造器不能解决循环依赖问题？
-
-此方式是通过实例化和初始化的方式，使用构造器必须使用构造方法，就必须将实例化与初始化搞到一起，
-
-为什么二级缓存不能解决循环依赖问题？
-
-不能，在三个级别的缓存中放的对象是有区别的，一级放的是实例化初始化的对象，二级放的是实例化未初始化的，三级缓存放实例化和匿名内部类，如果只有一级缓存，并发环境下就有可能取到实例化未初始化的值；
+在三个级别的缓存中放的对象是有区别的，一级放的是实例化初始化的对象，二级放的是实例化未初始化的，三级缓存放实例化和匿名内部类，如果只有一级缓存，并发环境下就有可能取到实例化未初始化的值；
 
 三级缓存的匿名内部类，这个匿名内部类可能是代理类，也可能是普通的实例对象，而使用三级缓存就保证了不管是否都能保证使用的是一个对象，而不会出现前面使用 bean，后面使用代理类的情况
+
+三级缓存解决代理对象循环依赖过程：
+
+![image-20210331200824638](media/image-20210331200824638.png)
+
+A 实例化，在工厂池中添加 factoty(a) ，调用 a 的提前引用方法，执行动态代理引用，（提前引用就是为了如果在本身实例化过程中，如果有别人调用我，就会执行提前引用，否则就不执行），填充 B，B 没有，创建 B，填充 A，调用 A 的 factory(a)方法，创建动态代理，将 A 的动态代理放入到半成品池，然后从半成品池中取得填充到 B 中，B 填充完之后就会进行初始化，然后执行后置处理方法，同时就会创建一个动态代理的 B，将创建的代理 B 放到单例池中去，然后重单例池中取出 B 填充到 A 中。
+
+**为什么使用构造器不能解决循环依赖问题？**
+
+此方式是通过实例化和初始化的方式，使用构造器必须使用构造方法，就必须将实例化与初始化搞到一起，
 
 ## 2.3：Spring 的类加载机制
 
