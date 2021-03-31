@@ -115,28 +115,11 @@ public class MyBean implements CommandLineRunner
 
 ## 自动配置
 
-在 Spring 程序 main 方法中，添加 ` @SpringBootApplication` 或者@EnableAutoConfiguration 会自动去 maven 中读取每个 starter 中的 `spring.factories` 文件，改文件里配置了所有需要被创建的 Spring 容器中的 bean
+在 Spring 程序 main 方法中，run 方法刷新容器，扫描` @SpringBootApplication`注解， ` @SpringBootApplication` 注解为组合注解，其中 `@EnableAutoConfiguration ` 会自动去 maven 中读取每个 starter 中的 MRTA-INF 目录下的 `spring.factories` 文件，该文件里配置了很多自动配置类，自动配置类会根据条件注解，将所有需要被创建的 bean 加载到 Spring 容器里
 
-1）、SpringBoot 启动的时候加载主配置类，开启了自动配置功能 @EnableAutoConfiguration
+如果我们要禁用特定的自动配置，我们可以使用 @EnableAutoConfiguration 注解的 exclude 属性来指示它。
 
-2）、@EnableAutoConfiguration 作用：
-
-- 利用 EnableAutoConfigurationImportSelector 给容器中导入一些组件
-- 可以查看 selectImports()方法的内容；
-- List<String> configurations = getCandidateConfigurations(annotationMetadata, attributes);获取候选的配置
-
-```xml
-SpringFactoriesLoader.loadFactoryNames()
-扫描所有jar包类路径下  META-INF/spring.factories
-把扫描到的这些文件的内容包装成properties对象
-从properties中获取到EnableAutoConfiguration.class类（类名）对应的值，然后把他们添加在容器中
-```
-
-如果我们要禁用特定的自动配置，我们可以使用 @EnableAutoConfiguration 注解的 exclude 属性来指示它。如下禁用了数据源自动配置
-
-将类路径下 META-INF/spring.factories 里面配置的所有 EnableAutoConfiguration 的值加入到了容器中
-
-1、@Conditional 派生注解（Spring 注解版原生的@Conditional 作用）
+@Conditional 派生注解（Spring 注解版原生的@Conditional 作用）
 
 作用：必须是@Conditional 指定的条件成立，才给容器中添加组件，配置配里面的所有内容才生效；
 
@@ -155,38 +138,9 @@ SpringFactoriesLoader.loadFactoryNames()
 | @ConditionalOnNotWebApplication | 当前不是 web 环境                                    |
 | @ConditionalOnJndi              | JNDI 存在指定项                                      |
 
-**自动配置类必须在一定的条件下才能生效；**
+自动配置类必须在一定的条件下才能生效；我们怎么知道哪些自动配置类生效；
 
-我们怎么知道哪些自动配置类生效；
-
-**==我们可以通过启用 debug=true 属性；来让控制台打印自动配置报告==**，这样我们就可以很方便的知道哪些自动配置类生效；
-
-```java
-=========================
-AUTO-CONFIGURATION REPORT
-=========================
-
-
-Positive matches:（自动配置类启用的）
------------------
-
-   DispatcherServletAutoConfiguration matched:
-      - @ConditionalOnClass found required class 'org.springframework.web.servlet.DispatcherServlet'; @ConditionalOnMissingClass did not find unwanted class (OnClassCondition)
-      - @ConditionalOnWebApplication (required) found StandardServletEnvironment (OnWebApplicationCondition)
-
-
-Negative matches:（没有启动，没有匹配成功的自动配置类）
------------------
-
-   ActiveMQAutoConfiguration:
-      Did not match:
-         - @ConditionalOnClass did not find required classes 'javax.jms.ConnectionFactory', 'org.apache.activemq.ActiveMQConnectionFactory' (OnClassCondition)
-
-   AopAutoConfiguration:
-      Did not match:
-         - @ConditionalOnClass did not find required classes 'org.aspectj.lang.annotation.Aspect', 'org.aspectj.lang.reflect.Advice' (OnClassCondition)
-
-```
+我们可以通过启用 debug=true 属性；来让控制台打印自动配置报告，这样我们就可以很方便的知道哪些自动配置类生效；
 
 ## 启动器
 
