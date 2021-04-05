@@ -132,6 +132,16 @@ mysql 配置向导启动界面，按“Next”继续。
 
 > 代表关键字:grant,revoke.
 
+
+
+## 整体架构：
+
+![image-20210405163207602](media/image-20210405163207602.png)
+
+
+
+
+
 # 第二部分、常用命令
 
 ## 1：基本操作
@@ -1137,6 +1147,20 @@ n 是指从第 m+1 条开始，取 n 条。
 select * from emp limit 5;
 ```
 
+执行顺序
+
+```sql
+SELECT的语法顺序就是起执行顺序
+
+FROM 
+WHERE （先过滤单表／视图／结果集，再JOIN）
+GROUP BY
+HAVING （WHERE过滤的是行，HAVING过滤的是组，所以在GROUP之后）
+ORDER BY
+```
+
+
+
 # 第四部分、存储引擎
 
 ## 14.1、存储引擎的使用
@@ -1251,6 +1275,10 @@ InnoDB 的表是根据主键进行展开的 B+tree 的聚集索引。MyIsam 则�
 索引和数据行。当有聚簇索引时，它的索引实际放在叶子页中。
 
 ![image-20200404084731063](media/image-20200404084731063.png)
+
+innodb保存时一个.frm文件，一个.idb文件.索引文件和数据文件是放在同一个文件中的
+
+myisam有三个文件，索引文件和数据文件分开存放  .MYD文件表示数据。.MYI文件表示索引。.frm文件
 
 InnoDB 默认可以创建 16 个索引
 
@@ -1379,6 +1407,12 @@ mysql\> SET SESSION AUTOCOMMIT = ON；
 show variables like '%auto%'; -- 查看变量状态
 
 ### 15.4、事务的隔离级别
+
+#### 当前读与快照读
+
+
+
+
 
 #### 15.4.1、一致性问题
 
@@ -1998,9 +2032,9 @@ simple：表示不需要 union 操作或者不包含子查询的简单 select �
 
 primary：一个需要 union 操作或者含有子查询的 select，位于最外层的单位查询的 select_type 即为 primary。且只有一个。
 
-subquery\*\*\*\*：除了 from\*_字句中包含的子查询外，其他地方出现的子查询都可能是 subquery_
+subquery：除了 from字句中包含的子查询外，其他地方出现的子查询都可能是 subquery
 
-dependentsubquery\*\*\*\*：与 dependent union\*\*类似，表示这个 subquery 的查询要受到外部表查询的影响。
+dependentsubquery：与 dependent union类似，表示这个 subquery 的查询要受到外部表查询的影响。
 
 derive：衍生查询，使用到了临时表，from 字句中出现的子查询，也叫做派生表，其他数据库中可能叫做内联视图或嵌套 select。
 
@@ -2926,6 +2960,51 @@ AND STATUS = 1
 
 **更新操作，最好用主键或者唯一索引来更新,这样是行锁，否则更新时会锁表**
 
+## 死锁问题
+
+在可重复读级别下，因为加锁导致两个事务出现死锁。
+
+排查：
+
+```sql
+-- Oracle
+--查看死锁用户，状态，机器，程序
+select username,lockwait,status,machine,program from v$session where sid in (select session_id from v$locked_object)
+-- 查看被死锁的语句
+select sql_text from v$sql where hash_value in (select sql_hash_value from v$session where sid in (select session_id from v$locked_object))
+---mysql
+1：查看当前事务
+select * from information_schema.innodb_trx;
+2:查看当前锁定的事务
+select * from information_schema.innodb_lock;
+3:查看当前等锁的事务
+select * from information_schema.innofb_lock_waits;
+```
+
+解决方案：
+
+1：已经出现，查找，杀掉
+
+```sql
+---Oracle
+--查找死锁进程
+select s.username,I.object_id,I.session_id,s.serial#,I.oracle_username,I.os_user_name,I.process from v$locked_object I,v$session s where I.session_id = s.sid;
+--kill 掉这个死锁的进程
+alter system kill session 'sid,serial#';(其中sid = I.session_id)
+```
+
+1：数据库级别设置超时时间
+
+```properties
+[mysqld]
+log-error =/var/log/mysqld3306.log
+innodb_lock_wait_timeout=60     #锁请求超时时间(秒)
+innodb_rollback_on_timeout = 1  #事务中某个语句锁请求超时将回滚整个事务
+innodb_print_all_deadlocks = 1  #死锁都保存到错误日志
+```
+
+
+
 # 19：服务器级常用 sql 语句
 
 ```sql
@@ -3245,6 +3324,8 @@ mysql CPU 使用已达到接近 400%（因为是四核，所以会有超过 100%
 
 ### 怎么防止 sql 注入？
 
+sql注入：某些sql语句的参数没有进行合理校检，参数中可能有危害数据库的一些语句，导致语句出错。
+
 使用预编译语句的支持
 
 一条语句可能会反复执行，或许每次执行只有个别语句不同。
@@ -3299,16 +3380,19 @@ mysql 实际上在这一块有两个机制，一个是半同步复制，用来�
 
 所以实际上你要考虑好应该在什么场景下来用这个 mysql 主从同步，建议是一般在读远远多于写，而且读的时候一般对数据时效性要求没那么高的时候，用 mysql 主从同步
 
-你可以用 mysql 的并行复制，但是问题是那是库级别的并行，所以有时候作用不是很大
+解决方案：
 
-通常来说，我们会对于那种写了之后立马就要保证可以查到的场景，采用强制读主库的方式，这样就可以保证你肯定的可以读到数据了吧。其实用一些数据库中间件是没问题的。
+1：分库，分散压力，将一个主库拆分为 4 个主库，每个主库的写并发就 500/s，此时主从延迟可以忽略不计
 
-一般来说，如果主从延迟较为严重
+2：在业务层和数据库之间使用Redis或memcache，降低mysql读压力。
 
-- 分库，将一个主库拆分为 4 个主库，每个主库的写并发就 500/s，此时主从延迟可以忽略不计
-- 打开 mysql 支持的并行复制，多个库并行复制，如果说某个库的写入并发就是特别高，单库写并发达到了 2000/s，并行复制还是没意义。28 法则，很多时候比如说，就是少数的几个订单表，写入了 2000/s，其他几十个表 10/s。
-- 重写代码，写代码的同学，要慎重，当时我们其实短期是让那个同学重写了一下代码，插入数据之后，直接就更新，不要查询
-- 如果确实是存在必须先插入，立马要求就查询到，然后立马就要反过来执行一些操作，对这个查询设置直连主库。不推荐这种方法，你这么搞导致读写分离的意义就丧失了
+3：不同业务的数据库物理上放到不同的机器上。
+
+4：打开 mysql 支持的并行复制，多个库并行复制，如果说某个库的写入并发就是特别高，单库写并发达到了 2000/s，并行复制还是没意义。28 法则，很多时候比如说，就是少数的几个订单表，写入了 2000/s，其他几十个表 10/s。但是问题是那是库级别的并行，所以有时候作用不是很大
+
+5：重写代码，写代码的同学，要慎重，当时我们其实短期是让那个同学重写了一下代码，插入数据之后，直接就更新，不要查询
+
+6：如果确实是存在必须先插入，立马要求就查询到，然后立马就要反过来执行一些操作，对这个查询设置直连主库。不推荐这种方法，你这么搞导致读写分离的意义就丧失了，采用强制读主库的方式，这样就可以保证你肯定的可以读到数据了吧。其实用一些数据库中间件是没问题的。
 
 ### 实现读写分离
 
