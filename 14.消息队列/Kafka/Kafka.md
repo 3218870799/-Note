@@ -1,9 +1,10 @@
 ﻿# 第 1 章 Kafka 概述
 
+观察者模式
+
 ## 1.1 定义
 
-Kafka 是一个分布式的基于发布/订阅模式的消息队列（Message
-Queue），主要应用于大数据实时处理领域。
+Kafka 是一个分布式的基于发布/订阅模式的消息队列（MessageQueue），主要应用于大数据实时处理领域。
 
 ## 1.2 消息队列
 
@@ -13,43 +14,37 @@ Queue），主要应用于大数据实时处理领域。
 
 使用消息队列的好处
 
-1.  解耦
+1：解耦
 
-    允许你独立的扩展或修改两边的处理过程，只要确保它们遵守同样的接口约束。
+允许你独立的扩展或修改两边的处理过程，只要确保它们遵守同样的接口约束。
 
-2.  可恢复性
+2：可恢复性
 
-    系统的一部分组件失效时，不会影响到整个系统。消息队列降低了进程间的耦合度，所
+系统的一部分组件失效时，不会影响到整个系统。消息队列降低了进程间的耦合度，所以即使一个处理消息的进程挂掉，加入队列中的消息仍然可以在系统恢复后被处理。
 
-以即使一个处理消息的进程挂掉，加入队列中的消息仍然可以在系统恢复后被处理。
+3：缓冲有助于控制和优化数据流经过系统的速度，解决生产消息和消费消息的处理速度不一致的情况。
 
-1.  缓冲有助于控制和优化数据流经过系统的速度，解决生产消息和消费消息的处理速度不一致的情况。
+4：灵活性 & 峰值处理能力
 
-2.  灵活性 & 峰值处理能力
+在访问量剧增的情况下，应用仍然需要继续发挥作用，但是这样的突发流量并不常见。如果为以能处理这类峰值访问为标准来投入资源随时待命无疑是巨大的浪费。使用消息队列能够使关键组件顶住突发的访问压力，而不会因为突发的超负荷的请求而完全崩溃。
 
-在访问量剧增的情况下，应用仍然需要继续发挥作用，但是这样的突发流量并不常见。如果为以能处理这类峰值访问为标准来投入资源随时待命无疑是巨大的浪费。使用消息队列
-
-能够使关键组件顶住突发的访问压力，而不会因为突发的超负荷的请求而完全崩溃。
-
-1.  异步通信
+5：异步通信
 
 很多时候，用户不想也不需要立即处理消息。消息队列提供了异步处理机制，允许用户把一个消息放入队列，但并不立即处理它。想向队列中放入多少消息就放多少，然后在需要的时候再去处理它们。
 
 ### 1.2.2 消息队列的两种模式
 
-1.  点对点模式（一对一，消费者主动拉取数据，消息收到后消息清除）
+1：点对点模式（一对一，消费者主动拉取数据，消息收到后消息清除）
 
-消息生产者生产消息发送到 Queue 中，然后消息消费者从 Queue 中取出并且消费消息。消息被消费以后，queue
-中不再有存储，所以消息消费者不可能消费到已经被消费的消息。
+消息生产者生产消息发送到 Queue 中，然后消息消费者从 Queue 中取出并且消费消息。消息被消费以后，queue 中不再有存储，所以消息消费者不可能消费到已经被消费的消息。
 
 Queue 支持存在多个消费者，但是对一个消息而言，只会有一个消费者可以消费。
 
 ![](media/825613803daec1ed7392f8eb946c8bac.jpg)
 
-1.  发布**/**订阅模式（一对多，消费者消费数据之后不会清除消息）
+2：发布**/**订阅模式（一对多，消费者消费数据之后不会清除消息）
 
-    消息生产者（发布）将消息发布到 topic
-    中，同时有多个消息消费者（订阅）消费该消息。和点对点方式不同，发布到 topic 的消息会被所有订阅者消费。
+消息生产者（发布）将消息发布到 topic 中，同时有多个消息消费者（订阅）消费该消息。和点对点方式不同，发布到 topic 的消息会被所有订阅者消费。
 
 ![](media/ee4bd138fb605cf58023be35caf84c42.jpg)
 
@@ -57,31 +52,23 @@ Queue 支持存在多个消费者，但是对一个消息而言，只会有一�
 
 ![image-20210106150721739](media/image-20210106150721739.png)
 
-1.  **Producer** ：消息生产者，就是向 kafka broker 发消息的客户端；
-2.  **Consumer** ：消息消费者，向 kafka broker 取消息的客户端；
-3.  **Consumer Group** （**CG**）：消费者组，由多个 consumer
-    组成。消费者组内每个消费者负责消费不同分区的数据，一个分区只能由一个组内消费者消费；消费者组之间互不影响。所有的消费者都属于某个消费者组，即消费者组是逻辑上的一个订阅者。
-4.  **Broker** ：一台 kafka 服务器就是一个 broker。一个集群由多个 broker
-    组成。一个 broker 可以容纳多个 topic。
+**Producer** ：消息生产者，就是向 kafka broker 发消息的客户端；
 
-broker 是消息的代理，Producers 往 Brokers 里面的指定 Topic 中写消息，Consumers 从 Brokers 里面拉取指定 Topic 的消息，然后进行业务处理，broker 在中间起到一个代理保存消息的中转站。
+**Consumer** ：消息消费者，向 kafka broker 取消息的客户端；
 
-1.  **Topic** ：可以理解为一个队列，生产者和消费者面向的都是一个 **topic**；
-2.  **Partition**：为了实现扩展性，一个非常大的 topic 可以分布到多个
-    broker（即服务器）上，一个 **topic** 可以分为多个 **partition**，每个
-    partition 是一个有序的队列；
-3.  **Replica**：副本，为保证集群中的某个节点发生故障时，该节点上的 partition
-    数据不丢失，且 kafka 仍然能够继续工作，kafka 提供了副本机制，一个 topic
-    的每个分区都有若干个副本，
+**Consumer Group** （**CG**）：消费者组，由多个 consumer 组成。消费者组内每个消费者负责消费不同分区的数据，一个分区只能由一个组内消费者消费；消费者组之间互不影响。所有的消费者都属于某个消费者组，即消费者组是逻辑上的一个订阅者。
 
-一个 **leader** 和若干个 **follower**。
+**Broker** ：一台 kafka 服务器就是一个 broker。一个集群由多个 broker 组成。一个 broker 可以容纳多个 topic。broker 是消息的代理，Producers 往 Brokers 里面的指定 Topic 中写消息，Consumers 从 Brokers 里面拉取指定 Topic 的消息，然后进行业务处理，broker 在中间起到一个代理保存消息的中转站。
 
-1.  **leader**：每个分区多个副本的“主”，生产者发送数据的对象，以及消费者消费数据的对
+**Topic** ：可以理解为一个队列，生产者和消费者面向的都是一个 topic；
 
-象都是 leader。
+**Partition**：为了实现扩展性，一个非常大的 topic 可以分布到多个 broker（即服务器）上，一个 **topic** 可以分为多个 **partition**，每个 partition 是一个有序的队列；
 
-1.  **follower**：每个分区多个副本中的“从”，实时从 leader 中同步数据，保持和
-    leader 数据的同步。leader 发生故障时，某个 follower 会成为新的 follower。
+**Replica**：副本，为保证集群中的某个节点发生故障时，该节点上的 partition 数据不丢失，且 kafka 仍然能够继续工作，kafka 提供了副本机制，一个 topic 的每个分区都有若干个副本，一个 **leader** 和若干个 **follower**。
+
+**leader**：每个分区多个副本的“主”，生产者发送数据的对象，以及消费者消费数据的对象都是 leader。
+
+**follower**：每个分区多个副本中的“从”，实时从 leader 中同步数据，保持和 leader 数据的同步。leader 发生故障时，某个 follower 会成为新的 follower。
 
 # 第 2 章 Kafka 快速入门
 
@@ -250,30 +237,47 @@ bin/kafka-topics.sh hadoop102:2181 --alter --topic first --partitions 6
 
 # 第 3 章 Kafka 架构深入
 
+![image-20210404220413324](media/image-20210404220413324.png)
+
+一个 topic 对应多个 partation，为保证 partation 的可用性，每个 partation 都有一个或者多个 follower，消费者只能从 leader 中读数据，单个的 partation 是可以保证有序的。
+
+ZK 的作用是记录消费者消费 partation 中的偏移量。至于消费者什么时候提交消费的偏移量，会引起不同的问题，
+
+如果读完就提交偏移量，丢失数据，
+
+如果处理完再提交偏移量，多读数据，重复读数据
+
+还有生产者是传输给 topic 就算传输完成（可能丢失数据），还是 topic 写到 partation 就算传输完成（可能导致重复）？
+
+partation 数据路由规则
+
+1：指定了 patition 则直接使用
+
+2：未指定 patition，但指定 key，则通过对 key 的 value 通过 hash 选出一个 patition
+
+3：patition 和 key 都未指定，使用轮询选出一个 patition
+
+每条消息有一个自增编号：标识顺讯，用于标识消息的偏移量
+
+副本：
+
 ## 3.1 Kafka 工作流程及文件存储机制
 
 ![image-20210106151804859](media/image-20210106151804859.png)
 
-Kafka 中消息是以 **topic** 进行分类的，生产者生产消息，消费者消费消息，都是面向 topic 的。 topic 是逻辑上的概念，而 partition 是物理上的概念，每个 partition 对应于一个 log 文件，该 log 文件中存储的就是 producer 生产的数据。Producer 生产的数据会被不断追加到该 log 文件末端，且每条数据都有自己的
-offset。消费者组中的每个消费者，都会实时记录自己消费到了哪个 offset，以便出错恢复时，从上次的位置继续消费。
+Kafka 中消息是以 **topic** 进行分类的，生产者生产消息，消费者消费消息，都是面向 topic 的。 topic 是逻辑上的概念，而 partition 是物理上的概念，每个 partition 对应于一个 log 文件，该 log 文件中存储的就是 producer 生产的数据。Producer 生产的数据会被不断追加到该 log 文件末端，且每条数据都有自己的 offset。消费者组中的每个消费者，都会实时记录自己消费到了哪个 offset，以便出错恢复时，从上次的位置继续消费。
 
 ![image-20210106151856074](media/image-20210106151856074.png)
 
-由于生产者生产的消息会不断追加到 log 文件末尾，为防止 log 文件过大导致数据定位,效率低下，Kafka 采取了分片和索引机制，将每个 partition 分为多个 segment。每个 segment 对应两个文件——“.index”文件和“.log”文件。这些文件位于一个文件夹下，
-
-该文件夹的命名规则为：topic 名称+分区序号。例如，first 这个 topic 有三个分区，则其对应的文件夹为
+由于生产者生产的消息会不断追加到 log 文件末尾，为防止 log 文件过大导致数据定位,效率低下，Kafka 采取了分片和索引机制，将每个 partition 分为多个 segment。每个 segment 对应两个文件——“.index”文件和“.log”文件。这些文件位于一个文件夹下，该文件夹的命名规则为：topic 名称+分区序号。例如，first 这个 topic 有三个分区，则其对应的文件夹为
 
 first-0,first-1,first-2。
 
 00000000000000000000.index 00000000000000000000.log
 
-00000000000000170410.index
+00000000000000170410.index 00000000000000170410.log
 
-00000000000000170410.log
-
-00000000000000239430.index
-
-00000000000000239430.log
+00000000000000239430.index 00000000000000239430.log
 
 index 和 log 文件以当前 segment 的第一条消息的 offset 命名。下图为 index 文件和 log 文件的结构示意图。
 
@@ -328,8 +332,7 @@ Kafka 选择了第二种方案，原因如下：
 
 #### **ISR**
 
-采用第二种方案之后，设想以下情景：leader 收到数据，所有 follower 都开始同步数据，但有一个 follower，因为某种故障，迟迟不能与 leader 进行同步，那
-leader 就要一直等下去，直到它完成同步，才能发送 ack。这个问题怎么解决呢？
+采用第二种方案之后，设想以下情景：leader 收到数据，所有 follower 都开始同步数据，但有一个 follower，因为某种故障，迟迟不能与 leader 进行同步，那 leader 就要一直等下去，直到它完成同步，才能发送 ack。这个问题怎么解决呢？
 
 Leader 维护了一个动态的 in-sync replica set (ISR)，意为和 leader 保持同步的 follower 集合。当 ISR 中的 follower 完成数据的同步之后，leader 就会给 follower 发送 ack。如果 follower 长时间未向 leader 同步数据，则该 follower 将被踢出 ISR，该时间阈值由 **replica.lag.time.max.ms** 参数设定。Leader 发生故障之后，就会从 ISR 中选举新的 leader。
 
@@ -349,12 +352,11 @@ acks 参数配置： **acks**：
 
 1：producer 等待 broker 的 ack，partition 的 leader 落盘成功后返回 ack，如果在 follower 同步成功之前 leader 故障，那么将会丢失数据；
 
-\-1（all）：producer 等待 broker 的 ack，partition 的 leader 和 follower 全部落盘成功后才返回 ack。但是如果在 follower 同步完成后，broker 发送 ack
-之前，leader 发生故障，那么会造成数据重复。
+\-1（all）：producer 等待 broker 的 ack，partition 的 leader 和 follower 全部落盘成功后才返回 ack。但是如果在 follower 同步完成后，broker 发送 ack 之前，leader 发生故障，那么会造成数据重复。
 
 #### 副本同步机制
 
-Kafka 中主题的每个 Partition 有一个预写式日志文件，每个 Partition 都由一系列有序的、不可变的消息组成，这些消息被连续的追加到 Partition 中，Partition 中的每个消息都有一个连续的序列号叫做 offset,确定它在分区日志中唯一的位置
+Kafka 中 topic 的每个 Partition 有一个预写式日志文件，每个 Partition 都由一系列有序的、不可变的消息组成，这些消息被连续的追加到 Partition 中，Partition 中的每个消息都有一个连续的序列号叫做 offset,确定它在分区日志中唯一的位置
 
 故障处理细节
 
@@ -404,39 +406,27 @@ At Least Once + 幂等性 = Exactly Once
 
 consumer 采用 pull（拉）模式从 broker 中读取数据。
 
-push（推）模式很难适应消费速率不同的消费者，因为消息发送速率是由 broker
-决定的。它的目标是尽可能以最快速度传递消息，但是这样很容易造成 consumer
-来不及处理消息，典型的表现就是拒绝服务以及网络拥塞。而 pull 模式则可以根据
-consumer 的消费能力以适当的速率消费消息。
+push（推）模式很难适应消费速率不同的消费者，因为消息发送速率是由 broker 决定的。它的目标是尽可能以最快速度传递消息，但是这样很容易造成 consumer 来不及处理消息，典型的表现就是拒绝服务以及网络拥塞。而 pull 模式则可以根据 consumer 的消费能力以适当的速率消费消息。
 
-pull 模式不足之处是，如果 kafka
-没有数据，消费者可能会陷入循环中，一直返回空数据。针对这一点，Kafka
-的消费者在消费数据时会传入一个时长参数
-timeout，如果当前没有数据可供消费，consumer
-会等待一段时间之后再返回，这段时长即为 timeout。
+pull 模式不足之处是，如果 kafka 没有数据，消费者可能会陷入循环中，一直返回空数据。针对这一点，Kafka 的消费者在消费数据时会传入一个时长参数 timeout，如果当前没有数据可供消费，consumer 会等待一段时间之后再返回，这段时长即为 timeout。
 
 ### 3.3.2 分区分配策略
 
-一个 consumer group 中有多个 consumer，一个 topic 有多个 partition，所以必然会涉及到 partition 的分配问题，即确定那个 partition 由哪个
-consumer 来消费。
+一个 consumer group 中有多个 consumer，一个 topic 有多个 partition，所以必然会涉及到 partition 的分配问题，即确定那个 partition 由哪个 consumer 来消费。
 
 Kafka 有两种分配策略，一是 RoundRobin，一是 Range。
 
-1.  RoundRobin
-
-![image-20210106153100194](media/image-20210106153100194.png)
+RoundRobin
 
 Range
 
 ### 3.3.3 offset 的维护
 
-由于 consumer 在消费过程中可能会出现断电宕机等故障，consumer 恢复后，需要从故障前的位置的继续消费，所以 consumer 需要实时记录自己消费到了哪个
-offset，以便故障恢复后继续消费。
+由于 consumer 在消费过程中可能会出现断电宕机等故障，consumer 恢复后，需要从故障前的位置的继续消费，所以 consumer 需要实时记录自己消费到了哪个 offset，以便故障恢复后继续消费。
 
 ![](media/b1258fb46d4aafce3e86b8236d686200.jpg)
 
-Kafka 0.9 版本之前，consumer 默认将 offset 保存在 Zookeeper 中，从 0.9 版本开始， consumer 默认将 offset 保存在 Kafka 一个内置的 topic 中，该 topic
-为**\_\_consumer_offsets**。
+Kafka 0.9 版本之前，consumer 默认将 offset 保存在 Zookeeper 中，从 0.9 版本开始， consumer 默认将 offset 保存在 Kafka 一个内置的 topic 中，该 topic 为**\_\_consumer_offsets**。
 
 - 修改配置文件 consumer.properties
 
@@ -497,14 +487,11 @@ bin/kafka-console-producer.sh \\  --broker-list hadoop102:9092 --topic first
 
 ## 3.4 Kafka 高效读写数据
 
-1.  顺序写磁盘
+1：顺序写磁盘
 
-Kafka 的 producer 生产数据，要写入到 log
-文件中，写的过程是一直追加到文件末端，为顺序写。官网有数据表明，同样的磁盘，顺序写能到
-600M/s，而随机写只有
-100K/s。这与磁盘的机械机构有关，顺序写之所以快，是因为其省去了大量磁头寻址的时间。
+Kafka 的 producer 生产数据，要写入到 log 文件中，写的过程是一直追加到文件末端，为顺序写。官网有数据表明，同样的磁盘，顺序写能到 600M/s，而随机写只有 100K/s。这与磁盘的机械机构有关，顺序写之所以快，是因为其省去了大量磁头寻址的时间。
 
-1.  零复制技术
+2：零复制技术
 
 ## 3.5 Zookeeper 在 Kafka 中的作用
 
@@ -524,28 +511,65 @@ Kafka 从 0.11 版本开始引入了事务支持。事务可以保证 Kafka 在 
 
 为了实现跨分区跨会话的事务，需要引入一个全局唯一的 Transaction ID，并将 Producer 获得的 PID 和 Transaction ID 绑定。这样当 Producer 重启后就可以通过正在进行的 Transaction ID 获得原来的 PID。
 
-为了管理 Transaction，Kafka 引入了一个新的组件 Transaction Coordinator。Producer 就是通过和 Transaction Coordinator 交互获得 Transaction ID
-对应的任务状态。Transaction Coordinator 还负责将事务所有写入 Kafka 的一个内部 Topic，这样即使整个服务重启，由于事务状态得到保存，进行中的事务状态可以得到恢复，从而继续进行。
+为了管理 Transaction，Kafka 引入了一个新的组件 Transaction Coordinator。Producer 就是通过和 Transaction Coordinator 交互获得 Transaction ID 对应的任务状态。Transaction Coordinator 还负责将事务所有写入 Kafka 的一个内部 Topic，这样即使整个服务重启，由于事务状态得到保存，进行中的事务状态可以得到恢复，从而继续进行。
 
 ### 3.6.2 Consumer 事务
 
-上述事务机制主要是从 Producer 方面考虑，对于 Consumer 而言，事务的保证就会相对较弱，尤其时无法保证 Commit 的信息被精确消费。这是由于
-Consumer 可以通过 offset 访问任意信息，而且不同的 Segment File 生命周期不同，同一事务的消息可能会出现重启后被删除的情况。
+上述事务机制主要是从 Producer 方面考虑，对于 Consumer 而言，事务的保证就会相对较弱，尤其时无法保证 Commit 的信息被精确消费。这是由于 Consumer 可以通过 offset 访问任意信息，而且不同的 Segment File 生命周期不同，同一事务的消息可能会出现重启后被删除的情况。
 
-## 消息丢失与重复消费问题
+## 消息丢失
+
+## 重复消费问题
 
 针对消息丢失：同步模式下，确认机制设置为-1，即让消息写入 Leader 和 Follower 之后再确认消息发送成功；异步模式下，为防止缓冲区满，可以在配置文件设置不限制阻塞超时时间，当缓冲区满时让生产者一直处于阻塞状态；
 
 针对消息重复：将消息的唯一标识保存到外部介质中，每次消费时判断是否处理过即可。
 
+kafka 实际上有个 offset 的概念，就是每个消息写进去，都有一个 offset，代表他的序号，然后 consumer 消费了数据之后，每隔一段时间，会把自己消费过的消息 offset 提交一下，代表我已经消费过了，下次我要是重启啥的，你就让我从上次消费到的 offset 来继续消费。
+
+数据要写库，首先根据主键查一下，如果这个数据已经有了，那就别插入了，执行 update 即可
+
+让生产者发送每条消息的时候，需要加一个全局唯一的 id，类似于订单 id 之后的东西，然后你这里消费到了之后，先根据这个 id 去 redis 中查找，之前消费过了么，如果没有消费过，那就进行处理，然后把这个 id 写入到 redis 中，如果消费过了，那就别处理了，保证别重复消费相同的消息即可。
+
 ## 消息顺序性
 
 kafka 每个 partition 中的消息在写入时都是有序的，消费时，每个 partition 只能被每一个 group 中的一个消费者消费，保证了消费时也是有序的。
+
 整个 topic 不保证有序。如果为了保证 topic 整个有序，那么将 partition 调整为 1.
 
 ## 延时队列
 
 Kafka 并没有使用 JDK 自带的 Timer 或者 DelayQueue 来实现延迟的功能，而是**基于时间轮自定义了一个用于实现延迟功能的定时器（SystemTimer）**。JDK 的 Timer 和 DelayQueue 插入和删除操作的平均时间复杂度为 O(nlog(n))，并不能满足 Kafka 的高性能要求，而基于时间轮可以将插入和删除操作的时间复杂度都降为 O(1)。时间轮的应用并非 Kafka 独有，其应用场景还有很多，在 Netty、Akka、Quartz、Zookeeper 等组件中都存在时间轮的踪影。
+
+## Kafka 实现高可用
+
+## Kafka 数据检索机制
+
+先把索引文件 index 申请下来，申请一块连续的空间。
+
+第二个文件名以第一格 segment 的最后一条消息的 offerset 组成。
+
+通过索引文件，确定 log 文件的偏移量位置。
+
+## 安全性
+
+生产者与 topic 之间
+
+at last one
+
+at most once
+
+exactly：
+
+消费者与 patition 之间，
+
+## 优化
+
+patition 数目：
+
+patition 数量多，并行就高了。
+
+副本数量：数量越多越稳定。
 
 # 第 4 章 Kafka API
 
@@ -947,8 +971,6 @@ export KE_HOME=/opt/module/eagle export PATH=\$PATH:\$KE_HOME/bin
 
 # 第 7 章 Kafka 面试题
 
-##
-
 消息的发送机制：
 
 kafka 的消息发送机制分为同步和异步机制。可以通过 producer.type 属性进行配置。使用同步模式的时候，有三种状态来保证消息的安全生产。可以通过配置 request.required.acks 属性。三个属性分别如下
@@ -981,11 +1003,25 @@ max.in.flight.requests.per.connnection = 1 限制客户端在单个连接上能�
 
 重复消费的问题，一方面需要消息中间件来进行保证。另一方面需要自己的处理逻辑来保证消息的幂等性。极有可能代码消费了消息，但服务器突然宕机，未来得及提交 offset。所以我们可以在代码保证消息消费的幂等性。至于方法可以通过 redis 的原子性来保证，也可以通过数据库的唯一 id 来保证。
 
-1.Kafka 中的 ISR(InSyncRepli)、OSR(OutSyncRepli)、AR(AllRepli)代表什么？
+**1.Kafka 中的 ISR(InSyncRepli)、OSR(OutSyncRepli)、AR(AllRepli)代表什么？**
 
-2.Kafka 中的 HW、LEO 等分别代表什么？
+A：
 
-#### Kafka 中是怎么体现消息顺序性的？
+Leader 维护了一个动态的 in-sync replica set (ISR)，意为和 leader 保持同步的 follower 集合。当 ISR 中的 follower 完成数据的同步之后，leader 就会给 follower 发送 ack。如果 follower 长时间未向 leader 同步数据，则该 follower 将被踢出 ISR，该时间阈值由 **replica.lag.time.max.ms** 参数设定。Leader 发生故障之后，就会从 ISR 中选举新的 leader。
+
+分区中所有的副本统称为 AR
+
+从 ISR 中剔除出来的称为 OSR（脱离同步副本）
+
+**2.Kafka 中的 HW、LEO 等分别代表什么？**
+
+A：
+
+**LEO**：指的是每个副本最大的 **offset**；
+
+**HW**：指的是消费者能见到的最大的 **offset**，**ISR** 队列中最小的 **LEO**。
+
+#### 3：Kafka 中是怎么体现消息顺序性的？
 
 Kafka 分布式的单位是 partition，同一个 partition 用一个 write ahead log 组织，所以可以保证 FIFO 的顺序。不同 partition 之间不能保证顺序。
 
@@ -993,45 +1029,72 @@ Kafka 分布式的单位是 partition，同一个 partition 用一个 write ahea
 
 4.Kafka 中的分区器、序列化器、拦截器是否了解？它们之间的处理顺序是什么？
 
+![img](media/ac6e6b92-cef8-404e-8658-ec2edd772eee.png)
+
 5.Kafka 生产者客户端的整体结构是什么样子的？使用了几个线程来处理？分别是什么？
-6.“消费组中的消费者个数如果超过 topic
-的分区，那么就会有消费者消费不到数据”这句话是否正确？
+
+同上图
+
+6.“消费组中的消费者个数如果超过 topic 的分区，那么就会有消费者消费不到数据”这句话是否正确？
+
+正确
 
 7.消费者提交消费位移时提交的是当前消费到的最新消息的 offset 还是 offset+1？
+
+offerset+1
 
 8.有哪些情形会造成重复消费？
 
 9.那些情景会造成消息漏消费？
 
-10.当你使用 kafka-topics.sh 创建（删除）了一个 topic 之后，Kafka
-背后会执行什么逻辑？
+先提交 offerset ，后消费，有可能造成数据重复。
 
-1.  会在 zookeeper 中的/brokers/topics 节点下创建一个新的 topic 节点，如：
+10.当你使用 kafka-topics.sh 创建（删除）了一个 topic 之后，Kafka 背后会执行什么逻辑？
 
-/brokers/topics/first
+A：
 
-1.  触发 Controller 的监听程序
+1. 会在 zookeeper 中的/brokers/topics 节点下创建一个新的 topic 节点，如：/brokers/topics/first
+2. 触发 Controller 的监听程序
+3. kafka Controller 负责 topic 的创建工作，并更新 metadata cache
 
-2.  kafka Controller 负责 topic 的创建工作，并更新 metadata cache
+   11.topic 的分区数可不可以增加？如果可以怎么增加？如果不可以，那又是为什么？
 
-11.topic 的分区数可不可以增加？如果可以怎么增加？如果不可以，那又是为什么？
+可以增加，
+
+```cmd
+bin/kafka-topics.sh --zookeeper localhost:2181/kafka --alter --topic topic-config --partitions 3
+```
 
 12.topic 的分区数可不可以减少？如果可以怎么减少？如果不可以，那又是为什么？
 
+A：不可以减少，被删除的分区数据那一处理
+
 13.Kafka 有内部的 topic 吗？如果有是什么？有什么所用？
+
+A：\_\_consumer_offsets,保存消费者 offset
 
 14.Kafka 分区分配的概念？
 
+一个 topic 多个分区，一个消费者组多个消费者，故需要将分区分配给多个消费者。
+
 15.简述 Kafka 的日志目录结构？
+
+每个分区对应一个文件夹，文件夹的命名为 topic-0，topic-1，内部为.log 和.index 文件
 
 16.如果我指定了一个 offset，Kafka Controller 怎么查找到对应的消息？
 
 17.聊一聊 Kafka Controller 的作用？
 
+负责管理集群 broker 的上下线，所有 topic 的分区副本分配和 leader 选举等工作
+
 18.Kafka 中有那些地方需要选举？这些地方的选举策略又有哪些？
+
+partition leader（ISR），controller（先到先得）
 
 19.失效副本是指什么？有那些应对措施？
 
+不能及时与 leader 同步，暂时踢出 ISR，等其追上 leader 之后再重新加入
+
 20.Kafka 的哪些设计让它有如此高的性能？
 
-## 7.2 参考答案
+分区，顺序写磁盘，0-copy
