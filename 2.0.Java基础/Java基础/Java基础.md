@@ -67,7 +67,6 @@ synchronized：保证在同一时刻，只有一个线程可以执行某个方�
   - 不保证原子性
   - 禁止指令重排
 
-保证可见性，有序性（指令重排），保证单次读写的原子性
 保证了不同线程对这个变量进行操作时的可见性，即一个线程修改了某个变量的值，这新值对其他线程来说是立即可见的。（实现可见性）
 
 禁止进行指令重排序。（实现有序性）
@@ -325,6 +324,12 @@ foo(sb); // sb 没有被改变，还是 "iphone"
 builder = new StringBuilder("ipad"); 之后
 
 ![image-20210305103922424](media/image-20210305103922424.png)
+
+### 存放位置
+
+在方法中声明的变量，如果是基本类型，其变量名和值都存放在方法栈中；如果是引用变量，所声明的变量是放在方法的栈中，该变量所指向的对象是放在堆类中的。
+
+在类中声明的变量，如果是基本类型则存放在堆里，如果是引用，引用和对应的对象也都在堆里
 
 ## 3：流程控制
 
@@ -1501,7 +1506,7 @@ HashMap 在进行扩容时，使用的 rehash 方式非常巧妙，因为每次�
 
 总的来说：扩容时总是扩容到原来的两倍，使用位运算，可以很容易的将原本的元素转移到新的数组中去。
 
-Q：HashMap 为什么是线程不安全的，怎么解决呢？
+**Q：HashMap 为什么是线程不安全的，怎么解决呢？**
 
 不安全：
 
@@ -2081,9 +2086,15 @@ ThreadLocal 与 Synchronized 的区别：
 
 3、ThreadLocal 是一个**弱引用**，当为 null 时，会被当成垃圾回收
 
+为什么 key 设置成弱引用？
+
+当线程结束时，将线程设为 null，如果 key 也设置成强引用指向 ThreadLocal，那么在线程结束时 ThreadLocal 不能被回收，，容易发生内存泄漏。
+
 **4、重点来了，突然我们 ThreadLocal 是 null 了，也就是要被垃圾回收器回收了，但是此时我们的 ThreadLocalMap 生命周期和 Thread 的一样，它不会回收，这时候就出现了一个现象。那就是 ThreadLocalMap 的 key 没了，但是 value 还在，这就造成了内存泄漏。**
 
 **解决办法：使用完 ThreadLocal 后，执行 remove 操作，避免出现内存溢出情况。**
+
+线程池禁用 ThreadLocal，如果没有 remove 掉，则容易造成垃圾。
 
 ### 核心源码
 
@@ -2105,6 +2116,8 @@ ThreadLocal 与 Synchronized 的区别：
 ThreadLocalMap 是 ThreadLocal 的内部类，没有实现 Map 接口，用独立的方式实现了 Map 的功能，其内部的 Entry 也是独立实现。
 
 存储结果 Entry
+
+### Spring 中使用
 
 ## 5.3：线程实现方式
 
@@ -2447,6 +2460,26 @@ Q：线程池是通过队列的 take 方法来阻塞核心线程 Worker 的 run 
 - 信号量机制（Semaphore）：包括无名线程信号量和命名线程信号量
 - 信号机制（Signal）：类似进程间的信号处理，线程间的通信目的主要是用于线程同步，所以线程没有像进程通信中的用于数据交换的通信机制。
 
+线程间交换数据：
+
+```java
+ExecutorService service = Executors.newCachedThreadPool();
+Exchanger exchanger = new Exchanger();
+service.execute(new Runnable() {
+            public void run() {
+                try {
+                    String sendData = "id:" + Thread.currentThread().getId() + ",data:两个黄鹂鸣翠柳，一行白鹭上青天；";
+                    System.out.println(Thread.currentThread().getName() + "准备把数据" + sendData + "拿出来交换");
+
+                    String receiveData = (String) exchanger.exchange(sendData);
+                    System.out.println(Thread.currentThread().getName() + "换回来的数据为" + receiveData);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+```
+
 wait()：
 
 notify()
@@ -2619,6 +2652,26 @@ Monitor 是线程私有的数据结构，每一个线程都有一个可用 monit
 
 偏向锁通过对比 Mark Word 解决加锁问题，避免执行 CAS 操作。而轻量级锁是通过用 CAS 操作和自旋来解决加锁问题，避免线程阻塞和唤醒而影响性能。重量级锁是将除了拥有锁的线程以外的线程都阻塞。
 
+#### 锁升级
+
+一开始无锁，当有一个线程 A 过来的时候，
+
+偏向锁加锁（线程 A）：CAS 设置 markword 成功，markwork 设置为 【tid:A|1 | 01】；
+
+如果接下来线程 A 再来加锁，
+
+- 如果期间没有其他线程尝试获取锁，markword 没有变，就直接加锁成功，不需要 CAS 或 Monitor 操作，所以偏向锁加锁非常快。
+
+- 如果期间有其他线程尝试加锁，偏向锁那时就已经被撤销，根据当时是无锁[0 | 0 | 01]，轻量级锁[lock record ptr | 00]或者重量级锁[monitor ptr | 10]操作。
+
+当又有线程 B 来加锁：
+
+B 发现 markword 是 A 的偏向锁，但是由于偏向锁解锁不会修改 markword，如果线程 A 已经没有了，VM 就要撤销 A 的偏向锁，变成无锁；如果 A 还有，就在线程 A 中保存 lock record ptr，锁升级为轻量级锁。
+
+轻量级锁加锁：CAS 设置 markword，若当前只有一个等待线程，则该线程通过自旋进行等待。但是当自旋超过一定的次数，或者一个线程在持有锁，一个在自旋，又有第三个来访时，轻量级锁升级为重量级锁。
+
+重量级锁加 monitor 锁
+
 #### 4：公平锁与非公平锁
 
 公平锁是指多个线程按照申请锁的顺序来获取锁，线程直接进入队列中排队，队列中的第一个线程才能获得锁。
@@ -2764,7 +2817,31 @@ CountDownLatch
 - acquire() 和 acquireShared() 两种方式下，线程在等待队列中都是忽略中断的
 - acquireInterruptibly() 和 acquireSharedInterruptibly() 是支持响应中断的
 
-同步器一般包含两种方法，一种是 acquire，另一种是 release。acquire 操作阻塞调用的线程，直到或除非同步状态允许其继续执行。而 release 操作则是通过某种方式改变同步状态，使得一或多个被 acquire 阻塞的线程继续执行
+同步器一般包含两种方法，一种是 acquire，另一种是 release。acquire 操作阻塞调用的线程，直到或除非同步状态允许其继续执行。而 release 操作则是通过某种方式改变同步状态，使得一或多个被 acquire 阻塞的线程继续执行。
+
+**可中断**
+
+```java
+      final void lock() {
+
+            if (compareAndSetState(0, 1))
+                setExclusiveOwnerThread(Thread.currentThread());
+            else
+                acquire(1);
+        }
+```
+
+```java
+ public final void acquire(int arg) {
+        if (!tryAcquire(arg) &&
+            acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
+            selfInterrupt();
+    }
+```
+
+通过 lockInterruptibly()方法获取某个锁，如果不能获取到，只有进行等待的情况下，是可以响应中断的，而用 synchronized 修饰的话，当一个线程处于等待某个锁的状态，是无法被中断的，只有一只等待下去。
+
+打断之后 node 状态的变化(state 变为 cancelled)
 
 ## 5.6：线程协作
 
@@ -2807,7 +2884,7 @@ JUC 包下的容器类分为两部分，一部分是**并发集合类**，一部
 
 #### synchronized
 
-JDK 早期，synchronized 叫做重量级锁， 因为申请锁资源必须通过 kernel, 系统调用，后来调整为锁升级的过程：无锁 - 偏向锁 - 轻量级锁 （自旋锁，自适应自旋）- 重量级锁
+JDK 早期，synchronized 叫做重量级锁， 因为申请锁资源必须通过 kernel, 系统调用，后来调整为**锁升级**的过程：无锁 - 偏向锁 - 轻量级锁 （自旋锁，自适应自旋）- 重量级锁
 
 synchronized：保证在同一时刻，只有一个线程可以执行某个方法或某个代码块，同时 synchronized 可以保证一个线程的变化可见（可见性），即可以代替 volatile。悲观锁，非公平锁（底层调用 mutex 锁，内核提供的这个锁并不保证公平）
 
@@ -2844,6 +2921,24 @@ Q：**synchronized 和 volatile 的区别是什么？**
 - synchronized 属于 JVM 层面的，Lock 是 API 层面的
 - synchronized 不需要手动释放锁，Lock 需要主动释放，否则可能出现死锁
 - synchronized 不可中断，除非抛出异常或则正常运行完成，ReetrantLock 可以中断，可以设置超时方法。
+
+**重排序：**
+
+指令重排序包括：编译器优化重排，指令级并行重排，内存系统读写重排
+
+指令：
+
+store：将 cpu 缓存的数据刷新到主存中
+
+load：将主存中的数据拷贝进 cpu
+
+内存屏障种类：
+
+![在这里插入图片描述](media/b59274c5da2bf48ef50fd1ac089d0448.png)
+
+volatile 写实现内存屏障“
+
+对 volatile 变量进行写操作是，会在写操作后加入一条 store 屏障指令，将工作内存中的共享变量值刷新会到主内存。
 
 ### 原子类
 
