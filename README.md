@@ -1,10 +1,6 @@
 # :thumbsup:程序猿成长笔记
 
-## <center><font size="6">程序猿成长笔记</font></center>
-
 ![GitHub](https://img.shields.io/badge/Note-grow-green)![GitHub](https://img.shields.io/github/repo-size/3218870799/-Note?style=plastic)![GitHub](https://img.shields.io/badge/role-qcxiao-red)
-
-<center><img src="https://img.shields.io/badge/Note-grow-green"></img><img src="https://img.shields.io/github/repo-size/3218870799/-Note?style=plastic"></img><img src="https://img.shields.io/badge/role-qcxiao-red"></img></center>
 
 ## >> 说明
 
