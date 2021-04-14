@@ -8,7 +8,7 @@
 
 服务注册与发现：适配 Spring Cloud 服务注册与发现标准，默认集成了 Ribbon 的支持。
 
-分布式配置管理：致辞分布式系统中的外部化配置，配置更改时自动刷新。
+分布式配置管理：支持分布式系统中的外部化配置，配置更改时自动刷新。
 
 消息驱动能力：基于 Spring Cloud Stream 为微服务应用构建消息驱动能力
 
@@ -33,6 +33,8 @@ Seata：一个易于使用的高性能微服务分布式事务解决方案。
 Alibaba Cloud OSS：阿里云存储服务，是阿里云提供的海量，安全，低成本，高可靠的云存储服务，您可以在任何应用，任何时间，任何地点存储和访问任意类型的数据。
 
 # Nacos
+
+服务注册与配置中心
 
 ## 对比
 
@@ -90,13 +92,23 @@ http://localhost:8848/nacos
 
 账号密码:默认都是 nacos
 
-## 原理
+## 服务注册
 
-流程：
+Nacos内部集成了Ribbon做负载均衡和远程调用，直接加上` @LoadBalance ` 即可。
+
+流程原理：
 
 客户端在启动时，首先创建一个心跳定时任务，如果返回 404，就向注册中心发送注册请求；客户端将服务实例信息发送到服务端，服务端将客户信息放在一个 ConcurrentHashMap 中；客户端定时任务拉取服务端注册信息，每次拉取后刷新本地已保存的信息，需要用时直接从本地获取。
 
-心跳机制：启动微服务时会向 Nacos 建立连接，并发送心跳请求，Nacos 会将其记录下来，如果某个微服务挂掉了，Nacos 定时任务监听微服务是否超出心跳时间，先标记为不健康，还是不行就直接干掉
+心跳机制：启动微服务时会向 Nacos 建立连接，并发送心跳请求，Nacos 会将其记录下来，如果某个微服务挂掉了，Nacos 定时任务监听微服务是否超出心跳时间，先标记为不健康，还是不行就直接干掉。
+
+因为是心跳感知的服务下线，可能服务器下线了，Nacos服务端还没感知到，其他模块也就继续调用会报错。这时其他模块会进行重试，重试其他机器。如果全下线了，
+
+客户端的操作其实都是Http接口，保证了其他的语言不使用Nacos客户端也可以使用Nacos服务端。
+
+当有大量机器写客户表，同时又有大量机器读客户表时，为提高效率并没有加锁，而是采用写时复制（CopyOnWrite）方法，写的时候写副本，读的时候读原本的信息，写完覆盖注册表。Eureka的实现机制差不多，它是采用的缓存方式进行的
+
+
 
 ## 配置中心
 
@@ -192,15 +204,21 @@ Nacos 默认有自带嵌入式数据库,derby,但是如果做集群模式的话,
 
 采用集中式存储的方式来支持集群化部署，目前只支持 MYSQL 的存储。
 
-#### 1,单机版,切换 mysql 数据库:
+Nacos支持三种部署模式
 
-**将 nacos 切换到使用我们自己的 mysql 数据库:**
+- 单机模式：用于测试和单机使用
+- 集群模式：用于生产环境，确保高可用
+- 多集群模式：用于多数据中心场景
 
-**1,nacos 默认自带了一个 sql 文件,在 nacos 安装目录下**
+#### 单机版
+
+将 nacos 切换到使用我们自己的 mysql 数据库
+
+nacos 默认自带了一个 sql 文件,在 nacos 安装目录下
 
 将它放到我们的 mysql 执行
 
-**2,修改 Nacos 安装目录下的安排 application.properties,添加:**
+修改 Nacos 安装目录下的application.properties
 
 ```properties
 spring.datasource.platform=mysql
@@ -210,37 +228,21 @@ characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true
 db. password=123456
 ```
 
-**3,此时可以重启 nacos,那么就会改为使用我们自己的 mysql**
+此时可以重启 nacos,那么就会改为使用我们自己的 mysql
 
-#### Linux 上配置 Nacos 集群+Mysql 数据库
+#### 集群
 
 官方架构图:
 
 ![](media/Alibaba%E7%9A%8445.png)
 
-1：修改端口
+**1：修改端口**
 
-2：修改集群配置文件
+如果是一个nacos：启动 8848即可，如果是多个nacos：3333,4444,5555，那么就需要修改startup.sh里面的，传入端口号
 
-会有集群控制台的集群节点。项目配置中就可以指定一个虚拟 Vip
+**2：修改集群配置文件**
 
-**需要一个 Nginx 作为 VIP**
-
-1,下载安装 Nacos 的 Linux 版安装包
-
-2,进入安装目录,现在执行自带的 sql 文件
-
-进入 mysql,执行 sql 文件
-
-3.修改配置文件,切换为我们的 mysql
-
-就是上面 windos 版要修改的几个属性
-
-4,修改 cluster.conf,指定哪几个节点是 Nacos 集群
-
-这里使用 3333,4444,5555 作为三个 Nacos 节点监听的端口
-
-5,我们这里就不配置在不同节点上了,就放在一个节点上
+编辑nacos的集群配置cluster.conf，编辑Nacos的启动脚本startup.sh，使它能够接受不同的启动端口
 
 既然要在一个节点上启动不同 Nacos 实例,就要修改 startup.sh,使其根据不同端口启动不同 Nacos 实例
 
@@ -252,7 +254,7 @@ db. password=123456
 
 所以我们最后修改的就是,nohup java -Dserver.port=3344
 
-6,配置 Nginx
+3：配置 Nginx：需要一个 Nginx 作为 VIP**
 
 ```properties
 upstream cluster{
@@ -272,22 +274,15 @@ server [
 	}
 ```
 
-7,启动 Nacos:
+4：启动Nacos
+
+```cmd
 ./startup.sh -p 3333
-
 ./startup.sh -p 4444
-
 ./startup.sh -p 5555
+```
 
-7,启动 nginx
-
-8,测试:
-
-访问 192.168.159.121:1111
-
-如果可以进入 nacos 的 web 界面,就证明安装成功了
-
-9,将微服务注册到 Nacos 集群:
+5：将微服务注册到 Nacos 集群:
 
 ```yml
 spring:
@@ -302,13 +297,9 @@ spring:
 					# 换成nginx的即可,有nginx代理到其中一个节点
 ```
 
-10,进入 Nacos 的 web 界面
-
-可以看到,已经注册成功
+,进入 Nacos 的 web 界面可以看到,已经注册成功
 
 ![](media/Alibaba%E7%9A%8452.png)
-
-## 服务发现
 
 # Sentinel
 
@@ -330,21 +321,55 @@ spring:
 
 规则：围绕资源的实时状态设定的规则，可以包括流量控制规则、熔断降级规则以及系统保护规则。所有规则可以动态实时调整。
 
-## 原理：
+## 设计理念
 
-### 熔断降级
+### 流量控制
+
+Sentinel作为一个调配器，可以根据需要把随机的请求调整成合适的速度形状，选择进行直接丢弃，过滤，或则排队处理。
+
+流量控制有以下几个角度：
+
+- 资源的调用关系，例如资源的调用链路，资源与资源之间的关系。
+- 运行指标，例如QPS，线程池，系统负载等
+- 控制的效果，例如直接限流，冷启动，排队。
+
+**怎么计算实时QPS？**
+
+滑动时间窗口计数：
+
+原理：
+
+统计时间窗口内的指标，并且定时reset这些窗口属性值，每次请求过来再根据当前窗口的值判断是否满足要求决定是否降级 
+
+sentinel主要是基于7种不同的Slot形成了一个链表，每个Slot都各司其职，自己做完分内的事之后，会把请求传递给下一个Slot，直到在某一个Slot中命中规则后抛出BlockException而终止。
+
+前三个Slot负责做统计，后面的Slot负责根据统计的结果结合配置的规则进行具体的控制，是Block该请求还是放行。
+
+控制的类型也有很多可选项：根据qps、线程数、冷启动等等。
+
+### 降级
 
 Sentinel 和 Hystrix 的原则是一致的: 当调用链路中某个资源出现不稳定，例如，表现为 timeout，异常比例升高的时候，则对这个资源的调用进行限制，并让请求快速失败，避免影响到其它的资源，最终产生雪崩的效果。
 
-在限制手段上，Sentinel 和 Hystrix 采取了完全不一样的方法。
+**设计理念：**
 
 Hystrix 通过线程池)的方式，来对依赖(在我们的概念中对应资源)进行了隔离。这样做的好处是资源和资源之间做到了最彻底的隔离。缺点是除了增加了线程切换的成本，还需要预先给各个资源做线程池大小的分配。
 
 Sentinel 采用了两种手段：
 
-- 通过并发线程数进行限制：这样不但没有线程切换的损耗，也不需要预先分配线程池大小，当某个资源出现不稳定的情况下，例如响应时间变成，对资源的注解影响就是会造成线程数的逐步积累，当线程数在特定资源上积累到一定的数量之后，对该资源的心情求就会被拒绝，堆积的线程完成任务后才开始继续接受请求。
-- 通过响应时间对资源进行降级：当依赖的资源出现响应时间过长后，所有对资源的访问都会被直接拒绝，知道过了指定时间窗口之后才重新恢复。
-- 系统负载保护：Sentinel 同时对系统的维度提供保护，防止雪崩，让系统的入口流量和系统的负载达到一个平衡，保证系统在能力范围之内处理最多的请求。
+1：通过并发线程数进行限制：这样不但没有线程切换的损耗，也不需要预先分配线程池大小，当某个资源出现不稳定的情况下，例如响应时间变成，对资源的注解影响就是会造成线程数的逐步积累，当线程数在特定资源上积累到一定的数量之后，对该资源的心情求就会被拒绝，堆积的线程完成任务后才开始继续接受请求。
+
+2：通过响应时间对资源进行降级：当依赖的资源出现响应时间过长后，所有对资源的访问都会被直接拒绝，知道过了指定时间窗口之后才重新恢复。
+
+对于需要降级的服务，需要写好相应的兜底方法，如果处理失败进行记录数据库或则记录日志，或者死信队列处理等等。
+
+### 熔断
+
+如果已经知道调用远端方法会报错，就不再调用远端的方法了，直接调用本地的兜底方法。
+
+### 系统负载保护
+
+Sentinel 同时对系统的维度提供保护，防止雪崩，让系统的入口流量和系统的负载达到一个平衡，保证系统在能力范围之内处理最多的请求。
 
 ### 工作机制：
 
@@ -360,10 +385,6 @@ Sentinel 采用了两种手段：
 `StatisticSlot` 则用于记录、统计不同纬度的 runtime 指标监控信息；
 
 `ClusterBuilderSlot` 则用于存储资源的统计信息以及调用者信息，例如该资源的 RT, QPS, thread count 等等，这些信息将用作为多维度限流，降级的依据；
-
-### 流量控制
-
-角度：
 
 ## Window 安装
 
@@ -420,21 +441,33 @@ start java -jar sentinel-dashboard-1.8.1.jar --server.port=8070
 
 3. 主启动类
 
-   ![](media/Alibaba%E7%9A%8456.png)
+   ```java
+   @EnableDiscoveryClient
+   @SpringBootApplication
+   public class MainApp{
+    	public static void main(String[] args){
+           SpringApplication.run(MainApp.class,args);
+       }   
+   }
+   ```
 
-4. controller\
+4. controller
 
-   ![](media/sentinel%E7%9A%841.png)
+   ```java
+   @RestController
+   public class FlowLimitController
+   {
+       @GetMapping("/testA")
+       public String testA()
+       {
+           return "---testA";
+       }
+   }
+   ```
 
-5. 到这里就可以启动 8401
+5. 到这里就可以启动 8401此时我们到 sentinel 中查看,发现并 8401 的任何信息是因为,sentinel 是懒加载,需要我们执行一次访问,才会有信息访问 localhost/8401/testA
 
-   此时我们到 sentinel 中查看,发现并 8401 的任何信息
-
-   是因为,sentinel 是懒加载,需要我们执行一次访问,才会有信息
-
-   访问 localhost/8401/testA
-
-   ![](media/sentinel%E7%9A%842.png)
+   ![image-20200416083940979](media/4b1745b1b74148ffb30343942fbbf251)
 
 6. 可以看到.已经开始监听了
 
@@ -444,10 +477,6 @@ start java -jar sentinel-dashboard-1.8.1.jar --server.port=8070
 
 - 并发线程数
 - QPS
-
-![](media/sentinel%E7%9A%847.png)
-
-![](media/sentinel%E7%9A%843.png)
 
 资源名：唯一名称。默认请求路径
 
@@ -460,7 +489,7 @@ start java -jar sentinel-dashboard-1.8.1.jar --server.port=8070
 
 是否集群：不需要集群
 
-流控模式：
+**流控模式：**
 
 - 直接：API 达到限流条件时，直接限流
 - 关联：当关联的资源达到阈值是，就限流自己，比如**支付接口**达到阈值,就要限流下订单的接口,防止一直有订单
@@ -470,23 +499,17 @@ start java -jar sentinel-dashboard-1.8.1.jar --server.port=8070
 
 - 快速失败：直接失败，跑一场
 - Warm UP：根据 CodeFactor（冷加载因子，默认 3）的值，从阈值 CodeFactor，经过预热时长，才达到设置的 QPS 的阈值。当系统长期初一低水位的情况下，当流量突然增加时，直接把系统拉升可能瞬间把系统压垮。
-- 排队等待：严格控制请求通过的间隔时间，也即是让请求以匀速的速度通过，对应的是漏桶算法.阈值类型必须设置成 QPS，否则无效。
+- 排队等待：严格控制请求通过的间隔时间，也即是让请求以匀速的速度通过，对应的是漏桶算法.阈值类型必须设置成 QPS，否则无效
 
-## 熔断降级规则
+## 熔断降级
 
-**熔断框架比较**
-
-![](media/sentinel%E7%9A%84%E7%9A%8431.png)
-
-就是熔断降级，Sentinel 熔断降级会在调用链路中某个资源出现不稳定状态时（例如调用超时或异常比例升高），对这个资源的调用进行限制，让请求快速失败，避免影响到其他的资源而导致级联错误。
+Sentinel 熔断降级会在调用链路中某个资源出现不稳定状态时（例如调用超时或异常比例升高），对这个资源的调用进行限制，让请求快速失败，避免影响到其他的资源而导致级联错误。
 
 当资源被降级后，在接下来的降级时间窗口之内，对该资源的调用都自动熔断（默认行为是抛出 DegradeException）
 
-Sentinel 的断路器是没有半开状态的：半开的状态，系统会自动检测是否请求有异常，没有异常就关闭断路器恢复使用，有异常则继续打开断路器不可用，具体可看 Hy
+Sentinel 的断路器是没有半开状态的：半开的状态，系统会自动检测是否请求有异常，没有异常就关闭断路器恢复使用，有异常则继续打开断路器不可用，
 
-![image-20200416095515859](media/c5be24e5cafc467da1b7c9ff652c2f43)
-
-降级策略：
+**降级策略：**
 
 RT（平均响应时间，秒级）：当 1s 内持续进入 N 个请求，对应时刻的平均响应时间（秒级）均超过阈值（Count，以 ms 为单位），那么接下的时间（DegradeRule 中的 timeWindow，以 s 为单位）之内，对这个方法的调用都会自动地熔断（抛出 DegradeException）
 
@@ -499,6 +522,42 @@ RT（平均响应时间，秒级）：当 1s 内持续进入 N 个请求，对�
 异常数（分钟级）：当资源一分钟的异常数超过阈值之后就会熔断，注意由于统计时间是分钟级别的，如果 timeWindow 小于 60s，则结束熔断状态后仍可能再进入熔断状态。时间窗口一定要大于 60S
 
 - 异常数（分钟统计）超过阈值时，触发降级，时间窗口结束后，关闭降级
+
+**熔断框架比较**
+
+![](media/sentinel%E7%9A%84%E7%9A%8431.png)
+
+### 兜底方法
+
+当我们值使用 `@SentinelResource`注解时，不添加任何参数，那么如果出错的话，是直接返回一个error页面，对前端用户非常不友好，因此我们需要配置一个兜底的方法，设置fallback
+
+```java
+    @RequestMapping("/consumer/fallback/{id}")
+    @SentinelResource(value = "fallback",fallback = "handlerFallback") //fallback只负责业务异常
+    public CommonResult<Payment> fallback(@PathVariable Long id)
+    {
+    }
+    //本例是fallback
+    public CommonResult handlerFallback(@PathVariable  Long id,Throwable e) {
+        Payment payment = new Payment(id,"null");
+        return new CommonResult<>(444,"兜底异常handlerFallback,exception内容  "+e.getMessage(),payment);
+    }
+```
+
+设置blockHandler
+
+```java
+    @RequestMapping("/consumer/fallback/{id}")
+    @SentinelResource(value = "fallback",blockHandler = "blockHandler" ,fallback = "handlerFallback") //blockHandler只负责sentinel控制台配置违规
+    public CommonResult<Payment> fallback(@PathVariable Long id)
+    {
+    }
+    //本例是blockHandler
+    public CommonResult blockHandler(@PathVariable  Long id,BlockException blockException) {
+        Payment payment = new Payment(id,"null");
+        return new CommonResult<>(445,"blockHandler-sentinel限流,无此流水: blockException  "+blockException.getMessage(),payment);
+    }
+```
 
 ## 热点规则
 
@@ -537,8 +596,6 @@ public string deal_testHotkey (string p1，string p2，BlockException exception)
 ```
 
 ==定义热点规则:==
-
-![](media/sentinel%E7%9A%8440.png)
 
 **此时我们访问/testHotkey 并且带上才是 p1**
 
@@ -623,7 +680,7 @@ _![](media/sentinel%E7%9A%8451.png)_
 
 ## 持久化规则
 
-默认规则是临时存储的,重启 sentinel 就会消失
+默认情况下Sentinel不对数据持久化，重启 sentinel 就会消失，需要自己独立持久化，可以将其持久化到配置中心或注册中心。
 
 将限流配置规则持久化进 Nacos 保存，只要刷新 8401 某个 rest 地址，sentinel 控制台的流控规则就能看到，只要 Nacos 里面的配置不删除，针对 8401 删 Sentinal 上的流控规则持续有效。
 
@@ -760,25 +817,32 @@ Transaction ID XID 全局唯一的事务 ID
 
 三组件：
 
-TC（事务协调者）：维护全局和分支事务的状态，驱动全局事务提交或回滚。
-
-TM（事务管理器）：定义全局事务的范围，开始全局事务，提交或回滚全局事务。
-
-RM（资源管理器）：管理分支事务处理的资源，与 TC 交谈以注册分支事务和报告分支事务的状态，并驱动分支事务提交或回滚。
-
-![image-20210307172859624](media/image-20210307172859624.png)
-
-- TM 向 TC 申请开启一个全局事务，全局事务创建成功并生成一个全局唯一的 XID
-- XID 在微服务调用链路的上下文中传播，也就是在多个 TM，RM 中传播
-- RM 向 TC 注册分支事务，将其纳入 XID 对应全局事务的管辖
-- TM 向 TC 发起针对 XID 的全局提交或回滚决议
-- TM 调度 XID 下管辖的全部分支事务完成提交或回滚请求
-
 ![](media/seala%E7%9A%8415.png)
 
-分布式事务的执行流程：
+TC（事务协调者）：维护全局和分支事务的状态，驱动全局事务提交或回滚。
 
-TM 开启分布式事务（TM 向 TC 注册全局事务记录）
+TM（事务管理器，事务的发起方）：定义全局事务的范围，开始全局事务，提交或回滚全局事务。
+
+RM（资源管理器，参与方）：管理分支事务处理的资源，与 TC 交谈以注册分支事务和报告分支事务的状态，并驱动分支事务提交或回滚。
+
+**分布式事务的执行流程：**
+
+1：TM 开启分布式事务（TM 向 TC 注册全局事务记录），并向协调者申请一个全局事务ID，并保存到ThreadLocal中
+
+2：Seata数据源代理发起方和参与方的数据源，在原生的sql执行之前镜像和之后镜像保存到undo_log中，方便后期实现回滚。
+
+3：发起方获取全局事务id，通过改写Feign客户端请求头传入全局事务id。
+
+4：参与方从请求头中获取全局事务id保存到ThreadLocal中，并把该分支注册到SeataServer中。
+
+5：发起方TM将本地事务结果告诉协调者SeataServer
+
+- 如果调用接口抛出异常，协调者TC通知所有分支根据全局的xid和分支事务id查询数据源的undo_log日志逆向生成sql语句实现回滚，同时删除对应的undo_log日志
+- 如果调用接口成功，协调者通知所有分支根据全局的xid和分支事务的id查询分支数据源，并删除undo_log日志。
+
+
+
+
 
 按业务场景，编排数据库，服务等事务中资源（RM 向 TC 汇报资源准备状态）
 
@@ -791,6 +855,20 @@ TC 通知所有 RM 提交/回滚资源，事务二阶段结束。
 Seata 再第一阶段就已经完成本地事物的提交并且释放资源，在大并发下避免同步阻塞问题，提交操作也是异步执行。
 
 数据不一致:如果出现部分 commit 失败，那么 fescar-server 会根据当前的事务模式和分支事务的返回状态的结果来进行不同的重试策略。
+
+
+
+
+
+![image-20210307172859624](media/image-20210307172859624.png)
+
+- TM 向 TC 申请开启一个全局事务，全局事务创建成功并生成一个全局唯一的 XID
+- XID 在微服务调用链路的上下文中传播，也就是在多个 TM，RM 中传播
+- RM 向 TC 注册分支事务，将其纳入 XID 对应全局事务的管辖
+- TM 向 TC 发起针对 XID 的全局提交或回滚决议
+- TM 调度 XID 下管辖的全部分支事务完成提交或回滚请求
+
+
 
 ### 写隔离
 
@@ -807,6 +885,8 @@ https://blog.csdn.net/weixin_39800144/article/details/102730415
 AT，TCC，SAGA 和 XA 事务模式
 
 ### AT 模式：
+
+实现上几乎等于LCN框架
 
 前提
 
@@ -870,6 +950,8 @@ select age from t where id = 1; age =28
 
 ### TCC
 
+二阶段补偿方式：
+
 优点：一阶段提交本地事务，无锁，高性能；事件驱动架构，参与者可异步执行，高吞吐；补仓服务易于实现。
 
 缺点：不能保证隔离性
@@ -885,6 +967,16 @@ select age from t where id = 1; age =28
 缺点：由于分支事务长时间开启，并发度低。
 
 ## seata 安装
+
+服务端：
+
+
+
+客户端：
+
+加上 ` @GlobalTransactional ` 注解。
+
+
 
 （1)：**下载安装 seata 的安装包**
 
