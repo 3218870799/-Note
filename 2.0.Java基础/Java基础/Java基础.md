@@ -1986,6 +1986,34 @@ join 执行后线程进入阻塞状态
 
 join（）中止当前线程（也就是 a），等待指定（也就是 b）线程结束，然后再运行当前线程
 
+### **中断**
+
+Stop 方式过于野蛮，直接停止，可能会导致一些资源没有释放导致死锁。 `Thread.interupt()` 并不会立即中断，而是打上中断标记，具体啥时候中断还是交给操作系统处理，防止持久资源没法释放。Thread 类提供了 interrupted 方法测试**当前线程**是否中断，isInterrupted 方法测试线程是否已经中断
+
+线程 A 和 B 都要获取对象 O 的锁定，假设 A 获取了对象 O 锁，B 将等待 A 释放对 O 的锁定，
+
+如果使用 synchronized ，如果 A 不释放，B 将一直等下去，不能被中断
+
+如果 使用 ReentrantLock，如果 A 不释放，可以使 B 在等待了足够长的时间以后，中断等待，而干别的事情
+
+```java
+public static void main(String[] args){
+    Thread t = new DemoThread();
+    t.start();
+    t.interrupt();
+    System.out.println("t线程是否已经停止："  + t.isInterrupted());//true
+    System.out.println("当前线程是否已经停止" + Thread.interrupted());//false，main线程依然运行
+}
+public static class DemoThread extends Thread{
+    @Override
+    public void run(){
+        while(!isInterrupted()){
+            System.out.println("没结束！")
+        }
+    }
+}
+```
+
 ## 5.2：Thread 类
 
 构造
@@ -2723,7 +2751,7 @@ ReentrantLock 和 NonReentrantLock 都继承父类 AQS，其父类 AQS 中维护
 
 #### 6：独享锁（排它锁）与共享锁
 
-独占锁：指该锁一次只能被一个线程所持有。对 ReentrantLock 和 Synchronized 而言都是独占锁
+独占锁：指该锁一次只能被一个线程所持有。对 ReentrantLock 和 Synchronized 而言都是独占锁，**锁操作失败会将该线程睡眠,等待锁释放时被唤醒**。
 
 共享锁：指该锁可以被多个线程锁持有
 
@@ -2882,6 +2910,10 @@ JUC 包下的容器类分为两部分，一部分是**并发集合类**，一部
 
 ![在这里插入图片描述](media/20210306105116240.png)
 
+1：ConcurrentLinkedQueue
+
+一个基于连接节点的无界线程安全的队列，删除节点是将 item 设置为 null, 队列迭代时跳过 item 为 null 节点，所以不允许 null 入队，添加等都是使用 CAS 算法
+
 #### synchronized
 
 JDK 早期，synchronized 叫做重量级锁， 因为申请锁资源必须通过 kernel, 系统调用，后来调整为**锁升级**的过程：无锁 - 偏向锁 - 轻量级锁 （自旋锁，自适应自旋）- 重量级锁
@@ -2889,6 +2921,14 @@ JDK 早期，synchronized 叫做重量级锁， 因为申请锁资源必须通�
 synchronized：保证在同一时刻，只有一个线程可以执行某个方法或某个代码块，同时 synchronized 可以保证一个线程的变化可见（可见性），即可以代替 volatile。悲观锁，非公平锁（底层调用 mutex 锁，内核提供的这个锁并不保证公平）
 
 可以修饰代码块，方法，静态方法，类
+
+注意：用 synchronized 修饰不同类型的方法时，由于获取的对象头中的 monitor 对象可能不同，也可能会出现线程安全问题。因为：每个对象都存在一个 monitor 与之关联，对象与 monitor 之间的关系存在多种实现方式。
+
+修饰实例方法：对当前实例加锁，进入方法需要获得当前实例的锁
+
+修饰静态方法：对当前类对象加锁，进入静态方法需要获得当前类对象的锁
+
+修饰代码块：对指定对象进行加锁，进入代码块需要获得指定对象的锁
 
 #### volatile
 
@@ -3028,19 +3068,21 @@ CopyOnWriteArraySet 基于 CopyOnWriteArrayList 实现，其唯一的不同是�
 
 ReenTrantLock 的实现是一种自旋锁，通过循环调用 CAS 操作来实现加锁。它的性能比较好也是因为避免了使线程进入内核态的阻塞状态。**想尽办法避免线程进入内核的阻塞状态是我们去分析和理解锁设计的关键钥匙。**
 
-与 synchronized 的区别？
+**与 synchronized 的区别？**
 
-都是可重入锁，阻塞的，
+相同：都是可重入锁，阻塞的，
 
-synchronized 是 java 关键字，是 JVM 层面的，而 ReentrantLock 是 API 层面的。
+1：synchronized 是 java 关键字，是 JVM 层面的，而 ReentrantLock 是 API 层面的。
 
-ReenTrantLock 可以指定是公平锁还是非公平锁。而 synchronized 只能是非公平锁。
+2：ReenTrantLock 可以指定是公平锁还是非公平锁。而 synchronized 只能是非公平锁。
 
-ReenTrantLock 提供了一个 Condition（条件）类，用来实现分组唤醒需要唤醒的线程们，而不是像 synchronized 要么随机唤醒一个线程要么唤醒全部线程。
+3：ReenTrantLock 提供了一个 Condition（条件）类，用来实现分组唤醒需要唤醒的线程们，而不是像 synchronized 要么随机唤醒一个线程要么唤醒全部线程。
 
-ReenTrantLock 提供了一种能够中断等待锁的线程的机制，通过 lock.lockInterruptibly()来实现这个机制。
+4：ReenTrantLock 提供了一种能够中断等待锁的线程的机制，通过 lock.lockInterruptibly()来实现这个机制。synchronized 是不可中断的，一个线程获取不到锁就一直等着。
 
-ReentantLock 相比于 Synchronized 可以更方便的获取锁，可以操作读写锁，可以唤醒指定线程等等，
+5：ReentantLock 相比于 Synchronized 可以更方便的获取锁，可以操作读写锁，可以唤醒指定线程等等，
+
+6：Synchronized 适合于并发竞争低的情况，因为 Synchronized 的锁升级如果最终升级为重量级锁在使用的过程中是没有办法降级的（GC 必须），意味着每次都要和 cpu 去请求锁资源，而 ReentrantLock 主要是提供了阻塞的能力，**通过在高并发下线程的挂起，来减少竞争，提高并发能力**
 
 ### ReetrantReadWriteLock 读写锁
 
@@ -3700,7 +3742,21 @@ public class NIOServer {
 
 # 八：JDBC
 
-数据库连接池的实现：
+**使用 JDBC 流程：**
+
+载入 JDBC 驱动程序；
+
+定义连接 URL，建立连接；
+
+创建 PrepareStatement 或则 Statement 语句；
+
+执行查询或者更新语句；
+
+对查询或者更新的语句进行处理；
+
+关闭连接
+
+**数据库连接池的实现：**
 
 数据库连接池的基本思想就是为数据库连接建立一个“缓冲池”
 
@@ -3714,19 +3770,39 @@ public class NIOServer {
 
 提供将连接放回连接池中方法
 
-流程：
+**连接池要考虑的问题：**
 
-载入 JDBC 驱动程序；
+1：并发问题
 
-定义连接 URL，建立连接；
+可以将`getConnection()` 方法声明为 synchronized ，保证线程安全。
 
-创建 PrepareStatement 或则 Statement 语句；
+2：多数据库服务器和多用户
 
-执行查询或者更新语句；
+常常需要同时连接不同的数据库，我们采用的策略是：设计一个符合单例模式的连接池管理类，在连接池管理类的唯一实例被创建时读取一个资源文件，其中资源文件中存放着多个数据库的 url 地址等信息。根据资源文件提供的信息，创建多个连接池类的实例，每一个实例都是一个特定数据库的连接池。连接池管理类实例为每个连接池实例取一个名字，通过不同的名字来管理不同的连接池。
 
-对查询或者更新的语句进行处理；
+对于同一个数据库有多个用户使用不同的名称和密码访问的情况，也可以通过资源文件处理，即在资源文件中设置多个具有相同 url 地址，但具有不同用户名和密码的数据库连接信息。
 
-关闭连接
+3：事务处理
+
+Java 中 `connection` 类本身提供了对事务的支持，通过设置 autocommit 属性为 false 显示的调用 commit 或 rollback 方法来实现。但要高效的进行 connection 复用，就必须提供相应的事务支持机制。可采用每一个事务独占一个连接来实现，这种方法可以大大降低事务管理的复杂性。
+
+4：连接池的分配与释放
+
+5：连接池的配置与维护
+
+连接池中到底应该放置多少连接，才能使系统的性能最佳？
+
+开发时，设置较小的最小连接数，开发起来会快，而在系统实际使用时设置较大的，因为这样对访问客户来说速度会快些。最大连接数是连接池中允许连接的最大数目，具体设置多少，要看系统的访问量，可通过反复测试，找到最佳点。
+
+Druid 默认 8，设为 ` max-active = 10` 大约能保证用户 3000 以 6000TPS 的速率并发执行。
+
+## 开源实现
+
+dbcp：配置方便，可以设置最大和最小连接，连接等待时间。速度稍慢，大量并发量下稳定性有所下降，不提供连接池监控。
+
+c3p0：同上
+
+druid：目前最好的数据库连接池，功能，性能，扩展性方面都不错，可以监控数据库访问性能。
 
 # 九：特性
 
