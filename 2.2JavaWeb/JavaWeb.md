@@ -509,15 +509,25 @@ if 标签用来做if 判断
 
 # 七：Cookie与Session
 
- Cookie是保存在客户端的，session是保存在服务器端的，session是基于cookie进行信息处理的，cookie是不安全的。
+ Cookie是保存在客户端的，session是保存在服务器端的，session是基于cookie进行信息处理的，当Cookie被禁止，Session也就被禁止了。cookie是不安全的。Cookie只能保留小部分信息。
+
+客户端第一次访问服务器时，会生成一个SessionID，每个客户唯一，返回给客户，同一客户端每次和服务端交互时，不需要每次都传回所有的Cookie值，而是只要传回一个sessionID。
+
+Session默认被存在服务器的一个文件里。当然他也可以放到数据库，内存中。
+
+劫持了SessionID并不能获取到Session数据，但是可以获取进入网站获取其他信息。
 
 
 
+服务端通过设置cookie的属性domain和path来决定该域名下的cookie存放在什么地方（user@domain的文件夹）比如：百度的cookie存放在user@www.baidu.com的文件夹中，在对domain进行设置时，不能将domain指定为除当前域名或者其父域名之外的其他域名，即Cookie无法跨域设置。
 
+cookie的作用域：domain本身以及domain的子域名可以访问到相关的cookie，
 
+/path表示cookie所在的目录，默认是根目录 ` / ` ，如果cookie1 的path为 /test ,cookie2的path为/test/dd/，则test下所有页面都可以访问cookie1，但只有/test/dd目录下的页面才可以访问cookie2
 
+问：zhidao.baidu.com能获取到tieba.baidu.com的cookie吗？
 
-
+A：如果将domain设置为` .baidu.com ` 就可以了。
 
 
 
