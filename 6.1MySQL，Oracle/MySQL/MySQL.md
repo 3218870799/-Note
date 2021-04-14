@@ -132,15 +132,9 @@ mysql 配置向导启动界面，按“Next”继续。
 
 > 代表关键字:grant,revoke.
 
-
-
 ## 整体架构：
 
 ![image-20210405163207602](media/image-20210405163207602.png)
-
-
-
-
 
 # 第二部分、常用命令
 
@@ -200,8 +194,6 @@ desc <table name>;
 show create table <table name>;
 ```
 
-## 3：表
-
 ### 数据类型
 
 MySQL 支持多种类型，大致可以分为三类：数值、日期/时间和字符串(字符)类型。
@@ -251,6 +243,10 @@ MySQL 支持多种类型，大致可以分为三类：数值、日期/时间和�
 在存储上， varchar 类型需要 2 个字节的额外空间来跟踪存储字符串的长度，这样 varchar(1) 实际占用的是 3 个字节。
 
 char(10)存数据存的是 1000000000，而 varchar(10)存数据存的是 1
+
+编码格式：
+
+默认是 latin1，打开 mysql 安装目录下的 myini.tet；找到两个 default-character-set,将其改为 utf-8 的字符集
 
 ### 表操作
 
@@ -1152,14 +1148,12 @@ select * from emp limit 5;
 ```sql
 SELECT的语法顺序就是起执行顺序
 
-FROM 
+FROM
 WHERE （先过滤单表／视图／结果集，再JOIN）
 GROUP BY
 HAVING （WHERE过滤的是行，HAVING过滤的是组，所以在GROUP之后）
 ORDER BY
 ```
-
-
 
 # 第四部分、存储引擎
 
@@ -1276,9 +1270,9 @@ InnoDB 的表是根据主键进行展开的 B+tree 的聚集索引。MyIsam 则�
 
 ![image-20200404084731063](media/image-20200404084731063.png)
 
-innodb保存时一个.frm文件，一个.idb文件.索引文件和数据文件是放在同一个文件中的
+innodb 保存时一个.frm 文件，一个.idb 文件.索引文件和数据文件是放在同一个文件中的
 
-myisam有三个文件，索引文件和数据文件分开存放  .MYD文件表示数据。.MYI文件表示索引。.frm文件
+myisam 有三个文件，索引文件和数据文件分开存放 .MYD 文件表示数据。.MYI 文件表示索引。.frm 文件
 
 InnoDB 默认可以创建 16 个索引
 
@@ -1409,10 +1403,6 @@ show variables like '%auto%'; -- 查看变量状态
 ### 15.4、事务的隔离级别
 
 #### 当前读与快照读
-
-
-
-
 
 #### 15.4.1、一致性问题
 
@@ -2032,9 +2022,9 @@ simple：表示不需要 union 操作或者不包含子查询的简单 select �
 
 primary：一个需要 union 操作或者含有子查询的 select，位于最外层的单位查询的 select_type 即为 primary。且只有一个。
 
-subquery：除了 from字句中包含的子查询外，其他地方出现的子查询都可能是 subquery
+subquery：除了 from 字句中包含的子查询外，其他地方出现的子查询都可能是 subquery
 
-dependentsubquery：与 dependent union类似，表示这个 subquery 的查询要受到外部表查询的影响。
+dependentsubquery：与 dependent union 类似，表示这个 subquery 的查询要受到外部表查询的影响。
 
 derive：衍生查询，使用到了临时表，from 字句中出现的子查询，也叫做派生表，其他数据库中可能叫做内联视图或嵌套 select。
 
@@ -2189,210 +2179,6 @@ index
 #### 分析
 
 索引的使用顺序和建立索引的顺序一致，但是可能自己没遵循，但是优化器会帮助你进行优化。
-
-## 16.6：优化
-
-1：索引有没有起作用
-
-2：优化数据库结构
-
-将字段多的表分解成多个表，增加中间表
-
-3：分解关联查询
-
-缓存效率高，分解后，单个表改变可能少，命中率就高了。
-
-减少数据库锁竞争
-
-微服务化友好，易于做数据库拆分
-
-减少冗余查询，减少传输
-
-4：大于小于，IN，OR，between
-
-```sql
-SELECT * FROM tin where c1 >= 100 and c1 <= 104;
-SELECT * FROM tin where c1 bewteen 100 and 104;
-SELECT * FROM tin where c1 in (100, 101, 102, 103, 104);
-SELECT * FROM tin where c1 = 100 or c1 = 101 or c1 = 102 or c1 = 103 or c1 = 104;
-```
-
-语句 1 应该是最少的，其次是 IN，最差的就是 OR
-
-5：小表驱动大表
-
-6：表连接最好在 where 条件以前。
-
-7：from 子句组装来自不同数据源的数据；（from 后面的表关联，是自右向左解析的，即在写 SQL 的时候，尽量把数据量大的表放在最右边来进行关联）
-
-对查询进行优化，应尽量避免全表扫描
-
-（1）Where 语句
-
-- 避免在 WHERE 子句中使用 in，not in，or 或者 having；
-- 可以使用 exist 和 not exist 代替 in 和 not in；对连续数值可以使用 between；
-- 可以使用表链接代替 exist；
-- Having 可以用 where 代替，如果无法代替可以分两步处理。
-- 应尽量避免在 where 子句中对字段进行函数操作；
-- 尽量避免在 where 子句中对索引字段进行计算操作；
-- 应尽量避免在 where 子句中使用 != 或 <> 操作符；
-- 应尽量避免在 where 子句中对字段进行 null 值判断；
-- 应尽量避免在 where 子句中使用 or 来连接条件；
-- 否则将导致引擎放弃使用索引而进行全表扫描
-
-（2）Select 语句
-
-- 尽量不要使用 select \* from table 这种方式；把要查询的具体字段列出来，不要返回任何用不到的字段；
-- 尽可能的使用 varchar/nvarchar 代替 char/nchar ，因为首先变长字段存储空间小，可以节省存储空间；
-
-（3）连接语句
-
-- UNION 会将各查询子集的记录做比较，自动去掉重复记录，故比起 UNION ALL 的速度，UNION 的速度会慢很多。一般来说，如果使用 UNION ALL 能满足要求的话，尽量使用 UNION ALL。
-
-（4）Count (\*)和 Count(1)以及 Count(column)的区别
-
-- 一般情况，Select Count (\*)和 Select Count(1)返回结果一样；
-- 假如表没有主键(Primary key)，那么 count(1)比 count(\*)快；
-- 如果有主键，那主键作为 count 的条件时 count(主键)最快；
-- 如果你的表只有一个字段，那 count(\*)最快；
-- count(\*) 跟 count(1) 的结果一样，都包括对 NULL 的统计，而 count(column) 不包括 NULL 的统计
-
-（5）查询的模糊匹配
-
-- 尽量避免在一个复杂查询里面使用 LIKE '%parm1%' ，百分号会导致相关列的索引无法使用，最好不要用。
-
-（6）复杂操作
-
-- 部分 UPDATE、SELECT 语句 写得很复杂（经常嵌套多级子查询），可以适当拆成几步，先生成一些临时表，再进行关联操作。
-- 尽量使用数字型字段，若只含数值信息的字段尽量不要设计为字符型，这会降低查询和连接的性能，并会增加存储开销。这是因为引擎在处理查询和连接时会逐个比较字符串中每一个字符，而对于数字型而言只需要比较一次就够了。
-
-### 单表优化
-
-### 多表优化
-
-左连接
-
-```sql
-select * from teacher t left join course c
-on t.cid = c.cid where c.cname = 'java'
-```
-
-1：加索引
-
-小表驱动大表，将小表放左边，大表放右边，驱动表为最先访问的表
-
-一般情况对于左外连接给左表加索引，左表使用频繁，右外连接给右表加索引。
-
-避免索引失效：
-
-（1）：复合索引：不要跨列使用，尽量使用全索引匹配。
-
-（2）：不要在索引上进行任何操作，否则索引失效。
-
-（3）：复合索引不能使用不等于或`is null ` ,否则自身以及右侧所有索引全部失效。
-
-（4）：复合索引中如果有>,则自身和右侧索引失效
-
-优化时 SQL 优化器会影响我们的优化，导致一些概率性的出现。
-
-补救：使用索引覆盖
-
-(5)：like 以`%` 开头，失效
-
-2：exist 和 in
-
-如果主查询的数据集大，则使用 In。如果子查询的数据量大，则使用 exist
-
-```sql
-select …… from table where exist (子查询);
-select …… from table where 字段 in (子查询);
-```
-
-**3：order by**
-
-处理：1：根据 where 条件和统计信息生成执行计划，得到数据。 二：当执行处理数据（order by）时，数据库会先查看第一步的执行计划，看 order by 的字段是否在执行计划中利用了索引。如果是，则可以利用索引顺序而直接取得已经排好序的数据。三：返回排序后的数据。
-
-排序按索引顺序排，（a,b,c)无法复用已经创建好的索引。
-
-using filesort 有两种算法：双路排序和单路排序（根据 IO 的次数）
-
-MYSQL4.1 之后默认使用单路排序，只读取一次（全部字段），在 Buffer 中进行排序。但是它有可能不是真的单次 IO，如果数据量特别大，Buffer 是放不开的。调整 Buffer 大小：set max_leng_for_sort_data
-
-提高 order by 的策略：
-
-（1）选择单路，双路；
-
-（2）调整 buffer 的容量大小，
-
-（3）避免 select \*
-
-（4）保证全升或全降
-
-1：使用索引
-
-建立索引后还是使用正常的 sql 语句
-
-全职匹配
-
-最左匹配
-
-2：连接查询优化
-
-left join 时，选择小表作为驱动表，大表作为被驱动表。 left join 时一定是左边是驱动表，右边是被驱动表
-
-3：order by
-
-4：去重优化
-
-select **distinct** kcdz form t_mall_sku where id in( 3,4,5,6,8 ) 使用 distinct
-关键字去重消耗性能
-
-select kcdz form t_mall_sku where id in( 3,4,5,6,8 ) **group by kcdz**
-
-能够利用到索引\*\*
-
-### 慢查询日志
-
-默认关闭，开发调优时打开日志，部署时关闭。
-
-检查是否开启了慢查询日志
-
-```sql
-show variables like '%slow_query_log%';
-```
-
-开启慢查询日志
-
-```sql
--- 临时开启，退出关闭服务即关闭
-set global slow_query_log = 1;
-
---永久开启，一般不用
-/etc/my.cnf中追加配置
-slow_query_log = 1
-slow_query_log_file= /var/lib/mysql/localhost-slow.log
-```
-
-慢查询默认阈值为 10 秒，修改慢查询阀值
-
-```sql
--- 设置临时阈值
-set global long_query_time = 5;
-
---永久开启，一般不用
-/etc/my.cnf中追加配置
-long_query_time = 3;
-```
-
-查询超过慢查询阈值的命令
-
-```sql
-show global status like '%slow_querise%';--只显示有几条，具体是哪条查看日志文件
-```
-
-通过工具查看
-
-mysqldumpslow – help
 
 ### 分析海量数据
 
@@ -2574,6 +2360,219 @@ InnoDB 辅助索引的叶子节点并不包含行记录的全部数据，叶子�
 MyISAM 使用的是非聚簇索引，**非聚簇索引的两棵 B+树看上去没什么不同**，节点的结构完全一致只是存储的内容不同而已，主键索引 B+树的节点存储了主键，辅助键索引 B+树存储了辅助键。表数据存储在独立的地方，这两颗 B+树的叶子节点都使用一个地址指向真正的表数据，对于表数据来说，这两个键没有任何差别。由于**索引树是独立的，通过辅助键检索无需访问主键的索引树**。
 
 ![image-20200723110258929](media/image-20200723110258929.png)
+
+# 第七章：优化
+
+## 语句优化
+
+1：尽量不要使用 NULL，应该在 Service 层优化处理。
+
+2：查询条件中不要使用函数，计算
+
+3：尽量不要使用 NOT 等负向查询，因为这样会发生全表的遍历。
+
+4：OR 改成 IN 或者使用 Union
+
+3：分解关联查询
+
+缓存效率高，分解后，单个表改变可能少，命中率就高了。
+
+减少数据库锁竞争
+
+微服务化友好，易于做数据库拆分
+
+减少冗余查询，减少传输
+
+4：大于小于，IN，OR，between
+
+```sql
+SELECT * FROM tin where c1 >= 100 and c1 <= 104;
+SELECT * FROM tin where c1 bewteen 100 and 104;
+SELECT * FROM tin where c1 in (100, 101, 102, 103, 104);
+SELECT * FROM tin where c1 = 100 or c1 = 101 or c1 = 102 or c1 = 103 or c1 = 104;
+```
+
+语句 1 应该是最少的，其次是 IN，最差的就是 OR
+
+5：小表驱动大表
+
+6：表连接最好在 where 条件以前。
+
+7：from 子句组装来自不同数据源的数据；（from 后面的表关联，是自右向左解析的，即在写 SQL 的时候，尽量把数据量大的表放在最右边来进行关联）
+
+对查询进行优化，应尽量避免全表扫描
+
+（1）Where 语句
+
+- 避免在 WHERE 子句中使用 in，not in，or 或者 having；
+- 可以使用 exist 和 not exist 代替 in 和 not in；对连续数值可以使用 between；
+- 可以使用表链接代替 exist；
+- Having 可以用 where 代替，如果无法代替可以分两步处理。
+- 应尽量避免在 where 子句中对字段进行函数操作；
+- 尽量避免在 where 子句中对索引字段进行计算操作；
+- 应尽量避免在 where 子句中使用 != 或 <> 操作符；
+- 应尽量避免在 where 子句中对字段进行 null 值判断；
+- 应尽量避免在 where 子句中使用 or 来连接条件；
+- 否则将导致引擎放弃使用索引而进行全表扫描
+
+（2）Select 语句
+
+- 尽量不要使用 select \* from table 这种方式；把要查询的具体字段列出来，不要返回任何用不到的字段；
+- 尽可能的使用 varchar/nvarchar 代替 char/nchar ，因为首先变长字段存储空间小，可以节省存储空间；
+
+（3）连接语句
+
+- UNION 会将各查询子集的记录做比较，自动去掉重复记录，故比起 UNION ALL 的速度，UNION 的速度会慢很多。一般来说，如果使用 UNION ALL 能满足要求的话，尽量使用 UNION ALL。
+
+（4）Count (\*)和 Count(1)以及 Count(column)的区别
+
+- 一般情况，Select Count (\*)和 Select Count(1)返回结果一样；
+- 假如表没有主键(Primary key)，那么 count(1)比 count(\*)快；
+- 如果有主键，那主键作为 count 的条件时 count(主键)最快；
+- 如果你的表只有一个字段，那 count(\*)最快；
+- count(\*) 跟 count(1) 的结果一样，都包括对 NULL 的统计，而 count(column) 不包括 NULL 的统计
+
+（5）查询的模糊匹配
+
+- 尽量避免在一个复杂查询里面使用 LIKE '%parm1%' ，百分号会导致相关列的索引无法使用，最好不要用。
+
+（6）复杂操作
+
+- 部分 UPDATE、SELECT 语句 写得很复杂（经常嵌套多级子查询），可以适当拆成几步，先生成一些临时表，再进行关联操作。
+- 尽量使用数字型字段，若只含数值信息的字段尽量不要设计为字符型，这会降低查询和连接的性能，并会增加存储开销。这是因为引擎在处理查询和连接时会逐个比较字符串中每一个字符，而对于数字型而言只需要比较一次就够了。
+
+（7）order by
+
+处理：1：根据 where 条件和统计信息生成执行计划，得到数据。 二：当执行处理数据（order by）时，数据库会先查看第一步的执行计划，看 order by 的字段是否在执行计划中利用了索引。如果是，则可以利用索引顺序而直接取得已经排好序的数据。三：返回排序后的数据。
+
+排序按索引顺序排，（a,b,c)无法复用已经创建好的索引。
+
+using filesort 有两种算法：双路排序和单路排序（根据 IO 的次数）
+
+MYSQL4.1 之后默认使用单路排序，只读取一次（全部字段），在 Buffer 中进行排序。但是它有可能不是真的单次 IO，如果数据量特别大，Buffer 是放不开的。调整 Buffer 大小：set max_leng_for_sort_data
+
+提高 order by 的策略：
+
+（1）选择单路，双路；
+
+（2）调整 buffer 的容量大小，
+
+（3）避免 select \*
+
+（4）保证全升或全降
+
+1：使用索引
+
+建立索引后还是使用正常的 sql 语句
+
+全职匹配
+
+最左匹配
+
+2：连接查询优化
+
+left join 时，选择小表作为驱动表，大表作为被驱动表。 left join 时一定是左边是驱动表，右边是被驱动表
+
+3：order by
+
+4：去重优化
+
+select **distinct** kcdz form t_mall_sku where id in( 3,4,5,6,8 ) 使用 distinct
+关键字去重消耗性能
+
+select kcdz form t_mall_sku where id in( 3,4,5,6,8 ) **group by kcdz**
+
+能够利用到索引\*\*
+
+## 索引优化
+
+1：组合索引与单独索引
+
+`A=a AND B=b ` 应该使用复合索引，单独索引只有第一个起作用，第二个是不起作用的。而 `A=a OR B=b` 此时复合索引时不起作用的，应该使用单独索引，使两个同时起作用。
+
+2：索引要有区分度，性别这种把一张表分成两部分完全没有必要。
+
+3：采用自增主键，并且主键应该减少更新，减少 B+树的频繁合并和分裂。
+
+4：频繁更改的字段上应该删掉索引。
+
+5：索引失效
+
+一般情况对于左外连接给左表加索引，左表使用频繁，右外连接给右表加索引。
+
+避免索引失效：
+
+（1）：复合索引：不要跨列使用，尽量使用全索引匹配。
+
+（2）：不要在索引上进行任何操作，否则索引失效。
+
+（3）：复合索引不能使用不等于或`is null ` ,否则自身以及右侧所有索引全部失效。
+
+（4）：复合索引中如果有>,则自身和右侧索引失效
+
+优化时 SQL 优化器会影响我们的优化，导致一些概率性的出现。
+
+补救：使用索引覆盖
+
+(5)：like 以`%` 开头，失效
+
+2：exist 和 in
+
+如果主查询的数据集大，则使用 In。如果子查询的数据量大，则使用 exist
+
+```sql
+select …… from table where exist (子查询);
+select …… from table where 字段 in (子查询);
+```
+
+## 表库优化
+
+2：优化数据库结构
+
+将字段多的表分解成多个表，增加中间表
+
+### 慢查询日志
+
+默认关闭，开发调优时打开日志，部署时关闭。
+
+检查是否开启了慢查询日志
+
+```sql
+show variables like '%slow_query_log%';
+```
+
+开启慢查询日志
+
+```sql
+-- 临时开启，退出关闭服务即关闭
+set global slow_query_log = 1;
+
+--永久开启，一般不用
+/etc/my.cnf中追加配置
+slow_query_log = 1
+slow_query_log_file= /var/lib/mysql/localhost-slow.log
+```
+
+慢查询默认阈值为 10 秒，修改慢查询阀值
+
+```sql
+-- 设置临时阈值
+set global long_query_time = 5;
+
+--永久开启，一般不用
+/etc/my.cnf中追加配置
+long_query_time = 3;
+```
+
+查询超过慢查询阈值的命令
+
+```sql
+show global status like '%slow_querise%';--只显示有几条，具体是哪条查看日志文件
+```
+
+通过工具查看
+
+mysqldumpslow – help
 
 # 第七章、视图
 
@@ -3003,8 +3002,6 @@ innodb_rollback_on_timeout = 1  #事务中某个语句锁请求超时将回滚�
 innodb_print_all_deadlocks = 1  #死锁都保存到错误日志
 ```
 
-
-
 # 19：服务器级常用 sql 语句
 
 ```sql
@@ -3324,7 +3321,7 @@ mysql CPU 使用已达到接近 400%（因为是四核，所以会有超过 100%
 
 ### 怎么防止 sql 注入？
 
-sql注入：某些sql语句的参数没有进行合理校检，参数中可能有危害数据库的一些语句，导致语句出错。
+sql 注入：某些 sql 语句的参数没有进行合理校检，参数中可能有危害数据库的一些语句，导致语句出错。
 
 使用预编译语句的支持
 
@@ -3334,7 +3331,7 @@ sql注入：某些sql语句的参数没有进行合理校检，参数中可能�
 
 mysql 使用 PrepareStatement
 
-# 第十二章：MQSQL 集群
+# 第十二章：MySQL 集群
 
 ## 主从复制
 
@@ -3384,7 +3381,7 @@ mysql 实际上在这一块有两个机制，一个是半同步复制，用来�
 
 1：分库，分散压力，将一个主库拆分为 4 个主库，每个主库的写并发就 500/s，此时主从延迟可以忽略不计
 
-2：在业务层和数据库之间使用Redis或memcache，降低mysql读压力。
+2：在业务层和数据库之间使用 Redis 或 memcache，降低 mysql 读压力。
 
 3：不同业务的数据库物理上放到不同的机器上。
 
