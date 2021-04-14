@@ -4,11 +4,9 @@
 
 ### 1.1）、什么是分布式系统？
 
-《分布式系统原理与范型》定义：
-
 “分布式系统是若干独立计算机的集合，这些计算机对于用户来说就像单个相关系统”
 
-分布式系统（distributed system）是建立在网络之上的软件系统。随着互联网的发展，网站应用的规模不断扩大，常规的垂直应用架构已无法应对，分布式服务架构以及流动计算架构势在必行，亟需**一个治理系统**确保架构有条不紊的演进。
+分布式系统（distributed system）是建立在网络之上的软件系统，将整个应用拆分成多个服务部署到响应的服务器上，当服务越多越多，亟需**一个治理系统**确保架构有条不紊的演进。
 
 ### 1.2）、发展演变
 
@@ -17,8 +15,6 @@
 **单一应用架构**
 
 当网站流量很小时，只需一个应用，将所有功能都部署在一起，以减少部署节点和成本。此时，用于简化增删改查工作量的数据访问框架(ORM)是关键。
-
-![](media/f0b6fa7a1d454cd877ea2f708c0d8109.png)
 
 适用于小型网站，小型管理系统，将所有功能都部署到一个功能里，简单易用。
 
@@ -32,11 +28,11 @@
 
 当访问量逐渐增大，单一应用增加机器带来的加速度越来越小，将应用拆成互不相干的几个应用，以提升效率。此时，用于加速前端页面开发的 Web 框架(MVC)是关键。
 
-![](media/b341607239ddfeddf417cfac7cf9a728.png)
-
 通过切分业务来实现各个模块独立部署，降低了维护和部署的难度，团队各司其职更易管理，性能扩展也更方便，更有针对性。
 
-缺点： 公用模块无法重复利用，开发性的浪费
+缺点： 公用模块无法重复利用，开发性的浪费，应用直接无法交互。前后端耦合在一起。
+
+![](media/b341607239ddfeddf417cfac7cf9a728.png)
 
 **分布式服务架构**
 
@@ -46,8 +42,9 @@
 
 **流动计算架构**
 
-当服务越来越多，容量的评估，小服务资源的浪费等问题逐渐显现，此时需增加一个调度中心基于访问压力实时管理集群容量，提高集群利用率。此时，用于**提高机器利用率的资源调度和治理中心(SOA)[
-Service Oriented Architecture]是关键**。
+当服务越来越多，容量的评估，小服务资源的浪费等问题逐渐显现，此时需增加一个调度中心基于访问压力实时管理集群容量，提高集群利用率。此时，用于**提高机器利用率的资源调度和治理中心(SOA)[Service Oriented Architecture]是关键**。
+
+当某个服务压力大了，就少些请求，可以动态处理。
 
 ![](media/fb81e8b2bb6b2e101b9aeb713916b0fa.png)
 
@@ -57,15 +54,39 @@ Service Oriented Architecture]是关键**。
 
 RPC【Remote Procedure Call】是指远程过程调用，是一种进程间通信方式，他是一种技术的思想，而不是规范。它允许程序调用另一个地址空间（通常是共享网络的另一台机器上）的过程或函数，而不用程序员显式编码这个远程调用的细节。即程序员无论是调用本地的还是远程的函数，本质上编写的调用代码基本相同。
 
-RPC 基本原理
+**RPC 基本原理**
 
 ![](media/010bc810f9b972be2ff506fe7b1032c2.png)
 
 ![](media/20534b263c9dd76da2dd312db26028a2.png)
 
+一次完整的 RPC 调用流程（同步调用，异步另说）如下：
+
+**1）服务消费方（client）调用以本地调用方式调用服务；**
+
+2）client stub 接收到调用后负责将方法、参数等组装成能够进行网络传输的消息体；
+
+3）client stub 找到服务地址，并将消息发送到服务端；
+
+4）server stub 收到消息后进行解码；
+
+5）server stub 根据解码结果调用本地的服务；
+
+6）本地服务执行并将结果返回给 server stub；
+
+7）server stub 将返回结果打包成消息并发送至消费方；
+
+8）client stub 接收到消息，并进行解码；
+
+**9）服务消费方得到最终结果。**
+
+RPC 框架的目标就是要 2\~8 这些步骤都封装起来，这些细节对用户来说是透明的，不可见的。
+
+
+
 RPC 两个核心模块：通讯，序列化。
 
-核心功能实现：
+#### 核心功能实现：
 
 RPC 的核心功能主要由 5 个模块组成，如果想要自己实现一个 RPC，最简单的方式要实现三个技术点，分别是：
 
@@ -73,7 +94,7 @@ RPC 的核心功能主要由 5 个模块组成，如果想要自己实现一个 
 - 数据流的序列化和反序列化
 - 网络传输
 
-服务寻址：
+**服务寻址：**
 
 服务寻址可以使用 Call ID 映射。在本地调用中，函数体是直接通过函数指针来指定的，但是在远程调用中，函数指针是不行的，因为两个进程的地址空间是完全不一样的。
 
@@ -83,7 +104,7 @@ RPC 的核心功能主要由 5 个模块组成，如果想要自己实现一个 
 
 当客户端需要进行远程调用时，它就查一下这个表，找出相应的 Call ID，然后把它传给服务端，服务端也通过查表，来确定客户端需要调用的函数，然后执行相应函数的代码。
 
-序列化与反序列化：
+**序列化与反序列化：**
 
 客户端怎么把参数值传给远程的函数呢?在本地调用中，我们只需要把参数压到栈里，然后让函数自己去栈里读就行。
 
@@ -98,7 +119,7 @@ RPC 的核心功能主要由 5 个模块组成，如果想要自己实现一个 
 
 这个过程叫序列化和反序列化。同理，从服务端返回的值也需要序列化反序列化的过程。
 
-网络传输
+**网络传输**
 
 远程调用往往用在网络上，客户端和服务端是通过网络连接的。
 
@@ -108,7 +129,7 @@ RPC 的核心功能主要由 5 个模块组成，如果想要自己实现一个 
 
 尽管大部分 RPC 框架都使用 TCP 协议，但其实 UDP 也可以，而 gRPC 干脆就用了 HTTP2。
 
-RPC 与 Http 的区别：
+**RPC 与 Http 的区别：**
 
 相同：底层通讯都是基于 Socket，都可以远程调用
 
@@ -130,11 +151,21 @@ RPC 多用于公司内部调用，Http 一般对外。
 
 Apache Dubbo (incubating) \|ˈdʌbəʊ\| 是一款高性能、轻量级的开源 JavaRPC 框架，它提供了三大核心能力：面向接口的远程方法调用，智能容错和负载均衡，以及服务自动注册和发现。
 
-官网：
+1：面向接口代理的高性能RPC调用：A服务要调用B服务的方法，只需要copy好B服务的接口，dubbo会自动帮A调用B服务的实现。屏蔽掉远程调用细节。
 
-<http://dubbo.apache.org/>
+2：智能负载均衡：A服务的多台服务器的调用可以直接负载均衡。
 
-#### 对比 SpringCloud
+3：服务自动注册与发现：各个服务器上的服务注册到注册中心(Zookeeper)，记录下那个服务器有哪些服务的清单，Dubbo能够实时感知服务的上线与下线。
+
+4：高度可扩展
+
+5：运行期流量调用：配置不同路由规则，实现灰度发布。
+
+6：可视化的服务治理和运维。
+
+官网：<http://dubbo.apache.org/>
+
+对比 SpringCloud
 
 ![image-20210302212548717](media/image-20210302212548717.png)
 
@@ -151,7 +182,7 @@ Apache Dubbo (incubating) \|ˈdʌbəʊ\| 是一款高性能、轻量级的开源
 
 **监控中心（Monitor）**：服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心
 
-- 调用关系说明
+**调用关系说明**
 
 - 服务容器负责启动，加载，运行服务提供者。
 
@@ -165,9 +196,9 @@ Apache Dubbo (incubating) \|ˈdʌbəʊ\| 是一款高性能、轻量级的开源
 
 - 服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心。
 
-## 3、dubbo 环境搭建
+## 3、环境搭建
 
-### 3.1）Window 下安装 zookeeper
+### 3.1）安装 zookeeper
 
 1：下载 zookeeper
 
@@ -197,7 +228,7 @@ create –e /xqc 123：创建一个 xqc 节点，值为 123
 
 get /xqc：获取/xqc 节点的值
 
-### 3.2）windows 安装 dubbo-admin
+### 3.2）安装 dubbo-admin
 
 dubbo 本身并不是一个服务软件。它其实就是一个 jar 包能够帮你的 java 程序连接到 zookeeper，并利用 zookeeper 消费、提供服务。所以你不用在 Linux 上启动什么 dubbo 服务。
 
@@ -697,7 +728,7 @@ Simple Monitor
 
 ## 6、整合 SpringBoot
 
-##### 1、引入 spring-boot-starter 以及 dubbo 和 curator 的依赖
+1、引入 spring-boot-starter 以及 dubbo 和 curator 的依赖
 
 ```xml
 <dependency>
@@ -752,15 +783,25 @@ dubbo.protocol.name=dubbo
 
 ![properties-override](media/f41bf11c25691eb94c3bcd0b4e79cd51.jpeg)
 
-JVM 启动 -D
-参数优先，这样可以使用户在部署和启动时进行参数重写，比如在启动时需改变协议的端口。
+JVM 启动 -D参数优先，这样可以使用户在部署和启动时进行参数重写，比如在启动时需改变协议的端口。
 
 XML 次之，如果在 XML 中有配置，则 dubbo.properties 中的相应配置项无效。
 
-Properties 最后，相当于缺省值，只有 XML 没有配置时，dubbo.properties
-的相应配置项才会生效，通常用于共享公共配置，比如应用名。
+Properties 最后，相当于缺省值，只有 XML 没有配置时，dubbo.properties 的相应配置项才会生效，通常用于共享公共配置，比如应用名。
 
-## 2、重试次数
+## 2：常见配置
+
+### 启动时检查
+
+Dubbo缺省会在启动时检查依赖的服务是否可用，不可用抛异常，以便上线时提早发现。check = “false”当调用时才检查。也可以统一配置，配置成都不检查。也可以不检查注册中心。
+
+```xml
+<dubbo:consumer check="false"></dubbo:consumer>
+```
+
+
+
+### 重试次数
 
 失败自动切换，当出现失败，重试其它服务器，但重试会带来更长延迟。可通过 retries="2" 来设置重试次数(不含第一次)。
 
@@ -777,11 +818,11 @@ Properties 最后，相当于缺省值，只有 XML 没有配置时，dubbo.prop
 
 ```
 
-## 3、超时时间
+### 超时时间
 
-timeout 由于网络或服务端不可靠，会导致调用出现一种不确定的中间状态（超时）。为了避免超时导致客户端资源（线程）挂起耗尽，必须设置超时时间。
+timeout 由于网络或服务端不可靠，会导致调用出现一种不确定的中间状态（超时）。为了避免超时导致客户端资源（线程）挂起耗尽，必须设置超时时间。默认时间为1000毫秒。
 
-### 1、Dubbo 消费端
+1、Dubbo 消费端
 
 全局超时配置
 
@@ -794,7 +835,7 @@ timeout 由于网络或服务端不可靠，会导致调用出现一种不确定
 </dubbo:reference>
 ```
 
-### 2、Dubbo 服务端
+2、Dubbo 服务端
 
 全局超时配置
 
@@ -808,7 +849,7 @@ timeout 由于网络或服务端不可靠，会导致调用出现一种不确定
 
 ```
 
-### 3、配置原则
+3、配置原则
 
 dubbo 推荐在 Provider 上尽量多配置 Consumer 端属性：
 
@@ -816,13 +857,11 @@ dubbo 推荐在 Provider 上尽量多配置 Consumer 端属性：
 
 2、在 Provider 配置后，Consumer 不配置则会使用 Provider 的配置值，即 Provider 配置可以作为 Consumer 的缺省值。否则，Consumer 会使用 Consumer 端的全局设置，这对于 Provider 不可控的，并且往往是不合理的
 
-配置的覆盖规则：
+## 3：配置的覆盖规则：
 
-1. 方法级配置别优于接口级别，即小 Scope 优先
+以timeout为例
 
-2. Consumer 端配置 优于 Provider 配置 优于 全局配置，
-
-3. 最后是 Dubbo Hard Code 的配置值（见配置文档）
+方法级优先，接口次之，全局配置再次之。每一个层级里面都是消费者优先，提供方次之。
 
 ![dubbo-config-override](media/9c602a9e093bb9546cb0ba4bfbcd74a8.jpeg)
 
@@ -854,6 +893,10 @@ dubbo 推荐在 Provider 上尽量多配置 Consumer 端属性：
 
 如果不需要区分版本，可以按照以下的方式配置： \<dubbo:reference id="barService" interface="com.foo.BarService" version="\*" /\>
 
+## 5：本地存根
+
+消费者本地存根传入远程代理对象，必须有一个有参构造器。用于一些基本判断符合要求再调用远程。然后再配置本地存根。
+
 # 三、高可用
 
 ## 1、zookeeper 宕机与 dubbo 直连
@@ -873,6 +916,10 @@ dubbo 推荐在 Provider 上尽量多配置 Consumer 端属性：
 服务提供者无状态，任意一台宕掉后，不影响使用
 
 服务提供者全部宕掉后，服务消费者应用将无法使用，并无限次重连等待服务提供者恢复系统不能提供服务的时间；
+
+**Dubbo直连：**
+
+不使用注册中心，直接调用
 
 ## 2、集群负载均衡
 
@@ -896,15 +943,15 @@ dubbo 推荐在 Provider 上尽量多配置 Consumer 端属性：
 
 \<dubbo:parameter key="hash.nodes" value="320" /\> |
 
-## 3、整合 hystrix，服务熔断与降级处理
+## 3、服务熔断与降级处理
 
 ### 1、服务降级
-
-**什么是服务降级？**
 
 **当服务器压力剧增的情况下，根据实际业务情况及流量，对一些服务和页面有策略的不处理或换种简单的方式处理，从而释放服务器资源以保证核心交易正常运作或高效运作。**
 
 可以通过服务降级功能临时屏蔽某个出错的非关键服务，并定义降级后的返回策略。
+
+Dubbo支持两种服务降级，第一种强制返回为空，直接不调用远程，第二种调用失败返回为空。操作是从消费者端进行的，只能进行全部远程调用的屏蔽操作。
 
 向注册中心写入动态配置覆盖规则：
 
@@ -959,7 +1006,7 @@ Failover Cluster：失败自动切换，自动重试其他服务器（默认）
 
 Hystrix 旨在通过控制那些访问远程系统、服务和第三方库的节点，从而对延迟和故障提供更强大的容错能力。Hystrix 具备拥有回退机制和断路器功能的线程和信号隔离，请求缓存和请求打包，以及监控和配置等功能
 
-#### 1、配置 spring-cloud-starter-netflix-hystrix
+1、配置 spring-cloud-starter-netflix-hystrix
 
 spring boot 官方提供了对 hystrix 的集成，直接在 pom.xml 里加入依赖：
 
@@ -980,7 +1027,7 @@ public class ProviderApplication {
 
 ```
 
-#### 2、配置 Provider 端
+2、配置 Provider 端
 
 在 Dubbo 的 Provider 上增加@HystrixCommand 配置，这样子调用就会经过 Hystrix 代理。
 
@@ -999,7 +1046,7 @@ public class HelloServiceImpl implements HelloService {
 }
 ```
 
-#### 3、配置 Consumer 端
+3、配置 Consumer 端
 
 对于 Consumer 端，则可以增加一层 method 调用，并在 method 上配置@HystrixCommand。当调用出错时，会走 fallbackMethod = "reliable"的调用里。
 
@@ -1019,32 +1066,6 @@ public class HelloServiceImpl implements HelloService {
 # 四、dubbo 原理
 
 高性能的 RPC 远程服务调用，提供了基于长连接的 NOI 框架封装抽象，
-
-## 1、RPC 原理
-
-![](media/7c188c54508b0b91a2130a0b43f2b687.png)
-
-一次完整的 RPC 调用流程（同步调用，异步另说）如下：
-
-**1）服务消费方（client）调用以本地调用方式调用服务；**
-
-2）client stub 接收到调用后负责将方法、参数等组装成能够进行网络传输的消息体；
-
-3）client stub 找到服务地址，并将消息发送到服务端；
-
-4）server stub 收到消息后进行解码；
-
-5）server stub 根据解码结果调用本地的服务；
-
-6）本地服务执行并将结果返回给 server stub；
-
-7）server stub 将返回结果打包成消息并发送至消费方；
-
-8）client stub 接收到消息，并进行解码；
-
-**9）服务消费方得到最终结果。**
-
-RPC 框架的目标就是要 2\~8 这些步骤都封装起来，这些细节对用户来说是透明的，不可见的。
 
 ## 2、netty 通信原理
 
@@ -1071,39 +1092,37 @@ Netty 基本原理：
 
 ### 1、框架设计
 
-![/dev-guide/images/dubbo-framework.jpg](media/5eef3de2c1f2e9a7add088680f2cd833.jpeg)
+<img src="media/5eef3de2c1f2e9a7add088680f2cd833.jpeg" alt="/dev-guide/images/dubbo-framework.jpg" style="zoom: 67%;" />
 
-- config 配置层：对外配置接口，以 ServiceConfig, ReferenceConfig
-  为中心，可以直接初始化配置类，也可以通过 spring 解析配置生成配置类
+蓝色消费者，绿色生产者，绿色框是接口，蓝色框是实现，紫色继承关系，红色调用链路，虚线初始化顺序。
 
-- proxy 服务代理层：服务接口透明代理，生成服务的客户端 Stub 和服务器端
-  Skeleton, 以 ServiceProxy 为中心，扩展接口为 ProxyFactory
+蓝色分三部分，business，RPC和Remoting
 
-- registry 注册中心层：封装服务地址的注册与发现，以服务 URL 为中心，扩展接口为
-  RegistryFactory, Registry, RegistryService
+- Service层：用户能够使用的到的。
 
-- cluster 路由层：封装多个提供者的路由及负载均衡，并桥接注册中心，以 Invoker
-  为中心，扩展接口为 Cluster, Directory, Router, LoadBalance
-
-- monitor 监控层：RPC 调用次数和调用时间监控，以 Statistics 为中心，扩展接口为
-  MonitorFactory, Monitor, MonitorService
-
-- protocol 远程调用层：封装 RPC 调用，以 Invocation, Result 为中心，扩展接口为
-  Protocol, Invoker, Exporter
-
-- exchange 信息交换层：封装请求响应模式，同步转异步，以 Request, Response
-  为中心，扩展接口为 Exchanger, ExchangeChannel, ExchangeClient,
-  ExchangeServer
-
-- transport 网络传输层：抽象 mina 和 netty 为统一接口，以 Message
-  为中心，扩展接口为 Channel, Transporter, Client, Server, Codec
-
-- serialize 数据序列化层：可复用的一些工具，扩展接口为 Serialization,
-  ObjectInput, ObjectOutput, ThreadPool
+- config 配置层：对外配置接口，以 ServiceConfig, ReferenceConfig为中心，可以直接初始化配置类，也可以通过 spring 解析配置生成配置类。
+  
+- proxy 服务代理层：服务接口透明代理，生成服务的客户端 Stub 和服务器端Skeleton, 以 ServiceProxy 为中心，扩展接口为 ProxyFactory
+  
+- registry 注册中心层：封装服务地址的注册与发现，以服务 URL 为中心，扩展接口为RegistryFactory, Registry, RegistryService
+  
+- cluster 路由层：封装多个提供者的路由及负载均衡，并桥接注册中心，以 Invoker为中心，扩展接口为 Cluster, Directory, Router, LoadBalance
+  
+- monitor 监控层：RPC 调用次数和调用时间监控，以 Statistics 为中心，扩展接口为MonitorFactory, Monitor, MonitorService
+  
+- protocol 远程调用层：封装 RPC 调用，以 Invocation, Result 为中心，扩展接口为Protocol, Invoker, Exporter
+  
+- exchange 信息交换层：封装请求响应模式，同步转异步，以 Request, Response为中心，扩展接口为 Exchanger, ExchangeChannel, ExchangeClient,ExchangeServer
+  
+- transport 网络传输层：抽象 mina 和 netty 为统一接口，以 Message为中心，扩展接口为 Channel, Transporter, Client, Server, Codec
+  
+- serialize 数据序列化层：可复用的一些工具，扩展接口为 Serialization,ObjectInput, ObjectOutput, ThreadPool
 
 ### 2、启动解析、加载配置信息
 
-![](media/71c303042b6bf2c9db97561da2332c59.png)
+BeanDefinitionParser是Spring定义的解析器，其中有一个继承是DubboDefinitionParser
+
+构造时调用DubboNamespaceDuplicate进行初始化，然后将配置文件中的value注入到想用的Config.class或Bean.class文件中，解析Service标签会将其封装成serviceBean，其中还包含将服务暴露到注册中心的过程。
 
 ### 3、服务暴露
 
@@ -1153,7 +1172,7 @@ Dubbo 会在 Spring 实例化完 bean 之后，在刷新容器最后一步发布
 
 Socket 通信是一个全双工的方式，如果有多个线程同时进行远程方法调用，这时建立在 client server 之间的 socket 连接上会有很多双方发送的消息传递，这里使用了一个唯一 ID，然后传递给服务端，再服务端又回传回来，这样就知道结果是原先哪个线程的了。
 
-整体流程：
+**整体流程：**
 
 1：客户端线程调用远程接口，生成唯一 ID，Dubbo 是使用 AtomicLong 从 0 开始累计数字的，将打包的方法信息（接口名称，方法名称，参数值列表）和处理结果的回调对象 callback 全部封装在一起，组成一个对象 Object
 
@@ -1173,8 +1192,6 @@ Socket 通信是一个全双工的方式，如果有多个线程同时进行远�
 - 注册中心返回服务提供者地址列表给消费者，如果有变更，注册中心将基于长连接推送变更数据给消费者。
 - 服务消费者，从提供者地址列表中，基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用。
 - 服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心。
-
-![/dev-guide/images/dubbo-extension.jpg](media/ad3fed30b1e170746da376e75a768ecc.jpeg)
 
 ### 6：序列化
 
