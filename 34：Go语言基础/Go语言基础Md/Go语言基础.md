@@ -516,38 +516,25 @@ func main() {
 
 ## Channel 管道
 
-管道是 Golang 在语言级别上提供的 goroutine 间的通讯方式，我们可以使用 channel 在多个 goroutine 之间传递消息。如果说 goroutine 是 Go 程序并发的执行体，channel 就是它们之间的连接。channel 是可以让一个 goroutine 发送特定值到另一个 goroutine 的通信机制。
+不同的 goroutine 之间如何进行通信？
 
-Golang 的并发模型是 CSP（Communicating Sequential Processes），提倡通过通信而不是通过共享内存而实现通信。
+1）全局变量互斥锁
 
-Go 语言中的管道（channel）是一种特殊的类型。管道像一个传送带或者队列，总是遵循先入先出（First In First Out）的规则，保证收发数据的顺序。每一个管道都是一个具体类型的导管，也就是声明 channel 的时候需要为其指定元素类型。
+2）使用管道 channel 来解决
+
+本质是一个队列，保持先进先出的原则，线程安全，都 goroutine 访问时，不需要加锁，channel 是有类型的，string 的 channel 只能存放 string。channel 是可以让一个 goroutine 发送特定值到另一个 goroutine 的通信机制。
+
+声明
 
 ```go
-// 声明一个传递整型的管道
-var ch1 chan int
-// 声明一个传递布尔类型的管道
-var ch2 chan bool
-// 声明一个传递int切片的管道
-var ch3 chan []int
+var 变量名 chan 数据类型
+var intChan chan int(intChan用于存放int数据)
 ```
-
-创建 channel
 
 声明管道后，需要使用 make 函数初始化之后才能使用
 
 ```go
 make(chan 元素类型, 容量)
-```
-
-举例如下：
-
-```go
-// 创建一个能存储10个int类型的数据管道
-ch1 = make(chan int, 10)
-// 创建一个能存储4个bool类型的数据管道
-ch2 = make(chan bool, 4)
-// 创建一个能存储3个[]int切片类型的管道
-ch3 = make(chan []int, 3)
 ```
 
 channel 操作
@@ -587,7 +574,7 @@ close(ch)
 
 for range 从管道循环取值
 
-## 单向管道
+单向管道
 
 限制管道在函数中只能发送或者只能接受
 
@@ -596,71 +583,7 @@ var chan2 chan<- int//只写性质
 var chan3 <-chan int//只读性质
 ```
 
-## Select 多路复用
-
-golang 中给我们提供的 select 多路复用。
-
-## 并发安全
-
-互斥锁是传统并发编程中对共享资源进行访问控制的主要手段，它由标准库 sync 中的 Mutex 结构体类型表示。sync.Mutex 类型只有两个公开的指针方法，Lock 和 Unlock。Lock 锁定当前的共享资源，Unlock 进行解锁
-
-```go
-// 定义一个锁
-var mutex sync.Mutex
-// 加锁
-mutex.Lock()
-// 解锁
-mutex.Unlock()
-```
-
-读写锁
-
-## Goroutine 的调度模型
-
-MPG 模式
-
-M：操作系统的主线程（物理线程）
-
-P：协程执行需要的上下文
-
-G：协程
-
-![image-20201229221517480](media/image-20201229221517480.png)
-
-![image-20201229221556445](media/image-20201229221556445.png)
-
-设置 Golang 运行的 CPU 数
-
-go1.8 后，默认让程序运行在多个核上。可以不用设置
-
-```go
-func main(){
-    //获取当前系统CPU的数量
-    num：= runtime.NumCPU()
-    //我这里设置num-1的CPU运行go程序
-    runtime.GOMAXPROCS(num)
-    fmt.Println("num=",num)
-}
-```
-
-## channel 管道
-
-不同的 goroutine 之间如何进行通信？
-
-1）全局变量互斥锁
-
-2）使用管道 channel 来解决
-
-本质是一个队列，保持先进先出的原则，线程安全，都 goroutine 访问时，不需要加锁，channel 是有类型的，string 的 channel 只能存放 string，
-
-声明
-
-```go
-var 变量名 chan 数据类型
-var intChan chan int(intChan用于存放int数据)
-```
-
-channel 是引用类型，必须 make 之后才能使用
+例：
 
 ```go
 func main() {
@@ -687,12 +610,77 @@ func main() {
 }
 ```
 
-channel 有声明为只读或则只写性质
+### 实现原理
+
+实例化一个hchan的结构体，返回一个指针，在send和recv的时候加锁，结构体本身包含一个互斥锁mutex，channel中的队列使用缓存buf，buf是一个循环链表实现的，当缓存满了会阻塞当前goroutine
+
+## Select 多路复用
+
+golang 中给我们提供的 select 多路复用。
+
+## 并发安全
+
+互斥锁是传统并发编程中对共享资源进行访问控制的主要手段，它由标准库 sync 中的 Mutex 结构体类型表示。sync.Mutex 类型只有两个公开的指针方法，Lock 和 Unlock。Lock 锁定当前的共享资源，Unlock 进行解锁
 
 ```go
-var chan2 chan<- int//只写性质
-var chan3 <-chan int//只读性质
+// 定义一个锁
+var mutex sync.Mutex
+// 加锁
+mutex.Lock()
+// 解锁
+mutex.Unlock()
 ```
+
+读写锁
+
+## Goroutine 的调度模型
+
+MPG 模式
+
+M：操作系统的主线程（物理线程）
+
+P：协程执行需要的上下文，P包含一个LRQ (本地运行队列)
+
+G：协程
+
+1：假设是单核CPU
+
+![2.jpg](media/2.jpg)
+
+红色表示挂起和休眠，黄色表示准备就绪等待运行，绿色表示正在运行。
+
+主机是单核所以只有一个处理器P，但是系统初始化了两个线程M0和M1，处理器P优先绑定了M0线程，M1进入休眠状态。
+
+P的LRQ队列里有G1,G2,G3等待处理。P目前正在处理G0,全局等待队列GRQ里保存着G4,G5，表示这两个协程还未分配给P。
+如果G0在短时间内处理完，P就会从LRQ中取出G1继续处理。并且将GRQ全局队列中的部分协程加入LRQ中。
+
+![3.jpg](media/3.jpg)
+
+假设现在G1处理速度很慢，系统就会让M0线程休眠，挂起协程G1，唤醒线程M1进行处理其他的协程。这里M1会将M0未处理的协程取走处理。
+
+等到M1协程队列中所有协程处理完再次唤醒M0，或者M1处理某个协程时间较长被挂起，M0也会被唤醒。
+
+多核主机就会有多个P和M，M0和M1分别运行在不同的内核线程中，M0处理G1,G2,G3，M1处理G4,G5,G6。当Mo处理完所有的协程，而M1还没处理完，M0就会取走M1一般未处理的协程。
+
+![5.jpg](media/5.jpg)
+
+
+
+设置 Golang 运行的 CPU 数
+
+go1.8 后，默认让程序运行在多个核上。可以不用设置
+
+```go
+func main(){
+    //获取当前系统CPU的数量
+    num：= runtime.NumCPU()
+    //我这里设置num-1的CPU运行go程序
+    runtime.GOMAXPROCS(num)
+    fmt.Println("num=",num)
+}
+```
+
+
 
 ## 协程实现原理
 
@@ -737,7 +725,7 @@ P 的状态
 入队待运行的 G 时会优先加到当前 P 的本地运行队列, M 获取待运行的 G 时也会优先从拥有的 P 的本地运行队列获取,
 本地运行队列入队和出队不需要使用线程锁.
 
-本地运行队列有数量限制, 当数量达到 256 个时会入队到全局运行队列.
+本地运行队列有数量限制, 当数量达到 256 个时会入队到全局运行队列。
 本地运行队列的数据结构是[环形队列](https://en.wikipedia.org/wiki/Circular_buffer), 由一个 256 长度的数组和两个序号(head, tail)组成.
 
 栈扩张
