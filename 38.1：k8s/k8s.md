@@ -653,6 +653,9 @@ kubectl expose deployment nginx --port=80 --type=NodePort
 
 # 查看资源
 kubectl get pod, svc
+
+# 查看当前的系统资源
+kubectl api-resource
 ```
 
 # 第四章：YAML文件
@@ -780,6 +783,8 @@ kubectl get deploy nginx -o=yaml --export > nginx.yaml
 
 # 第五章：核心概念
 
+pod是最小的单元，一个pod中可以包含多个Docker，每个Docker中又可以安装多个程序，封装成一个，可以有多个这种pod组成集群，k8s中内置了kube_Proxy做负载均衡，使用Etcd做一致性监控，保证一致性。
+
 ## Pod
 
 ### Pod概述
@@ -881,7 +886,7 @@ Pod持久化数据，专门存储到某个地方中
 
 ### 重启机制
 
-因为Pod中包含了很多个容器，假设某个容器初选问题了，那么就会触发Pod重启机制
+因为Pod中包含了很多个容器，假设某个容器出现问题了，那么就会触发Pod重启机制
 
 ![image-20201114194722125](media/image-20201114194722125.png)
 
@@ -1495,9 +1500,7 @@ status:
 kubectl apply -f service.yaml
 ```
 
-然后能够看到，已经成功修改为 NodePort类型了，最后剩下的一种方式就是LoadBalanced：对外访问应用使用公有云
-
-node一般是在内网进行部署，而外网一般是不能访问到的，那么如何访问的呢？
+然后能够看到，已经成功修改为 NodePort类型了，最后剩下的一种方式就是LoadBalanced：对外访问应用使用公有云node一般是在内网进行部署，而外网一般是不能访问到的，那么如何访问的呢？
 
 - 找到一台可以通过外网访问机器，安装nginx，反向代理
 - 手动把可以访问的节点添加到nginx中
@@ -1524,7 +1527,6 @@ node一般是在内网进行部署，而外网一般是不能访问到的，那�
 - 可以被挂载到Pod中一个或多个容器指定路径下
 - 支持多种后端存储抽象【本地存储、分布式存储、云存储】
 
-- 
 
 ### Deployment
 
@@ -1567,6 +1569,8 @@ label：标签，用于对象资源查询，筛选
 
 ![image-20201122163512535](media/image-20201122163512535.png)
 
+浏览器发送请求给每个的Kube-apiserver 进行访问，kube-Scheduler是一个内部的调度器，如果多个Pod之间是一个分布式的关系，Etcd就会起到一个负载均衡的作用，
+
 - 通过Kubectl提交一个创建RC（Replication Controller）的请求，该请求通过APlserver写入etcd
 - 此时Controller Manager通过API Server的监听资源变化的接口监听到此RC事件
 - 分析之后，发现当前集群中还没有它所对应的Pod实例
@@ -1576,16 +1580,6 @@ label：标签，用于对象资源查询，筛选
 - 随后，我们通过Kubectl提交一个新的映射到该Pod的Service的创建请求
 - ControllerManager通过Label标签查询到关联的Pod实例，然后生成Service的Endpoints信息，并通过APIServer写入到etod中，
 - 接下来，所有Node上运行的Proxy进程通过APIServer查询并监听Service对象与其对应的Endponts信息，建立一个软件方式的负载均衡器来实现Service访问到后端Pod的流量转发功能
-
-
-
-
-
-
-
-
-
-
 
 错误汇总
 

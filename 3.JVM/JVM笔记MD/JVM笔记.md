@@ -382,17 +382,9 @@ CMS 是基于“标记-清除”算法实现的，整个过程分为 4 个步骤
 -XX:CMSFullGCsBeforeCompaction=n
 意思是说在上一次 CMS 并发 GC 执行过后，到底还要再执行多少次 full GC 才会做压缩。默认是 0，也就是在默认配置下每次 CMS GC 顶不住了而要转入 full GC 的时候都会做压缩。 如果把 CMSFullGCsBeforeCompaction 配置为 10，就会让上面说的第一个条件变成每隔 10 次真正的 full GC 才做一次压缩。
 
-## （3）响应时间优先
+**TLABs**
 
-\-XX:+UseConcMarkSweepGC \~ -XX:+UseParNewGC \~ SerialOld
-
-\-XX:ParallelGCThreads=n \~ -XX:ConcGCThreads=threads
-
-\-XX:CMSInitiatingOccupancyFraction=percent
-
-\-XX:+CMSScavengeBeforeRemark
-
-![](media/6a2f93b5943140319b38825abfe35147.png)
+为每一个线程分配一个Buffer，线程分配内存就在这个Buffer内分配。但是当线程耗尽了自己的Buffer之后，需要申请新的Buffer。
 
 ## （4）G1
 
@@ -404,39 +396,49 @@ CMS 是基于“标记-清除”算法实现的，整个过程分为 4 个步骤
 
 整体上是标记+整理算法，两个区域之间是复制算法
 
-软实时，低延时
+软实时（G1会努力在一定时限内完成垃圾回收，但是不保证每次都能在这个时限内完成），低延时
+
+**结构**
 
 G1 的内存布局不再是新生代老年代等等的了，变成了
 
 ![image-20210224180008868](media/image-20210224180008868.png)
 
-跨代引用，
+每个Region的大小可以通过-XX:G1HeapRegionSize 参数设置。大小只能是2的幂次方。在HotSpot的实现中，整个堆被划分为2048左右各Region。
+
+**跨代引用：**
 
 Card Table 和 Remebered Set（记住谁引用了我）
 
+RS(Remember Set)是一种抽象概念，在G1回收器里面，RS被用来记录从其他Region指向一个Region的指针情况。因此，一个Region就会有一个RS。
+
+这种记录可以带来一个极大的好处：在回收一个Region的时候不需要执行全堆扫描，只需要检查它的RS就可以找到外部引用。如果一个线程修改了Region内部的引用，就必须要去通知RS。
+
 Writer Barrier（写屏障）
 
-流程：
+**GC流程：**
+
+G1中提供了三种模式垃圾回收模式，young GC ，Mixed GC和Full GC，在不同的条件下触发。
 
 1：Fully young GC 完全的年轻代 GC，产生一个 STW，构建 CS（Eden + Surivor），扫描 GC Rooot，排空 Dirty Card Queue，处理 Remebered Set （找到被老年代所引用的对象）使用卡表（Card Table）进行卡标记（card Marking）来解决老年代与新生代直接的引用问题，复制对象到 Survivor 区，处理软，虚等引用
 
 具体是，使用卡表（Card Table）和写屏障（Write Barrier）来进行标记并加快对 GC Roots 的扫描。卡表的设计师将堆内存平均分成 2 的 N 次方大小（默认 512 字节）个卡，并且维护一个卡表，用来储存每个卡的标识位。当对一个对象引用进行写操作时（对象引用改变），写屏障逻辑将会标记对象所在的卡页为脏页。在 YGC 只需要扫描卡表中的脏卡，将脏中的对象加入到 YGC 的 GC Roots 里面。当完成所有脏卡扫描时候，虚拟机会将卡表的脏卡标志位清空。
 
-2：ConCurrent Marking：并发标记进行，三色标记算法：初始标记，标记根节点直接到达的对象；根区域扫描，扫描 survivor 区直接可达的老年代区域对象,并标记被引用的对象；并发标记，在整个堆中进行标记；再次标记，修正标记（STW），独占清理（STW），计算各个区域的存活对象和 GC 回收比例,并进行排序,识别可以混合回收的区域；并发清理
+2：ConCurrent Marking：并发标记进行，三色（黑灰白）标记算法：初始标记，标记根节点直接到达的对象；根区域扫描，扫描 survivor 区直接可达的老年代区域对象,并标记被引用的对象；并发标记，在整个堆中进行标记；再次标记，修正标记（STW），独占清理（STW），计算各个区域的存活对象和 GC 回收比例,并进行排序,识别可以混合回收的区域；并发清理
 
-3：Mixed GC：当越来越多的对象晋升到老年代 old region 时,为了避免堆内存被耗尽,虚拟机会触发一个混合的垃圾收集器,即 Mixed GC,该算法并不是一个 Old GC,除了回收整个 Young Region,还会回收一部分的 Old Region。
+3：Mixed GC
+
+当越来越多的对象晋升到老年代 old region 时,为了避免堆内存被耗尽,虚拟机会触发一个混合的垃圾收集器,即 Mixed GC,该算法并不是一个 Old GC,除了回收整个 Young Region,还会回收一部分的 Old Region。
+
+- 全局并发标记：在MixGC之前，会先进行全局并发标记。其中会分为五个步骤：初始标记（STW，从GC Root触发标记全部直接子节点），根区域扫描（在初始标记的存活区，扫描老年代的引用），并发标记（整个堆中查找存活对象），再标记（STW，，清除垃圾
+
+  
+
+- 拷贝存活对象
 
 G1 垃圾回收周期如下图所示
 
 ![img](media/v2-956b4768abeeb780fee6a4577e9edbbb_720w.jpg)
-
-G1 的混合回收过程可以分为
-
-标记阶段：初始标记阶段是指从 GC Roots 出发标记全部直接子节点的过程，该阶段是 STW 的。由于 GC Roots 数量不多，通常该阶段耗时非常短。
-
-清理阶段：
-
-复制阶段。
 
 优点：
 
@@ -448,8 +450,6 @@ G1 的混合回收过程可以分为
 缺点：
 
 - 卡表占用了大量的内存
-
-https://www.cnblogs.com/webor2006/p/11055468.html
 
 ## （5）ZGC
 
@@ -622,25 +622,7 @@ Java 虚拟机把描述类的数据从 Class 文件加载到内存，并对数�
 
 JVM 就是按照上面的顺序一步一步的将字节码文件加载到内存中并生成相应的对象的。首先将字节码加载到内存中，然后对字节码进行连接，连接阶段包括了验证准备解析这 3 个步骤，连接完毕之后再进行初始化工作。
 
-加载阶段：1：通过类型的全限定名，产生一个代表该类型的二进制数据流。2：解析这个二进制数据流为方法区内的内部数据结。3. 构创建一个表示该类型的 java.lang.Class 类的实例。
 
-连接阶段：1. 验证，确认类型符合 Java 语言的语义，检查各个类之间的二进制兼容性(比如 final 的类不用拥有子类等)，另外还需要进行符号引用的验证。2. 准备，Java 虚拟机为类变量分配内存，设置默认初始值。3. 解析(可选的) ，在类型的常量池中寻找类，接口，字段和方法的符号引用，把这些符号引用替换成直接引用的过程。
-
-有以下几种情况进行初始化：
-
-1.当创建某个类的新实例时（如通过 new 或者反射，克隆，反序列化等）。
-
-2.当调用某个类的静态方法时。
-
-3.当使用某个类或接口的静态字段时。
-
-4.当调用 Java API 中的某些反射方法时，比如类 Class 中的方法，或者 java.lang.reflect 中的类的方法时。
-
-5.当初始化某个子类时。
-
-6.当虚拟机启动某个被标明为启动类的类（即包含 main 方法的那个类）。
-
-静态代码块在初始化阶段完成
 
 ## 4. 类加载阶段
 
@@ -664,7 +646,7 @@ JVM 就是按照上面的顺序一步一步的将字节码文件加载到内存�
 
 （1）加载
 
-类加载过程的一个阶段，ClassLoader 通过一个类的完全限定名查找此类字节码文件，并利用字节码文件创建一个 class 对象。
+类加载过程的一个阶段，ClassLoader 通过一个类的完全限定名查找此类字节码文件，并利用字节码文件，将这些数据转换成方法区中的运行时数据（静态变量、静态代码块、常量池等），在堆中生成一个Class类对象代表这个类（反射原理），作为方法区类数据的访问入口。
 
 在加载阶段，虚拟机主要完成三件事情：
 ① 通过一个类的全限定名（比如 com.danny.framework.t）来获取定义该类的二进制流；
@@ -694,6 +676,35 @@ JVM 就是按照上面的顺序一步一步的将字节码文件加载到内存�
 （5）初始化
 
 这里是类记载的最后阶段，如果该类具有父类就进行对父类进行初始化，执行其静态初始化器（静态代码块）和静态初始化成员变量。（前面已经对 static 初始化了默认值，这里我们对它进行赋值，成员变量也将被初始化）
+
+有以下几种情况进行初始化：
+
+1.当创建某个类的新实例时（如通过 new 或者反射，克隆，反序列化等）。
+
+2.当调用某个类的静态方法时。
+
+3.当使用某个类或接口的静态字段时。
+
+4.当调用 Java API 中的某些反射方法时，比如类 Class 中的方法，或者 java.lang.reflect 中的类的方法时。
+
+5.当初始化某个子类时。
+
+6.当虚拟机启动某个被标明为启动类的类（即包含 main 方法的那个类）。
+
+静态代码块在初始化阶段完成。
+
+初始化的顺序：
+
+```txt
+父类静态变量，父类静态代码块，多个按先后顺序执行；
+子类静态变量，子类静态代码块，多个按先后顺序执行；
+父类非静态代码
+父类构造函数
+子类非静态代码
+子类构造函数
+```
+
+
 
 ## 5. 类加载器
 
@@ -1350,6 +1361,56 @@ IDEA 设置
 
 ## 5.2：堆的分配参数
 
+1、-Xmx –Xms，-Xss：指定最大堆和最小堆，指定栈空间
+
+2、-Xmn、-XX:NewRatio、-XX:SurvivorRatio：
+
+- -Xmn**设置新生代大小**
+
+- -XX:NewRatio
+
+新生代（eden+2\*s）和老年代（不包含永久区）的比值
+
+例如：4，表示新生代:老年代=1:4，即新生代占整个堆的 1/5
+
+- -XX:SurvivorRatio（幸存代）
+
+设置两个 Survivor 区和 eden 的比值
+
+例如：8，表示两个 Survivor:eden=2:8，即一个 Survivor 占年轻代的 1/10
+
+3、-XX:+HeapDumpOnOutOfMemoryError、-XX:+HeapDumpPath
+
+- **-XX:+HeapDumpOnOutOfMemoryError**
+
+OOM 时导出堆到文件
+
+根据这个文件，我们可以看到系统 dump 时发生了什么。
+
+- -XX:+HeapDumpPath
+
+导出 OOM 的路径
+
+导出的文件使用专门的工具进行打开，可参考第六章
+
+**4、-XX:OnOutOfMemoryError：**
+
+- -XX:OnOutOfMemoryError
+
+在 OOM 时，执行一个脚本。
+
+可以在 OOM 时，发送邮件，甚至是重启程序。
+
+例如我们设置如下的参数：
+
+```
+-XX:OnOutOfMemoryError=D:/tools/jdk1.7_40/bin/printstack.bat %p //p代表的是当前进程的pid
+```
+
+上方参数的意思是说，执行 printstack.bat 脚本，而这个脚本做的事情是：D:/tools/jdk1.7_40/bin/jstack -F %1 > D:/a.txt，即当程序 OOM 时，在 D:/a.txt 中将会生成**线程**的 dump。
+
+
+
 目前生产上
 
 ```txt
@@ -1391,55 +1452,7 @@ IDEA 设置
 
 **-Xlog**：设置 GC 日志中的内容、格式、位置以及每个日志的大小。
 
-#### 1、-Xmx –Xms，-Xss
 
-指定最大堆和最小堆，指定栈空间
-
-#### 2、-Xmn、-XX:NewRatio、-XX:SurvivorRatio：
-
-- -Xmn**设置新生代大小**
-
-- -XX:NewRatio
-
-新生代（eden+2\*s）和老年代（不包含永久区）的比值
-
-例如：4，表示新生代:老年代=1:4，即新生代占整个堆的 1/5
-
-- -XX:SurvivorRatio（幸存代）
-
-设置两个 Survivor 区和 eden 的比值
-
-例如：8，表示两个 Survivor:eden=2:8，即一个 Survivor 占年轻代的 1/10
-
-#### 3、-XX:+HeapDumpOnOutOfMemoryError、-XX:+HeapDumpPath
-
-- **-XX:+HeapDumpOnOutOfMemoryError**
-
-OOM 时导出堆到文件
-
-根据这个文件，我们可以看到系统 dump 时发生了什么。
-
-- -XX:+HeapDumpPath
-
-导出 OOM 的路径
-
-导出的文件使用专门的工具进行打开，可参考第六章
-
-#### **4、-XX:OnOutOfMemoryError：**
-
-- -XX:OnOutOfMemoryError
-
-在 OOM 时，执行一个脚本。
-
-可以在 OOM 时，发送邮件，甚至是重启程序。
-
-例如我们设置如下的参数：
-
-```
--XX:OnOutOfMemoryError=D:/tools/jdk1.7_40/bin/printstack.bat %p //p代表的是当前进程的pid
-```
-
-上方参数的意思是说，执行 printstack.bat 脚本，而这个脚本做的事情是：D:/tools/jdk1.7_40/bin/jstack -F %1 > D:/a.txt，即当程序 OOM 时，在 D:/a.txt 中将会生成**线程**的 dump。
 
 #### **5、堆的分配参数总结：**
 

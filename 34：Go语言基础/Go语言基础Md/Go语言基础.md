@@ -170,7 +170,7 @@ res3 := Fun1(4,9)
 
 2）引用类型：指针，slice 切片，map，管道 chan，interface 等
 
-### 2.5.3init 函数
+### 2.5.3：init 函数
 
 每一个源文件都可以包含一个 init 函数，该函数会在 main 函数执行前，被 Go 运行框架调用
 
@@ -524,7 +524,7 @@ func main() {
 
 本质是一个队列，保持先进先出的原则，线程安全，都 goroutine 访问时，不需要加锁，channel 是有类型的，string 的 channel 只能存放 string。channel 是可以让一个 goroutine 发送特定值到另一个 goroutine 的通信机制。
 
-声明
+声明：
 
 ```go
 var 变量名 chan 数据类型

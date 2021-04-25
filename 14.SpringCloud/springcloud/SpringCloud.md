@@ -1208,7 +1208,7 @@ ILoadBalance 负载均衡器：ribbon 是一个为客户端提供负载均衡功
 
 流程：
 
-LoadBalancerClient（RibbonLoadBalancerClient 是实现类）在初始化的时候（execute 方法），会通过 ILoadBalance（BaseLoadBalancer 是实现类）向 Eureka 注册中心获取服务注册列表，并且每 10s 一次向 EurekaClient 发送“ping”，来判断服务的可用性，如果服务的可用性发生了改变或者服务数量和之前的不一致，则从注册中心更新或者重新拉取。LoadBalancerClient 有了这些服务注册列表，就可以根据具体的 IRule（路由）来进行负载均衡。
+LoadBalancerClient（RibbonLoadBalancerClient 是实现类）在初始化的时候（execute 方法），会通过 ILoadBalance（BaseLoadBalancer 是实现类）向 Eureka 注册中心获取服务注册列表，并且每 10s 一次向 EurekaClient 发送“ping”，来判断服务的可用性，如果服务的可用性发生了改变或者服务数量和之前的不一致，则从注册中心更新或者重新拉取。LoadBalancerClient 有了这些服务注册列表，就 根据具体的 IRule（路由）来进行负载均衡。
 
 IRule 接口代表负载均衡策略，choose 方法时具体的选择服务器方法，其中 RandomRule 表示随机策略、RoundRobinRule 表示轮询策略、WeightedResponseTimeRule 表示加权策略、BestAvailableRule 表示请求数最少策略等等。
 
@@ -1382,7 +1382,7 @@ Feign 支持可插拔式的编码器和解码器，SpringCloud 对 Feign 进行�
 
 ### Feign 与 OpenFeign 区别
 
-Feign：Feign 是 SpringCloud 组件中的一个轻量级 RESTful 的 Http 服务客户端，Feign 内置了 Feign 内置了 Ribbon，用来做客户端负载均衡，去调用服务注册中心的服务。Feign 的使用方式是：使用 Feign 的注解定义接口，调用这个接口，就可以斯奥用服务注册中心的服务。
+Feign：Feign 是 SpringCloud 组件中的一个轻量级 RESTful 的 Http 服务客户端， Feign 内置了 Ribbon，用来做客户端负载均衡，去调用服务注册中心的服务。Feign 的使用方式是：使用 Feign 的注解定义接口，调用这个接口，就可以斯奥用服务注册中心的服务。
 
 OpenFeign：OpenFeign 是 SpringCloud 在 Feign 的基础上支持了 SpringMVC 的注解，如@RequestMapping 等等，OpenFeign 的@FeignClient 可以解析 SpringMVC 的@RequestMapping 注解下的接口，并通过动态代理的方式产生实现类，实现类中做负载均衡并调用其他服务。
 
@@ -1640,6 +1640,8 @@ service-provider
 
 ### 原理
 
+引入@FeignClient注解，写上接口，底层是使用代理来完成的，会将服务名称和接口的注解路径拼接成一个URL，再使用Ribbon调用远程。
+
 基于面向接口的动态代理方式生成实现类
 
 FeignClientFactoryBean implement FactoryBean
@@ -1882,21 +1884,7 @@ public servletRegistrationBean getservlet() {
 
 ## GateWay
 
-### 概念
-
-路由：路由是构建网关的基本模块，它由 ID，目标 URL，一系列的断言和过滤器组成，如果断言为 true 则匹配该路由。就是根据某些规则,将请求发送到指定服务上
-
-断言：参考 Java8 的 Predicate，开发人员可以匹配 HTTP 请求中所有内容（比如请求头或请求参数）如果请求与断言相匹配，则进行路，就是判断,如果符合条件就是 xxxx,反之 yyyy
-
-过滤：指的是 Spring 框架中 GateWayFilter 的实例，使用过滤器，可以请求被路由前或后对请求进行修改
-
-**路由前后,过滤请求**；**在请求进入路由之前,和处理请求完成,再次到达路由之前**
-
-GateWay 旨在提供一种简单而有效的方法来对 API 进行路由，以及提供强大的过滤器功能，例如：熔断，限流，重试等。
-
-**gateway 之所以性能号,因为底层使用 WebFlux,而 webFlux 底层使用 netty 通信(NIO)**
-
-提供了统一的路由方式且基于 Filter 链的方式提供了网关基本的功能。
+利用路由重写转发等特性，根据前端传来的URL，进行权限校验，转发到相应的微服务。
 
 ![](.\media\gateway的3.png)
 
@@ -1917,6 +1905,22 @@ GateWay 旨在提供一种简单而有效的方法来对 API 进行路由，以�
 请求限流功能
 
 支持路径重写
+
+### 概念
+
+路由：路由是构建网关的基本模块，它由 ID，目标 URL，一系列的断言和过滤器组成，如果断言为 true 则匹配该路由。就是根据某些规则,将请求发送到指定服务上
+
+断言：参考 Java8 的 Predicate，开发人员可以匹配 HTTP 请求中所有内容（比如请求头或请求参数）如果请求与断言相匹配，则进行路，就是判断,如果符合条件就是 xxxx,反之 yyyy
+
+过滤：指的是 Spring 框架中 GateWayFilter 的实例，使用过滤器，可以请求被路由前或后对请求进行修改
+
+**路由前后,过滤请求**；**在请求进入路由之前,和处理请求完成,再次到达路由之前**
+
+GateWay 旨在提供一种简单而有效的方法来对 API 进行路由，以及提供强大的过滤器功能，例如：熔断，限流，重试等。
+
+**gateway 之所以性能号,因为底层使用 WebFlux,而 webFlux 底层使用 netty 通信(NIO)**
+
+提供了统一的路由方式且基于 Filter 链的方式提供了网关基本的功能。
 
 #### GateWay 与 zuul 的区别:
 

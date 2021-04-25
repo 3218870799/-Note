@@ -360,7 +360,9 @@ GetMapping 是 Get 请求方法中的一个特例，它只是 RequestMapping 的
 
 ### @Qualifier
 
-当有多个同一类型的 Bean 时，可以用@Qualifier("name")来指定。与@Autowired 配合使用，@Autowired @Qualifie("userService") 两个结合起来可以根据名字和类型注入
+当有多个同一类型的 Bean 时，比如当注入userService时，但是userService的实现类有好几个，这时就不知道应该注入哪一个了。可以用@Qualifier("name")来指定。与@Autowired 配合使用，@Autowired @Qualifie("userService") 两个结合起来可以根据名字和类型注入
+
+
 
 ### @Autowired
 

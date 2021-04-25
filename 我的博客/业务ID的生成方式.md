@@ -99,9 +99,11 @@ NTP 网络时间协议取时间
       String uuid = UUID.randomUUID().toString().replaceAll("-", "");
       System.out.println(uuid);
     }
+  
   ```
 
-- 分析
+
+分析
 
   UUID 不适用于实际的业务需求，像用作订单号 UUID 这样的字符串没有丝毫意义，看不出和订单相关的有用信息；而对于数据库来说**用作业务主键 ID，它不仅太长而且还是字符串，存储性能差查询也很耗时**
 
@@ -129,6 +131,7 @@ NTP 网络时间协议取时间
         value char(10) NOT NULL default '',
         PRIMARY KEY (id),
     ) ENGINE=MyISAM;
+```
 
 
     insert into SEQUENCE_ID(value)  VALUES ('values');
@@ -398,11 +401,12 @@ NTP 网络时间协议取时间
                     | machineId << MACHINE_LEFT             //机器标识部分
                     | sequence;                             //序列号部分
         }
+  ```
 
 
         public static void main(String[] args) {
             SnowFlakeShortUrl snowFlake = new SnowFlakeShortUrl(2, 3);
-
+    
             /**
               * 小知识点：
               * 1 << 4 指将数字1左移4位

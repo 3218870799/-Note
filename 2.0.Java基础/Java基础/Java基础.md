@@ -551,10 +551,6 @@ Java 接口中的成员函数默认是 public 的。抽象类的成员函数可�
 
 ### 5.3：抽象方法及重写
 
-## 面试题
-
-1：跨平台原理
-
 # 二：常用 API
 
 ## 1：数组
@@ -1318,13 +1314,12 @@ Queue 接口有一个 PriorityQueue 实现类。除此之外，Queue 还有一�
 
 2：Queue 接口中定义了如下的几个方法：
 
-void add(Object e): 将指定元素插入到队列的尾部。
+void add(Object e): 将指定元素插入到队列的尾部。插入失败抛出异常。
 
-object element(): 获取队列头部的元素，但是不删除该元素。
+boolean offer(Object e):将指定的元素插入此队列的尾部。当使用容量有限的队列时，此方法通常比 add(Object
+e)有效。插入失败返回 false。
 
-boolean offer(Object e):
-将指定的元素插入此队列的尾部。当使用容量有限的队列时，此方法通常比 add(Object
-e)有效。
+object element(): 获取队列头部的元素，但是不删除该元素。如果队列为空，则抛出异常
 
 Object peek(): 返回队列头部的元素，但是不删除该元素。如果队列为空，则返回 null。
 
@@ -1332,7 +1327,19 @@ Object poll(): 返回队列头部的元素，并删除该元素。如果队列�
 
 Object remove(): 获取队列头部的元素，并删除该元素。
 
-PriorityQueue 实现类
+### PriorityQueue
+
+队列大小是不受限制的，当我们指定初始大小，增加元素时队列会自动增加。
+
+非线程安全的，所以提供了 PriotityBlockingQueue（实现了 BlockQueue 接口）用于多线程环境。
+
+通过二叉小顶堆实现，即意味着可以用数组实现，父节点和子节点的关系如下：
+
+```txt
+leftNo = parentNo*2+1
+rightNo = parentNo*2+2
+parentNo = (nodeNo-1)/2
+```
 
 ## 4：Stack
 
@@ -1661,7 +1668,9 @@ hashCode & n-1
 
 哈希表+链表，通过维护一个链表来保证对哈希表迭代时的有序性
 
-HashMap 中有三个空方法，二 LinkedHashMap 就是通过重写这三个方法来保证链表的插入，删除的有序性。
+![在这里插入图片描述](media/20200430000245372.png)
+
+HashMap 中有三个空方法，而 LinkedHashMap 就是通过重写这三个方法来保证链表的插入，删除的有序性。
 
 // Callbacks to allow LinkedHashMap post-actions
 
@@ -2030,6 +2039,7 @@ public static class DemoThread extends Thread{
 - public void run() :此线程要执行的任务在此处定义代码。
 - public static void sleep(long millis) :使当前正在执行的线程以指定的毫秒数暂停（暂时停止执行）。
 - public static Thread currentThread() :返回对当前正在执行的线程对象的引用。
+- public boolean isAlive()：测试线程是否已经启动
 
 ## 5.2：ThreadLocal
 
@@ -2795,6 +2805,12 @@ rwLock.readLock().unlock();
 
 跟独占锁相比，共享锁的主要特征在于当一个在等待队列中的共享节点成功获取到锁以后，要依次唤醒后面所有可以跟它一起共享当前锁资源的节点，毫无疑问，这些节点必须也是在等待共享锁（这是大前提，如果等待的是独占锁，那前面已经有一个共享节点获取锁了，它肯定是获取不到的）。当共享锁被释放的时候，可以用读写锁为例进行思考，当一个读锁被释放，此时不论是读锁还是写锁都是可以竞争资源的。
 
+#### 死锁
+
+原因：系统资源分配不足；进程推进顺序不合适；资源分配不当；
+
+条件：互斥，请求保持，不剥夺，循环等待
+
 ### AQS
 
 AbstractQueuedSynchronizer 抽象队列同步器
@@ -3121,6 +3137,12 @@ CountDownLatch 和 CyclicBarrier 都能够实现线程之间的等待，只不�
 - CyclicBarrier 一般用于一组线程互相等待至某个状态，然后这一组线程再同时执行
   另外，CountDownLatch 是减计数，计数减为 0 后不能重用；而 CyclicBarrier 是加计数，可置 0 后复用。
 
+CountDownLatch: 计数器自己可以在任意地方减 1 countDown(), await()方法在线程外调用，当计数器为 0 的时候才可以执行线程外的后面的代码
+
+CyclicBarrier：在线程内调用 await()，用于控制线程内的后面的代码的执行
+
+CountDownLatch 用来控制线程外的代码，用于阻塞父线程的代码，CyclicBarrier 用于控制线程内的代码，用于阻塞当前线程的代码
+
 ### ConditionObject 通知
 
 synchronized 控制同步的时候，可以配合 Object 的 wait(),notify(),notifyAll()系列方法实现等待/通知模式，而 Lock，它提供了条件 Condition 接口，配合 await(),signal(),signalAll()等方法也可以实现等待/通知机制。ConditionObject 实现了 Condition 接口，给 AQS 提供条件变量的支持。
@@ -3222,6 +3244,10 @@ java.util.concurrent.BlockingQueue 接口有以下阻塞队列的实现：
 ![](media/208d25c522bc0854a1fe39df90d3195b.png)
 
 ![](media/a8eaacfe9ace5bf858124f5a1755259c.png)
+
+字节流与字符流的区别：
+
+1：字节流操作文件不会用到缓存，直接操作文件，儿字符流是先写到缓存再写到问价
 
 #### 字节流：
 
@@ -3401,6 +3427,14 @@ Block IO：jdk 最早抽象出的 IO 体系，jdk1.0 的 io 体系是阻塞的�
 
 ![](media/0e7a42d815d00161b1e2aa4913b78d9d.png)
 
+流程：
+
+当调用 java BIO 的 write()方法写数据时，实际上调用的是底层 socket。写到 socket 的写缓冲区（write buffer）。（注意当调用 write()方法返回时，不代表数据已经发送出去，此时仅仅写入了 socket 的 write buffer 而已）。操作系统有一个专门的线程用于检查写缓冲区，有数据后将数据送入网卡设备经网络传送出去。
+
+同理，对于读缓存区也一样。当调用系统的 read()方法时，是从 socket 的读缓冲区读数据。（系统内核有线程会将收到的数据拷贝到 socket 读缓冲区供用户空间使用）
+
+两个缓冲区的大小是有限的，当写缓冲区写满后，会阻塞写操作，当读缓冲区为空后，会阻塞读操作。这是阻塞的根源。
+
 ## 11：NIO
 
 Java NIO (New IO，Non-Blocking IO)是从 Java 1.4 版本开始引入的一套新的 IO API，可以替代标准的 Java IO API。NIO 与原来的 IO 有同样的作用和目的，但是使用的方式完全不同，NIO 支持面向缓冲区的(IO 是面向流的)、基于通道的 IO 操作。NIO 将以更加高效的方式进行文件的读写操作。
@@ -3466,6 +3500,15 @@ ServerSocketChannel
 
 ### 2：Buffer
 
+一个 Buffer 对象是固定数量的数据的容器，其作用是一个存储器，或者分段运输区，在这里，数据可被存储并在之后用于检索。缓冲区可以被写满或释放。对于每个非布尔原始数据类型都有一个缓冲区类，即 Buffer 的子类有：ByteBuffer、CharBuffer、DoubleBuffer、FloatBuffer、IntBuffer、LongBuffer 和 ShortBuffer，是没有 BooleanBuffer 之说的。尽管缓冲区作用于它们存储的原始数据类型，但缓冲区十分倾向于处理字节。非字节缓冲区可以在后台执行从字节或到字节的转换，这取决于缓冲区是如何创建的。
+
+缓冲区的四个属性：
+
+- 容量 Capactity：缓冲区能够容纳的数据元素的最大容量。
+- 上界 limit：缓冲区的第一个不能被读或写的元素，缓冲创建时，limit 的值等于 capacity 的值，假设 capacity = 1024，我们在程序中设置了 limit = 512，说明，Buffer 的容量为 1024，但是从 512 之后既不能读也不能写，因此可以理解成，Buffer 的实际可用大小为 512。
+- 位置 Position：下一个要被读或写的元素的索引，位置会自动由相应的 get()和 put()函数更新。position 的位置是从 0 开始的。
+- 标记 Mark：一个备忘位置，标记在设定前是未定义的。使用场景是，假设缓冲区中有 10 个元素，position 目前的位置为 2(也就是如果 get 的话是第三个元素)，现在只想发送 6 - 10 之间的缓冲数据，此时我们可以 buffer.mark(buffer.position())，即把当前的 position 记入 mark 中，然后 buffer.postion(6)，此时发送给 channel 的数据就是 6 - 10 的数据。发送完后，我们可以调用 buffer.reset() 使得 position = mark，因此这里的 mark 只是用于临时记录一下位置用的。
+
 ### 3：selector
 
 4：鲁班教学
@@ -3504,19 +3547,35 @@ Socket 变成 SocketChannel
 
 ![](media/6e4fe3611af22827ad28b69ffb2e1b9b.png)
 
-13：AIO
+## 13：AIO
 
-Asynchronous IO：异步的，也称 nio2
+Asynchronous IO：异步的，也称 nio2。
 
-## 12：BIO，NIO 与 AIO
+BIO 中若某些操作没准备好，则直接阻塞进程，直到完成；NIO 若没操作好，则会监视操作并当操作准备好后通知处理者处理。而 AIO 则是没处理好，去处理别的任务，将其异步通知回调或写入 Future。
+
+## 对比
 
 1：Java 对 BIO、NIO、AIO 的支持：
 
 Java BIO (blocking I/O)：同步并阻塞，服务器实现模式为一个连接一个线程，即客户端有连接请求时服务器端就需要启动一个线程进行处理，如果这个连接不做任何事情会造成不必要的线程开销，当然可以通过线程池机制改善。
 
-Java NIO (non-blocking I/O)：同步非阻塞，服务器实现模式为一个请求一个线程，即客户端发送的连接请求都会注册到多路复用器上，多路复用器轮询到连接有 I/O 请求时才启动一个线程进行处理。
+缺点：一个连接占用一个线程资源，线程资源得不到充分利用。线程开销大，利用率不高。
 
-Java AIO(NIO.2) (Asynchronous I/O) ：异步非阻塞，服务器实现模式为一个有效请求一个线程，客户端的 I/O 请求都是由 OS 先完成了再通知服务器应用去启动线程进行处理。但是其实现较为复杂，还有一个 Selector 空轮询的 bug，可能会导致 CPU 占用 100%，他是使用了 Future 来实现即时返回
+优点：
+
+Java NIO (non-blocking I/O)：同步非阻塞，Client 发送一个请求，会被 Server 端放入到多路复用器上，多路复用器轮询这些请求事件，发现 IO 请求，才会启动一个线程去处理。
+
+优点：多路复用，并发性高；
+
+缺点：
+
+IO(NIO.2) (Asynchronous I/O) ：异步非阻塞，服务器实现模式为一个有效请求一个线程，客户端的 I/O 请求都是由 OS 先完成了再通知服务器应用去启动线程进行处理。但是其实现较为复杂，还有一个 Selector 空轮询的 bug，可能会导致 CPU 占用 100%，他是使用了 Future 来实现即时返回。
+
+每个进程干自己的事情，如果 A 进程发现 B 进程想从我这里获取资源，那 A 进程在使用玩这部分资源后主动通知 B，可以来我这取了，这就不用事件池、也不用耗费资源去做监控。
+
+优点：并发性高，CPU 利用率高，线程利用率高
+
+缺点：进程间频繁的通信在追错，管理和资源消耗上不是很客观。
 
 2：BIO、NIO、AIO 适用场景分析:
 
@@ -3816,7 +3875,9 @@ druid：目前最好的数据库连接池，功能，性能，扩展性方面都
 
 ClassLoader.loadClass() 与 Class.forName()的区别？
 
-forName 方法在初始化之前执行静态方法，但 loadClass 不会，表示目标对象被装载后不进行链接，
+Class.forName 内部调用方法 forName(className,true,classloader);，第二个参数为 true，表示类需要初始化，一旦初始化就会触发目标对象的 static 方法。但 loadClass 不会。
+
+LoadClass 内部调用的是 loadClass(className,false);第二个参数为 false，表示目标对象被装载后不进行链接，不链接就不进行初始化操作，目标对象静态块和静态对象就不会执行。
 
 **根据一个字符串得到一个类**
 
@@ -5399,8 +5460,7 @@ ZGC 是一个并发，基于 region，压缩型的垃圾收集器，只有 root 
 
 由 oracle 开发，承诺在数 TB 的堆上具有非常低的暂停时间，多层堆（即热对象置于 DRAM 和冷对象置于 NVMe 闪存），压缩堆
 
-SWT 阶段：应用程序线程被暂停，以便 gc 执行其工作。
-当应用程序因为 GC 暂停时，这通常是由于 Stop The World 阶段。
+SWT 阶段：应用程序线程被暂停，以便 gc 执行其工作。当应用程序因为 GC 暂停时，这通常是由于 Stop The World 阶段。
 
 ZGC 给 Hotspot Garbage Collectors 增加了两种新技术：着色指针和读屏障。
 
@@ -5534,16 +5594,10 @@ Java 12 中将删除由 Oracle 提供的 arm64 端口相关的所有源码，即
 
 G1 垃圾收集器设计的主要目标之一是满足用户设置的预期的 JVM 停顿时间
 
-G1 收集器必须完成收集集合的所有区域中的所有活动对象之后才能停止；但是如果收集器选择过大
-的 GC 回收集，此时的 STW 时间会过长超出目标 pause time。
+G1 收集器必须完成收集集合的所有区域中的所有活动对象之后才能停止；但是如果收集器选择过大的 GC 回收集，此时的 STW 时间会过长超出目标 pause time。
 
-将 GC 回收集拆分为必需和可选部分时，垃圾收集过程优先处理必需部分。同时，需要为可选 GC 回收集部分维
-护一些其他数据，这会产生轻微的 CPU 开销，但小于 1 ％的变化，同时在 G1 回收器处理 GC 回收集期间，本
-机内存使用率也可能会增加，使用上述情况只适用于包含可选 GC 回收部分的 GC 混合回收集合。
-在 G1 垃圾回收器完成收集需要必需回收的部分之后，如果还有时间的话，便开始收集可选的部分。但是粗粒度
-的处理，可选部分的处理粒度取决于剩余的时间，一次只能处理可选部分的一个子集区域。在完成可选收集部
-分的收集后，G1 垃圾回收器可以根据剩余时间决定是否停止收集。如果在处理完必需处理的部分后，剩余时间
-不足，总时间花销接近预期时间，G1 垃圾回收器也可以中止可选部分的回收以达到满足预期停顿时间的目标。
+将 GC 回收集拆分为必需和可选部分时，垃圾收集过程优先处理必需部分。同时，需要为可选 GC 回收集部分维护一些其他数据，这会产生轻微的 CPU 开销，但小于 1 ％的变化，同时在 G1 回收器处理 GC 回收集期间，本机内存使用率也可能会增加，使用上述情况只适用于包含可选 GC 回收部分的 GC 混合回收集合。在 G1 垃圾回收器完成收集需要必需回收的部分之后，如果还有时间的话，便开始收集可选的部分。但是粗粒度的处理，可选部分的处理粒度取决于剩余的时间，一次只能处理可选部分的一个子集区域。在完成可选收集部
+分的收集后，G1 垃圾回收器可以根据剩余时间决定是否停止收集。如果在处理完必需处理的部分后，剩余时间不足，总时间花销接近预期时间，G1 垃圾回收器也可以中止可选部分的回收以达到满足预期停顿时间的目标。
 
 ## 8：增强 G1，自动返回未用堆内存给操作系统
 
@@ -5659,58 +5713,6 @@ String source = """
 ## 4：ZGC:取消使用未使用的内存
 
 ## 5：重新实现旧版套接字 API
-
-更简洁的替代方法是使用 String :: replace 或 String :: format，比如：
-另一个方法是使用 String :: formatted，这是一个新方法，比如：
-String code = "public void print(Object o) {" +
-"""
-System.out.println(Objects.toString(o));
-}
-""";
-
-String code = """
-public void print(Object o) {
-System.out.println(Objects.toString(o));
-}
-""";
-1
-2
-3
-4
-5
-String code = """
-public void print(""" + type + """
-o) {
-System.out.println(Objects.toString(o));
-}
-""";
-1
-2
-3
-4
-5
-6
-String code = """
-public void print($type o) {
-System.out.println(Objects.toString(o));
-}
-""".replace("$type", type);
-1
-2
-3
-4
-5
-String code = String.format("""
-public void print(%s o) {
-System.out.println(Objects.toString(o));
-}
-""", type);
-
-String source = """
-public void print(%s object) {
-System.out.println(Objects.toString(object));
-}
-""".formatted(type);
 
 # 面试题：
 
