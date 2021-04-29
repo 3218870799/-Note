@@ -1952,10 +1952,13 @@ Java 中垃圾回收线程就是特殊的守护线程。
 
 synchronized, wait, notify 是任何对象都具有的同步工具。
 
-wait/notify 必须存在于 synchronized 块中。并且，这三个关键字针对的是同一个监视器（某对象的监视器）。
+wait/notify 必须存在于 synchronized 块中，因为如果wait执行到了notify后面，可能导致wait线程一直没有办法唤醒。比如：
 
-volatile
-多线程的内存模型：main memory（主存）、working memory（线程栈），在处理数据时，线程会把值从主存 load 到本地栈，完成操作后再 save 回去(volatile 关键词的作用：每次针对该变量的操作都激发一次 load and save)。
+![执行顺序](media/20200710230407260.png)
+
+并且，这三个关键字针对的是同一个监视器（某对象的监视器）。
+
+volatile：多线程的内存模型：main memory（主存）、working memory（线程栈），在处理数据时，线程会把值从主存 load 到本地栈，完成操作后再 save 回去(volatile 关键词的作用：每次针对该变量的操作都激发一次 load and save)。
 
 ## 5.2：线程状态
 
