@@ -123,11 +123,80 @@ dashboard：
 
 ![image-20210506203558440](media/image-20210506203558440.png)
 
-thread：
+thread：查看当前 JVM 的线程堆栈信息
 
 -b：处于阻塞状态的线程
 
-jvm：
+jvm：查看当前 JVM 的信息
 
 sysprop：查看当前JVM的系统属性(`System Property`)
 
+sysenv——查看JVM的环境变量
+
+- [getstatic](https://arthas.aliyun.com/doc/getstatic.html)——查看类的静态属性
+
+```shell
+getstatic demo.MathGame random
+```
+
+- [ognl](https://arthas.aliyun.com/doc/ognl.html)——执行ognl表达式
+
+```shell
+$ ognl '@java.lang.System@out.println("hello")'
+null
+```
+
+- [heapdump](https://arthas.aliyun.com/doc/heapdump.html)——dump java heap, 类似jmap命令的heap dump功能
+
+# class/Classloader相关
+
+- [sc](https://arthas.aliyun.com/doc/sc.html)——查看JVM已加载的类信息
+
+```shell
+# 打印类的详细信息
+$ sc -d demo.MathGame
+# 打印类的Field信息
+$ sc -d -f demo.MathGame
+```
+
+- [sm](https://arthas.aliyun.com/doc/sm.html)——查看已加载类的方法信息
+
+```shell
+$ sm java.lang.String
+java.lang.String-><init>
+java.lang.String->equals
+java.lang.String->toString
+
+$ sm -d java.lang.String toString
+ declaring-class  java.lang.String
+ method-name      toString
+ modifier         public
+ annotation
+ parameters
+ return           java.lang.String
+ exceptions
+```
+
+- [jad](https://arthas.aliyun.com/doc/jad.html)——反编译指定已加载类的源码
+
+```shell
+$ jad java.lang.String
+```
+
+- [mc](https://arthas.aliyun.com/doc/mc.html)——内存编译器，内存编译`.java`文件为`.class`文件
+- [retransform](https://arthas.aliyun.com/doc/retransform.html)——加载外部的`.class`文件，retransform到JVM里
+- [redefine](https://arthas.aliyun.com/doc/redefine.html)——加载外部的`.class`文件，redefine到JVM里
+- [dump](https://arthas.aliyun.com/doc/dump.html)——dump 已加载类的 byte code 到特定目录
+- [classloader](https://arthas.aliyun.com/doc/classloader.html)——查看classloader的继承树，urls，类加载信息，使用classloader去getResource
+
+
+
+- [monitor](https://arthas.aliyun.com/doc/monitor.html)——方法执行监控
+- [watch](https://arthas.aliyun.com/doc/watch.html)——方法执行数据观测
+- [trace](https://arthas.aliyun.com/doc/trace.html)——方法内部调用路径，并输出方法路径上的每个节点上耗时
+- [stack](https://arthas.aliyun.com/doc/stack.html)——输出当前方法被调用的调用路径
+- [tt](https://arthas.aliyun.com/doc/tt.html)——方法执行数据的时空隧道，记录下指定方法每次调用的入参和返回信息，并能对这些不同的时间下调用进行观测
+
+# profiler/火焰图
+
+- [profiler](https://arthas.aliyun.com/doc/profiler.html)–使用[async-profiler](https://github.com/jvm-profiling-tools/async-profiler)对应用采样，生成火焰图
