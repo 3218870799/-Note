@@ -1348,3 +1348,8 @@ PS:第五步和第六步顺序不可颠倒，否则第六步将获取不到方�
 
 idea安装目录/bin/idea.exe.vmoptions和idea64.exe.vmoptions
 
+## Cloud Toolkit
+
+https://help.aliyun.com/document_detail/98762.html
+
+https://www.cnblogs.com/xl5230/p/11726548.html
