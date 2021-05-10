@@ -3138,6 +3138,43 @@ public class CorsConfig implements WebMvcConfigurer {
 
 项目中前后端分离部署，所以需要解决跨域的问题。
 
+
+
+# 八：定时任务
+
+Spring3.1开始让计划任务变得非常简单，只需要几个注解就能快速开启计划任务的支持。
+
+@EnableScheduling，@Configuration 两个同时使用开启计划任务支持。
+
+```java
+@EnableScheduling
+@Configuration
+public class TaskConfiguration{}
+```
+
+@Scheduled
+
+在要使用计划任务的方法上使用Scheduled，fixedRate表示固定频率，cron即自定义表达式。
+
+```java
+@Service
+public class TestTask{
+    protected Logger logger = LoggerUtils.getLogger(this);
+    @Scheduled(fixedRate = 5000)
+    public void runPerFiveSeconds(){
+        logger.info(":fix");
+    }
+    @Scheduled(cron="0/10 * 9 ** ?")
+    public void runCorn(){
+        logger.info("cron");
+    }
+}
+```
+
+Spring支持的cron表达式只有六位，没有表示年的位。
+
+所以Spring不支持具体某年某月某日执行任务。
+
 # 十：安全
 
 CSRF 代表跨站请求伪造。这是一种攻击，迫使最终用户在当前通过身份验证的 Web 应用程序上执行不需要的操作。CSRF 攻击专门针对状态改变请求，而不是数据窃取，因为攻击者无法查看对伪造请求的响应。
