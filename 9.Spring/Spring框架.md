@@ -2012,3 +2012,23 @@ Spring 容器对象：getRequiredWebApplicationContext(ServletContext sc)
 
 以上两种方式，无论使用哪种获取容器对象，刷新 success 页面后，可看到代码中使用的
 Spring 容器均为同一个对象。
+
+# 七：配置文件
+
+内容说明：
+
+
+
+拆分组合结构
+
+## 拆分
+
+项目较大，配置文件可读性维护性差。可以采用：公用配置（数据源、事务等）+ 每个系统模块一个单独配置文件。
+
+```xml
+<import resource="applicationContext-dao.xml"/>
+<import resource="applicationContext-service.xml"/>
+```
+
+
+

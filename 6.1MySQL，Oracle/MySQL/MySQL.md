@@ -22,91 +22,7 @@ https://www.cnblogs.com/puhongjun/p/10076039.html
 
 https://www.cnblogs.com/2020javamianshibaodian/p/mysql8020anzhuangjiaocheng.html
 
-一下是老版本的
-
-> 打开下载的 mysql 安装文件 mysql-essential-5.0.22-win32.msi，双击运行，出现如下界面
-
-![](media/d9b5d7ed73765b554fd470c22fa02061.jpeg)
-
-按“Next”继续
-
-![](media/dc25b48dcceff8d643d20a6da009a212.jpeg)
-
-选择安装类型，有“Typical（默认）”、“Complete（完全）”、“Custom（用户自定义）”三个选项，我们选择“Custom”，有更多的选项，也方便熟悉安装过程
-
-![](media/7c50862392de5663c389b19445052c90.png)
-
-上一步选择了 Custom 安装，这里将设定 MySQL 的组件包和安装路径，设定好之后，单击 Next 继续安装。
-
-![20080115010355600](media/0193af786ae7c4ad2bc49e8ab9bfbf1e.jpeg)
-
-现在软件安装完成了，出现上面的界面，将 “Configure the Mysql Server now”前面的勾打上，点“Finish”结束软件的安装并启动 mysql 配置向导。
-
-mysql 配置向导启动界面，按“Next”继续。
-
-![20080115010355579](media/15bcc5a3b7875a8b90c0f5726db28092.jpeg)
-
-选择配置方式，“Detailed Configuration（手动精确配置）”、“StandardConfiguration（标准配置）”，我们选择“Detailed Configuration”，方便熟悉配置过程。
-
-![20080115010355938](media/623c8ace1e8ea69275024ac9a66b5edd.jpeg)
-
-选择服务器类型，“Developer Machine（开发测试类，mysql 占用很少资源）”、“Server Machine（服务器类型，mysql 占用较多资源）”、“Dedicated MySQL ServerMachine（专门的数据库服务器，mysql 占用所有可用资源）”，大家根据自己的类型选择了，一般选“ServerMachine”，不会太少，也不会占满。
-
-![20080115010355638](media/2ad23e6f8d3e318f9ead1d1a6202e280.jpeg)
-
-选择 mysql 数据库的大致用途，“MultifunctionalDatabase（通用多功能型，能很好的支持 InnoDB 与 MyISAM 存储引擎）”、“TransactionalDatabase Only（服务器类型，专注于事务处理，一般）”、“Non-Transactional DatabaseOnly（非事务处理型，较简单，主要做一些监控、记数用，对 MyISAM 数据类型的支持仅限于 non-transactional），随自己的用途而选择了，我这里选择“MultifunctionalDatabase”， 按“Next”继续。
-
-![20080115010355786](media/5d049a2cd0da5323ecad28944bd78076.jpeg)
-
-对 InnoDB Tablespace 进行配置，就是为 InnoDB 数据库文件选择一个存储空间，如果修改了，要记住位置，重装的时候要选择一样的地方，否则可能会造成数据库损坏，当然，对数据库做个备份就没问题了，这里不详述。我这里没有修改，使用用默认位置，直接按“Next”继续。
-
-![20080115010355159](media/39e41414402aacd9e1bc2cd2c389d8e0.jpeg)
-
-选择您的网站的一般 mysql 访问量，同时连接的数目，“DecisionSupport(DSS)/OLAP（20 个左右）”、“Online TransactionProcessing(OLTP)（500 个左右）”、“ManualSetting（手动设置，自己输一个数）”，我这里选“DecisionSupport(DSS)/OLAP)”，按“Next”继续
-
-![20080115010355668](media/24d6c98ec8981376b85e3bc51ca1c79f.jpeg)
-
-是否启用 TCP/IP 连接，设定端口，如果不启用，就只能在自己的机器上访问 mysql 数据库了，我这里启用，把前面的勾打上，PortNumber：3306，在这个页面上，您还可以选择“启用标准模式”（Enable StrictMode），按“Next”继续。
-
-![I:\其他\截屏\Mysql.png](media/5c71cba95e587a570c0aee1fff47ae5e.png)
-
-这个比较重要，就是对 mysql 默认数据库语言编码进行设置，第一个是西文编码，我们要设置的是 utf8 编码，按“Next”继续。
-
-![20080115010355703](media/fc50b7b797cdfab4f2c3b9fa5018b51e.jpeg)
-
-选择是否将 mysql 安装为 windows 服务，还可以指定 ServiceName（服务标识名称），是否将 mysql 的 bin 目录加入到 WindowsPATH（加入后，就可以直接使用 bin 下的文件，而不用指出目录名，比如连接，“mysql.exe-uusername-ppassword;”就可以了，不用指出 mysql.exe 的完整地址，很方便），我这里全部打上了勾，ServiceName 不变。按“Next”继续。
-
-![20080115010355856](media/2d03ecdde597e3e882debf0d343c0951.jpeg)
-
-设置完毕，按“Next”继续。
-
-![20080115010355670](media/3101a12fdf61c0437b3921f8c669635b.jpeg)
-
-确认设置无误，如果有误，按“Back”返回检查。按“Execute”使设置生效。
-
-![20080115010355829](media/8ca1e55ddaa6f8327d3ebe0946680378.jpeg)
-
-设置完毕，按“Finish”结束 mysql 的安装与配置 可以通过服务管理器管理 MYSQL 的服务。
-
-通过命令调用服务管理器:services.msc
-
-停止 MYSQL 的服务。
-
-![](media/4d58f2116a88347a9fa4d253de4496f3.png)
-
-启动 MYSQL 的服务。
-
-![](media/32cf38a22d5f2b04cf119e4d3a677893.png)
-
-也可以在 DOS 中直接通过命令行的形式进行控制。
-
-停止 MYSQL 的服务。
-
-![](media/797157a8b3b98f1e5a3aa698689e2ad3.png)
-
-启动 MYSQL 的服务。
-
-![](media/ed8bb6a5820e413a3935a190e49a7e4e.png)
+https://www.cnblogs.com/zhukf/p/11976855.html
 
 ### 1.5：客户端 SQLyog 的安装
 
@@ -261,7 +177,7 @@ char(10)存数据存的是 1000000000，而 varchar(10)存数据存的是 1
      columnName dataType(length)
   );
   set character_set_results='gbk';
-
+  
   show variables like '%char%';
   ```
 
@@ -601,6 +517,12 @@ mysql 对有些约束的修改比较麻烦，所以我们可以先删除，再�
 13.5、t_student 和 t_classes 完整示例
 
 | drop table if exists t_classes; create table t_classes( classes_id int (3), classes_name varchar(30) not null, constraint pk_classes_id primary key(classes_id) ) drop table if exists t_student; create table t_student( student_id int(10), student_name varchar(50) not null, sex char(2) not null, birthday date not null, email varchar(30) unique, classes_id int (3) not null, constraint pk_student_id primary key(student_id), constraint fk_classes_id foreign key(classes_id) references t_classes(classes_id) )
+
+### 字段
+
+
+
+
 
 ## 4、简单的查询
 
@@ -1956,6 +1878,16 @@ select loc_id , loc desc , region from location where loc_id = 10 or region = "m
 - 访问哈希索引的数据非常快，除非有很多哈希冲突，当出现哈希冲突的时候，存储引擎必须遍历链表中的所有行指针，逐行进行比较，知道找到所有符合条件的行
 - 哈希冲突比较多的话，维护的代价也会很高
 
+### 前缀索引
+
+列值太长，整列作为索引浪费空间，使用前缀索引。
+
+```sql
+alter table turl add key(url(7));
+```
+
+
+
 ## 16.4，选择
 
 MySQL 每次只使用一个索引，与其说 数据库查询只能用一个索引，倒不如说，和全表扫描比起来，去分析两个索引 B+树更耗费时间，所以 where A=a and B=b 这种查询使用（A，B）的组合索引最佳，B+树根据（A，B）来排序。
@@ -2290,13 +2222,11 @@ create unique index u_ename on emp(ename);
 
 create index test_index on emp (sal);
 
-![](media/3e3987cb6a5e3896849368ac06cbdb7d.png)
+查看索引
 
-##### 16.2.2、查看索引
-
-show index from emp;
-
-![](media/38303bc1283491c5bf9cd63a273852bf.png)
+```sql
+show index from 表名;
+```
 
 ##### 16.2.3、使用索引
 
@@ -2403,15 +2333,22 @@ MyISAM 使用的是非聚簇索引，**非聚簇索引的两棵 B+树看上去�
 
 ## 语句优化
 
-1：尽量不要使用 NULL，应该在 Service 层优化处理。
+### 减少查询字段
 
-2：查询条件中不要使用函数，计算
+1：like减少
 
-3：尽量不要使用 NOT 等负向查询，因为这样会发生全表的遍历。
+```sql
+--原本
+select t.* from ic_website t where t.url like '%72511%' ;
+--百万执行9S
+--优化
+select * from ic_website t1 INNER JOIN(select t.id,t.url from ic_website t where t.url like '%72511%' ) t2 on t1.id = t2.id ;
+--百万执行0.9s
+```
 
-4：OR 改成 IN 或者使用 Union
+2：分页limit减少
 
-3：分解关联查询
+### 分解关联查询
 
 缓存效率高，分解后，单个表改变可能少，命中率就高了。
 
@@ -2420,6 +2357,18 @@ MyISAM 使用的是非聚簇索引，**非聚簇索引的两棵 B+树看上去�
 微服务化友好，易于做数据库拆分
 
 减少冗余查询，减少传输
+
+
+
+1：尽量不要使用 NULL，应该在 Service 层优化处理。
+
+2：查询条件中不要使用函数，计算
+
+3：尽量不要使用 NOT 等负向查询，因为这样会发生全表的遍历。
+
+4：OR 改成 IN 或者使用 Union
+
+
 
 4：大于小于，IN，OR，between
 
@@ -2522,7 +2471,13 @@ select kcdz form t_mall_sku where id in( 3,4,5,6,8 ) **group by kcdz**
 
 能够利用到索引\*\*
 
+### 避免全表扫描
+
+
+
 ## 索引优化
+
+### 创建
 
 1：组合索引与单独索引
 
@@ -2534,7 +2489,7 @@ select kcdz form t_mall_sku where id in( 3,4,5,6,8 ) **group by kcdz**
 
 4：频繁更改的字段上应该删掉索引。
 
-5：索引失效
+### 索引失效
 
 一般情况对于左外连接给左表加索引，左表使用频繁，右外连接给右表加索引。
 
@@ -2553,6 +2508,20 @@ select kcdz form t_mall_sku where id in( 3,4,5,6,8 ) **group by kcdz**
 补救：使用索引覆盖
 
 (5)：like 以`%` 开头，失效
+
+例如：
+
+如果有索引 （sex，username）当查询name时无法使用索引。可以这样写：
+
+```sql
+select * from t where t.sex in (0,1) and t.username = "XXX";
+```
+
+
+
+
+
+
 
 2：exist 和 in
 

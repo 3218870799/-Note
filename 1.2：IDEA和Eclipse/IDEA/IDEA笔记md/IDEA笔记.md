@@ -1353,3 +1353,7 @@ idea安装目录/bin/idea.exe.vmoptions和idea64.exe.vmoptions
 https://help.aliyun.com/document_detail/98762.html
 
 https://www.cnblogs.com/xl5230/p/11726548.html
+
+## 以格式识别文件
+
+![image-20210508100633561](media/image-20210508100633561.png)

@@ -1073,6 +1073,36 @@ Mybatis 支持默认别名，我们也可以采用自定义别名方式来开发
 
 如：\<package name="com.xqc.dao"/\> 注意：此种方法要求 Dao 接口名称和 mapper 映射文件名称相同，且在同一个目录中。
 
+# 第六章：原理
+
+## Mapper和映射文件绑定
+
+以编程式为例，需要进行如下
+
+```java
+SqlSession session = sqlSessionFactory.openSession();
+        UserMapper userMapper = session.getMapper(UserMapper.class);
+        List<LwUser> userList = userMapper.listUserByUserName("孤狼1号");
+```
+
+1：获取Mapper接口
+
+在调用getMapper之后，回去Configuration对象中获取Mapper对象。通过Configuration对象中的MapperRegistry对象属性，继续调用getMapper方法，根据type类型，获取到当前类型对应的代理工厂类，然后通过代理工厂类生成对应Mapper的代理类，而MapperProxy可以看到实现了InvocationHandler，使用的就是JDK动态代理。
+
+2：Mapper接口与映射文件的关联
+
+Mapper接口及其映射文件是在加载mybatis-config配置文件的时候存储进去的
+
+## SQL执行流程
+
+![图片](media/640.png)
+
+
+
+
+
+
+
 # 第 7 章 扩展
 
 ## 7.1 PageHelper
@@ -1098,9 +1128,7 @@ PageHelper 支持多种数据库
 
 ```
 
-（2） 加入 plugin 配置
-
-在**\<environments\>**之前加入
+（2） 加入 plugin 配置，在mybatis配置文件中\<environments\>之前加入
 
 ```xml
 <plugins>
@@ -1154,8 +1182,6 @@ select * from tableA where id > 8000000 limit 10;
 但是这种可能会出现问题，要是第一次查了 1 到 10，记录 ID 为 10 现在，然后我把第 7 条记录删除了，那查出的就错乱了。
 
 https://mp.weixin.qq.com/s?__biz=MzI1NDQ3MjQxNA==&mid=2247493234&idx=2&sn=ade716af50bde91bd2b554fe663ac002&chksm=e9c61fc3deb196d5273e1f645cbdf5c914537a3e0b3e0d9c970a02faff25c857d61394cfe08b&mpshare=1&scene=23&srcid=0314G21ZMghwYncHwfaLf6a2&sharer_sharetime=1615719630444&sharer_shareid=36a11a4ebb04967d7698241b47b50050#rd
-
-# 第八章：Mybatis 连接池与事务深入
 
 # 第九章：多表查询
 
