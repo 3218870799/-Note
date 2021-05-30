@@ -869,6 +869,32 @@ info
 select round(1.23456)   --1
 ```
 
+5：case …… when …… then …… else ……end
+
+case 函数和 if 函数一样，只要一个判断满足了，后面剩下的 case 部分将会被自动忽略，不再匹配。
+
+6：FIND_IN_SET(str,strlist)函数
+
+str 要查询的字符串
+
+strlist 字段名 参数以”,”分隔
+
+```sql
+select * from article where FIND_IN_SET('4',type)
+```
+
+
+
+7：group_concat函数
+
+分组拼接字符串
+
+```sql
+SELECT id,GROUP_CONCAT(score ORDER BY score DESC) FROM testgroup GROUP BY id
+```
+
+
+
 ## 8、分组查询
 
 分组查询主要涉及到两个子句，分别是：group by 和 having
@@ -1076,6 +1102,25 @@ GROUP BY
 HAVING （WHERE过滤的是行，HAVING过滤的是组，所以在GROUP之后）
 ORDER BY
 ```
+
+
+
+## 13：NULL
+
+在查询数据库时，如果您想知道一个列是否为NULL，SQL应该：
+
+```sql
+SELECT * FROM TABLE WHERE USER_AGE IS NULL
+```
+
+Oracle 就不支持空字符串，它会把空字符串自动转成 NULL 值。但是其他数据库对两个的处理方式不一样：
+
+- 空字符（""）串虽然表示“没有值”，但这个值是已知的。
+- NULL 表示 “未知值”，这个值是未知的。
+
+
+
+
 
 # 第四部分、存储引擎
 
@@ -2517,9 +2562,9 @@ select kcdz form t_mall_sku where id in( 3,4,5,6,8 ) **group by kcdz**
 select * from t where t.sex in (0,1) and t.username = "XXX";
 ```
 
+（6）!= 优化
 
-
-
+union
 
 
 
