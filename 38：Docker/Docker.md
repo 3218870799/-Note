@@ -494,6 +494,47 @@ docker run -v 绝对路径：容器内路径
 
 docker run -v 卷名 容器内路径
 
+
+
+# CGroup
+
+docker基于Namespce和Cgroups，其中
+
+- Namespace主要用于隔离资源
+- Cgroups用来提供对一组进程以及将来子进程的资源限制
+
+CGroup包含三个组件：
+
+控制组：一个cgroup包含一组进程，并可以在这个cgroup上增加Linux subsystem的各种参数配置。
+
+subsystem子系统：一组资源控制模块，可以通过lssubsys  -啊 命令查看当前内核支持哪些subsystem。subsystem作用于hierarchy的cgroup节点，并控制节点中进程的资源占用。
+
+**hierarchy 层级树** 主要功能是把cgroups串成一个树型结构，使cgruops可以做到继承。也就是说将cgroup通过树状结构串起来，通过虚拟文件系统的方式暴露给用户。
+
+三个组件的关系：
+
+- 系统创建新的hierarchy之后，系统中所有的进程都会加入这个hierarchy的cgroup的根节点，这个cgroup根节点是hierarchy默认创建的，在这个hierarchy中创建的所有cgroup都是这个cgroup根节点的子节点。
+- 一个subsystem只能附加到一个hierarchy上
+- 一个hierarchy可以附加多个subsystem
+- 一个进程可以作为多个cgroup的成员，但是这些cgroup必须在不同的hierarchy下
+- 一个进程fork出子进程时，子进程和父进程是在同一个cgroup中的，根据需要也可以移动到其他的cgroup中
+
+使用：
+
+使用Cgroup对程序使用CPU进行限制；
+
+```shell
+cat cpu.cfs_periokd_us
+cat cpu.,cfs_quota_us
+echo 2000> cpu.cfs_quata_us # 20毫秒写入文件
+echo 11321 > tasks # 将进程ID写进task文件
+# 这样该进程最多使用20%的CPU
+```
+
+# Namespce
+
+隔离资源
+
 # Dockerfile
 
 Dockerfile 是一个包含用于组合映像的命令的文本文档。Docker 通过读取`Dockerfile`中的指令自动生成映像。
@@ -610,3 +651,4 @@ EXPOSE 80
 #CMD 运行以下命令
 CMD ["nginx"]
 ```
+
