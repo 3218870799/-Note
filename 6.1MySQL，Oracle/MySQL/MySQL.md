@@ -1,3 +1,5 @@
+# 一：简介
+
 SQL，一般发音为 sequel，SQL 的全称 Structured QueryLanguage)，SQL 用来和数据库打交道，完成和数据库的通信，SQL 是一套标准。但是每一个数据库都有自己的特性别的数据库没有,当使用这个数据库特性相关的功能,这时 SQL 语句可能就不是标准了.(90%以上的 SQL 都是通用的)
 
 ### 1.2、什么是数据库
@@ -51,6 +53,22 @@ https://www.cnblogs.com/zhukf/p/11976855.html
 ## 整体架构：
 
 ![image-20210405163207602](media/image-20210405163207602.png)
+
+## 各文件夹
+
+Linux下：
+
+| 目录     | 作用                                                         |
+| -------- | ------------------------------------------------------------ |
+| bin      | 存放命令，有2进制文件(比如mysql,mysqld)和[shell脚本](https://www.baidu.com/s?wd=shell脚本&tn=SE_PcZhidaonwhc_ngpagmjz&rsv_dl=gh_pc_zhidao)文件(比如mysqld_multi ，mysqld_safe服务器启动脚本) |
+| data     | 数据库数据，数据存放位置可以自定义，不一定存在这个路径       |
+| /etc     | 一般存放系统配置文件的路径                                   |
+| /tmp     | 存放临时文件                                                 |
+| /var     | 存放进程id和日志                                             |
+| /include | 包含头文件，提供其他程序连接mysql的API接口                   |
+| lib      | 库                                                           |
+| docs     | 文档                                                         |
+| scripts  | mysql_install_db能初始化数据目录和初始数据库数据库           |
 
 # 第二部分、常用命令
 
@@ -520,7 +538,21 @@ mysql 对有些约束的修改比较麻烦，所以我们可以先删除，再�
 
 ### 字段
 
+### 虚拟表
 
+Oracle中存在虚拟表dual；但是mysql中是没有的，但是有三种表也可称为虚拟表，只不过用法和dual大不相同；
+
+1：临时表：只有当前连接课件，关闭连接时自动删除临时表；
+
+```sql
+CREATE TEMPORARY TABLE ……
+```
+
+
+
+2：内存表
+
+3：视图
 
 
 
