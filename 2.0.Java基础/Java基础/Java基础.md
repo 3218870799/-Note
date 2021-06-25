@@ -216,6 +216,8 @@ Long 转成 Integer：
 LongNum.inValue();
 ```
 
+
+
 4）**包装类**
 
 基本类型与引用类型，使用基本类型在于效率，然而很多情况，会创建对象使用，因为对象可以做更多的功能，如果想要我们的基本类型像对象一样操作，就可以使用基本类型对应的包装类
@@ -244,6 +246,20 @@ LongNum.inValue();
 - `public static float parseFloat(String s)`：将字符串参数转换为对应的 float 基本类型。
 - `public static double parseDouble(String s)`：将字符串参数转换为对应的 double 基本类型。
 - `public static boolean parseBoolean(String s)`：将字符串参数转换为对应的 boolean 基本类型。
+
+BigDecimal类：金额计算使用
+
+转百分比：
+
+```java
+DecimalFormat df = new DecimalFormat("0.00%");  
+BigDecimal d=new BigDecimal(0.666);
+String percent=df.format(d);
+```
+
+
+
+
 
 **值缓存**
 
@@ -715,6 +731,25 @@ s5 == s9//true
 ```
 
 “AAA”在常量池里，对象在堆里
+
+方法：
+
+1：contains和indexOf的区别？
+
+contains是找指定字符串是否包含一个子串
+
+2：join方法，拼接
+
+```java
+string [] tmpStr={abc,def,ghi};
+string jn = string.Join(“-“, tmpStr);
+
+
+```
+
+
+
+
 
 ### 5：StringBuilder 与 StringBuffer
 
