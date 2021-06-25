@@ -1152,6 +1152,14 @@ https://jrebel.qekang.com/+生成的guid
 
 ![image-20201026212441919](Media/image-20201026212441919.png)
 
+我是配合打印SQL语句，这样直观；如果你还不知道如何打印SQL语句，可以参考我的文章
+
+## SonarLint
+
+这个插件是配合SonarQube代码质量管理平台进行使用的，不过如果你的团队没有进行代码质量管理，你也可以安装此插件自己使用，进行代码质量管理的自检。安装上即可使用，如果想在团队进行SonarQube质量管理，可以再进行SonarQube配置。
+
+
+
 添加运行配置
 
 ![image-20201026213258638](Media/image-20201026213258638.png)
@@ -1161,8 +1169,6 @@ https://jrebel.qekang.com/+生成的guid
 
 
 ## 其他
-
-
 
 1、CodeGlance 代码迷你缩放图插件
 
