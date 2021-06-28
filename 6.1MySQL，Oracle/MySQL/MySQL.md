@@ -70,7 +70,7 @@ Linux下：
 | docs     | 文档                                                         |
 | scripts  | mysql_install_db能初始化数据目录和初始数据库数据库           |
 
-# 第二部分、常用命令
+# 二、常用命令
 
 ## 1：基本操作
 
@@ -209,21 +209,6 @@ char(10)存数据存的是 1000000000，而 varchar(10)存数据存的是 1
 
   \* 字段约束
 
-| 类型                         | 描述                                             |
-| ---------------------------- | ------------------------------------------------ |
-| Char(长度)                   | 定长字符串，存储空间大小固定，适合作为主键或外键 |
-| Varchar(长度)                | 变长字符串，存储空间等于实际数据空间             |
-| double(有效数字位数，小数位) | 数值型                                           |
-| Float(有效数字位数，小数位)  | 数值型                                           |
-| Int( 长度)                   | 整型                                             |
-| bigint(长度)                 | 长整型                                           |
-| Date                         | 日期型 年月日                                    |
-| DateTime                     | 日期型 年月日 时分秒 毫秒                        |
-| time                         | 日期型 时分秒                                    |
-| BLOB                         | Binary Large OBject（二进制大对象）              |
-| CLOB                         | Character Large OBject（字符大对象）             |
-| 其它…………………                  |                                                  |
-
 - 建立学生信息表，字段包括：学号、姓名、性别、出生日期、email、班级标识
 
 ```sql
@@ -251,7 +236,7 @@ insert into t_student(student_id,student_name,sex,birthday,email,class_id) value
 truncate table 表名
 ```
 
-### 13.2、表结构
+### 表结构
 
 采用 alter table 来增加/删除/修改表结构，不影响表中的数据
 
@@ -282,7 +267,7 @@ alter table t_student add contact_tel varchar(40);
 alter table t_student drop contact_tel;
 ```
 
-### 13.3、添加、修改和删除
+### 添加、修改和删除
 
 13.3.1、insert
 
@@ -358,7 +343,7 @@ insert into emp_bak select \* from emp where sal=3000;
 
 | delete from emp where comm is null;
 
-### 13.4、创建表加入约束
+### 创建表加入约束
 
 - 常见的约束
 
@@ -556,7 +541,7 @@ CREATE TEMPORARY TABLE ……
 
 
 
-## 4、简单的查询
+## 2、简单的查询
 
 Select 语句后面跟的是字段名称，select 是关键字，select 和字段名称之间采用空格隔开，from 表示将要查询的表，它和字段之间采用空格隔开
 
@@ -787,7 +772,9 @@ select count(comm) from emp;
 -- 取得工作岗位的个数
 select count(distinct job ) from emp;
 
-
+--效率
+count(主键) 
+count(*) 会自动优化
 ```
 
 sum
@@ -1150,7 +1137,19 @@ Oracle 就不支持空字符串，它会把空字符串自动转成 NULL 值。�
 - 空字符（""）串虽然表示“没有值”，但这个值是已知的。
 - NULL 表示 “未知值”，这个值是未知的。
 
+## 正则
 
+```sql
+-- 查询匹配以名字以2017开头的
+SELECT * FROM fund_nav where fund_name REGEXP '^2017';
+-- 查询匹配名字以ok结尾的
+SELECT * FROM fund_nav where fund_name REGEXP 'ok$';
+
+-- 名字包含mar的
+SELECT * FROM fund_nav where fund_name REGEXP 'mar';
+
+
+```
 
 
 
