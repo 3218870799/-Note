@@ -1938,6 +1938,25 @@ public void testBuy()i
 
 4：在类 A 里面有方法 a 和方法 b， 然后方法 b 上面用 @Transactional 加了方法级别的事务，在方法 a 里面 调用了方法 b， 方法 b 里面的事务不会生效。原因是在同一个类之中，方法互相调用，切面无效 ，而不仅仅是事务。这里事务之所以无效，是因为 spring 的事务是通过 aop 实现的。
 
+解决：
+
+```java
+@Transactional
+public void save(){
+    
+}
+public void savefunc2(){
+            EmployeeService proxy =(EmployeeService) AopContext.currentProxy();
+        proxy.saveEmployee()
+}
+```
+
+
+
+
+
+
+
 # 第**6**章 **Spring** 与 **Web**
 
 在 Web 项目中使用 Spring 框架，首先要解决在 web 层（这里指 Servlet）中获取到 Spring 容器的问题。只要在 web 层获取到了 Spring 容器，便可从容器中获取到 Service 对象。
