@@ -325,6 +325,16 @@ File——>Project Structure——> SDK
 
 IntelliJ IDEA 有很多人性化的设置我们必须单独拿出来讲解，也因为这些个性化的设置让那些 IntelliJIDEA 死忠粉更加死心塌地使用它和分享它。
 
+## 1：导入导出配置
+
+如果重装了IDEA，避免重新将以前的东西重新再配置一遍，可已经原本的配置导出，然后在新的IDEA中进行导入；
+
+File ——>Manage IDE Setting
+
+你可以选择导出，或则导入或者加载公司的设置库，或者同步到IDEA账号；
+
+## 2：Settings
+
 进入设置界面：
 
 ![](media/d70b78a91cf3f92a76df979898a41de4.jpg)
@@ -332,8 +342,6 @@ IntelliJ IDEA 有很多人性化的设置我们必须单独拿出来讲解，也
 目录结构如下：
 
 ![](media/8002ef583e46c1a65dd6301411e3902a.jpg)
-
-## 1：常用配置手记
 
 ### 1.1：xml 文件的颜色，空格时显示混乱
 
