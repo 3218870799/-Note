@@ -506,13 +506,19 @@ https://blog.csdn.net/qq_41694906/article/details/95205446
 
 ![](media/c4bc1240ce961a340bc3eb69d11d9e70.jpg)
 
-/\*\*
+```txt
+/**
+* @ProjectName: ${PROJECT_NAME}
+* @Package: ${PACKAGE_NAME}
+* @Author: XQC
+* @CreateDate: ${DATE} ${TIME}
+* @Description: note
+* @UpdateRemark: The modified content
+* Copyright © ${YEAR} XQC. All Right Revealed
+**/
+```
 
-\@author shkstart
 
-\@create **\${YEAR}**-**\${MONTH}**-**\${DAY} \${TIME}**
-
-\*/
 
 常用的预设的变量，这里直接贴出官网给的：
 
@@ -1298,8 +1304,6 @@ VPN，一般都可以得到解决。
 
 
 
-## 6：
-
 ## 7：IDEA 类和方法注释模板设置
 
 https://blog.csdn.net/xiaoliulang0324/article/details/79030752
@@ -1380,6 +1384,12 @@ https://help.aliyun.com/document_detail/98762.html
 
 https://www.cnblogs.com/xl5230/p/11726548.html
 
-## 以格式识别文件
+## 格式化统一规范
+
+设置以什么方式进行格式化
 
 ![image-20210508100633561](media/image-20210508100633561.png)
+
+可以参考：
+
+https://www.cnblogs.com/lsysy/p/9954785.html
