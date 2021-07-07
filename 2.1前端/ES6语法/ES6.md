@@ -450,3 +450,20 @@ import {default as m3} from "./src/js/m3.js"
 //简单形式，只针对默认暴露
 import m3 from "./src/js/m3.js"
 ```
+
+JS获取当前日期前两天的日期
+
+```javascript
+var now = new Date();
+now.setDate(now.getDate() - n);
+now.toLocaleDateString()
+```
+
+动态添加HTML
+
+```javascript
+var fundNumContext = document.getElementById("fundNumContext");
+
+fundNumContext.innerHTML=fundNumDiv;
+```
+

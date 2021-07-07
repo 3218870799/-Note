@@ -745,7 +745,7 @@ List<Student> selectLikeFirst(String name);
 mapper 文件：
 
 ```xml
-<select id="selectLikeFirst" resultType="com.bjpowernode.domain.Student">     select id,name,email,age from student     where name like #{studentName}
+<select id="selectLikeFirst" resultType="com.xqc.domain.Student">     select id,name,email,age from student     where name like #{studentName}
 </select>
 ```
 
@@ -762,7 +762,7 @@ List<Student> selectLikeSecond(String name);
 mapper 文件：
 
 ```xml
-<select id="selectLikeSecond" resultType="com.bjpowernode.domain.Student">
+<select id="selectLikeSecond" resultType="com.xqc.domain.Student">
     select id,name,email,age from student     where name like "%" #{studentName} "%"
 </select>
 ```
@@ -846,7 +846,7 @@ List\<Student\> selectStudentWhere (Student student);
 mapper 文件：
 
 ```xml
-<select id="selectStudentWhere" resultType="com.bjpowernode.domain.Student">
+<select id="selectStudentWhere" resultType="com.xqc.domain.Student">
 	select id,name,email,age from student
     <where>
         <if test="name != null and name !='' "> and name = #{name} </if>
@@ -871,7 +871,11 @@ open、close、separator 为对遍历内容的 SQL 拼接。
 
 接口方法：
 
-List\<Student\> selectStudentForList(List\<Integer\> idList);
+```java
+List<Student> selectStudentForList(List<Integer> idList);
+```
+
+
 
 mapper 文件：
 
@@ -892,12 +896,16 @@ mapper 文件：
 
 接口方法：
 
-List\<Student\> selectStudentForList2(List\<Student\> stuList);
+```java
+List<Student> selectStudentForList2(List<Student> stuList);
+```
+
+
 
 mapper 文件：
 
 ```xml
-<select id="selectStudentForList2" resultType="com.bjpowernode.domain.Student">
+<select id="selectStudentForList2" resultType="com.xqc.domain.Student">
     select id,name,email,age from student
      	<if test="list !=null and list.size > 0 ">
      	where id in
@@ -1711,6 +1719,13 @@ cache-ref 代表引用别的命名空间的 Cache 配置，两个命名空间的
 第三方缓存做二级缓存
 
 除了 MyBatis 自带的二级缓存之外，我们也可以通过实现 Cache 接口来自定义二级缓存。
+
+## 禁用缓存，清理缓存
+
+```txt
+<select>标签后添加useCache=”false“即可关闭缓存；
+在select标签中添加：flushCache="true",实现缓存清理。
+```
 
 # 第 6 章：注解开发
 

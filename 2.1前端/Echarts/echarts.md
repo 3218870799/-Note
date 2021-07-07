@@ -18,7 +18,7 @@
 
 支持流数据的支持：
 
-
+具体看文档就可以了：https://echarts.apache.org/zh/option.html#title
 
 ## 使用
 

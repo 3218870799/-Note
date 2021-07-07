@@ -372,3 +372,30 @@ def 函数名():
 
 
 
+
+
+# 第十章：发展方向
+
+## 1：Web开发
+
+Django框架，Flask框架，Pyramid，Japronto（高性能微服务架构），Tornado（网络异步框架）等；
+
+## 2：爬虫
+
+数据抓取：Scapy，PySpider，Portia、Beautiful Soup、Cola(分布式爬虫框架)。
+
+## 3：数据分析
+
+NumPy、Scipy、Pandas。
+
+## 4：数据可视化
+
+Matplotlib、Seaborn、Bokeh。
+
+## 5：人工智能
+
+TensorFlow
+
+## 6：测试
+
+自动化测试
