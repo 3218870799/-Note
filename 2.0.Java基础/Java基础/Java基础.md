@@ -3124,17 +3124,17 @@ AQS 等也是用来 CAS 算法，unsafe 类是 CAS 的核心类，原子等无�
 
 **6.3 Condition**
 
-**6.4 CopyOnWriteArrayList**
-
-CopyOnWriteArrayList 是一个线程安全、并且在读操作时无锁的 ArrayList
-
-**6.5 CopyOnWriteArraySet**
-
-CopyOnWriteArraySet 基于 CopyOnWriteArrayList 实现，其唯一的不同是在 add 时调用的是 CopyOnWriteArrayList 的 addIfAbsent 方法。保证了无重复元素，但在 add 时每次都要进行数组的遍历，因此性能会略低于上个。
-
 **6.6 ArrayBlockingQueue**
 
 \*\*6.7 ThreadPoolExecutor
+
+### CopyOnWrite
+
+写时复制：当修改JAVA中Contains的元素时，不直接修改该容器，而是先复制一份副本，在副本上进行修改，修改完成之后，净指向原本容器的引用指向新的容器副本；
+
+这样就可以实现并发的读；并实现了读写分离；
+
+copyOnWrite适用于读多写少的场景；
 
 ### ReentrantLock
 
