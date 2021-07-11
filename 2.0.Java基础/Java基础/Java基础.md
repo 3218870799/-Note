@@ -216,8 +216,6 @@ Long 转成 Integer：
 LongNum.inValue();
 ```
 
-
-
 4）**包装类**
 
 基本类型与引用类型，使用基本类型在于效率，然而很多情况，会创建对象使用，因为对象可以做更多的功能，如果想要我们的基本类型像对象一样操作，就可以使用基本类型对应的包装类
@@ -247,19 +245,15 @@ LongNum.inValue();
 - `public static double parseDouble(String s)`：将字符串参数转换为对应的 double 基本类型。
 - `public static boolean parseBoolean(String s)`：将字符串参数转换为对应的 boolean 基本类型。
 
-BigDecimal类：金额计算使用
+BigDecimal 类：金额计算使用
 
 转百分比：
 
 ```java
-DecimalFormat df = new DecimalFormat("0.00%");  
+DecimalFormat df = new DecimalFormat("0.00%");
 BigDecimal d=new BigDecimal(0.666);
 String percent=df.format(d);
 ```
-
-
-
-
 
 **值缓存**
 
@@ -734,11 +728,11 @@ s5 == s9//true
 
 方法：
 
-1：contains和indexOf的区别？
+1：contains 和 indexOf 的区别？
 
-contains是找指定字符串是否包含一个子串
+contains 是找指定字符串是否包含一个子串
 
-2：join方法，拼接
+2：join 方法，拼接
 
 ```java
 string [] tmpStr={abc,def,ghi};
@@ -746,10 +740,6 @@ string jn = string.Join(“-“, tmpStr);
 
 
 ```
-
-
-
-
 
 ### 5：StringBuilder 与 StringBuffer
 
@@ -1987,7 +1977,7 @@ Java 中垃圾回收线程就是特殊的守护线程。
 
 synchronized, wait, notify 是任何对象都具有的同步工具。
 
-wait/notify 必须存在于 synchronized 块中，因为如果wait执行到了notify后面，可能导致wait线程一直没有办法唤醒。比如：
+wait/notify 必须存在于 synchronized 块中，因为如果 wait 执行到了 notify 后面，可能导致 wait 线程一直没有办法唤醒。比如：
 
 ![执行顺序](media/20200710230407260.png)
 
@@ -2527,8 +2517,6 @@ Q：线程池是通过队列的 take 方法来阻塞核心线程 Worker 的 run 
 　　　　　　　 b）假如是业务时间长集中在计算操作上，也就是计算密集型任务，这个就没办法了，和（1）一样吧，线程池中的线程数设置得少一些，减少线程上下文的切换
 　　　　 3）并发高、业务执行时间长，解决这种类型任务的关键不在于线程池而在于整体架构的设计，看看这些业务里面某些数据是否能做缓存是第一步，增加服务器是第二步，至于线程池的设置，设置参考 2）。最后，业务执行时间长的问题，也可能需要分析一下，看看能不能使用中间件对任务进行拆分和解耦。
 
-
-
 ### 7：注意解决
 
 1：使用线程池在流量突发期间能够平滑地服务降级
@@ -2541,9 +2529,7 @@ Q：线程池是通过队列的 take 方法来阻塞核心线程 Worker 的 run 
 
 4：确保线程池中执行任务不能悄无声息的失败。线程池中的所有任务必须提供机制，如果它们异常终止，则需要通知应用程序。任务恢复或清除操作可以通过重写 `java.util.concurrent.ThreadPoolExecutor` 类的 `afterExecute()` 钩子来执行。
 
-5：确保在使用线程池时重新初始化ThreadLocal变量。
-
-
+5：确保在使用线程池时重新初始化 ThreadLocal 变量。
 
 ## 5.4：线程间通信
 
@@ -3130,11 +3116,11 @@ AQS 等也是用来 CAS 算法，unsafe 类是 CAS 的核心类，原子等无�
 
 ### CopyOnWrite
 
-写时复制：当修改JAVA中Contains的元素时，不直接修改该容器，而是先复制一份副本，在副本上进行修改，修改完成之后，净指向原本容器的引用指向新的容器副本；
+写时复制：当修改 JAVA 中 Contains 的元素时，不直接修改该容器，而是先复制一份副本，在副本上进行修改，修改完成之后，净指向原本容器的引用指向新的容器副本；
 
 这样就可以实现并发的读；并实现了读写分离；
 
-copyOnWrite适用于读多写少的场景；
+copyOnWrite 适用于读多写少的场景；
 
 ### ReentrantLock
 
@@ -3236,7 +3222,7 @@ future.get();还是阻塞的，虽然那时异步的，但是这还是阻塞，�
 
 谷歌的 guava 类库使用监听者模式，监听一个装饰者的线程池，于是 JDK 抄了一个 CompleteListener
 
-### 6：BlockingQueue
+### 6：BlockingQueue 阻塞队列
 
 java.util.concurrent.BlockingQueue 接口有以下阻塞队列的实现：
 
@@ -3250,7 +3236,7 @@ java.util.concurrent.BlockingQueue 接口有以下阻塞队列的实现：
 
 提供了阻塞的 take() 和 put() 方法：如果队列为空 take() 将阻塞，直到队列中有内容；如果队列为满 put() 将阻塞，直到队列有空闲位置
 
-![image-20200316154442756](media/image-20200316154442756.png)
+![image-20200316154442756](images/image-20200316154442756.png)
 
 如果提交任务是，线程池队列已满，这时会发生什么？
 
@@ -3929,7 +3915,7 @@ druid：目前最好的数据库连接池，功能，性能，扩展性方面都
 
 ### ThreadLocal
 
-如果一个请求中涉及多个DAO操作，而如果DAO中的Connection都是独立的话，就没有办法完成一个事务。但是如果DAO中的Connection是从ThreadLocal中获得的（意味着都是同一个对象）那么这些DAO就会被纳入到同一个Connection之下。
+如果一个请求中涉及多个 DAO 操作，而如果 DAO 中的 Connection 都是独立的话，就没有办法完成一个事务。但是如果 DAO 中的 Connection 是从 ThreadLocal 中获得的（意味着都是同一个对象）那么这些 DAO 就会被纳入到同一个 Connection 之下。
 
 多线程操作，拿到同一个连接之后，多个线程之间创建独立的连接副本。
 
