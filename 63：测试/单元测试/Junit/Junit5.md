@@ -50,7 +50,13 @@
 - @ParameterizedTest：参数化测试，
 - @ValueSource(ints = {1, 2, 3})：参数化测试提供数据
 
+一个Junit的单元测试用例执行顺序
 
+@BeforeClass ——> @Before ——>@Test ——> @After ——> @AfterClass
+
+每一个测试方法的调用顺序
+
+@Before ——> @Test ——> @After
 
 例：
 
@@ -78,3 +84,4 @@ void paramTest(int a) {
 
 
 ## Mock代码与桩代码
+
