@@ -1226,6 +1226,8 @@ public class JavaMethodAreaOOM {
 
 # 五：常用 JVM 配置参数
 
+## 1：开发IDE设置
+
 1：在 IDE 的后台打印 GC 日志
 
 Eclipse 设置
@@ -1244,9 +1246,7 @@ IDEA 设置
 
 箭头处加上**-XX:+PrintGCDetails**这句话
 
-## 5.1：Trace 跟踪打印
-
-1、打印 GC 的简要信息：
+2、配置打印 GC 的简要信息：
 
 ```
 -verbose:gc
@@ -1353,9 +1353,113 @@ IDEA 设置
 
 ![c8050739-0029-47cd-95bd-fbbd6289a5d1](media/171129389254130.png)
 
-## 5.2：堆的分配参数
+## 2：linux查看
 
-1、-Xmx –Xms，-Xss：指定最大堆和最小堆，指定栈空间
+1：linux查看打印当前系统JVM信息
+
+查看初始参数
+
+```shell
+java -XX:+PrintFlagsInitial 
+```
+
+查看修改后的参数 =表示没有改过 :=表示人为修改或者jvm修改过的 公式：
+
+```shell
+java -XX:+PrintFlagsFinal 
+java -XX:+PrintFlagsFinal -version
+```
+
+查看简要信息
+
+```shell
+#查看进程
+jps
+#jinfo查看对应进程的信息
+jinfo -flag MaxPermSize 4680
+# -XX:MaxPermSize=138412032
+```
+
+只查看堆的相关信息
+
+```shell
+java -XX:+PrintFlagsFinal -version | grep HeapSize
+```
+
+只查看栈的相关信息
+
+```shell
+ java -XX:+PrintFlagsFinal -version | grep ThreadStackSize
+```
+
+2：jstat命令查看JVM的GC情况
+
+（1）定时打印Java堆情况
+
+```shell
+#每隔500毫秒打印一次Java堆状况，打印5次
+jstat -gcutil 线程号 500 5
+```
+
+各参数的含义
+
+```txt
+   S0  -- Heap上的 Survivor space 0 区已使用空间的百分比 
+    S1  -- Heap上的 Survivor space 1 区已使用空间的百分比 
+    E   -- Heap上的 Eden space 区已使用空间的百分比 
+    O   -- Heap上的 Old space 区已使用空间的百分比 
+    P   -- Perm space 区已使用空间的百分比 
+    YGC -- 从应用程序启动到采样时发生 Young GC 的次数 
+    YGCT-- 从应用程序启动到采样时 Young GC 所用的时间(单位秒) 
+    FGC -- 从应用程序启动到采样时发生 Full GC 的次数 
+    FGCT-- 从应用程序启动到采样时 Full GC 所用的时间(单位秒) 
+    GCT -- 从应用程序启动到采样时用于垃圾回收的总时间(单位秒)
+```
+
+(2)静态其他统计
+
+![image-20210716103803084](media/image-20210716103803084.png)
+
+Loaded：加载class的数量；
+
+Bytes：所占用空间大小；
+
+unloaded：未加载数量；
+
+Bytes：未加载占用空间
+
+Time：时间
+
+```shell
+# 编译统计
+jstat -compiler 线程号
+# 垃圾回收统计
+jstat -gc 线程号
+# 堆内存统计
+jstat -gccapacity 线程号
+# 新生代垃圾回收统计
+jstat -gcnew 线程号
+# 新生代内存统计
+jstat -gcnewcapacity 线程号
+# 老年代垃圾回收统计
+jstat -gcold 线程号
+# 老年代内存统计
+jstat -gcoldcapacity 线程号
+#总结垃圾回收
+jstat -gcutil 线程号
+```
+
+3：Tomcat部署配置的话，可以在Tomcat/bin/catalina.sh文件中查看配置
+
+```properties
+JAVA_OPTS="-Xms1024M -Xmx2048M"
+```
+
+## 3：堆的分配参数
+
+1、-Xmx –Xms，-Xss：
+
+指定最大堆和最小堆，指定栈空间
 
 2、-Xmn、-XX:NewRatio、-XX:SurvivorRatio：
 
@@ -1403,6 +1507,12 @@ OOM 时导出堆到文件
 
 上方参数的意思是说，执行 printstack.bat 脚本，而这个脚本做的事情是：D:/tools/jdk1.7_40/bin/jstack -F %1 > D:/a.txt，即当程序 OOM 时，在 D:/a.txt 中将会生成**线程**的 dump。
 
+5：-XX:PermSize -XX:MaxPermSize
+
+设置永久区的初始空间和最大空间。也就是说，jvm 启动时，永久区一开始就占用了 PermSize 大小的空间，如果空间还不够，可以继续扩展，但是不能超过 MaxPermSize，否则会 OOM。
+
+他们表示，一个系统可以容纳多少个类型
+
 目前生产上
 
 ```txt
@@ -1414,50 +1524,12 @@ OOM 时导出堆到文件
 -XX:MaxMetaspaceSize=512M
 ```
 
-采用 ZGC 生产上的参数设置：
-
-```txt
--Xms10G -Xmx10G
--XX:ReservedCodeCacheSize=256m -XX:InitialCodeCacheSize=256m
--XX:+UnlockExperimentalVMOptions -XX:+UseZGC
--XX:ConcGCThreads=2 -XX:ParallelGCThreads=6
--XX:ZCollectionInterval=120 -XX:ZAllocationSpikeTolerance=5
--XX:+UnlockDiagnosticVMOptions -XX:-ZProactive
--Xlog:safepoint,classhisto*=trace,age*,gc*=info:file=/opt/logs/logs/gc-%t.log:time,tid,tags:filecount=5,filesize=50m
-```
-
-**-Xms -Xmx**：堆的最大内存和最小内存，这里都设置为 10G，程序的堆内存将保持 10G 不变。
-
-**-XX:ReservedCodeCacheSize -XX:InitialCodeCacheSize**: 设置 CodeCache 的大小， JIT 编译的代码都放在 CodeCache 中，一般服务 64m 或 128m 就已经足够。我们的服务因为有一定特殊性，所以设置的较大，后面会详细介绍。
-
-**-XX:+UnlockExperimentalVMOptions -XX:+UseZGC**：启用 ZGC 的配置。
-
-**-XX:ConcGCThreads**：并发回收垃圾的线程。默认是总核数的 12.5%，8 核 CPU 默认是 1。调大后 GC 变快，但会占用程序运行时的 CPU 资源，吞吐会受到影响。
-
-**-XX:ParallelGCThreads**：STW 阶段使用线程数，默认是总核数的 60%。
-
-**-XX:ZCollectionInterval**：ZGC 发生的最小时间间隔，单位秒。
-
-**-XX:ZAllocationSpikeTolerance**：ZGC 触发自适应算法的修正系数，默认 2，数值越大，越早的触发 ZGC。
-
-**-XX:+UnlockDiagnosticVMOptions -XX:-ZProactive**：是否启用主动回收，默认开启，这里的配置表示关闭。
-
-**-Xlog**：设置 GC 日志中的内容、格式、位置以及每个日志的大小。
-
-#### **5、堆的分配参数总结：**
+#### **堆的分配参数总结：**
 
 - 根据实际事情调整新生代和幸存代的大小，默认为新生代占堆内存 1/3，老年代占 2/3
 - 官方推荐新生代占堆的 3/8
 - 幸存代占新生代的 1/10
 - **在 OOM 时，记得 Dump 出堆**，确保可以排查现场问题
-
-#### **6、永久区分配参数：**
-
-- -XX:PermSize -XX:MaxPermSize
-
-设置永久区的初始空间和最大空间。也就是说，jvm 启动时，永久区一开始就占用了 PermSize 大小的空间，如果空间还不够，可以继续扩展，但是不能超过 MaxPermSize，否则会 OOM。
-
-他们表示，一个系统可以容纳多少个类型
 
 ## 5.3：栈的分配参数
 
@@ -1596,6 +1668,40 @@ public class TestStackDeep {
   线程数量
 - InitiatingHeapOccupancyPercent
   启动 G1 的堆空间占用比例
+
+### ZGC参数
+
+采用 ZGC 生产上的参数设置：
+
+```txt
+-Xms10G -Xmx10G
+-XX:ReservedCodeCacheSize=256m -XX:InitialCodeCacheSize=256m
+-XX:+UnlockExperimentalVMOptions -XX:+UseZGC
+-XX:ConcGCThreads=2 -XX:ParallelGCThreads=6
+-XX:ZCollectionInterval=120 -XX:ZAllocationSpikeTolerance=5
+-XX:+UnlockDiagnosticVMOptions -XX:-ZProactive
+-Xlog:safepoint,classhisto*=trace,age*,gc*=info:file=/opt/logs/logs/gc-%t.log:time,tid,tags:filecount=5,filesize=50m
+```
+
+**-Xms -Xmx**：堆的最大内存和最小内存，这里都设置为 10G，程序的堆内存将保持 10G 不变。
+
+**-XX:ReservedCodeCacheSize -XX:InitialCodeCacheSize**: 设置 CodeCache 的大小， JIT 编译的代码都放在 CodeCache 中，一般服务 64m 或 128m 就已经足够。我们的服务因为有一定特殊性，所以设置的较大，后面会详细介绍。
+
+**-XX:+UnlockExperimentalVMOptions -XX:+UseZGC**：启用 ZGC 的配置。
+
+**-XX:ConcGCThreads**：并发回收垃圾的线程。默认是总核数的 12.5%，8 核 CPU 默认是 1。调大后 GC 变快，但会占用程序运行时的 CPU 资源，吞吐会受到影响。
+
+**-XX:ParallelGCThreads**：STW 阶段使用线程数，默认是总核数的 60%。
+
+**-XX:ZCollectionInterval**：ZGC 发生的最小时间间隔，单位秒。
+
+**-XX:ZAllocationSpikeTolerance**：ZGC 触发自适应算法的修正系数，默认 2，数值越大，越早的触发 ZGC。
+
+**-XX:+UnlockDiagnosticVMOptions -XX:-ZProactive**：是否启用主动回收，默认开启，这里的配置表示关闭。
+
+**-Xlog**：设置 GC 日志中的内容、格式、位置以及每个日志的大小。
+
+
 
 # 六：VisualVM 的使用
 
