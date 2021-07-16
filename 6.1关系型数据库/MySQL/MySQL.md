@@ -1038,7 +1038,7 @@ Sql92 语法和 sql99 语法的区别：99 语法可以做到表的连接和查�
 
 右连接以右边为主表，从左边表选择加入到右边
 
-左连接以左边为主表，从右边选择加入到左边
+左连接以左边为主表，从右边选择加入到左边，如果右边符合条件的有多条，左表就会发生重复；
 
 ```sql
 --右连接
@@ -1048,14 +1048,6 @@ select e.name,e.sal,d.dname from dept d left join emp e on e.deptno = d.deptno;
 ```
 
 ![20210701191139](media/20210701191139-1625137926068.jpg)
-
-
-
-
-
-
-
-
 
 ## 10、子查询
 
@@ -1299,7 +1291,7 @@ InnoDB 默认可以创建 16 个索引
 
 # 第五章：事务
 
-### 15.1、概述
+### 一、概述
 
 事务具有四个特征 ACID
 
@@ -1353,7 +1345,7 @@ InnoDB 默认可以创建 16 个索引
 
 注意：rollback，或者 commit 后事务就结束了。
 
-### 15.2、事务的提交与回滚演示
+### 二、事务的提交与回滚演示
 
 1. 创建表
 
@@ -1379,7 +1371,7 @@ InnoDB 默认可以创建 16 个索引
 
 9. 查看数据
 
-### 15.3、自动提交模式
+### 三、自动提交模式
 
 - 自动提交模式用于决定新事务如何及何时启动。
 
@@ -1416,11 +1408,11 @@ mysql\> SET SESSION AUTOCOMMIT = ON；
 
 show variables like '%auto%'; -- 查看变量状态
 
-### 15.4、事务的隔离级别
+### 四、事务的隔离级别
 
 #### 当前读与快照读
 
-#### 15.4.1、一致性问题
+#### 1、一致性问题
 
 事务的隔离级别决定了事务之间可见的级别。
 
@@ -1466,7 +1458,25 @@ InnoDB 引擎，可重复读隔离级别，，使用**当前读**时。
 
 当前读情况下加间隙锁，快照读情况下 mysql 会自动使用 MVCC 机制解决幻读。
 
-#### 15.4.2、四个隔离级别
+#### 2、封锁
+
+封锁粒度：行级锁以及表级锁
+
+类型：
+
+1：读写锁：互斥锁（X锁，写锁）；共享锁（S锁，读锁）
+
+2：意向锁：
+
+封锁协议：
+
+1：加互斥锁，直到事务结束才释放锁
+
+2：加共享锁，读完马上释放锁：
+
+3：加共享锁，直到事务结束才释放锁；
+
+#### 3、四个隔离级别
 
 InnoDB 实现了四个隔离级别，用以控制事务所做的修改，并将修改通告至其它并发的事务：
 
@@ -1501,11 +1511,11 @@ A 在事物中执行 DML 语句时,未提交
 
 B 不以执行 DML,DQL 语句
 
-#### 15.4.3、隔离级别与一致性问题的关系
+**隔离级别与一致性问题的关系**
 
 ![](media/53867db086b0bde31ad0bf067185b4ee.png)
 
-#### 15.4.4、设置服务器缺省隔离级别
+**设置服务器缺省隔离级别**
 
 通过修改配置文件设置
 
@@ -1548,7 +1558,7 @@ SET [GLOBAL \| SESSION] TRANSACTION ISOLATION LEVEL \<isolation-level\>
 
 - 例如： SET TRANSACTION ISOLATION LEVEL **REPEATABLE READ**;
 
-#### 15.4.5、隔离级别的作用范围
+**隔离级别的作用范围**
 
 - 事务隔离级别的作用范围分为两种：
 
@@ -1568,7 +1578,7 @@ mysql\> SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED；
 
 mysql\> SET GLOBAL TRANSACTION ISOLATION LEVEL READ COMMITTED；
 
-#### 15.4.6、查看隔离级别
+**查看隔离级别**
 
 - 服务器变量 tx_isolation（包括会话级和全局级两个变量）中保存着当前的会话隔离级别。
 
@@ -1610,9 +1620,9 @@ FROM v$transaction t
 JOIN v$session s ON t.addr = s.taddr AND s.sid = sys_context('USERENV', 'SID');
 ```
 
-#### 15.4.7、并发事务与隔离级别示例
+#### 4、并发事务与隔离级别示例
 
-##### read uncommitted(未提交读) --脏读(Drity Read)：
+read uncommitted(未提交读) --脏读(Drity Read)：
 
 | 会话一                                                       | 会话二                  |
 | ------------------------------------------------------------ | ----------------------- |
@@ -1627,7 +1637,7 @@ JOIN v$session s ON t.addr = s.taddr AND s.sid = sys_context('USERENV', 'SID');
 | s1\>rollback;                                                |                         |
 |                                                              | s2\>select \* from tx;  |
 
-##### read committed(已提交读)
+read committed(已提交读)
 
 | 会话一                                                      | 会话二                 |
 | ----------------------------------------------------------- | ---------------------- |
@@ -1640,7 +1650,7 @@ JOIN v$session s ON t.addr = s.taddr AND s.sid = sys_context('USERENV', 'SID');
 | s1\>commit;                                                 |                        |
 |                                                             | s2\>select \* from tx; |
 
-##### repeatable read(可重复读)
+repeatable read(可重复读)
 
 | 会话一                                                       | 会话二                 |
 | ------------------------------------------------------------ | ---------------------- |
@@ -1652,7 +1662,7 @@ JOIN v$session s ON t.addr = s.taddr AND s.sid = sys_context('USERENV', 'SID');
 | s1\>commit;                                                  |                        |
 |                                                              | s2\>select \* from tx; |
 
-### 底层实现
+### 五：底层实现
 
 redolog：重做日志，保证了事务的持久性。事务开启后，只要开始改变数据信息就会持续写入 redo buffer 中，具体落盘可以指定不同的策略。在数据库发生意外故障时，尚有修改的数据未写入磁盘，在重启 mysql 服务的时候，根据 redo log 恢复事务修改后的新数据。
 
@@ -1673,7 +1683,7 @@ binglog 是一个二进制的日志文件，会记录 mysql 的数据更新或�
 
 主从复制就是依靠 binglog
 
-### MVCC
+### 六：MVCC
 
 Multi-Version Concurrency Control，多版本并发控制，MVCC 在 MySQL InnoDB 中的实现主要是为了提高数据库并发性能，用更好的方式去处理读-写冲突，做到即使有读写冲突时，也能做到不加锁，非阻塞并发读。
 
