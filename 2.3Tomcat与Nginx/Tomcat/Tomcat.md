@@ -22,12 +22,6 @@ Tomcat：Apache基金组织，中小型的JavaEE服务器，仅仅支持少量�
 
 历史
 
-
-
-
-
-
-
 # 二：下载与安装
 
 官网：
@@ -35,6 +29,25 @@ Tomcat：Apache基金组织，中小型的JavaEE服务器，仅仅支持少量�
 解压：
 
 目录结构：
+
+| 目录    | 文件                      | 说明                                                        |
+| ------- | ------------------------- | ----------------------------------------------------------- |
+| bin     | /                         | 存放Tomcat的启动，停止等批处理脚本文件                      |
+|         | startip.bat；startup.sh   | 用于在windows和linux下的启动脚本                            |
+|         | shutdowm,bat；shutdown.sh | 用户在window和linux下的停止脚本                             |
+| conf    | /                         | 存放相关配置文件                                            |
+|         | catalina                  | 针对每个虚拟机的context配置                                 |
+|         | context.xml               | 用于定义所有web应用均需加载的context配置，如果web应用       |
+|         | catalina.properties       | 环境变量配置                                                |
+|         | catalina.policy           | 安全策略配置                                                |
+|         | logging.properties        | 日志配置文件，可以通过该文件修改Tomcat日志级别及日志路径    |
+|         | server.xml                | 核心配制文件                                                |
+|         | tomcat-users.xml          | 默认的用户及角色映射信息配置                                |
+|         | web.xml                   | 所有应用默认的部署描述文件，主要定义了基础servlet和MIME映射 |
+| lib     | /                         | 服务器的依赖包                                              |
+| logs    | /                         | 默认的日志存放目录                                          |
+| webapps | /                         | 默认的Web应用部署目录                                       |
+| work    | /                         | 应用JSP代买生成和编译的临时目录                             |
 
 
 
@@ -47,10 +60,6 @@ Tomcat：Apache基金组织，中小型的JavaEE服务器，仅仅支持少量�
 停止：
 
 双击 bin/shutdown.bat 文件 ；
-
-
-
-
 
 # 三：Tomcat架构
 
@@ -224,7 +233,7 @@ Mapper组件的功能就是将用户请求的URL定位到一个Servlet，它的�
 
 
 
-# 服务器配置
+# 四：服务器配置
 
 Tomcat 服务器的配置主要集中于 tomcat/conf 下的 catalina.policy、 catalina.properties、context.xml、server.xml、tomcat-users.xml、web.xml 文件。
 
@@ -268,9 +277,39 @@ Connector 用于配置 Service 包含的链接器，
 
  默认情况下，Service 并未添加共享线程池配置。 如果我们想添加一个线程池， 可以在 下添加如下配置：
 
+```xml
+<Executor name="tomcatThreadPool"
+namePrefix="catalina‐exec‐"
+maxThreads="200"
+minSpareThreads="100"
+maxIdleTime="60000"
+maxQueueSize="Integer.MAX_VALUE"
+prestartminSpareThreads="false"
+threadPriority="5"
+className="org.apache.catalina.core.StandardThreadExecutor"/>
+```
+
+说明：
+
+| 属性            | 含义                                                         |
+| --------------- | ------------------------------------------------------------ |
+| name            | 线程池名称，用于Connector中指定                              |
+| namePrefix      | 所创建的每个线程的名称前缀，一个单独的线程名称为namenPrefix+threadNumber |
+| maxThreads      | 池中最大线程数                                               |
+| minSpareThreads | 活跃线程数，核心线程数                                       |
+| maxQueueSize    | 最大线程排队数目                                             |
+| threadPriority  | 线程池中线程优先级，默认值为5，值从1到10                     |
+| className       | 线程池实现类                                                 |
+
 ### Connector 
 
 Connector 用于创建链接器实例。默认情况下，server.xml 配置了两个链接器，一个支 持HTTP协议，一个支持AJP协议。因此大多数情况下，我们并不需要新增链接器配置， 只是根据需要对已有链接器进行优化。
+
+```xml
+<Connector port="8080" protocol="HTTP/1.1" connectionTimeout="20000"
+redirectPort="8443" />
+<Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
+```
 
 ### Engine 
 
@@ -321,3 +360,26 @@ Listener用于监听servlet中的事件，例如context、request、session对�
 ### Filter配置
 
 filter 用于配置web应用过滤器， 用来过滤资源请求及响应。 经常用于认证、日志、加 密、数据转换等操作，
+
+# 五：集群
+
+1：使用Nginx做负载均衡，策略选择等参考Nginx篇
+
+2：Session共享方案；
+
+ip_hash策略：
+
+Session复制：
+
+SSO单点登录：
+
+
+
+# 六：安全
+
+# 七：性能
+
+优化：
+
+JVM；
+
