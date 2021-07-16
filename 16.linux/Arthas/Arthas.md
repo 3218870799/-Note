@@ -57,15 +57,15 @@ java -jar arthas-boot.jar
 
 ## 命令
 
-dashboard仪表板，过段时间就刷新，按q退出
+1：dashboard仪表板，过段时间就刷新，按q退出
 
 ![image-20210506201018552](media/image-20210506201018552.png)
 
-thread命令查看正在运行的线程
+2：thread命令查看正在运行的线程
 
-cls：清屏
+3：cls：清屏
 
-jad反编译源代码：
+4：jad反编译源代码：
 
 ```shell
 jad demo.MathGame
@@ -73,11 +73,30 @@ jad demo.MathGame
 
 ![image-20210506201348873](media/image-20210506201348873.png)
 
-watch监视：
+5：watch监视
+
+观察指定方法的调用情况
 
 ```shell
 watch demo.MathGame primeFactors returnObj
+watch 包名.类名 方法名 
 ```
+
+6：JVM
+
+查看当前JVM信息
+
+```txt
+COUNT:JVM当前活跃的线程数
+DAEMON-COUNT：JVM当前活跃的守护线程数
+PEAK-COUNT:从JVM启动开始曾经活着的最大线程数
+STARTED-COUNT：从JVM启动开始总共启动过的线程次数
+DEADLOCK-COUNT:JVM当前死锁的线程数
+```
+
+7：trace
+
+方法内部调用路径，并输出方法路径上的每个节点上耗时
 
 quit或者exit：只是退出，断开连接
 
@@ -199,4 +218,33 @@ $ jad java.lang.String
 
 # profiler/火焰图
 
+基于性能结果产生SVG图片，用来展示CPU的调用栈；
+
+y轴表示调用栈，每一层都是一个函数，调用栈越深，火焰越高；顶部就是正在执行的函数，下方都是他的父函数； 
+
+x轴表示抽样数，如果一个函数在x轴占据的宽度越宽，就表示它被抽到的次数多，即执行时间长；x轴不代表时间先后，而是调用栈合并后，按子母顺讯排列的。
+
+火焰图就是看顶层的哪个函数占据的宽度最大，只要有平顶，就表示该函数可能存在性能问题；
+
 - [profiler](https://arthas.aliyun.com/doc/profiler.html)–使用[async-profiler](https://github.com/jvm-profiling-tools/async-profiler)对应用采样，生成火焰图
+
+开启
+
+```shell
+profiler start
+```
+
+停止
+
+```shell
+profiler stop
+```
+
+
+
+
+
+# 本地的WebSocket连接
+
+访问http://127.0.0.1:8563/
+
