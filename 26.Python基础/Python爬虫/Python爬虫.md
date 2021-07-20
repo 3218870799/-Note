@@ -109,7 +109,7 @@
 - 需求：爬取搜狗首页的数据
 
 ```
- 复制代码 隐藏代码import requests
+import requests
 if __name__ == '__main__':
     #step1 指定url
     url = 'https://www.sogou.com/'
@@ -133,7 +133,7 @@ if __name__ == '__main__':
 - UA伪装
 
 ```
- 复制代码 隐藏代码#UA：User-Agent请求载体的身份标识
+#UA：User-Agent请求载体的身份标识
 '''UA检测：门户网站的服务器会监测对应请求的载体身份标识，
 如果检测到请求载体身份标识是某一款浏览器,说明该请求时一个正常的请求；
 但是，如果检测到请求的载体身份不是基于某一款浏览器的，则表示该请求为不正常请求（爬虫）,
@@ -170,7 +170,7 @@ if __name__ == '__main__':
 - 响应数据是一组json数据
 
 ```
- 复制代码 隐藏代码import requests
+import requests
 import json
 if __name__ == '__main__':
     #step1 指定URL
@@ -205,7 +205,7 @@ if __name__ == '__main__':
 ### （3）豆瓣电影
 
 ```
- 复制代码 隐藏代码import requests
+import requests
 import json
 if __name__ == '__main__':
     url = 'https://movie.douban.com/j/chart/top_list'
@@ -229,7 +229,7 @@ if __name__ == '__main__':
 ## 3. 作业---肯德基餐厅查询
 
 ```
- 复制代码 隐藏代码import requests
+import requests
 import json
 
 if __name__ == '__main__':
@@ -276,7 +276,7 @@ if __name__ == '__main__':
   - 如果我们可以批量获取多家企业的id后，就可以就id和url形成一个完整的详情页对应详情数据的 `ajax` 请求的url
 
 ```
- 复制代码 隐藏代码import requests
+import requests
 import json
 
 if __name__ == '__main__':
@@ -369,7 +369,7 @@ if __name__ == '__main__':
 |  re.X  | 该标志通过给予你跟灵活的格式以便你将正则表达式写得更易于理解 |
 
 ```
- 复制代码 隐藏代码常用的正则表达式
+常用的正则表达式
 
 单字符：
                         .        :        除换行以外所有字符
@@ -420,7 +420,7 @@ re.M        :        多行匹配
 re.S        :        单行匹配
 
 re.sub        :        正则表达式，替换内容，字符串
- 复制代码 隐藏代码'''正则练习'''
+'''正则练习'''
 import re
 #提取出python
 key = "javapythonc++php"
@@ -449,7 +449,7 @@ re.findall('h.*?\.', key)
 #匹配sas和saas
 key = 'sasa and sas and saaas'
 re.findall('sa{1,2}s', key)
- 复制代码 隐藏代码import requests
+import requests
 if __name__ == '__main__':
     #如何爬取图片
     url = 'https://pic.qiushibaike.com/system/pictures/12409/124098453/medium/YNPHJQC101MS31E1.jpg'
@@ -463,7 +463,7 @@ if __name__ == '__main__':
 ## 3. 正则解析案例
 
 ```
- 复制代码 隐藏代码# 需求：爬取糗事百科中糗图板块下所有的糗图图片
+# 需求：爬取糗事百科中糗图板块下所有的糗图图片
 '''<div class="thumb">
 <a href="/article/124098472" target="_blank">
 <img src="//pic.qiushibaike.com/system/pictures/12409/124098472/medium/HSN2WWN0TP1VUPNG.jpg" alt="糗事#124098472" class="illustration" width="100%" height="auto">
@@ -506,7 +506,7 @@ if __name__ == '__main__':
 ------
 
 ```
- 复制代码 隐藏代码# 对上述代码进行进一步处理，使得能够分页爬取图片
+# 对上述代码进行进一步处理，使得能够分页爬取图片
 import re
 import os
 import requests
@@ -588,7 +588,7 @@ if __name__ == '__main__':
   - **获取标签中的属性值：**`soup.a['href']`
 
 ```
- 复制代码 隐藏代码<html lang="en">
+<html lang="en">
 <head>
         <meta charset="UTF-8" />
         <title>测试bs4</title>
@@ -622,7 +622,7 @@ if __name__ == '__main__':
         </div>
 </body>
 </html>
- 复制代码 隐藏代码from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup
 
 if __name__ == '__main__':
     # 将本地的html文档中的数据加载到该对象中
@@ -651,7 +651,7 @@ if __name__ == '__main__':
 ## 6. bs4 解析案例实战
 
 ```
- 复制代码 隐藏代码# 需求：爬取三国演义小说所有的章节标题和章节内容
+# 需求：爬取三国演义小说所有的章节标题和章节内容
 # https://www.shicimingju.com/book/sanguoyanyi.html
 import requests
 from bs4 import BeautifulSoup
@@ -720,7 +720,7 @@ if __name__ == '__main__':
   - 取属性：`/@attrName  ==> img/@src`  
 
 ```
- 复制代码 隐藏代码from lxml import etree
+from lxml import etree
 if __name__ == "__main__":
     #实例化好了一个etree对象，且将被解析的源码加载到了该对象中
     tree = etree.parse('test.html')
@@ -739,7 +739,7 @@ if __name__ == "__main__":
 ## 8. xpath实战-58二手房
 
 ```
- 复制代码 隐藏代码#需求：爬取58二手房中的房源信息
+#需求：爬取58二手房中的房源信息
 #作者提醒：此处代码与视频课中有差别，原因是视频课拍摄时的网页源码和作者实际学习时网页源码有变化，作者代码于2021/02/26运行正常。
 import requests
 from lxml import etree
@@ -768,7 +768,7 @@ print('---------------Over!------------------')
 ### （1）4k图片解析下载
 
 ```
- 复制代码 隐藏代码#需求：解析下载图片数据 http://pic.netbian.com/4kmeinv/
+#需求：解析下载图片数据 http://pic.netbian.com/4kmeinv/
 import requests
 from lxml import etree
 import os
@@ -809,7 +809,7 @@ print('------------------------OVER!---------------------------------')
 ### （2）全国城市名称爬取
 
 ```
- 复制代码 隐藏代码# 需求：解析出所有城市名称  https://www.aqistudy.cn/historydata/
+# 需求：解析出所有城市名称  https://www.aqistudy.cn/historydata/
 import requests
 from lxml import etree
 
@@ -860,7 +860,7 @@ if __name__ == '__main__':
 ## 10. xpath作业---爬取站长素材中免费简历模板
 
 ```
- 复制代码 隐藏代码# 爬取站长素材中免费的简历模板  https://sc.chinaz.com/jianli/free.html
+# 爬取站长素材中免费的简历模板  https://sc.chinaz.com/jianli/free.html
 # 代码参考：https://blog.csdn.net/nanke_nk/article/details/108966854
 import os
 import requests
@@ -923,7 +923,7 @@ print('-------------------------------OVER!-------------------------------------
   - 下载示例代码 ——开发文档
 
 ```python
- 复制代码 隐藏代码#!/usr/bin/env python
+#!/usr/bin/env python
 # coding:utf-8
 
 from lxml import etree
@@ -1062,7 +1062,7 @@ with open('./gushiwen.html', 'w', encoding='utf-8') as fp:
 ## 2. 人人网模拟登录
 
 ```
- 复制代码 隐藏代码#1. 验证码的识别,获取验证码图片的文字数据
+#1. 验证码的识别,获取验证码图片的文字数据
 #2. 对post请求进行发送
 #3. 对响应数据进行持久化存储
 
@@ -1093,7 +1093,7 @@ print(response.satus_code)
 #login_page_text = response.text
 #with open('renren.html','w',encoding = 'utf-8') #as fp:
     fp.write(login_page_text)
- 复制代码 隐藏代码'''视频UP主的源代码'''
+'''视频UP主的源代码'''
 
 #编码流程：
 #1.验证码的识别，获取验证码图片的文字数据
@@ -1210,7 +1210,7 @@ print(response.status_code)
     **session**对象对个人主页对应的get请求进行发送（携带了Cookie）
 
 ```
- 复制代码 隐藏代码#####基于前一节代码之上####
+#####基于前一节代码之上####
 session = requests.Session()
 
 #爬取当前用户的相关用户信息
@@ -1245,7 +1245,7 @@ with open('bobo.html','w',encoding = 'utf-8' ) as fp:
 ## 5. 代{过}{滤}理在爬虫中的应用
 
 ```
- 复制代码 隐藏代码import requests
+import requests
 
 url = 'http://www.baidu.com/s?wd=ip'
 headers = {
@@ -1262,12 +1262,14 @@ with open('ip.html', 'w', encoding = 'utf-8') as fp:
 
 ## 1. 异步爬虫概述
 
+1：概念
+
 - **同步：**不同程序单元为了完成某个任务，在执行过程中需靠某种通信方式以协调一致，称这些程序单元是同步执行的。 例如购物系统中更新商品库存，需要用 “行锁” 作为通信信号，让不同的更新请求强制排队顺序执行，那更新库存的操作是同步的。 简言之，同步意味着有序。
 - **异步：**为完成某个任务，不同程序单元之间过程中无需通信协调，也能完成任务的方式，不相关的程序单元之间可以是异步的。 例如，爬虫下载网页。调度程序调用下载程序后，即可调度其他任务，而无需与该下载任务保持通信以协调行为。不同网页的下载、保存等操作都是无关的，也无需相互通知协调。这些异步操作的完成时刻并不确定。 简言之，异步意味着无序。
 - **目的：**在爬虫中使用异步实现高性能的数据爬取操作。
 
-```
- 复制代码 隐藏代码import requests
+```python
+import requests
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36'
@@ -1293,7 +1295,7 @@ for url in urls:
     parse_content(content)
 ```
 
-## 2. 多线程and多线程
+2. 多线程and多进程
 
 **异步爬虫的方式：**
 
@@ -1301,16 +1303,16 @@ for url in urls:
   - 好处：可以为相关阻塞的操作单独开启线程或者进程，阻塞操作就可以异步执行
   - 弊端：无法无限制的开启多线程或者多进程
 
-## 3. 线程池and进程池
+3. 线程池and进程池
 
 - 线程池、进程池：（适当使用）
   - 好处：可以降低系统对进程或者线程创建和销毁的一个频率，从而很好地降低系统地开销。
   - 弊端：池中线程或进程地数量是有上限的。
 
-## 4. 线程池的基本使用
+## 2. 线程池的基本使用
 
-```
- 复制代码 隐藏代码import time
+```python
+import time
 #使用单线程串行方式执行
 def get_page(str):
     print('正在下载：',str)
@@ -1323,7 +1325,11 @@ for i in range(len(name_list)):
     get_page(name_list[i])
 end_time = time.time()
 print('%d second' % (end_time-start_time))
- 复制代码 隐藏代码#导入线程池模块对应的类
+```
+
+线程池
+```python
+#导入线程池模块对应的类
 import time
 from multiprocessing.dummy import Pool
 
@@ -1347,8 +1353,8 @@ print(end_time - start_time)
 
 ## 5. 线程池案例应用
 
-```
- 复制代码 隐藏代码# 需求：爬取梨视频视频数据
+```python
+# 需求：爬取梨视频视频数据
 import requests
 import os
 from multiprocessing.dummy import Pool
@@ -1434,21 +1440,23 @@ pool.close()
 pool.join()
 ```
 
-## 6. 协程相关概念回顾
+## 6. 协程
 
-- **协程：**英文叫做 Coroutine，又称微线程，纤程，协程是一种用户态的轻量级线程。 协程拥有自己的寄存器上下文和栈。协程调度切换时，将寄存器上下文和栈保存到其他地方，在切回来的时候，恢复先前保存的寄存器上下文和栈。因此协程能保留上一次调用时的状态，即所有局部状态的一个特定组合，每次过程重入时，就相当于进入上一次调用的状态。 协程本质上是个单进程，协程相对于多进程来说，无需线程上下文切换的开销，无需原子操作锁定及同步的开销，编程模型也非常简单。 我们可以使用协程来实现异步操作，比如在网络爬虫场景下，我们发出一个请求之后，需要等待一定的时间才能得到响应，但其实在这个等待过程中，程序可以干许多其他的事情，等到响应得到之后才切换回来继续处理，这样可以充分利用 CPU 和其他资源，这就是异步协程的优势。
-- **单线程+异步协程：（推荐）**
-  - `event_loop：`事件循环，相当于一个无限循环，我们可以把一些函数注册到这个事件循环上，当满足某些条件的时候，函数就会被循环执行。
-  - `coroutine：`协程对象，我们可以将协程对象注册到事件循环中，它会被事件循环调用，我们可以使用 async 关键字来定义一个方法，这个方法在调用时不会立即执行，而是返回一个协程对象。
-  - `task：`任务，他是对协程对象的进一步封装，包含了任务的各个状态。
-  - `future：`代表将来执行或还没有执行的任务，实际上和 task 没有本质区别。
-  - `async：`定义一个协程。
-  - `await：`用来挂起阻塞方法的执行。
+**协程：**英文叫做 Coroutine，又称微线程，纤程，协程是一种用户态的轻量级线程。 协程拥有自己的寄存器上下文和栈。协程调度切换时，将寄存器上下文和栈保存到其他地方，在切回来的时候，恢复先前保存的寄存器上下文和栈。因此协程能保留上一次调用时的状态，即所有局部状态的一个特定组合，每次过程重入时，就相当于进入上一次调用的状态。 协程本质上是个单进程，协程相对于多进程来说，无需线程上下文切换的开销，无需原子操作锁定及同步的开销，编程模型也非常简单。 我们可以使用协程来实现异步操作，比如在网络爬虫场景下，我们发出一个请求之后，需要等待一定的时间才能得到响应，但其实在这个等待过程中，程序可以干许多其他的事情，等到响应得到之后才切换回来继续处理，这样可以充分利用 CPU 和其他资源，这就是异步协程的优势。
 
-## 7. 协程相关操作回顾
+**单线程+异步协程：（推荐）**
 
-```
- 复制代码 隐藏代码import asyncio
+- `event_loop：`事件循环，相当于一个无限循环，我们可以把一些函数注册到这个事件循环上，当满足某些条件的时候，函数就会被循环执行。
+- `coroutine：`协程对象，我们可以将协程对象注册到事件循环中，它会被事件循环调用，我们可以使用 async 关键字来定义一个方法，这个方法在调用时不会立即执行，而是返回一个协程对象。
+- `task：`任务，他是对协程对象的进一步封装，包含了任务的各个状态。
+- `future：`代表将来执行或还没有执行的任务，实际上和 task 没有本质区别。
+- `async：`定义一个协程。
+- `await：`用来挂起阻塞方法的执行。
+
+2：简单操作
+
+```python
+import asyncio
 async def request(url):
     print('正在请求的url是',url)
     print('请求成功,',url)
@@ -1488,10 +1496,10 @@ task.add_done_callback(callback_func)
 loop.run_until_complete(task)
 ```
 
-## 8. 多任务异步协程实现
+3. 多任务异步协程实现
 
-```
- 复制代码 隐藏代码import time
+```python
+import time
 import asyncio
 
 async def request(url):
@@ -1522,10 +1530,12 @@ loop.run_until_complete(asyncio.wait(stasks))
 print(time.time()-start)
 ```
 
-## 9. aiohttp 模块引出
+## 9. aiohttp 模块
 
-```
- 复制代码 隐藏代码######未能实现异步进程，还是同步操作
+1：简单使用
+
+```python
+######未能实现异步进程，还是同步操作
 import requests
 import asyncio
 import time
@@ -1558,10 +1568,17 @@ end = time.time()
 print('总耗时：', end-start)
 ```
 
-## 10. aiohttp + 多任务异步协程实现异步爬虫
+2： aiohttp + 多任务异步协程实现异步爬虫
 
+环境的安装    
+
+```shell
+pip install aiohttp
 ```
- 复制代码 隐藏代码#环境的安装    pip install aiohttp
+
+
+
+```python
 #使用aiohttp模块中的ClientSession
 import asyncio
 import time
@@ -1600,11 +1617,9 @@ end = time.time()
 print('总耗时：', end-start)
 ```
 
-------
+# 七、selenium
 
-# 七、动态加载数据处理
-
-## 1. selenium简介
+## 1. 简介
 
 - **问题：**`selenium`模块和爬虫之间具有怎样的关联？
 
@@ -1634,7 +1649,7 @@ print('总耗时：', end-start)
     - 关闭浏览器：`quit( )`
 
 ```
- 复制代码 隐藏代码# selenium操纵浏览器
+# selenium操纵浏览器
 #### Tip：作者Chrome是88版本，直接下载88的chromedriver成功运行
 
 from selenium import webdriver
@@ -1661,7 +1676,7 @@ bro.quit()
 ## 3. selenium其他自动化操作
 
 ```
- 复制代码 隐藏代码from selenium import webdriver
+from selenium import webdriver
 from time import sleep
 bro = webdriver.Chrome(executable_path='./chromedriver.exe')
 bro.get('https://www.taobao.com/')
@@ -1707,7 +1722,7 @@ bro.quit()
   - `action.release( )`：释放动作链对象
 
 ```
- 复制代码 隐藏代码from selenium import webdriver
+from selenium import webdriver
 from time import sleep
 # 导入动作链对应的类
 from selenium.webdriver import ActionChains
@@ -1740,7 +1755,7 @@ bro.quit()
 ## 5. selenium模拟登录QQ空间
 
 ```
- 复制代码 隐藏代码#模拟登录QQ空间，运行前需要将代码中“QQ号码”和“QQ密码”改写
+#模拟登录QQ空间，运行前需要将代码中“QQ号码”和“QQ密码”改写
 from selenium import webdriver
 from time import sleep
 
@@ -1768,7 +1783,7 @@ bro.quit()
 ## 6. 无头浏览器+规避操作
 
 ```
- 复制代码 隐藏代码from selenium import webdriver
+from selenium import webdriver
 from time import sleep
 #实现无可视化界面
 from selenium.webdriver.chrome.options import Options
@@ -1816,7 +1831,7 @@ bro.quit()
 - 使用超级鹰识别验证码图片（坐标）
 
 ```
- 复制代码 隐藏代码#!/usr/bin/env python
+#!/usr/bin/env python
 # coding:utf-8
 
 import requests
@@ -2011,7 +2026,7 @@ bro.quit()
   - `scrapy crawl spiderName`
 
 ```
- 复制代码 隐藏代码###firstBlood__first
+###firstBlood__first
 import scrapy
 
 class FirstSpider(scrapy.Spider):
@@ -2031,7 +2046,7 @@ class FirstSpider(scrapy.Spider):
 ## 3. scrapy数据解析操作
 
 ```
- 复制代码 隐藏代码import scrapy
+import scrapy
 
 class QiubaiSpider(scrapy.Spider):
     name = 'qiubai'
@@ -2094,7 +2109,7 @@ class QiubaiSpider(scrapy.Spider):
   - 自行手动进行请求发送（推荐）
 
 ```
- 复制代码 隐藏代码'''------------校花网xiaohua.py----------------'''
+'''------------校花网xiaohua.py----------------'''
 # -*- coding: utf-8 -*-
 import scrapy
 
@@ -2165,7 +2180,7 @@ USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36
 - **需求：**爬取boss的岗位名称和岗位描述
 
 ```
- 复制代码 隐藏代码#### 我尝试着并未有啥结果.......等大佬
+#### 我尝试着并未有啥结果.......等大佬
 import scrapy
 from bossPro.items import BossproItem
 
@@ -2233,7 +2248,7 @@ class BossSpider(scrapy.Spider):
     - 指定开启的管道：自定制的管道类
 
 ```
- 复制代码 隐藏代码'''----------------爬取站长素材高清图片  img.py-----------------------'''
+'''----------------爬取站长素材高清图片  img.py-----------------------'''
 # -*- coding: utf-8 -*-
 import scrapy
 from imgsPro.items import ImgsproItem
@@ -2330,7 +2345,7 @@ ROBOTSTXT_OBEY = False
 - 通过解析出每一条新闻详情页的url，获取详情页的页面源码，解析出新闻内容
 
 ```
- 复制代码 隐藏代码'''-------------------------------网易新闻  wangyi.py------------------------'''
+'''-------------------------------网易新闻  wangyi.py------------------------'''
 # -*- coding: utf-8 -*-
 import scrapy
 from selenium import webdriver
@@ -2499,7 +2514,7 @@ LOG_LEVEL = 'ERROR'
     2. 让链接提取器提取所有的问政详情页链接
 
 ```
- 复制代码 隐藏代码'''---------------------阳光问政    sun.py---------------------------'''
+'''---------------------阳光问政    sun.py---------------------------'''
 '''网站页面源码跟视频课有改动，建议follow先改False爬一下，不然容易被封IP，有兴趣的可以改改，搞个代{过}{滤}理啥的再爬'''
 # -*- coding: utf-8 -*-
 import scrapy
@@ -2708,7 +2723,7 @@ class DetailItem(scrapy.Item):
 协程（ Coroutine），也可以被称为微线程，是一种用户态内的上下文切换技术。简而言之，其实就是通过一个线程实现代码块相互切换执行。
 
 ```
- 复制代码 隐藏代码def func1():
+def func1():
     print(1)
     ...
     print(2)
@@ -2731,7 +2746,7 @@ func2()
 
 ```
 pip install greenlet
- 复制代码 隐藏代码from greenlet import greenlet
+from greenlet import greenlet
 def func1():
     print(1)
     gr2.switch()        #切换到func2函数
@@ -2749,7 +2764,7 @@ gr1.switch()                #去执行func1函数
 ### （2）yield关键字
 
 ```
- 复制代码 隐藏代码def func1():
+def func1():
     yield 1
     yield from func2()
     yield 2
@@ -2766,7 +2781,7 @@ for item in f1:
 ==遇到IO阻塞自动切换==
 
 ```
- 复制代码 隐藏代码import asyncio
+import asyncio
 @asyncio.coroutine
 def func1():
     print(1)
@@ -2788,7 +2803,7 @@ loop.run_until_complete(asyncio.wait(tasks))
 ### （4）async、await关键字（推荐）
 
 ```
- 复制代码 隐藏代码import asyncio
+import asyncio
 async def func1():
     print(1)
     await asyncio.sleep(2)                #遇到IO耗时操作，自动化切换到tasks中的其他任务
@@ -2813,7 +2828,7 @@ loop.run_until_complete(asyncio.wait(tasks))
 需求：下载三张图片（网络IO）
 
 ```
- 复制代码 隐藏代码'''普通的request方式'''
+'''普通的request方式'''
 import requests
 
 def download_image(url):
@@ -2833,7 +2848,7 @@ if __name__ == '__main__':
     ]
     for item in url_list:
         download_image(item)
- 复制代码 隐藏代码'''使用aiohttp模块下载    协程方式'''
+'''使用aiohttp模块下载    协程方式'''
 import aiohttp
 import asyncio
 import time
@@ -2873,7 +2888,7 @@ print(time.time() - start)
 **概念：**理解为一个死循环，去检测并执行某些代码。
 
 ```
- 复制代码 隐藏代码# 伪代码
+# 伪代码
 任务列表 = [任务1 , 任务2 , 任务3 ....]
 while True:
         可执行的任务列表，已完成的任务列表-->去任务列表中检测所有的任务，将“可执行”和“已完成”的任务返回
@@ -2882,7 +2897,7 @@ while True:
     for 已完成的任务 in 已完成的任务列表:
             在任务列表中移除 已完成的任务
     如果 任务列表 中的任务都已经完成，则终止循环。
- 复制代码 隐藏代码import asyncio
+import asyncio
 
 # 去生成或获取一个事件循环
 loop = asyncio.get_event_loop()
@@ -2897,7 +2912,7 @@ loop.run_until_complete(task)
 **协程对象：**执行 协程函数 得到的对象
 
 ```
- 复制代码 隐藏代码async def func():
+async def func():
         pass
 result = func()
 ```
@@ -2907,7 +2922,7 @@ result = func()
 <!--如果想要运行协程函数内部代码，必须要将协程代码交给事件循环来处理。-->
 
 ```
- 复制代码 隐藏代码import asyncio
+import asyncio
 async def func():
         print('快来打我吧！')
 result = func()
@@ -2921,7 +2936,7 @@ loop.run_until_complete(result)
 
 ```
 await 可等待的对象(协程对象、Future对象、Task对象)
- 复制代码 隐藏代码'''示例一'''
+'''示例一'''
 import asyncio
 async def func():
     print('来玩呀')
@@ -2929,7 +2944,7 @@ async def func():
     print('结束', response)
 
 asyncio.run(func())
- 复制代码 隐藏代码'''示例二'''
+'''示例二'''
 import asyncio
 async def others():
     print('start')
@@ -2943,7 +2958,7 @@ async def func():
     response = await others()
     print('IO请求结束，结果为：', response)
 asyncio.run(func())
- 复制代码 隐藏代码'''示例三'''
+'''示例三'''
 import asyncio
 async def others():
     print('start')
@@ -2976,7 +2991,7 @@ Task 用于并发调度协程，`通过asyncio.create_task(协程对象)` 的方
 <!--注意：asyncio.create_task() 函数在 Python 3.7 中被加入，在Python 3.7之前，可以改用低层级的 asyncio.ensure_future() 函数。-->
 
 ```
- 复制代码 隐藏代码'''示例1'''
+'''示例1'''
 import asyncio
 async def func():
     print(1)
@@ -2997,7 +3012,7 @@ async def main():
     print(ret1,ret2)
 
 asyncio.run(main())
- 复制代码 隐藏代码'''示例2'''
+'''示例2'''
 import asyncio
 async def func():
     print(1)
@@ -3017,7 +3032,7 @@ async def main():
     print(done)
 
 asyncio.run(main())                        #loop事件循环首先创建，然后列表才创建进去
- 复制代码 隐藏代码'''示例3'''
+'''示例3'''
 import asyncio
 
 async def func():
@@ -3047,7 +3062,7 @@ print(done)
 **Task 对象继承 Future，Task 对象内部 await 结果的处理是基于 Future 对象来的。**
 
 ```
- 复制代码 隐藏代码'''示例1'''
+'''示例1'''
 import asyncio
 async def main():
     # 获取当前事件循环
@@ -3060,7 +3075,7 @@ async def main():
     await fut
 
 asyncio.run(main())
- 复制代码 隐藏代码'''示例2'''
+'''示例2'''
 import asyncio
 async def set_after(fut):
     await asyncio.sleep(2)
@@ -3087,7 +3102,7 @@ asyncio.run(main())
 **使用进程池或者线程池实现异步操作时用到的对象。**
 
 ```
- 复制代码 隐藏代码import time
+import time
 from concurrent.futures import Future
 from concurrent.futures.thread import ThreadPoolExecutor
 from concurrent.futures.process import ProcessPoolExecutor
@@ -3109,7 +3124,7 @@ for i in range(10):
 以后写代码或许还有交叉使用。例如：crm项目80%都是属于基于协程异步编程 + MySQL（不支持）【线程或者进程做异步编程】
 
 ```
- 复制代码 隐藏代码import time
+import time
 import asyncio
 import concurrent.futures
 
@@ -3144,7 +3159,7 @@ asyncio.run(main())
 ### （7）案例：asyncio + 不支持异步的模块
 
 ```
- 复制代码 隐藏代码# 跟前一节代码一样的效果，但是更耗费资源
+# 跟前一节代码一样的效果，但是更耗费资源
 import requests
 import asyncio
 
@@ -3186,7 +3201,7 @@ if __name__ == '__main__':
 可在 `async for` 语句中被使用的对象。必须通过它的 `__aiter__()` 方法返回一个 `asynchronous iterator`。由 `PEP 492` 引入。
 
 ```
- 复制代码 隐藏代码import asyncio
+import asyncio
 
 class Reader(object):
     '''自定义异步迭代器 （同时也是一部可迭代对象）'''
@@ -3222,7 +3237,7 @@ asyncio.run( func() )
 此种对象通过定义 `__aenter__()` 和 `__aexit__()` 方法来对 `async with` 语句中的环境进行控制。
 
 ```
- 复制代码 隐藏代码import asyncio
+import asyncio
 
 class AsyncContextManager:
     def __init__(self, conn=None):
@@ -3255,7 +3270,7 @@ asyncio.run(func())
 
 ```
 pip install uvloop
- 复制代码 隐藏代码import asyncio
+import asyncio
 import uvloop
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
@@ -3275,7 +3290,7 @@ asyncio.run(...)
 
 ```
 pip install aioredis
- 复制代码 隐藏代码#作者未设置 redis，故此代码未测试
+#作者未设置 redis，故此代码未测试
 import asyncio
 import aioredis
 
@@ -3295,7 +3310,7 @@ async def execute(address, password):
     print('结束', address)
 
 asyncio.run(execute('redis://47.93.4.198:6379', "root!2345"))
- 复制代码 隐藏代码'''示例2'''
+'''示例2'''
 import asyncio
 import aioredis
 
@@ -3326,7 +3341,7 @@ asyncio.run(asyncio.wait(task_list))
 
 ```
 pip3 install aiomysql
- 复制代码 隐藏代码'''示例1'''
+'''示例1'''
 import asyncio
 import aiomysql
 
@@ -3345,7 +3360,7 @@ async def execute():
     conn.close()
 
 asyncio.run(execute())
- 复制代码 隐藏代码'''示例2'''
+'''示例2'''
 import asyncio
 import aiomysql
 
@@ -3376,7 +3391,7 @@ asyncio.run(asyncio.wait(task_list))
 
 ```
 pip3 install fastapi`       `pip3 install uvicorn
- 复制代码 隐藏代码'''示例'''
+'''示例'''
 import uvicorn
 import asyncio
 from fastapi import FastAPI
@@ -3390,7 +3405,7 @@ def index():
 
 if __name__ == '__main__':
     uvicorn.run("luffy:app",host= '127.0.0.1',port= 5000, log_level= 'info')
- 复制代码 隐藏代码'''示例2'''
+'''示例2'''
 from aioredis import Redis
 import uvicorn
 import aioredis
@@ -3433,7 +3448,7 @@ if __name__ == '__main__':
 
 ```
 pip3 install aiohttp
- 复制代码 隐藏代码'''使用aiohttp模块下载    协程方式'''
+'''使用aiohttp模块下载    协程方式'''
 import aiohttp
 import asyncio
 
