@@ -109,3 +109,16 @@ redis压测工具：redis-benchmark
 ## 脚本工具
 
 chrome插件录制脚本工具BlazeMeter
+
+
+
+# 问题
+
+jmeter 运行接口报javax.net.ssl.SSLException: Unrecognized SSL message, plaintext connection
+
+![在这里插入图片描述](media/20190412133708168.png)
+
+1：查看请求是HTTP还是HTTPS
+
+2：查看域名能不能ping通
+

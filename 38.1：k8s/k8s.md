@@ -918,11 +918,33 @@ readinessProbe
 
 ![image-20201114195807564](media/image-20201114195807564.png)
 
-Probe支持以下三种检查方式
+
+
+K8S提供了三类Probe探针来执行对pod的健康监测：
+
+1） livenessProbe探针
+
+根据用户自定义规则来判定pod是否健康，如果探针探测到不健康，则会根据其重启策略来决定是否重启，如果一个容器不包含 livenessProbe探针探针，则会人为容器的 livenessProbe探针探针的返回值永远成功；
+
+2）ReadinessProbe探针
+
+同样是可以根据用户自定义规则来判断pod是否健康，如果探测失败，控制器会将此pod从对应service的endpoint列表中移除，从此不再将任何请求调度到此Pod上，直到下次探测成功。
+
+3） startupProbe探针
+
+启动检查机制，应用一些启动缓慢的业务，避免业务长时间启动而被上面两类探针kill掉，这个问题也可以换另一种方式解决，就是定义上面两类探针机制时，初始化时间定义的长一些即可。
+
+Probe支持以下三种探测方式
 
 - http Get：发送HTTP请求，返回200 - 400 范围状态码为成功
 - exec：执行Shell命令返回状态码是0为成功
 - tcpSocket：发起TCP Socket建立成功
+
+
+
+
+
+
 
 ### Pod调度策略
 

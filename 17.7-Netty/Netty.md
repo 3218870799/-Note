@@ -766,3 +766,240 @@ Netty 默认是 CPU 处理器数的两倍，bind 完之后启动。
 - readerIdleTime：为读超时时间（即测试端一定时间内未接受到被测试端消息）。
 - writerIdleTime：为写超时时间（即测试端一定时间内向被测试端发送消息）。
 - allIdleTime：所有类型的超时时间。
+
+
+
+# 第八章：使用Netty实现远程调用
+
+## 1：引入依赖
+
+```xml
+<!--lombok-->
+<dependency>
+  <groupId>org.projectlombok</groupId>
+  <artifactId>lombok</artifactId>
+  <version>1.18.2</version>
+  <optional>true</optional>
+</dependency>
+
+<!--netty-->
+<dependency>
+  <groupId>io.netty</groupId>
+  <artifactId>netty-all</artifactId>
+  <version>4.1.17.Final</version>
+</dependency>
+```
+
+## 2：服务端
+
+服务启动监听器：NettyServer.java
+
+```java
+@Slf4j
+public class NettyServer {
+    public void start() {
+        InetSocketAddress socketAddress = new InetSocketAddress("127.0.0.1", 8082);
+        //new 一个主线程组
+        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+        //new 一个工作线程组
+        EventLoopGroup workGroup = new NioEventLoopGroup(200);
+        ServerBootstrap bootstrap = new ServerBootstrap()
+                .group(bossGroup, workGroup)
+                .channel(NioServerSocketChannel.class)
+                .childHandler(new ServerChannelInitializer())
+                .localAddress(socketAddress)
+                //设置队列大小
+                .option(ChannelOption.SO_BACKLOG, 1024)
+                // 两小时内没有数据的通信时,TCP会自动发送一个活动探测数据报文
+                .childOption(ChannelOption.SO_KEEPALIVE, true);
+        //绑定端口,开始接收进来的连接
+        try {
+            ChannelFuture future = bootstrap.bind(socketAddress).sync();
+            log.info("服务器启动开始监听端口: {}", socketAddress.getPort());
+            future.channel().closeFuture().sync();
+        } catch (InterruptedException e) {
+            log.error("服务器开启失败", e);
+        } finally {
+            //关闭主线程组
+            bossGroup.shutdownGracefully();
+            //关闭工作线程组
+            workGroup.shutdownGracefully();
+        }
+    }
+}
+```
+
+Netty服务初始化器ServerChannelInitializer.java
+
+```java
+/**
+* netty服务初始化器
+**/
+public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> {
+    @Override
+    protected void initChannel(SocketChannel socketChannel) throws Exception {
+        //添加编解码
+        socketChannel.pipeline().addLast("decoder", new StringDecoder(CharsetUtil.UTF_8));
+        socketChannel.pipeline().addLast("encoder", new StringEncoder(CharsetUtil.UTF_8));
+        socketChannel.pipeline().addLast(new NettyServerHandler());
+    }
+}
+```
+
+netty服务端处理器NettyServerHandler.java
+
+```java
+/**
+* netty服务端处理器
+**/
+@Slf4j
+public class NettyServerHandler extends ChannelInboundHandlerAdapter {
+    /**
+     * 客户端连接会触发
+     */
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        log.info("Channel active......");
+    }
+
+    /**
+     * 客户端发消息会触发
+     */
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        log.info("服务器收到消息: {}", msg.toString());
+        ctx.write("你也好哦");
+        ctx.flush();
+    }
+
+
+    /**
+     * 发生异常触发
+     */
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
+        ctx.close();
+    }
+}
+```
+
+启动类RpcServerApp.java：
+
+```java
+@Slf4j
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+public class RpcServerApp extends SpringBootServletInitializer {
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(RpcServerApp.class);
+    }
+
+    /**
+     * 项目的启动方法
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
+        SpringApplication.run(RpcServerApp.class, args);
+        //开启Netty服务
+        NettyServer nettyServer =new  NettyServer ();
+        nettyServer.start();
+        log.info("======服务已经启动========");
+    }
+}
+```
+
+## 3：客户端
+
+NettyClient工具类：NettyClientUtil.java
+
+```java
+/**
+* Netty客户端
+**/
+@Slf4j
+public class NettyClientUtil {
+
+    public static ResponseResult helloNetty(String msg) {
+        NettyClientHandler nettyClientHandler = new NettyClientHandler();
+        EventLoopGroup group = new NioEventLoopGroup();
+        Bootstrap bootstrap = new Bootstrap()
+                .group(group)
+                //该参数的作用就是禁止使用Nagle算法，使用于小数据即时传输
+                .option(ChannelOption.TCP_NODELAY, true)
+                .channel(NioSocketChannel.class)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        socketChannel.pipeline().addLast("decoder", new StringDecoder());
+                        socketChannel.pipeline().addLast("encoder", new StringEncoder());
+                        socketChannel.pipeline().addLast(nettyClientHandler);
+                    }
+                });
+        try {
+            ChannelFuture future = bootstrap.connect("127.0.0.1", 8082).sync();
+            log.info("客户端发送成功....");
+            //发送消息
+            future.channel().writeAndFlush(msg);
+            // 等待连接被关闭
+            future.channel().closeFuture().sync();
+            return nettyClientHandler.getResponseResult();
+        } catch (Exception e) {
+            log.error("客户端Netty失败", e);
+            throw new BusinessException(CouponTypeEnum.OPERATE_ERROR);
+        } finally {
+            //以一种优雅的方式进行线程退出
+            group.shutdownGracefully();
+        }
+    }
+}
+```
+
+客户端处理器：NettyClientHandler.java
+
+```java
+@Slf4j
+@Setter
+@Getter
+public class NettyClientHandler extends ChannelInboundHandlerAdapter {
+
+    private ResponseResult responseResult;
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        log.info("客户端Active .....");
+    }
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        log.info("客户端收到消息: {}", msg.toString());
+        this.responseResult = ResponseResult.success(msg.toString(), CouponTypeEnum.OPERATE_SUCCESS.getCouponTypeDesc());
+        ctx.close();
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
+        ctx.close();
+    }
+}
+```
+
+测试接口
+
+```java
+@RestController
+@Slf4j
+public class UserController {
+
+    @PostMapping("/helloNetty")
+    @MethodLogPrint
+    public ResponseResult helloNetty(@RequestParam String msg) {
+        return NettyClientUtil.helloNetty(msg);
+    }
+}
+```
+
+
+
