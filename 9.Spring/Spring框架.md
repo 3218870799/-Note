@@ -1806,14 +1806,11 @@ c**、** PROPAGATION_REQUIRES_NEW (propagation_requires_new)
 - noRollbackForClassName：指定不需要回滚的异常类类名。类型为
   String[]，默认值为空数组。当然，若只有一个异常类时，可以不使用数组。
 
-需要注意的是，@Transactional 若用在方法上，只能用于 public 方法上。对于其他非 public 方法，如果加上了注解@Transactional，虽然 Spring 不会报错，但不会将指定事务织入到该方法中。因为 Spring 会忽略掉所有非 public
-方法上的@Transaction 注解。
+需要注意的是，@Transactional 若用在方法上，只能用于 public 方法上。对于其他非 public 方法，如果加上了注解@Transactional，虽然 Spring 不会报错，但不会将指定事务织入到该方法中。因为 Spring 会忽略掉所有非 public方法上的@Transaction 注解。
 
 若@Transaction 注解在类上，则表示该类上所有的方法均将在执行时织入事务。
 
 实现注解的事务步骤：
-
-复制 **trans_sale** 项目，新项目 **trans_sale_annotation**
 
 1：声明事务管理器
 
@@ -1861,6 +1858,8 @@ public void buy(Integer goodsId，Integer amount) {
 ```
 
 #### 实现原理：
+
+在一个方法上添加了@Transactional注解，同样会使用注入的类进行代理，通过代理对象实现事务的管理；
 
 主要是通过反射获取 bean 的注解信息，利用 AOP 对编程式事务进行封装实现。
 
