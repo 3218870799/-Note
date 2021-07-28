@@ -1,12 +1,6 @@
 # 一：简介
 
-SQL，一般发音为 sequel，SQL 的全称 Structured QueryLanguage)，SQL 用来和数据库打交道，完成和数据库的通信，SQL 是一套标准。但是每一个数据库都有自己的特性别的数据库没有,当使用这个数据库特性相关的功能,这时 SQL 语句可能就不是标准了.(90%以上的 SQL 都是通用的)
-
-### 1.2、什么是数据库
-
-数据库，通常是一个或一组文件，保存了一些符合特定规格的数据,数据库对应的英语单词是 DataBase,简称:DB,数据库软件称为数据库管理系统（DBMS），全称为 DataBase Management System，如：Oracle、SQLServer、MySql、Sybase、informix、DB2、interbase、PostgreSql 。
-
-### 1.3、MySql 概述
+### 概述
 
 MySQL 最初是由“MySQL AB”公司开发的一套关系型数据库管理系统（RDBMS-RelationalDatabase Mangerment System）。
 
@@ -16,7 +10,7 @@ MySQL AB 是由两个瑞典人和一个芬兰人：David Axmark、Allan Larsson 
 
 在 2008 年初，Sun Microsystems 收购了 MySQL AB 公司。在 2009 年，Oracle 收购了 Sun 公司，使 MySQL 并入 Oracle 的数据库产品线。
 
-### 1.4、MySql 的安装
+### 安装
 
 最新版 MYSQL 下载的是压缩包，详细安装步骤见博客：
 
@@ -26,9 +20,9 @@ https://www.cnblogs.com/2020javamianshibaodian/p/mysql8020anzhuangjiaocheng.html
 
 https://www.cnblogs.com/zhukf/p/11976855.html
 
-### 1.5：客户端 SQLyog 的安装
+### 客户端 SQLyog 的安装
 
-### 1.6、SQL 的分类
+### SQL 的分类
 
 > 数据查询语言(DQL-Data Query Language)
 
@@ -69,6 +63,27 @@ Linux下：
 | lib      | 库                                                           |
 | docs     | 文档                                                         |
 | scripts  | mysql_install_db能初始化数据目录和初始数据库数据库           |
+
+## 默认数据库
+
+information_schema数据库：里面存放着所有数据库的信息(比如表名、 列名、对应权限等)，通过这个数据库，我们就可以跨库查询，爆表爆列。
+
+获取所有列信息(COLUMNS)
+
+SELECT  *  FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA='数据库名'; COLUMNS表：提供了关于表中的列的信息。详细表述了某个列属于哪个表。
+
+爆库
+select SCHEMA_NAME from information_schema.SCHEMATA limit 5,1/* 5,1表示从第1个开始，数到第5个
+
+爆表
+select TABLE_NAME from information_schema.TABLES where TABLE_SCHEMA=0×6D656D626572 limit 5,1/*TABLE_SCHEMA=后面是库名的16进制
+
+爆字段
+select COLUMN_NAME from information_schema.COLUMNS where TABLE_NAME=0×61646D5F75736572 limit 5,1/*
+
+
+
+
 
 # 二、常用命令
 
@@ -2771,7 +2786,7 @@ mysqldumpslow – help
 
 # 第九章、DBA 命令
 
-### 18.1、新建用户
+## 新建用户
 
 (1)
 
@@ -2823,7 +2838,7 @@ GRANT ALL PRIVILEGES ON \*.\* TO 'p361'\@'%' Identified by "123" WITH GRANT OPTI
 
 privileges 包括： alter：修改数据库的表 create：创建新的数据库或表 delete：删除表数据 drop：删除数据库/表 index：创建/删除索引 insert：添加表数据 select：查询表数据 update：更新表数据 all：允许任何操作 usage：只允许登录
 
-### 18.2：授权
+## 授权
 
 ```sql
 //授予某一项权利
@@ -2842,7 +2857,7 @@ select * from role_sys_privs;
 alter user 用户名 account lock|unlock;
 ```
 
-### 18.3、回收权限
+## 回收权限
 
 命令详解
 
@@ -2852,24 +2867,91 @@ revoke privileges on dbname[.tbname] from username; revoke all privileges on \*.
 
 刷新权限; flush privileges
 
-### 18.4、导出导入
+## 导出导入
 
-#### 18.4.1、导出
+**导出**
 
-##### 18.4.1.1、导出整个数据库
+导出整个数据库
 
 在 windows 的 dos 命令窗口中执行：
 
 mysqldump bjpowernode\>D:\\bjpowernode.sql -uroot -p123
 
-##### 18.4.1.2、导出指定库下的指定表
+导出指定库下的指定表
 
 在 windows 的 dos 命令窗口中执行：mysqldump bjpowernode emp\> D:\\ bjpowernode.sql
 -uroot –p123
 
-#### 18.4.2、导入
+**导入**
 
 登录 MYSQL 数据库管理系统之后执行：source D:\\ bjpowernode.sql
+
+## 备份
+
+完全备份
+
+```sql
+## mysql5.7
+## 备份命令
+innobackupex --user=root --password=‘1234' /xtrabackup/full
+
+## 备份完成查看
+ls /xtrabackup/full
+
+## mysql8
+xtrabackup --defaults-file=/etc/my.cnf --host=localhost --user=root --password=http://Qf123.com --port=3306 --backup --target-dir=/data/backup/
+或者使用参数--datadir替换掉参数--defaults-file.
+
+```
+
+恢复
+
+```sql
+## mysql5.7
+# 停止
+systemctrl stop mysqld
+# 模拟数据丢失
+rm -f /var/lib/mysql/*
+# 生成回滚日志
+innobackupex --apply-log /xtrabackup/full/2017-08-01_00-00-18/
+# 恢复文件
+innobackupex --copy-back /xtrabackup/full/2017-08-01_00-00-18/
+# 重新赋权
+chown -R mysql.mysql /var/lib/mysql
+# 启动
+systemctl start mysqld
+
+## mysql8
+
+```
+
+增量备份
+
+需要在完全备份的基础上
+
+```sql
+innobackupex --user=root --password='1234' --incremental /xtrabackup/ --incremental-basedir=/xtrabackup/2017-09-01_00-00-04
+```
+
+恢复
+
+```sql
+# 生成回滚日志
+innobackupex --apply-log --redo-only /xtrabackup/2017-09-01_00-00-04
+innobackupex --apply-log --redo-only /xtrabackup/2017-09-01_00-00-04 --incremental-dir=/xtrabackup/2017-09-02_00-00-26
+
+# 恢复文件
+innobackupex --copy-back /xtrabackup/2017-09-01_00-00-06
+# 赋权
+chown -R mysql.mysql /var/lib/mysql
+
+```
+
+
+
+
+
+
 
 # 第十章：MySQL 锁机制
 
