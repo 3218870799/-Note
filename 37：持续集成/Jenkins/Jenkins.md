@@ -4,8 +4,6 @@ Jenkins是一个开源的、提供友好操作界面的持续集成(CI)工具
 
 主要用于持续、自动的构建/测试软件项目、监控外部任务的运行
 
-。
-
 Jenkins用Java语言编写，可在Tomcat等流行的servlet容器中运行，也可独立运行。通常与版本管理工具(SCM)、构建工具结合使用。常用的版本控制工具有SVN、GIT，构建工具有Maven、Ant、Gradle。
 
 ## 1.1：CI/CD
@@ -24,7 +22,22 @@ Jenkins是基于JDK开发的，故要求JDK版本大于8
 
 ## 2.1：安装JDK
 
+## 2.3：Tomcat修改
+
+给Tomcat配置账户：
+
+```xml
+  <role rolename="tomcat"/>
+  <role rolename="role1"/>
+  <user username="tomcat" password="admin" roles="tomcat"/>
+  <user username="admin" password="admin" roles="tomcat,role1"/>
+```
+
+
+
 ## 2.2：安装Jenkins
+
+Linux安装：
 
 获取
 
@@ -58,6 +71,38 @@ systemctl start jenkins
 ps aux |grep jenkins
 jenkins    1157 84.7 10.0 2320896 100884 ?      Ssl  23:28   0:08 /etc/alternatives/java -Dcom.sun.akuma.Daemon=daemonized -Djava.awt.headless=true -DJENKINS_HOME=/var/lib/jenkins -jar /usr/lib/jenkins/jenkins.war --logfile=/var/log/jenkins/jenkins.log --webroot=/var/cache/jenkins/war --daemon --httpPort=8080 --debug=5 --handlerCountMax=100 --handlerCountMaxIdle=20
 ```
+
+
+
+Window安装：
+
+
+
+https://blog.csdn.net/weixin_43184774/article/details/104428244
+
+更改端口：8800
+
+管理员用户：全是admin
+
+以管理员身份运行cmd窗口
+
+停止jenkins
+
+```cmd
+net stop jenkins
+```
+
+重启
+
+```shell
+net start jenkins
+```
+
+
+
+
+
+
 
 访问设置
 
@@ -261,13 +306,105 @@ plugins		插件所在目录
 
 secrets		密码秘钥所在目录				#jobs和plugins目录比较重要
 
+### 全局工具配置
+
+配置Maven
+
+
+
+
+
+
+
+配置JDK
+
+
+
+### 插件管理
+
+在/home/jenkins目录找到文件 `hudson.model.UpdateCenter.xml 换成国内的服务器更加稳定`
+
+ 修改`https://updates.jenkins.io/update-center.json`为
+
+​     `http://mirror.xmission.com/jenkins/updates/update-center.json`
+
+deploy to container
+
+subversion
+
+### 全局安全设置
+
+https://www.cnblogs.com/hukey/p/11207345.html
+
+### 构建项目前配置
+
+
+
 ## 3.2：发布项目代码
 
 登录Jenkins， 点击左侧的新建，创建新的构建任务。
 
-![image-20201127130717003](media/image-20201127130717003.png)
+新建项目——构建一个自有风格的项目
+
+源码管理：
+
+选择来源，我的为SVN，选择Subversion
+
+填写SVN路径，路径要对应到pom.xml文件的上一层；
+
+添加认证身份
+
+![image-20210728210404209](media/image-20210728210404209.png)
+
+![image-20210728210332744](media/image-20210728210332744.png)
 
 
+
+![image-20210728210649220](media/image-20210728210649220.png)
+
+然后点击立即构建，下载源码；
+
+设置构建后的操作：
+
+![image-20210728210723806](media/image-20210728210723806.png)
+
+![image-20210728210748792](media/image-20210728210748792.png)
+
+## 问题：
+
+1：权限问题无法使用Maven install
+
+更改工作目录：https://blog.csdn.net/liudinglong1989/article/details/78665998
+
+我是配置了Jenkins_HOME后，将安装目录下的一些有关路径全部替换成了JENKINS_HOME
+
+```xml
+  <env name="JENKINS_HOME" value="%JENKINS_HOME%\Jenkins\.jenkins"/>
+```
+
+
+
+2：多个war包或则Jar包配置
+
+修改为
+
+![image-20210729200604422](media/image-20210729200604422.png)
+
+3：访问被拒绝403，无法部署到tomcat中
+
+修改`conf/context.xml ` 文件，修改如下内容
+
+```xml
+<Context antiResourceLocking="true" antiJARLocking="true">  
+```
+
+修改 `conf/tomcat-users.xml` 的文件，在其中加上
+
+```xml
+<role rolename="manager-gui"/>
+<user username="tomcat" password="s3cret" roles="manager-gui"/>
+<user username="admin" password="admin" roles="tomcat,role1,manager-gui"/>
+```
 
 
 
