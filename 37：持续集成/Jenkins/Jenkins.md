@@ -346,7 +346,27 @@ https://www.cnblogs.com/hukey/p/11207345.html
 
 新建项目——构建一个自有风格的项目
 
-源码管理：
+### 添加参数
+
+可忽略
+
+![image-20210801184609026](media/image-20210801184609026.png)
+
+| 参数名称   | 参数值                                  | 参数描述                                                     |
+| ---------- | --------------------------------------- | ------------------------------------------------------------ |
+| appName    | springBoot                              | 项目名称                                                     |
+| server     | 机器ip地址                              | 服务地址                                                     |
+| version    | 0.0.1                                   | 版本号，可以根据情况定义                                     |
+| serverPath | /home/jenkins/workplace/springboot_dev/ | 远程存放代码的路径或者说是远程的工作目录                     |
+| port       | 7011                                    | 端口                                                         |
+| env        | dev                                     | 发布的环境：dev；联调的环境test；预发布的环境pre；修复环境fix；生产环境prod； |
+|            |                                         |                                                              |
+|            |                                         |                                                              |
+|            |                                         |                                                              |
+
+
+
+### 源码管理：
 
 选择来源，我的为SVN，选择Subversion
 
@@ -354,13 +374,25 @@ https://www.cnblogs.com/hukey/p/11207345.html
 
 添加认证身份
 
+SVN：
+
 ![image-20210728210404209](media/image-20210728210404209.png)
+
+Git：
+
+![gitpro](C:/Users/hspcadmin/Desktop/gitpro.png)
 
 ![image-20210728210332744](media/image-20210728210332744.png)
 
 
 
 ![image-20210728210649220](media/image-20210728210649220.png)
+
+添加如下 ：标识可以忽略单元类进行编译
+
+```properties
+clean install -U -Dmaven.test.skip=true
+```
 
 然后点击立即构建，下载源码；
 
@@ -457,6 +489,10 @@ Jenkins安装插件
 
 
 
+
+参考链接：
+
+https://mp.weixin.qq.com/s/AZqa0BytdnnfLOumtgk2UQ
 
 
 
