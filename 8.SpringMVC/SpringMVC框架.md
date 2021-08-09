@@ -1905,9 +1905,9 @@ class=_"com.xqc.exception.CustomExceptionResolver"_/\>
 
 ![](media/1bb56a082e30161d40f64a852a82ccef.png)
 
-# 第 8 章 SpringMVC 中的拦截器
+# 第 8 章 拦截器
 
-## 4.1 拦截器的作用
+## 1：作用
 
 Spring MVC 的处理器拦截器类似于 Servlet 开发中的过滤器 Filter，用于对处理器进行预处理和后处理。用户可以自己定义一些拦截器来实现特定的功能。
 
@@ -1916,14 +1916,14 @@ Spring MVC 的处理器拦截器类似于 Servlet 开发中的过滤器 Filter�
 **拦截器与过滤器的区别：**
 
 - 过滤器是 servlet 规范中的一部分，任何 java web 工程都可以使用。拦截器是 SpringMVC 框架自己的，只有使用了 SpringMVC 框架的工程才能用。
-
 - 过滤器在 url-pattern 中配置了 `/*` 之后，可以对所有要访问的资源拦截。拦截器它是只会拦截访问的控制器方法，如果访问的是 jsp，html,css,image 或者 js 是不会进行拦截的。
-
 - 自定义拦截器， 要求必须实现：**HandlerInterceptor**接口。
 
-## 4.2 自定义拦截器的步骤
+应用场景：日志记录，监控，权限检查，
 
-**4.2.1** 第一步：编写一个普通类实现**HandlerInterceptor**接口
+## 2 ：自定义拦截器
+
+第一步：编写一个普通类实现**HandlerInterceptor**接口
 
 ```java
 public class HandlerInterceptorDemo1 implements HandlerInterceptor {
@@ -1945,65 +1945,58 @@ public class HandlerInterceptorDemo1 implements HandlerInterceptor {
 }
 ```
 
-**4.2.2** 第二步：配置拦截器
+第二步：配置拦截器
 
 ```xml
 <!-- 配置拦截器 -->
 <mvc:interceptors>
-<mvc:interceptor>
-<mvc:mapping path="/**"/>
-<bean id="handlerInterceptorDemo1"
-class="com.xqc.web.interceptor.HandlerInterceptorDemo1"></bean>
-</mvc:interceptor>
+    <mvc:interceptor>
+    <mvc:mapping path="/**"/>
+        <bean id="handlerInterceptorDemo1"
+        	class="com.xqc.web.interceptor.HandlerInterceptorDemo1"></bean>
+    </mvc:interceptor>
 </mvc:interceptors>
-
 ```
 
-**4.2.3** 测试运行结果：
+测试运行结果：
 
 ![](media/9eb4e1b3b285694d1f1de4e8141374b6.png)
 
-## 4.3 拦截器的细节
+## 3 ：细节
 
-### 4.3.1 拦截器的放行
+### 放行
 
 放行的含义是指，如果有下一个拦截器就执行下一个，如果该拦截器处于拦截器链的最后一个，则执行控制器中的方法。
 
-### 4.3.2 拦截器中方法的说明
+### 方法的说明
 
 ```java
 public interface HandlerInterceptor {
 /**
-* 如何调用：
-* 按拦截器定义顺序调用
-* 何时调用：
-* 只要配置了都会调用
-* 有什么用：
-* 如果程序员决定该拦截器对请求进行拦截处理后还要调用其他的拦截器，或者是业务处理器去
+* 如何调用：按拦截器定义顺序调用
+* 何时调用：只要配置了都会调用
+* 有什么用：如果程序员决定该拦截器对请求进行拦截处理后还要调用其他的拦截器，或者是业务处理器去
 * 进行处理，则返回true。
 * 如果程序员决定不需要再调用其他的组件去处理请求，则返回false。
+* 返回值：true表示继续流程（如调用下一个拦截器或处理器）；
+*       false表示流程中断（如登录检查失败），不会继续调用其他的拦截器或处理器，
+
 */
 default boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 throws Exception {
 return true;
 }
 /**
-* 如何调用：
-* 按拦截器定义逆序调用
-* 何时调用：
-* 在拦截器链内所有拦截器返成功调用
-* 有什么用：
-* 在业务处理器处理完请求后，但是DispatcherServlet向客户端返回响应前被调用，
-* 在该方法中对用户请求request进行处理。
+* 如何调用：按拦截器定义逆序调用
+* 何时调用：在拦截器链内所有拦截器返成功调用
+* 有什么用： 在业务处理器处理完请求后，但是DispatcherServlet向客户端返回响应前被调用，在该方法中对用户请求request进行处理。
 */
 default void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
 @Nullable ModelAndView modelAndView) throws Exception {
 }
 /**
-* 如何调用：
-* 按拦截器定义逆序调用
-* 何时调用：
-* 只有preHandle返回true才调用
+* 如何调用：按拦截器定义逆序调用
+* 何时调用：只有preHandle返回true才调用
 * 有什么用：
 * 在 DispatcherServlet 完全处理完请求后被调用，
 * 可以在该方法中进行一些资源清理的操作。
@@ -2019,176 +2012,32 @@ default void afterCompletion(HttpServletRequest request, HttpServletResponse res
 
 如果有多个拦截器，这时拦截器 1 的 preHandle 方法返回 true，但是拦截器 2 的 preHandle 方法返回 false，而此时拦截器 1 的 afterCompletion 方法是否执行？
 
-### 4.3.3 拦截器的作用路径
+### 作用路径
 
 作用路径可以通过在配置文件中配置。
 
 ```xml
 <!-- 配置拦截器的作用范围 -->
 <mvc:interceptors>
-<mvc:interceptor>
-<mvc:mapping path="/**" /><!-- 用于指定对拦截的url -->
-<mvc:exclude-mapping path=""/><!-- 用于指定排除的url-->
-<bean id="handlerInterceptorDemo1"
-class="com.xqc.web.interceptor.HandlerInterceptorDemo1"></bean>
-</mvc:interceptor>
+    <mvc:interceptor>
+        <mvc:mapping path="/**" /><!-- 用于指定对拦截的url -->
+        <mvc:exclude-mapping path=""/><!-- 用于指定排除的url-->
+        <bean id="handlerInterceptorDemo1"
+              class="com.xqc.web.interceptor.HandlerInterceptorDemo1"></bean>
+    </mvc:interceptor>
 </mvc:interceptors>
 
 ```
 
-### 4.3.4 多个拦截器的执行顺序
+### 拦截器链
 
 多个拦截器是按照配置的顺序决定的。
 
-## 4.4 正常流程测试
+中断流程：
 
-### 4.4.1 配置文件：
+## 4：案例
 
-```xml
-<!-- 配置拦截器的作用范围 -->
-<mvc:interceptors>
-<mvc:interceptor>
-<mvc:mapping path="/**" /><!-- 用于指定对拦截的url -->
-<bean id="handlerInterceptorDemo1" class="com.xqc.web.interceptor.HandlerInterceptorDemo1"></bean>
-</mvc:interceptor>
-<mvc:interceptor>
-<mvc:mapping path="/**" />
-<bean id="handlerInterceptorDemo2" class="com.xqc.web.interceptor.HandlerInterceptorDemo2"></bean>
-</mvc:interceptor>
-</mvc:interceptors>
-
-```
-
-### 4.4.2 拦截器 1 的代码：
-
-```java
-public class HandlerInterceptorDemo1 implements HandlerInterceptor {
-    @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-    throws Exception {
-        System.out.println("拦截器1：preHandle拦截器拦截了");
-        return true;
-    }
-    @Override
-    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-    ModelAndView modelAndView) throws Exception {
-    	System.out.println("拦截器1：postHandle方法执行了");
-    }
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-    	System.out.println("拦截器1：afterCompletion方法执行了");
-    }
-```
-
-### 4.4.3 拦截器 2 的代码：
-
-```java
-public class HandlerInterceptorDemo2 implements HandlerInterceptor {
-    @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-    throws Exception {
-    	System.out.println("拦截器2：preHandle拦截器拦截了");
-    	return true;
-    }
-    @Override
-    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-    ModelAndView modelAndView) throws Exception {
-    	System.out.println("拦截器2：postHandle方法执行了");
-    }
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-    	System.out.println("拦截器2：afterCompletion方法执行了");
-    }
-}
-```
-
-### 4.4.4 运行结果：
-
-![](media/41a9c6836674e557e3a30e58d6afea64.png)
-
-## 4.5 中断流程测试
-
-### 4.5.1 配置文件：
-
-\<!-- 配置拦截器的作用范围 --\>
-
-\<mvc:interceptors\>
-
-\<mvc:interceptor\>
-
-\<mvc:mapping path=_"/\*\*"_ /\>\<!-- 用于指定对拦截的 url --\>
-
-\<bean id=_"handlerInterceptorDemo1"_
-
-class=_"com.xqc.web.interceptor.HandlerInterceptorDemo1"_\>\</bean\>
-
-\</mvc:interceptor\>
-
-\<mvc:interceptor\>
-
-\<mvc:mapping path=_"/\*\*"_ /\>
-
-\<bean id=_"handlerInterceptorDemo2"_
-
-class=_"com.xqc.web.interceptor.HandlerInterceptorDemo2"_\>\</bean\>
-
-\</mvc:interceptor\>
-
-\</mvc:interceptors\>
-
-### 4.5.2 拦截器 1 的代码：
-
-```java
-public class HandlerInterceptorDemo1 implements HandlerInterceptor {
-@Override
-public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-throws Exception {
-System.out.println("拦截器1：preHandle拦截器拦截了");
-return true;
-}
-@Override
-public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-ModelAndView modelAndView) throws Exception {
-System.out.println("拦截器1：postHandle方法执行了");
-}
-@Override
-public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
-throws Exception {
-System.out.println("拦截器1：afterCompletion方法执行了");
-}
-}
-```
-
-### 4.5.3 拦截器 2 的代码：
-
-```java
-public class HandlerInterceptorDemo2 implements HandlerInterceptor {
-@Override
-public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-throws Exception {
-System.out.println("拦截器2：preHandle拦截器拦截了");
-return false;
-}
-@Override
-public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-ModelAndView modelAndView) throws Exception {
-System.out.println("拦截器2：postHandle方法执行了");
-}
-@Override
-public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
-throws Exception {
-System.out.println("拦截器2：afterCompletion方法执行了");
-}
-}
-```
-
-### 4.5.4 运行结果：
-
-![](media/8f663df4ac10146b86ff70c43eaccba1.png)
-
-## 4.6 拦截器的简单案例（验证用户是否登录）
-
-### 4.6.1 实现思路
+（验证用户是否登录）
 
 1、有一个登录页面，需要写一个 controller 访问页面
 
@@ -2206,7 +2055,7 @@ System.out.println("拦截器2：afterCompletion方法执行了");
 
 3.2、如果用户未登录，跳转到登录页面
 
-### 4.6.2 控制器代码
+控制器代码
 
 ```java
 //登陆页面
@@ -2232,7 +2081,7 @@ public String logout(HttpSession session)throws Exception{
 
 ```
 
-### 4.6.3 拦截器代码
+ 拦截器代码
 
 ```java
 public class LoginInterceptor implements HandlerInterceptor{
@@ -2255,5 +2104,13 @@ public class LoginInterceptor implements HandlerInterceptor{
 }
 
 ```
+
+## 5：拦截器适配器
+
+HandlerInterceptorAdapter：有时候我们可能只需要实现三个回调方法中的某一个，如果实现HandlerInterceptor接口的话，三个方法必须实现，不管你需不需要，此时spring提供了一个HandlerInterceptorAdapter适配器（种适配器设计模式的实现），允许我们只实现需要的回调方法。
+
+
+
+
 
 # 第九章:整合

@@ -1335,9 +1335,7 @@ TreeSet 会调用集合元素的 compareTo(Objecto)方法来比较元素之间�
 
 顾名思义，Queue 用于模拟队列这种数据结构。队列先进先出。
 
-Queue 接口有一个 PriorityQueue 实现类。除此之外，Queue 还有一个 Deque 接口，Deque 代表一个“双端队列”，双端队列可以同时从两端删除或添加元素，因此 Deque 可以当作栈来使用。java 为 Deque 提供了 ArrayDeque 实现类和 LinkedList 实现类。
-
-2：Queue 接口中定义了如下的几个方法：
+Queue 接口中定义了如下的几个方法：
 
 void add(Object e): 将指定元素插入到队列的尾部。插入失败抛出异常。
 
@@ -1351,6 +1349,12 @@ Object peek(): 返回队列头部的元素，但是不删除该元素。如果�
 Object poll(): 返回队列头部的元素，并删除该元素。如果队列为空，则返回 null。
 
 Object remove(): 获取队列头部的元素，并删除该元素。
+
+### Deque
+
+Queue 有一个 Deque 接口，Deque 代表一个“双端队列”，双端队列可以同时从两端删除或添加元素，因此 Deque 可以当作栈来使用。java 为 Deque 提供了 ArrayDeque 实现类和 LinkedList 实现类。
+
+
 
 ### PriorityQueue
 

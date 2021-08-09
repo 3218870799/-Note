@@ -1164,7 +1164,7 @@ CAP：[一致性](https://baike.baidu.com/item/一致性/9840083)（Consistency�
 
 # 第五章：服务调用
 
-## 10,Ribbon 负载均衡
+## Ribbon 负载均衡
 
 ### 简介
 
@@ -1541,11 +1541,33 @@ server:
 
 Feign 的 Http 客户端支持 3 种框架：HttpURLConnection，HttpClient，OKHttp，默认是 HttpURLConnection，一般换成 HttpClient
 
+如果不做特殊配置，OpenFeign默认使用JDK自带的HttpURLConnection，它是没有连接池的，性能效率比较低，可以采用HttpClient，可以添加依赖
+
+```xml
+<dependency>
+    <groupId>io.github.openfeign</groupId>
+    <artifactId>feign-httpclient</artifactId>
+    <version>9.3.1</version>
+</dependency>
+```
+
+并在properties文件中增加配置
+
+```properties
+feign.httpclient.enabled=true
+```
+
+也可以使用okHttpClient，同样引入依赖并配置
+
+```properties
+fegin.okhttp.enabled=true
+```
+
 #### OpenFeign 超时机制
 
 ==OpenFeign 默认等待时间是 1 秒,超过 1 秒,直接报错==
 
-1,设置超时时间,修改配置文件:
+设置超时时间,修改配置文件:
 
 **因为 OpenFeign 的底层是 ribbon 进行负载均衡,所以它的超时时间是由 ribbon 控制**
 
@@ -1556,6 +1578,32 @@ ribbon:
   ReadTimeout: 5000
   # 指的是建立连接后从服务器读取到可用资源所用的时间
   ConnectTimeout: 5000
+```
+
+全局超时时间：
+
+```properties
+feign.client.config.default.connectTimeout=2000
+feign.client.config.default.readTimeout=60000
+```
+
+单服务超时时间：
+
+```properties
+feign.client.config.serviceC.connectTimeout=2000
+feign.client.config.serviceC.readTimeout=60000
+```
+
+单接口超时时间
+
+可以使用熔断进行实现，开启熔断，给单个接口配置超时时间
+
+```java
+@FeignClient(value = "serviceC"configuration = FeignMultipartSupportConfig.class)
+public interface ServiceCClient {
+    @GetMapping("/interface5")
+    String interface5(String param);
+}
 ```
 
 #### OpenFeign 日志
@@ -1647,6 +1695,10 @@ service-provider
 FeignClientFactoryBean implement FactoryBean
 
 Target：
+
+
+
+
 
 # 第六章：服务降级
 

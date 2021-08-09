@@ -2718,6 +2718,10 @@ show global status like '%slow_querise%';--只显示有几条，具体是哪条�
 
 mysqldumpslow – help
 
+## 工具
+
+https://mp.weixin.qq.com/s/2e6_J5PvxhB59tschGO4yA
+
 # 第七章、视图
 
 ### 17.1、什么是视图
