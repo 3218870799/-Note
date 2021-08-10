@@ -1,8 +1,6 @@
 ﻿# 第 1 章 框架概述
 
-## 1.3 JDBC 编程
-
-### 1.3.1 ：JDBC 编程
+##  JDBC 编程
 
 ```java
 public void findStudent() {
@@ -54,7 +52,7 @@ public void findStudent() {
 }
 ```
 
-### 1.3.2：缺陷
+### 缺陷
 
 1.  代码比较多，开发效率低
 
@@ -66,7 +64,7 @@ public void findStudent() {
 
 5.  业务代码和数据库的操作混在一起
 
-## 1.4 MyBatis 框架概述
+## MyBatis 框架概述
 
 是一个基于 Java 的持久层框架。减轻使用 JDBC 的复杂性，不用编写重复的创建 Connetion , Statement ;不用编写关闭资源代码。直接使用 java 对象，表示结果数据。让开发者专注 SQL 的处理。 其他分心的工作由 MyBatis 代劳。
 
@@ -83,19 +81,19 @@ MyBatis 可以完成：
 
 2、SQL 语句依赖于数据库，导致数据库移植性差，不能随意更换数据库
 
-### 对 Hibernate 对比
+对Hibernate 对比：
 
-Mybatis 是一个半自动的 ORM 框架，在查询关联对象或关联集合对象时，需要手动编写 sql 语句来完成;
+1：Mybatis 是一个半自动的 ORM 框架，在查询关联对象或关联集合对象时，需要手动编写 sql 语句来完成;
 
-Hibernate 是全自动 ORM 映射工具，查询关联对象或者关联集合对象时，可以根据对象关系模型直接获取，不需要编写 sql.
+2：Hibernate 是全自动 ORM 映射工具，查询关联对象或者关联集合对象时，可以根据对象关系模型直接获取，不需要编写 sql.
 
-Mybatis 直接编写原生态 sql，可以严格控制 sql 执行性能，灵活度高， 非常适合对性能要求高，需求变化频繁的项目；但是如果涉及到较多的字段或者关联多表时，sql 语句编写量大且对开发人的 sql 语句编写功底要求高。
+3：Mybatis 直接编写原生态 sql，可以严格控制 sql 执行性能，灵活度高， 非常适合对性能要求高，需求变化频繁的项目；但是如果涉及到较多的字段或者关联多表时，sql 语句编写量大且对开发人的 sql 语句编写功底要求高。
 
-Hibernate 对象/关系映射能力强，数据库无关性好，适合需求变化不大的项目，使用 hibernate 开发可以节省很多代码，提高效率。
+4：Hibernate 对象/关系映射能力强，数据库无关性好，适合需求变化不大的项目，使用 hibernate 开发可以节省很多代码，提高效率。
 
-# 第 2 章 MyBatis 框架快速入门
+# 第 2 章 快速入门
 
-## **2.1** 入门案例
+## 1：入门案例
 
 搭建 MyBatis 开发环境，实现第一个案例
 
@@ -107,11 +105,11 @@ https://github.com/mybatis/mybatis-3/releases
 
 ![](media/f6e25e9cbaee11363e6a61d1f3b79057.jpg)
 
-**（**2**） 创建** maven **工程**
+（2） 创建 maven 工程
 
 创建 maven 工程，信息如下：模板：
 
-（**3**） 删除默认创建的 **App** 类文件
+（3） 删除默认创建的 App 类文件
 
 （4）添加 Maven 依赖
 
@@ -137,7 +135,7 @@ https://github.com/mybatis/mybatis-3/releases
 
 ```
 
-**（**5**） 加入** maven **插件**
+（5） 加入 maven 插件
 
 ```xml
  <build>
@@ -165,7 +163,7 @@ https://github.com/mybatis/mybatis-3/releases
 
 ```
 
-**（**6**） 编写** Student **实体类**
+（6） 编写Student 实体
 
 创建包 com.xqc.domain, 包中创建 Student 类
 
@@ -185,7 +183,7 @@ package com.xqc.domain;
 }
 ```
 
-**（**7**） 编写** Dao **接口** StudentDao
+（7） 编写Dao 接口StudentDao
 
 ```java
 package com.xqc.dao;
@@ -202,7 +200,7 @@ public interface StudentDao {
 
 ```
 
-**（**8**） 编写** Dao **接口** Mapper **映射文件** StudentDao.xml
+（8） 编写 Dao 接口 Mapper 映射文件StudentDao.xml
 
 要求：
 
@@ -233,7 +231,7 @@ public interface StudentDao {
 
 ```
 
-（**9**） 创建 **MyBatis** 主配置文件
+（9） 创建 MyBatis主配置文件
 
 项目 src/main 下创建 resources 目录，设置 resources 目录为 resources root
 创建主配置文件：名称为 mybatis.xml
@@ -273,7 +271,7 @@ public interface StudentDao {
 
 支持中文的 url：**jdbc:mysql://localhost:3306/ssm?useUnicode=true&characterEncoding=utf-8**
 
-**（**10**） 创建测试类** MyBatisTest
+（10） 创建测试类 MyBatisTest
 
 src/test/java/com/xqc/ 创建 MyBatisTest.java 文件
 
@@ -308,7 +306,7 @@ PreparedStatement ps = conn.prepareStatement(sql);
 
 ResultSet rs = ps.executeQuery();
 
-（**11**） 配置日志功能
+（11） 配置日志功能
 
 mybatis.xml 文件加入日志配置，可以在控制台输出执行的 sql 语句和参数
 
@@ -318,13 +316,13 @@ mybatis.xml 文件加入日志配置，可以在控制台输出执行的 sql 语
 </settings>
 ```
 
-## 2.2 **基本的** CURD
+## 2 ：基本的 CURD
 
 查询一个 selectOne
 
 insert ,update ,delete
 
-### **2.2.1** **insert**
+###  insert
 
 （1） StudentDao 接口中增加方法
 
@@ -368,7 +366,7 @@ public void testInsert() throws IOException {
 }
 ```
 
-### 2.2.2 update
+### update
 
 （1） StudentDao 接口中增加方法
 
@@ -389,7 +387,7 @@ int updateStudent(Student student);
 
 实验证明：不会怎么样，也不会报错，也不会增加数据
 
-### 2.2.3 delete
+### delete
 
 （1） StudentDao 接口中增加方法
 
@@ -404,9 +402,9 @@ int deleteStudent(int id);
 </delete>
 ```
 
-## 2.3 MyBatis **对象分析**
+## 3 ：MyBatis对象分析
 
-### 2.3.1 对象使用
+### 对象使用
 
 （1） Resources 类
 
@@ -446,9 +444,7 @@ SqlSession 接口对象用于执行持久化操作。一个 SqlSession 对应着
 
 SqlSession 的实例不能被共享，SqlSession 接口对象是线程不安全的，所以每次数据库会话结束前，需要马上调用其 close()方法，将其关闭。再次需要会话，再次创建。 SqlSession 在方法内部创建，.使用完 SqlSeesion 之后关闭 Session 很重要,应该确保使用 finally 块来关闭它.
 
-## 3.1 Dao 代理实现 CURD
-
-### 3.1.1：步骤
+## 4：代理CURD
 
 （**1**） 去掉 **Dao** 接口实现类
 
@@ -496,7 +492,7 @@ delete 方法
 StudentDao.delectStudent(1006);
 ```
 
-### 3.1.2 原理
+### 原理
 
 动态代理
 
@@ -520,7 +516,7 @@ public class MapperProxy<T> implements InvocationHandler，Serializable {
 }
 public Object execute( SqlSession sqlSession，0bject[] args){
     Object result;
-    switch ( command . getType()) {
+    switch ( command.getType()) {
         case INSERT: {
     		Object param = method.convertArgsTosqlCommandParam(args);
     		result - rowCountResult(sqlsession.insert(command.getName()， param);
@@ -534,9 +530,9 @@ public Object execute( SqlSession sqlSession，0bject[] args){
 
 ```
 
-## 3.2 **深入理解参数**
+## 5： **深入理解参数**
 
-### 3.2.1 parameterType
+### parameterType
 
 parameterType: 接口中方法参数的类型，类型的完全限定名或别名。这个属性是可选的，因为 MyBatis 可以推断出具体传入语句的参数，默认值为未设置（unset）。
 
@@ -551,7 +547,7 @@ parameterType: 接口中方法参数的类型，类型的完全限定名或别�
 <delect id="delectById" parameterType="java.lang.Integer"></delect>
 ```
 
-### 3.2.2 MyBatis 传递参数
+### 传递参数
 
 从 java 代码中把参数传递到 mapper.xml 文件。
 
@@ -588,8 +584,6 @@ mapper 文件：
 	select id,name.email,age from student where name= #{Name} or age= #{Age}
 </select>
 ```
-
-测试方法：
 
 #### 多个参数-使用对象
 
@@ -684,7 +678,7 @@ mapper 文件：
 </select>
 ```
 
-### 3.2.8 \#和\$
+### #和\$
 
 1：传入的值
 
@@ -706,27 +700,27 @@ $这样的参数会直接参与 sql 编译,从而不能避免注入攻击
 
 \#{…}代替 sql 语句的“?”。这样做更安全，更迅速，通常也是首选做法
 
-## 3.3 封装结果
+## 6：封装结果
 
 Mybatis的结果封装分为两种，一种是有ResultMap映射表，一种是有ResultMap映射表，明确定义了结果集列名与对象属性名的配对关系，另外一种是对象类型，没有明确定义结果集列名与对象属性名的配对关系。
 
 原理是使用ObjectFacoty创建一个Teacher对象直接set
 
-### 3.3.1：resultType
+### resultType
 
 resultType: 执行 sql 得到 ResultSet 转换的类型，使用类型的完全限定名或别名。注意如果返回的是集合，那应该设置为集合包含的类型，而不是集合本身。resultType 和 resultMap，不能同时使用。
 
-### 3.3.2 resultMap
+### resultMap
 
 resultMap 可以自定义 sql 的结果和 java 对象属性的映射关系。更灵活的把列值赋值给指定属性。常用在列名和 java 对象属性名不一样的情况。
 
-### 3.3.3 实体类属性名和列名不同
+### 实体类属性名和列名不同
 
 （1） 使用列别名和\<resultType\>
 
 （2） 使用\<resultMap\>
 
-## 3.4 **模糊** like
+## 7： **模糊** like
 
 模糊查询的实现有两种方式，
 
@@ -767,7 +761,7 @@ mapper 文件：
 </select>
 ```
 
-# 第 4 章 动态 SQL
+# 第 3 章 动态 SQL
 
 动态 SQL，通过 MyBatis 提供的各种标签对条件作出判断以实现动态拼接 SQL 语句。这里的条件判断使用的表达式为 OGNL 表达式。常用的动态 SQL
 标签有\<if\>、\<where\>、\<choose/\>、\<foreach\>等。
@@ -776,7 +770,7 @@ MyBatis 的动态 SQL 语句，与 JSTL 中的语句非常相似。
 
 动态 SQL，主要用于解决查询条件不确定的情况：在程序运行期间，根据用户提交的查询条件进行查询。提交的查询条件不同，执行的 SQL 语句不同。若将每种可能的情况均逐一列出，对所有条件进行排列组合，将会出现大量的 SQL 语句。此时，可使用动态 SQL 来解决这样的问题
 
-## **4.1** 环境准备
+## 环境准备
 
 在 mapper 的动态 SQL 中若出现大于号（\>）、小于号（\<）、大于等于号（\>=），小于等于号（\<=）等符号，最好将其转换为实体符号。否则，XML
 可能会出现解析出错问题。
@@ -791,7 +785,7 @@ MyBatis 的动态 SQL 语句，与 JSTL 中的语句非常相似。
 | \>= | 大于等于 | \&gt;= |
 | \<= | 小于等于 | \&lt;= |
 
-## 4.2 \<if\>
+## 2 \<if\>
 
 对于该标签的执行，当 test 的值为 true 时，会将其包含的 SQL 片断拼接到其所在的 SQL 语句中。
 
@@ -832,7 +826,7 @@ Mybatis 映射几种：
 
 ![](media/8bc55675eaf753a1ac11940957cefa7b.png)
 
-## 4.3 \<where\>
+## 3 \<where\>
 
 \<if/\>标签的中存在一个比较麻烦的地方：需要在 where 后手工添加 1=1 的子句。因为，若 where 后的所有\<if/\>条件均为 false，而 where 后若又没有 1=1
 子句，则 SQL 中就会只剩下一个空的 where，SQL 出错。所以，在 where 后，需要添加永为真子句 1=1，以防止这种情况的发生。但当数据量很大时，会严重影响查询效率。
@@ -855,7 +849,7 @@ mapper 文件：
 </select>
 ```
 
-## 4.4 \<foreach\>
+## 4 \<foreach\>
 
 \<foreach/\>标签用于实现对于数组与集合的遍历。对其使用，需要注意：
 
@@ -917,15 +911,15 @@ mapper 文件：
 
 ```
 
-## 4.5 \<sql/\>与\<include/\>
+## 5 \<sql/\>与\<include/\>
 
 \<sql/\>标签用于定义 SQL 片断，以便其它 SQL 标签复用。而其它标签使用该 SQL 片断，需要使用\<include/\>子标签。
 
-## 4.6 \<choose/\>，\<When\>
+## 6 \<choose/\>，\<When\>
 
 choose 标签是按顺序判断其内部 when 标签中的 test 条件出否成立，如果有一个成立，则 choose 结束。当 choose 中所有 when 的条件都不满则时，则执行 otherwise 中的 sql
 
-## 4.7\<trim\>
+## 7\<trim\>
 
 一般用于去除 sql 语句中多余的 and 关键字，逗号，或者给 sql 语句前拼接“where“、“set“以及“values(“等前缀，或者添加“)“等后缀，可用于选择性插入、更新、删除或者条件查询等操作
 
@@ -942,11 +936,11 @@ choose 标签是按顺序判断其内部 when 标签中的 test 条件出否成�
 
 你也可以使用 where 标签去完成该问题
 
-## 4.8\<![CDATA[ ]]\>
+## 8\<![CDATA[ ]]\>
 
 在 CDATA 内部的所有内容都会被解析器忽略。
 
-## 4.9：Begin And
+## 9：Begin And
 
 # 第 5 章 配置文件
 
@@ -956,7 +950,7 @@ choose 标签是按顺序判断其内部 when 标签中的 test 条件出否成�
 
 1：xml 文件，需要在头部使用约束文件
 
-2：根元素，\<**configuration**\>
+2：根元素，\<configuration\>
 
 3.主要包含内容：
 
@@ -1063,7 +1057,7 @@ SqlSession openSession(boolean autoCommit);
 
 ![](media/e9a78db108ab047b4f3c5301d102502f.jpg)
 
-（**2**） 使用 **properties** 标签
+（**2**） 使用 properties标签
 
 ![](media/b57690224d6d63fb8faccbb6b1530134.jpg)
 
@@ -1731,45 +1725,45 @@ cache-ref 代表引用别的命名空间的 Cache 配置，两个命名空间的
 
 ## 常用注解
 
-**\@Insert:**实现新增
+@Insert:实现新增
 
-\@Update:实现更新
+@Update:实现更新
 
-\@Delete:实现删除
+@Delete:实现删除
 
-\@Select:实现查询
+@Select:实现查询
 
-\@Result:实现结果集封装
+@Result:实现结果集封装
 
-\@Results:可以与\@Result 一起使用，封装多个结果集
+@Results:可以与\@Result 一起使用，封装多个结果集
 
-\@ResultMap:实现引用\@Results 定义的封装
+@ResultMap:实现引用\@Results 定义的封装
 
-\@One:实现一对一结果集封装
+@One:实现一对一结果集封装
 
-\@Many:实现一对多结果集封装
+@Many:实现一对多结果集封装
 
-\@SelectProvider: 实现动态 SQL 映射
+@SelectProvider: 实现动态 SQL 映射
 
-\@CacheNamespace:实现注解二级缓存的使用
+@CacheNamespace:实现注解二级缓存的使用
 
-\@Insert
+@Insert
 
 ![](media/88dd004c8f57da65a9fc11abe4a22c5e.png)
 
-\@delete
+@delete
 
 ![](media/2a9530a6848ac161ce64f972956e4bf2.png)
 
-\@update
+@update
 
 ![](media/1067488368f7456b3a312be4995631db.png)
 
-\@select
+@select
 
 ![](media/bff2bd9a3b459e64d7430c4b5890d19c.png)
 
-\@one：一对一关系
+@one：一对一关系
 
 ![](media/392523d66e7d41333202e0bdb07ee6dd.png)
 
@@ -1902,7 +1896,7 @@ public void scanFoo3(@PathVariable("limit") int limit) throws Exception {
 
 以上是三种实现 MyBatis 流式查询的方法。
 
-# 第十四章：原理
+# 第十四章：其他
 
 简述 Mybatis 的插件运行原理，以及如何编写一个插件。
 
