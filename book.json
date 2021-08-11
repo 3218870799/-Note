@@ -10,7 +10,9 @@
 		"splitter",
 		"-sharing",
 		"sharing-plus",
-		"insert-logo"
+		"insert-logo",
+		"chapter-fold",
+		"theme-comscore"
 	],
 	"pluginsConfig": {
 		"disqus": {
