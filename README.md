@@ -16,7 +16,7 @@
 
 :apple:由于本项目每篇的篇幅都很长，怕没有成片的时间看，故开通微信公众号，每天推送一点点知识，一点点进步。
 
-![](https://github.com/3218870799/-Note/blob/main/media/scan.png)
+![scan](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/scan.png)
 
 ## 使用说明
 
@@ -516,6 +516,7 @@ DevOps
 - [Typora](51文档书写/Typora/Typora.md)
 - [产品功能分析报告](51文档书写/产品功能分析报告/产品功能分析报告.md)
 - [性能分析报告](51文档书写/性能分析报告/性能分析报告.md)
+- [图床的搭建](51文档书写/图床搭建/图床搭建.md)
 
 * [Docsify](51文档书写/docsify.md)
 * [文档](51文档书写/文档.md)

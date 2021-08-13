@@ -253,11 +253,12 @@
   - [浪潮之巅读后感](50：浪潮/浪潮之巅/浪潮之巅读后感.md)
 
 - 51文档书写
-  - [Git Book](51文档书写/GitBook/GitBook.md)
-  - [Typora](51文档书写/Typora/Typora.md)
-  - [产品功能分析报告](51文档书写/产品功能分析报告/产品功能分析报告.md)
-  - [性能分析报告](51文档书写/性能分析报告/性能分析报告.md)
+  * [Git Book](51文档书写/GitBook/GitBook.md)
+  * [Typora](51文档书写/Typora/Typora.md)
+  * [产品功能分析报告](51文档书写/产品功能分析报告/产品功能分析报告.md)
+  * [性能分析报告](51文档书写/性能分析报告/性能分析报告.md)
   * [Docsify](51文档书写/docsify.md)
+  * [图床的搭建](51文档书写/图床搭建/图床搭建.md)
   * [文档](51文档书写/文档.md)
   
 - 52.面试
@@ -269,7 +270,7 @@
   * [Dev Ops](54：DevOps/DevOps.md)
   
 - 54.1基础设施管理
-  - [Terraform](54.1基础设施管理/Terraform/Terraform.md)
+  * [Terraform](54.1基础设施管理/Terraform/Terraform.md)
   
 - 54数据仓库
   * [数据仓库](54数据仓库/数据仓库.md)

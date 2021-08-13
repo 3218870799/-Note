@@ -24,25 +24,15 @@ https://www.cnblogs.com/zhukf/p/11976855.html
 
 ### SQL 的分类
 
-> 数据查询语言(DQL-Data Query Language)
+数据查询语言(DQL-Data Query Language)
 
-> 代表关键字:select
+数据操纵语言(DML-Data Manipulation Language)
 
-> 数据操纵语言(DML-Data Manipulation Language)
+数据定义语言(DDL-Data Definition Language)
 
-> 代表关键字:insert,delete,update
+事务控制语言(TCL-Transactional Control Language)：commit ,rollback;
 
-> 数据定义语言(DDL-Data Definition Language)
-
-> 代表关键字:create ,drop,alter,
-
-> 事务控制语言(TCL-Transactional Control Language)
-
-> 代表关键字:commit ,rollback;
-
-> 数据控制语言(DCL-Data Control Language)
-
-> 代表关键字:grant,revoke.
+数据控制语言(DCL-Data Control Language)：grant,revoke.
 
 ## 整体架构：
 
@@ -70,20 +60,30 @@ information_schema数据库：里面存放着所有数据库的信息(比如表�
 
 获取所有列信息(COLUMNS)
 
-SELECT  *  FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA='数据库名'; COLUMNS表：提供了关于表中的列的信息。详细表述了某个列属于哪个表。
+```sql
+SELECT  *  FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA='数据库名'; 
+```
+
+COLUMNS表：提供了关于表中的列的信息。详细表述了某个列属于哪个表。
 
 爆库
-select SCHEMA_NAME from information_schema.SCHEMATA limit 5,1/* 5,1表示从第1个开始，数到第5个
+
+```sql
+select SCHEMA_NAME from information_schema.SCHEMATA limit 5,1;-- 5,1表示从第1个开始，数到第5个
+```
 
 爆表
-select TABLE_NAME from information_schema.TABLES where TABLE_SCHEMA=0×6D656D626572 limit 5,1/*TABLE_SCHEMA=后面是库名的16进制
+
+```sql
+-- TABLE_SCHEMA=后面是库名的16进制
+select TABLE_NAME from information_schema.TABLES where TABLE_SCHEMA=0×6D656D626572 limit 5,1
+```
 
 爆字段
-select COLUMN_NAME from information_schema.COLUMNS where TABLE_NAME=0×61646D5F75736572 limit 5,1/*
 
-
-
-
+```sql
+select COLUMN_NAME from information_schema.COLUMNS where TABLE_NAME=0×61646D5F75736572 limit 5,1
+```
 
 # 二、常用命令
 
@@ -100,19 +100,19 @@ mysqld --console　　
 # 或　　
 net start mysql　　
 
-关闭服务
+# 关闭服务
 mysqladmin -uroot shudown　　
-或　　
+# 或　　
 net stop mysql　　
 
 2.Linux下
-启动服务
+# 启动服务
 service mysql start　　　
 
-关闭服务
+# 关闭服务
 service mysql stop　　
 
-重启服务
+# 重启服务
 service restart stop
 ```
 
@@ -199,53 +199,15 @@ char(10)存数据存的是 1000000000，而 varchar(10)存数据存的是 1
 
 ### 表操作
 
-13.1.1 创建表
-
-- 语法格式
-
-  ```sql
-  create table tableName(
-     columnName dataType(length),
-     ………………..
-     columnName dataType(length)
-  );
-  set character_set_results='gbk';
-  
-  show variables like '%char%';
-  ```
-
-  创建表的时候，表中有字段，每一个字段有：
-
-  \* 字段名
-
-  \* 字段数据类型
-
-  \* 字段长度限制
-
-  \* 字段约束
-
-- 建立学生信息表，字段包括：学号、姓名、性别、出生日期、email、班级标识
+创建表
 
 ```sql
-create table t_student(
-    student_id int(10),
-    student_name varchar(20),
-    sex char(2),
-    birthday date,
-    email varchar(30),
-    class_id int(3)
-)
+create table 表名(列名 字段类型(length),列名 字段类型(length));
+-- 例如
+create table t_student(student_id int(10), student_name varchar(20),sex char(2), birthday date, email varchar(30),class_idint(3))
 ```
 
-- 向 t_student 表中加入数据,（必须使用客户端软件，我们的 cmd 默认是 GBK 编码,数据中设置的编码是 UTF-8）
-
-```sql
-insert into t_student(student_id,student_name,sex,birthday,email,class_id) values(1001,'zhangsan','m','1998-01-01','qqq@163.com',10)
-```
-
-13.1.2：截断表
-
-删除表数据，保留表结构，数据无法恢复
+截断表：删除表数据，保留表结构，数据无法恢复
 
 ```sql
 truncate table 表名
@@ -255,124 +217,45 @@ truncate table 表名
 
 采用 alter table 来增加/删除/修改表结构，不影响表中的数据
 
-13.2.1、添加字段
-
-如：需求发生改变，需要向 t_student 中加入联系电话字段，字段名称为：contatct_tel
-类型为 varchar(40)
-
 ```sql
-alter table t_student add contact_tel varchar(40);
-```
-
-13.2.2、修改字段
-
-如：student_name 无法满足需求，长度需要更改为 100
-
-```sql
- alter table t_student modify student_name varchar(100) ;
-```
-
-如 sex 字段名称感觉不好，想用 gender 那么就需要更改列的名称
-
-13.2.3、删除字段
-
-如：删除联系电话字段
-
-```sql
+-- 添加字段：向t_student添加字段telphone字段
+alter table alter table t_student add telphone varchar(40);
+-- 修改字段：将字段长度修改为100、
+alter table t_student modify student_name varchar(100);
+-- 删除字段：删除联系电话字段
 alter table t_student drop contact_tel;
 ```
 
 ### 添加、修改和删除
 
-13.3.1、insert
+insert
 
-添加、修改和删出都属于 DML，主要包含的语句：insert、update、delete
+```sql
+insert into 表名(字段，……) values(值,………)
+-- 可以省略字段,但是不建议省略
+```
 
-- Insert 语法格式
+表复制：会自动创建表，将符合查询条件的数据自动复制到创建的表中
 
-Insert into 表名(字段，。。。。) values(值,………..) |
+```sql
+ create table emp_bak as select empno,ename,sal from emp;
+```
 
-- 省略字段的插入
+update
 
-insert into emp values(9999,'zhangsan','MANAGER', null, null,3000, 500, 10);
+```sql
+update 表名 set 字段名称 1=需要修改的值 1, 字段名称 2=需要修改的值 2 where …….
+```
 
-不建议使用此种方式，因为当数据库表中的字段位置发生改变的时候会影响到 insert 语句
+delete
 
-- 指定字段的插入(建议使用此种方式)
+```sql
+Delete from 表名 where ……
+```
 
-insert into emp (empno,ename,job,mgr,hiredate,sal,comm,deptno) values(9999,'zhangsan','MANAGER', null, null,3000, 500, 10);
+### 约束
 
-出现了主键重复的错误，主键表示了记录的唯一性，不能重复
-
-如何插入日期：
-
-第一种方法，插入的日期格式和显示的日期格式一致
-
-insert into emp(empno, ename, job, mgr, hiredate, sal, comm, deptno) values(9997,'zhangsan','MANAGER', null, '1981-06-12',3000, 500, 10);
-
-第二种方法，采用 str_to_date
-
-insert into emp(empno, ename, job, mgr, hiredate, sal, comm, deptno) valu es(9996,'zhangsan','MANAGER',null,str_to_date('1981-06-12','%Y-%m-%d'),3000, 500, 10);
-
-![](media1/
-
-第三种方法，添加系统日期（now()）
-
-insert into emp(empno, ename, job, mgr, hiredate, sal, comm, deptno) values(9995,'zhangsan','MANAGER',null,now() ,3000, 500, 10);
-
-- 表复制
-
-| create table emp_bak as select empno,ename,sal from emp;
-
-以上方式，会自动创建表，将符合查询条件的数据自动复制到创建的表中
-
-- 如何将查询的数据直接放到已经存在的表中，可以使用条件
-
-insert into emp_bak select \* from emp where sal=3000;
-
-13.3.2、update
-
-可以修改数据，可以根据条件修改数据
-
-- 语法格式：
-
-| update 表名 set 字段名称 1=需要修改的值 1, 字段名称 2=需要修改的值 2 where …….
-
-- 将 job 为 manager 的员工的工资上涨 10%
-
-| update emp set sal=sal+sal\*0.1 where job='MANAGER';
-
-13.3.3、delete
-
-可以删除数据，可以根据条件删除数据
-
-- 语法格式：
-
-| Delete from 表名 where 。。。。。
-
-- 删除津贴为 500 的员工
-
-| delete from emp where comm=500;
-
-- 删除津贴为 null 的员工
-
-| delete from emp where comm is null;
-
-### 创建表加入约束
-
-- 常见的约束
-
-  1.  非空约束，not null
-
-  2.  唯一约束，unique
-
-  3.  主键约束，primary key
-
-  4.  外键约束，foreign key
-
-  5.  自定义检查约束，check（不建议使用）(在 mysql 中现在还不支持)
-
-  13.4.1、非空约束，not null
+1：非空约束，not null
 
 非空约束，针对某个字段设置其值不为空，如：学生的姓名不能为空
 
@@ -383,9 +266,7 @@ create table t_student(
 }
 ```
 
-以上错误为加入的学生姓名为空。
-
-13.4.2、唯一约束，unique
+2：唯一约束，unique
 
 唯一性约束，它可以使某个字段的值不能重复，如：email 不能重复：
 
@@ -397,146 +278,23 @@ create table t_student(
 }
 ```
 
-以上插入了重复的 email，所以出现了“违反唯一约束错误”，所以 unique 起作用了
-
-同样可以为唯一约束起个约束名
-
-- 我们可以查看一下约束
-
-```sql
-select * from table_constraints where table_name='t_student';
-```
-
-关于约束名称可以到 table_constraints 中查询
-
-以上约束的名称我们也可以自定义。
-
-```java
-drop table if exists t_student;
-create table t_student(
-    student_id int(10),
-    student_name varchar(20) not null,
-    sex char(2) default 'm',
-    birthday date,
-    email varchar(30) ,
-    classes_id int(3) ,
-    constraint email_unique unique(email)
-)
-```
-
-13.4.3、主键约束，primary key
+3：主键约束，primary key
 
 每个表应该具有主键，主键可以标识记录的唯一性，主键分为单一主键和复合（联合）主键，单一主键是由一个字段构成的，复合（联合）主键是由多个字段构成的
 
-```sql
-drop table if exists t_student;
-create table t_student()
-	student_id int(10) primary key,
-	\*列级约束*/
-	student_name varchar(20) not null,
-	sex char(2) default 'm',
-	 birthday date,
-	email varchar(30) ,
-	classes_id int(3)
-)
 
-insert into t_student(
-    student_id,
-    student_name ,
-    sex, birthday,
-    email,
-    classes_id
-)  values (
-    1001,
-    'zhangsan',
-    'm',
-    '1988-01-01',
-    'qqq@163.com',
-    10
-)
-```
 
-向以上表中加入学号为 1001 的两条记录，出现如下错误，因为加入了主键约束
+4：外键约束，foreign key
 
-![](media/c2fcba5fddd336f1fecdab94bc724917.png)
+外键主要是维护表之间的关系的，主要是为了保证参照完整性，如果表中的某个字段为外键字段，那么该字段的值必须来源于参照的表的主键
 
-我们也可以通过表级约束为约束起个名称：
+5：自定义检查约束，check（不建议使用）(在 mysql 中现在还不支持)
 
-```sql
-drop table if exists t_student;
-    create table t_student(
-        student_id int(10),
-        student_name varchar(20) not null,
-        sex char(2) default 'm',
-        birthday date,
-        email varchar(30) ,
-        classes_id int(3),
-        CONSTRAINT p_id PRIMARY key (student_id)
-    )
-insert into t_student(student_id, student_name , sex, birthday, email, classes_id) values (1001,'zhangsan','m', '1988-01-01', 'qqq\@163.com', 10)
-```
+### 级联更新与级联删除
 
-外键主要是维护表之间的关系的，主要是为了保证参照完整性，如果表中的某个字段为外键字段，那么该字段的值必须来源于参照的表的主键，如：emp 中的 deptno 值必须来源于 dept 表中的 deptno 字段值。
+on update cascade;
 
-建立学生和班级表之间的连接
-
-首先建立班级表 t_classes
-
-| drop table if exists t_classes;
-
-create table t_classes( classes_id int(3), classes_name varchar(40), constraint pk_classes_id primary key(classes_id) ) |
-
-在 t_student 中加入外键约束
-
-| drop table if exists t_student; create table t_student( student_id int(10), student_name varchar(20), sex char(2), birthday date, email varchar(30), classes_id int(3), constraint student_id_pk primary key(student_id), constraint fk_classes_id foreign key(classes_id) references t_classes(classes_id) ) |
-
-向 t_student 中加入数据
-
-| insert into t_student(student_id, student_name, sex, birthday, email, classes_id) values(1001, 'zhangsan', 'm', '1988-01-01', 'qqq\@163.com', 10) |
-
-![](media/fae6477d97a065ef670706d3cccefbca.png)
-
-出现错误，因为在班级表中不存在班级编号为 10 班级，外键约束起到了作用
-
-存在外键的表就是子表，参照的表就是父表，所以存在一个父子关系，也就是主从关系，主表就是班级表，从表就是学生表
-
-以上成功的插入了学生信息，当时 classes_id 没有值，这样会影响参照完整性，所以我们建议将外键字段设置为非空
-
-```sql
-drop table if exists t_student; create table t_student( student_id int(10), student_name varchar(20), sex char(2), birthday date, email varchar(30), classes_id int (3) not null, constraint student_id_pk primary key(student_id), constraint fk_classes_id foreign key(classes_id) references t_classes(classes_id) ) insert into t_student(student_id, student_name, sex, birthday, email, cla sses_id) values(1001, 'zhangsan', 'm', '1988-01-01', 'qqq\@163.com', null);
-```
-
-再次插入班级编号为 null 的数据
-
-添加数据到班级表，添加数据到学生表，删除班级数据，将会出现如下错误：
-
-```sql
-insert into t_classes (classes_id,classes_name) values (10,'366'); insert into t_student( student_id, student_name, sex, birthday, email, classes_id ) values( 1001, 'zhangsan', 'm', '1988-01-01', 'qqq\@163.com', 10 ) mysql\> update t_classes set classes_id = 20 where classes_name = '366';
-```
-
-因为子表（t_student）存在一个外键 classes_id，它参照了父表（t_classes）中的主键，所以先删除子表中的引用记录，再修改父表中的数据。 我们也可以采取以下措施 级联更新。
-
-```sql
-delete from t_classes where classes_id = 10;
-```
-
-因为子表（t_student）存在一个外键 classes_id，它参照了父表（t_classes）中的主键，所以先删除父表，那么将会影响子表的参照完整性，所以正确的做法是，先删除子表中的数据，再删除父表中的数据，采用 drop table 也不行，必须先 drop 子表，再 drop 父表 我们也可以采取以下措施 级联删除。
-
-13.4.5、级联更新与级联删除
-
-13.4.5.1、on update cascade;
-
-mysql 对有些约束的修改比较麻烦，所以我们可以先删除，再添加 alter table t_student drop foreign key fk_classes_id; alter table t_student add constraint fk_classes_id_1 foreign key(classes_id) references t_classes(classes_id) on update cascade; 我们只修改了父表中的数据，但是子表中的数据也会跟着变动。
-
-13.4.5.2、on delete cascade;
-
-| mysql 对有些约束的修改时不支持的，所以我们可以先删除，再添加 alter table t_student drop foreign key fk_classes_id; alter table t_student add constraint fk_classes_id_1 foreign key(classes_id) references t_classes(classes_id) on delete cascade; delete from t_classes where classes_id = 20; 我们只删除了父表中的数据，但是子表也会中的数据也会删除。
-
-13.5、t_student 和 t_classes 完整示例
-
-| drop table if exists t_classes; create table t_classes( classes_id int (3), classes_name varchar(30) not null, constraint pk_classes_id primary key(classes_id) ) drop table if exists t_student; create table t_student( student_id int(10), student_name varchar(50) not null, sex char(2) not null, birthday date not null, email varchar(30) unique, classes_id int (3) not null, constraint pk_student_id primary key(student_id), constraint fk_classes_id foreign key(classes_id) references t_classes(classes_id) )
-
-### 字段
+on delete cascade;
 
 ### 虚拟表
 
@@ -547,8 +305,6 @@ Oracle中存在虚拟表dual；但是mysql中是没有的，但是有三种表�
 ```sql
 CREATE TEMPORARY TABLE ……
 ```
-
-
 
 2：内存表
 
@@ -1180,7 +936,7 @@ SELECT * FROM fund_nav where fund_name REGEXP 'mar';
 
 # 第四部分、存储引擎
 
-## 14.1、存储引擎的使用
+## 1、存储引擎的使用
 
 - 数据库中的各表均被（在创建表时）指定的存储引擎来处理。
 
