@@ -16,7 +16,7 @@
 
 :apple:由于本项目每篇的篇幅都很长，怕没有成片的时间看，故开通微信公众号，每天推送一点点知识，一点点进步。
 
-![scan](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/scan.png)
+![image-20210814121607347](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/image-20210814121607347.png)
 
 ## 使用说明
 
