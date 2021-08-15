@@ -1,71 +1,14 @@
-# 开发插件
-
-新建项目：
-
-![image-20210706211109671](media/image-20210706211109671.png)
-
-推荐使用社区版的IDEA，这样可以阅读IDEA的源码：
-
-版本配置
-
-1：gradle配置
-
-```gradle
-//默认会整成最新的JDk，这样导致有的项目不能用
-sourceCompatibility = 1.8
-//默认会整成最新的IDEA才能用，定义一个老一点的版本
-intellij{
-	version='2017.3'
-	updateSinceUntilBuild=false
-}
-```
-
-2：插件配置
-
-resource-MATE-INF目录下的plugin.xml
-
-具体看下边
-
-3：打包成一个zip压缩包，
-
-自己的话自己从硬盘上安装就可以了
-
-4：发布上传
-
-插件官网：https://plugins.jetbrains.com/
-
-注册账号进行登录
-
-直接点击自己头像下的upload plugin，然后选择刚打包好的zip文件
-
-上传后，人家官方审核，审核通过即可从插件库下载到；
-
-## 1：给插件设置图标
-
-在MATE-INF 文件夹下新建pluginicorn.svg ，名称固定，
-
-## 2：配置
-
-```xml
-<!--兼容性配置-->
-<idea-version since-build="171.0"></idea-version>
-<description>
-</description>
-```
-
-
-
 # 插件推荐
 
-## 热部署插件 jrebel
+## 热部署插件
 
 1：安装并重启
 
-![image-20201027155040685](media/image-20201027155040685-16278180318793.png)
+File——Setting——Plugins——MarketPlace搜索 ` JRebel and XRebel ` 
 
 2：提示 Enable jrebel 点击使用，根据设置导航进行设置
 
-<img src="media/image-20201027171310294-162781803187910.png" alt="image-20201027171310294" style="zoom:50%;" />
+<img src="https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/image-20201027171310294-162781803187910.png" alt="image-20201027171310294" style="zoom:50%;" />
 
 3：激活
 
@@ -83,73 +26,87 @@ https://jrebel.qekang.com/+生成的guid
 
 然后选择同意接受协议等等
 
-4：然后继续点击右侧的 JRebel setup guide
+4：然后继续点击右侧的  ` JRebel setup guide ` 
 
 5：设置自动编译
 
-![image-20201027220307562](media/image-20201027220307562-162781803187911.png)
+File——Setting——Build，Execution，Deployment ——Complier——右侧找到 ` Bulid project Automatically ` ，将前面的√勾选上；
 
 6：设置运行时编译
 
 7：修改后手动更新 ctrl+shift +F9
 
-以后就不要再使用 debug 启动了，使用 Jrebel debug 启动即可。
+以后就不要再使用 debug 启动了，使用  ` Jrebel debug  ` 启动即可。
 
-![image-20201029161430028](media/image-20201029161430028-16278180318799.png)
+![image-20201029161430028](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/image-20201029161430028.png)
 
 ## MybatisCodeHelper
 
-下载：蓝奏云("https://borber.lanzous.com/b0cq9t1jc") 密码:6llf
+1：下载与安装
+
+蓝奏云("https://borber.lanzous.com/b0cq9t1jc") 密码:6llf
 
 然后直接拖拽进 IDEA，重启 IDEA
 
 按照以下方法激活即可
 
-<img src="media/image-20201102160859495-16278180318781.png" alt="image-20201102160859495" style="zoom:50%;" />
+2：激活
 
-![image-20201026221705907](media/image-20201026221705907-16278180318792.png)
+IDEA顶部菜单：Tools——MybatisCodeHelper——Activation——OffineActivation，在offline key框输入任意字符串
 
-使用：
+3：使用功能
 
-1：根据实体类生成建表语句
+（1）根据实体类生成建表语句
 
-2：根据表生成 bean，mapper.xml
+（2）根据表生成 bean，mapper.xml：连接数据库，打开 DataBase 窗口，选择要生成的代码对应的表，右键
 
-连接数据库，打开 DataBase 窗口，选择要生成的代码对应的表，右键
+<img src="https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/1645656-20200317085555545-1809723491-16278180318794.png" alt="img" style="zoom:50%;" />
 
-<img src="media/1645656-20200317085555545-1809723491-16278180318794.png" alt="img" style="zoom:50%;" />
-
-3：点击小鸟可实现 Dao 与 mapper.xml 文件的跳转
+（3）点击小鸟可实现 Dao 与 mapper.xml 文件的跳转
 
 ## Grep Console
 
-安装插件
+这是一个可以实现控制台彩色输出的插件，比如可以设置ERROR 和 SQL等以彩色方式输出
 
-![image-20201026211717988](media/image-20201026211717988-16278180318795.png)
+1：安装插件
 
-设置如下：
+File——Setting——Plugins——MarketPlace搜索 ` Grep Console ` 
 
-![image-20201026212441919](media/image-20201026212441919-16278180318796.png)
+2：设置：个人设置如下，可供参考
 
-我是配合打印SQL语句，这样直观；如果你还不知道如何打印SQL语句，可以参考我的文章
+![image-20201026212441919](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/image-20201026212441919.png)
+
+我是配合打印 SQL 语句，这样直观；如果你还不知道如何打印 SQL 语句，可以参考我的文章使用拦截器，或者使用另一个插件MybatisLog
+
+## Mybatis Log
+
+控制台打印出的一般是没有拼装好的SQL，MybatisLog可以帮你打印出拼装好的SQL语句，帮助你检查问题；
+
+1：下载安装
+
+下载链接：https://www.aliyundrive.com/s/FvUhbXKGLJe
+
+安装：File——Setting——Plugins——找到Install右侧设置按钮——下拉选择：Install Plugin from Disk——然后选择刚刚下载的插件
+
+2：配置打印
+
+在mybatis配置文件中添加如下内容
+
+```xml
+  <setting name="logImpl" value="STDOUT_LOGGING" />
+```
 
 ## SonarLint
 
-这个插件是配合SonarQube代码质量管理平台进行使用的，不过如果你的团队没有进行代码质量管理，你也可以安装此插件自己使用，进行代码质量管理的自检。安装上即可使用，如果想在团队进行SonarQube质量管理，可以再进行SonarQube配置。
+这个插件是配合 SonarQube 代码质量管理平台进行使用的，不过如果你的团队没有进行代码质量管理，你也可以安装此插件自己使用，进行代码质量管理的自检。安装上即可使用，如果想在团队进行 SonarQube 质量管理，可以再进行 SonarQube 配置。
 
+同样的还有Alibaba Java Coding Guidelines（阿里巴巴的编码规约检查插件）
 
+检查你的编码习惯，让你更规范
 
-添加运行配置
+## FindBug 或 spotBugs 
 
-![image-20201026213258638](media/image-20201026213258638-16278180318797.png)
-
-![image-20201026213445664](media/image-20201026213445664-16278180318798.png)
-
-## FindBug或IDEA QAPlug
-
-FindBug新版不能用了，用spotBugs代替，帮助寻找潜在的Bug
-
-
+FindBug 新版不能用了，用 spotBugs 代替，它可以帮助寻找潜在的 Bug
 
 ## SequenceDiagram
 
@@ -157,68 +114,83 @@ FindBug新版不能用了，用spotBugs代替，帮助寻找潜在的Bug
 
 双击顶部的类名可以跳转到对应类的源码中，双击调用的函数名可以直接调入某个函数的源码。
 
-
-
 ## Statistic
 
 代码统计
 
-
-
 ## Maven Helper
 
-帮助解决Maven冲突
-
-
+帮助解决 Maven 冲突
 
 ## CamelCase
 
 驼峰式命名和下划线命名交替变化
 
-
-
-
-
 ## CodeGlance
 
 代码迷你缩放图插件
 
-2、 Codota
-
-代码提示工具，扫描你的代码后，根据你的敲击完美提示
-
-Codota 基于数百万个开源 Java 程序和您的上下文来完成代码行，从而帮助您以更少的错误更快地进行编码。
-
-3、Material Theme UI
+## Material Theme UI
 
 那就顺便推荐一下这个吧，超多的主题插件，各种颜色，各种模式，感兴趣的可以试一下，图我就不截了
 
-4、Alibaba Java Coding Guidelines
+## Translation
 
-阿里巴巴的编码规约检查插件
+ 翻译插件 ：将英文翻译成中文，阅读源码不再费劲；将中文翻译成英文，给接口起名字就不用费劲啦
 
-检查你的编码习惯，让你更规范
+# 开发插件
 
-9、Json Parser json 串格式化工具，不用打开浏览器了
+如果还不能满足你的需求，那就自己开发一款插件吧！
 
-厌倦了打开浏览器来格式化和验证 JSON？为什么不安装 JSON Parser 并在具有脱机支持的 IDE 内进行呢？JSON Parser 是用于验证和格式化 JSON 字符串的轻量级插件。安装并传播:)
+新建项目：
 
-11、JUnitGenerator
+![image-20210706211109671](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/image-20210706211109671.png)
 
-Ctrl + Shift + T
+推荐使用社区版的 IDEA，这样可以阅读 IDEA 的源码：
 
-自动生成测试代码。
+版本配置
 
-![img](media/a0bc98b6f0f74925a9011b1f06592d42.png)
+1：gradle 配置
 
-![img](media/072d95e3f27a44a1987fcf5e182240ab.png)
+```gradle
+//默认会整成最新的JDk，这样导致有的项目不能用
+sourceCompatibility = 1.8
+//默认会整成最新的IDEA才能用，定义一个老一点的版本
+intellij{
+	version='2017.3'
+	updateSinceUntilBuild=false
+}
+```
 
-15、Translation 翻译插件 灰常牛逼
+2：插件配置
 
-![img](media/17868b6895884a0f8652cff200dd60ec.png)
+resource-MATE-INF 目录下的 plugin.xml
 
-翻译中文，给接口起名字就不用费劲啦
+具体看下边
 
-![img](media/3ee4ddb31cc54213a06866edf90f095d.png)
+3：打包成一个 zip 压缩包，
 
+自己的话自己从硬盘上安装就可以了
 
+4：发布上传
+
+插件官网：https://plugins.jetbrains.com/
+
+注册账号进行登录
+
+直接点击自己头像下的 upload plugin，然后选择刚打包好的 zip 文件
+
+上传后，人家官方审核，审核通过即可从插件库下载到；
+
+## 1：给插件设置图标
+
+在 MATE-INF 文件夹下新建 pluginicorn.svg ，名称固定，
+
+## 2：配置
+
+```xml
+<!--兼容性配置-->
+<idea-version since-build="171.0"></idea-version>
+<description>
+</description>
+```
