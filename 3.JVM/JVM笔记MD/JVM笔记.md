@@ -2,7 +2,7 @@
 
 Java 虚拟机在运行时，会把内存空间分为若干个区域。Java 虚拟机所管理的内存区域分为如下部分：方法区、堆内存、虚拟机栈、本地方法栈、程序计数器。
 
-![](media/3cad76a05bc6779f2a9ccfb7ec446eb0.png)
+![](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/3cad76a05bc6779f2a9ccfb7ec446eb0.png)
 
 ## 1、类装载器 ClassLoader
 
@@ -16,17 +16,11 @@ Java 虚拟机在运行时，会把内存空间分为若干个区域。Java 虚�
 
 应用程序类加载器（App）：由 Java 语言编写，也叫系统类加载器，加载当前应用的 classpath 的所有类。
 
-用户自定义加载器
+用户自定义加载器：Java.lang.ClassLoader 的子类，用户可以定制的加载方式。
 
-Java.lang.ClassLoader 的之类，用户可以定制的加载方式。
+类加载器的双亲委派机制：某个特定的类加载器在加载类的请求时，首先将加载任务委托给父类加载器，依次递归，如果父类加载器可以完成类加载任务，就成功返回；只有父类加载器无法完成该加载任务时，才自己去加载。
 
-类加载器的双亲委派机制
-
-某个特定的类加载器在加载类的请求时，首先将加载任务委托给父类加载器，依次递归，如果父类加载器可以完成类加载任务，就成功返回；只有父类加载器无法完成该加载任务时，才自己去加载。
-
-沙箱机制（防止恶意代码对 java 本身的破坏）
-
-当用户命名了和 Java 一样的类时，Java 会首先加载自带的类。
+沙箱机制（防止恶意代码对 java 本身的破坏）：当用户命名了和 Java 一样的类时，Java 会首先加载自带的类。
 
 ## 2、方法区
 
@@ -36,11 +30,11 @@ Java.lang.ClassLoader 的之类，用户可以定制的加载方式。
 
 在 jdk1.8 中，方法区已经不存在，原方法区中存储的类信息、编译后的代码数据等已经移动到了元空间（MetaSpace）中，元空间并没有处于堆内存上，而是直接占用的本地内存（NativeMemory）。
 
-![](media/9fb5f8b5ac1bd9626b09997cb28bf1d6.png)
+![](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/9fb5f8b5ac1bd9626b09997cb28bf1d6.png)
 
 ## 3：堆内存
 
-一个 JVM 实例只存在一个堆内存，堆内存的大小是可以调节的。类加载器读取了类文件后，需要把类，方法，穿变量放到堆内存中，New 创建对象在堆内存
+一个 JVM 实例只存在一个堆内存，堆内存的大小是可以调节的。类加载器读取了类文件后，需要把类，方法，变量放到堆内存中，New 创建对象在堆内存。
 
 它是 JVM 管理的内存中最大的一块区域，堆内存和方法区都被所有线程共享，在虚拟机启动时创建。在垃圾收集的层面上来看，由于现在收集器基本上都采用分代收集算法，因此堆还可以分为新生代（YoungGeneration）和老年代（OldGeneration），新生代还可以分为 Eden、FromSurvivor、To Survivor。
 
@@ -50,7 +44,7 @@ Java.lang.ClassLoader 的之类，用户可以定制的加载方式。
 
 JAVA1.7 如下图，但在 Java1.8 中，其他基本没变，只是将 Perm 变成了元空间
 
-![](media/437ae1e416d81de526731a7645ce04e4.png)
+![](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/437ae1e416d81de526731a7645ce04e4.png)
 
 ### 3.1：新生代
 
@@ -59,8 +53,6 @@ JAVA1.7 如下图，但在 Java1.8 中，其他基本没变，只是将 Perm 变
 新生代中的对象 98%都是“朝生夕死”的，所以并不需要按照 1:1 的比例来划分内存空间，而是将**内存分为一块比较大的 Eden 空间和两块较小的 Survivor 空间**，
 
 刚刚新建的对象在 Eden 中，经历一次 Minor GC，Eden 中的存活对象就会被移动到第一块 survivor space S0，Eden 被清空；等 Eden 区再满了，就再触发一次 Minor GC，Eden 和 S0 中的存活对象又会被复制送入第二块 survivor space S1（这个过程非常重要，因为这种复制算法保证了 S1 中来自 S0 和 Eden 两部分的存活对象占用连续的内存空间，避免了碎片化的发生）。S0 和 Eden 被清空，然后下一轮 S0 与 S1 交换角色，如此循环往复。如果对象的复制次数达到 16 次，该对象就会被送到老年代中。
-
-每次使用 Eden 和其中一块 Survivor。当回收时，将 Eden 和 Survivor 中还存活着的对象一次性地复制到另外一块 Survivor 空间上，最后清理掉 Eden 和刚才用过的 Survivor 空间。
 
 **当 Survivor 空间不够用时，需要依赖于老年代进行分配担保，所以大对象直接进入老年代**。同时，**长期存活的对象将进入老年代**
 
@@ -72,11 +64,17 @@ JAVA1.7 如下图，但在 Java1.8 中，其他基本没变，只是将 Perm 变
 - 长期存活的对象：每熬过一回 Minor GC，对象 age +1 ，当年龄达到一定数值时（JDK7 是 15，可以通过参数-XX:MaxTenuringThreshold 设置年龄阀值）
 - 当 Survivor 空间中相同年龄所有对象的大小总和大于 Survivor 空间的一半，年龄大于或等于该年龄的对象就可以直接进入老年代，而不需要达到默认的分代年龄。
 
-### 3.3：永久代
+### 3.3：永久代/元空间
 
-2：诊断
+HotSpot中，使用永久代来实现方法区，相当于说方法区时规范，永久代是HotSpot针对规范进行的实现
 
-Jmap：查看堆内存占用情况 jmap - heap 进程 id
+前面方法区时也说了，在 jdk1.8 中，方法区已经不存在，原方法区中存储的类信息、编译后的代码数据等已经移动到了元空间（MetaSpace）中，元空间并没有处于堆内存上，而是直接占用的本地内存（NativeMemory）。
+
+这也就意味着，只要本地内存足够，他就不会出现像永久代中那种元空间不足的错误；也就是说元空间是可以无限膨胀的，但是一般我们不能让他无限膨胀：
+
+-XX:MetaspaceSize，class metadata的初始空间配额，以bytes为单位，达到该值就会触发垃圾收集进行类型卸载，同时GC会对该值进行调整：如果释放了大量的空间，就适当的降低该值；如果释放了很少的空间，那么在不超过MaxMetaspaceSize（如果设置了的话），适当的提高该值。
+
+-XX：MaxMetaspaceSize，可以为class metadata分配的最大空间。默认是没有限制的。
 
 ## 4：程序计数器
 
@@ -92,7 +90,7 @@ Jmap：查看堆内存占用情况 jmap - heap 进程 id
 
 虚拟机会为每个线程分配一个虚拟机栈，每个虚拟机栈中都有若干个栈帧，每个栈帧中存储了局部变量表、操作数栈、动态链接、返回地址等。一个栈帧就对应 Java 代码中的一个方法，当线程执行到一个方法时，就代表这个方法对应的栈帧已经进入虚拟机栈并且处于栈顶的位置，每一个 Java 方法从被调用到执行结束，就对应了一个栈帧从入栈到出栈的过程。
 
-:2：栈内存溢出：栈帧过多导致栈内存溢出 栈帧过大导致栈内存溢出
+2：栈内存溢出：栈帧过多导致栈内存溢出 栈帧过大导致栈内存溢出
 
 ## 6、本地方法栈
 
@@ -130,11 +128,13 @@ Jmap：查看堆内存占用情况 jmap - heap 进程 id
 
 # 二：垃圾回收机制
 
-为什么 Java 要进行垃圾回收？
+**为什么 Java 要进行垃圾回收？**
 
-手动回收的缺点：容易造成引用悬挂（所引用的对象不存在了，引用再继续操作执行结果不可预知）内存泄漏（当某些引用变量不再引用该内存对象的时候，而该对象原本占用的内存并没有被释放）手动管理成本太高，风险太大。
+手动回收的缺点：1：容易造成引用悬挂（所引用的对象不存在了，引用再继续操作执行结果不可预知）；2：内存泄漏（当某些引用变量不再引用该内存对象的时候，而该对象原本占用的内存并没有被释放）；3：手动管理成本太高，风险太大。
 
 垃圾回收可以有效的防止内存泄露，有效的使用可以使用的内存。
+
+**什么是垃圾回收？**
 
 垃圾回收，就是通过垃圾收集器把内存中没用的对象清理掉。垃圾回收涉及到的内容有：
 
@@ -146,7 +146,7 @@ Jmap：查看堆内存占用情况 jmap - heap 进程 id
 
 4、选择适当的垃圾收集器清理垃圾（已死的对象）。
 
-## 1:判断对象是否以死
+## 1：判断对象是否以死
 
 判断对象是否已死就是找出哪些对象是已经死掉的，以后不会再用到的，就像地上有废纸、饮料瓶和百元大钞，扫地前要先判断出地上废纸和饮料瓶是垃圾，百元大钞不是垃圾。判断对象是否已死有引用计数算法和可达性分析算法。
 
@@ -154,11 +154,11 @@ Jmap：查看堆内存占用情况 jmap - heap 进程 id
 
 给每一个对象添加一个引用计数器，每当有一个地方引用它时，计数器值加 1；每当有一个地方不再引用它时，计数器值减 1，这样只要计数器的值不为 0，就说明还有地方引用它，它就不是无用的对象。如下图，对象 2 有 1 个引用，它的引用计数器值为 1，对象 1 有两个地方引用，它的引用计数器值为 2。
 
-![](media/660161cdd7b40e57ac0272d73710b863.png)
+![](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/660161cdd7b40e57ac0272d73710b863.png)
 
 这种方法看起来非常简单，但目前许多主流的虚拟机都没有选用这种算法来管理内存，原因就是当某些对象之间互相引用时，无法判断出这些对象是否已死，如下图，对象 1 和对象 2 都没有被堆外的变量引用，而是被对方互相引用，这时他们虽然没有用处了，但是引用计数器的值仍然是 1，无法判断他们是死对象，垃圾回收器也就无法回收。
 
-![](media/fdd4c63a42eb4c7ed349ea7483579936.png)
+![](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/fdd4c63a42eb4c7ed349ea7483579936.png)
 
 ### （2）可达性分析算法
 
@@ -185,16 +185,13 @@ private final User user2 = new User();
 
 4：本地方法栈中 JNI（Native 方法）引用的对象。
 
-当一个对象到 GC Roots 没有任何引用链相连（GCRoots 到这个对象不可达）时，就说明此对象是不可用的，是死对象。如下图：object1、object2、object3、object4 和 GC
-Roots 之间有可达路径，这些对象不会被回收，但 object5、object6、object7 到 GC
-Roots 之间没有可达路径，这些对象就被判了死刑。
+当一个对象到 GC Roots 没有任何引用链相连（GCRoots 到这个对象不可达）时，就说明此对象是不可用的，是死对象。如下图：object1、object2、object3、object4 和 GC Roots 之间有可达路径，这些对象不会被回收，但 object5、object6、object7 到 GC Roots 之间没有可达路径，这些对象就被判了死刑。
 
 ![](media/3215444394f4149996b7cff89328d529.png)
 
-#### 1：四种引用
+#### 四种引用
 
-（1）强引用 只有所有 GC Roots
-对象都不通过【强引用】引用该对象，该对象才能被垃圾回收。
+（1）强引用 ：只有所有 GC Roots对象都不通过【强引用】引用该对象，该对象才能被垃圾回收。
 
 当内存空间不足，Java 虚拟机宁愿抛出 OutOfMemoryError 错误，使程序异常终止，也不会靠随意回收具有强引用的对象来解决内存不足的问题。
 
@@ -236,7 +233,7 @@ SoftReference<byte[]> m = new SoftReference<>(new byte[1024*1024*10]);//m为强�
 
 分为标记和清除两个阶段，首先标记出所有需要回收的对象，标记完成后统一回收所有被标记的对象，如下图。
 
-![](media/9d22ecdbf8c7b5c7fe461c72881b1fed.png)
+![](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/9d22ecdbf8c7b5c7fe461c72881b1fed.png)
 
 缺点：标记和清除两个过程效率都不高；标记清除之后会产生大量不连续的内存碎片。
 
@@ -246,13 +243,13 @@ SoftReference<byte[]> m = new SoftReference<>(new byte[1024*1024*10]);//m为强�
 
 缺点：实际可使用的内存空间缩小为原来的一半，比较适合。
 
-![](media/f59a832e3821dab85ea79b05a255d4b4.png)
+![](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/f59a832e3821dab85ea79b05a255d4b4.png)
 
 ### （3）标记-整理算法
 
 先对可用的对象进行标记，然后所有被标记的对象向一段移动，最后清除可用对象边界以外的内存，如下图。
 
-![](media/db6b2a662ec97012c842142b042851e1.png)
+![](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/db6b2a662ec97012c842142b042851e1.png)
 
 缺点：效率会低
 
@@ -264,17 +261,15 @@ SoftReference<byte[]> m = new SoftReference<>(new byte[1024*1024*10]);//m为强�
 
 **老年代**中的对象存活率较高，就采用**标记-清除和标记-整理算法**来进行回收。
 
-![](media/f02823e6d4e711e75fe94f1f92384578.png)
+![](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/f02823e6d4e711e75fe94f1f92384578.png)
 
 对象首先分配在伊甸园区域
 
-新生代空间不足时，触发 minor gc，伊甸园和 from 存活的对象使用 copy 复制到 to
-中，存活的 对象年龄加 1 并且交换 from to
+新生代空间不足时，触发 minor gc，伊甸园和 from Survivor区 存活的对象使用 copy 复制到 to Survivor中，存活的 对象年龄加 1 并且交换 from Survivor区和 to Survivor区；
 
-minor gc 会引发 stop theworld，暂停其它用户的线程，等垃圾回收结束，用户线程才恢复运行，当对象寿命超过阈值时，会晋升至老年代，最大寿命是 15（4bit）
+minor gc 会引发 stop the world，暂停其它用户的线程，等垃圾回收结束，用户线程才恢复运行，当对象寿命超过阈值时，会晋升至老年代，最大寿命是 15（4bit）
 
-当老年代空间不足，会先尝试触发 minor gc，如果之后空间仍不足，那么触发 full
-gc，STW 的时 间更长
+当老年代空间不足，会先尝试触发 minor gc，如果之后空间仍不足，那么触发 full gc，STW 的时 间更长
 
 为什么有两个 Survivor 区？如果只有一个 Survivor 区的话，容易造成碎片，如果两个的话，当回收的时候就可以将 Eden 和 From 区的都放到 To 区就好了。
 
@@ -294,7 +289,7 @@ gc，STW 的时 间更长
 
 堆内存垃圾收集器：G1
 
-![image-20210129160812436](media/image-20210129160812436.png)
+![image-20210129160812436](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/image-20210129160812436.png)
 
 前六种叫做分代模型，G1 逻辑分代，物理不分代，ZGC 逻辑物理都不分，Epsilon 是啥也不做
 
@@ -316,7 +311,7 @@ CMS 并发但是不可控
 
 \-XX:+UseSerialGC = Serial + SerialOld
 
-![](media/530cde92773d69076884fef97e7f6b30.png)
+![](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/530cde92773d69076884fef97e7f6b30.png)
 
 - 新生代采用复制算法，Stop-The-World
 - 老年代采用标记-整理算法，Stop-The-World
@@ -335,7 +330,7 @@ CMS 并发但是不可控
 
 \-XX:ParallelGCThreads=n
 
-![](media/e232c9b02a1cd063eb588f2329cce5cb.png)
+![](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/e232c9b02a1cd063eb588f2329cce5cb.png)
 
 - 新生代采用复制算法，Stop-The-World
 - 老年代采用标记-整理算法，Stop-The-World
@@ -360,7 +355,7 @@ CMS 是基于“标记-清除”算法实现的，整个过程分为 4 个步骤
 
 4、并发清除（CMS concurrent sweep）。
 
-![89af7bbc-5331-4c62-ab7e-18e93350f826](media/641601-20150915141621148-1908245224.png)
+![89af7bbc-5331-4c62-ab7e-18e93350f826](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/641601-20150915141621148-1908245224.png)
 
 上图中，初始标记和重新标记时，需要 stop the world。整个过程中耗时最长的是并发标记和并发清除，这两个过程都可以和用户线程一起工作。
 
@@ -379,8 +374,7 @@ CMS 是基于“标记-清除”算法实现的，整个过程分为 4 个步骤
 
 解决内存碎片：
 
--XX:CMSFullGCsBeforeCompaction=n
-意思是说在上一次 CMS 并发 GC 执行过后，到底还要再执行多少次 full GC 才会做压缩。默认是 0，也就是在默认配置下每次 CMS GC 顶不住了而要转入 full GC 的时候都会做压缩。 如果把 CMSFullGCsBeforeCompaction 配置为 10，就会让上面说的第一个条件变成每隔 10 次真正的 full GC 才做一次压缩。
+-XX:CMSFullGCsBeforeCompaction=n意思是说在上一次 CMS 并发 GC 执行过后，到底还要再执行多少次 full GC 才会做压缩。默认是 0，也就是在默认配置下每次 CMS GC 顶不住了而要转入 full GC 的时候都会做压缩。 如果把 CMSFullGCsBeforeCompaction 配置为 10，就会让上面说的第一个条件变成每隔 10 次真正的 full GC 才做一次压缩。
 
 **TLABs**
 
@@ -402,7 +396,7 @@ CMS 是基于“标记-清除”算法实现的，整个过程分为 4 个步骤
 
 G1 的内存布局不再是新生代老年代等等的了，变成了
 
-![image-20210224180008868](media/image-20210224180008868.png)
+![image-20210224180008868](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/image-20210224180008868.png)
 
 每个 Region 的大小可以通过-XX:G1HeapRegionSize 参数设置。大小只能是 2 的幂次方。在 HotSpot 的实现中，整个堆被划分为 2048 左右各 Region。
 
@@ -436,7 +430,7 @@ G1 中提供了三种模式垃圾回收模式，young GC ，Mixed GC 和 Full GC
 
 G1 垃圾回收周期如下图所示
 
-![img](media/v2-956b4768abeeb780fee6a4577e9edbbb_720w.jpg)
+![img](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/v2-956b4768abeeb780fee6a4577e9edbbb_720w.jpg)
 
 优点：
 
@@ -451,7 +445,7 @@ G1 垃圾回收周期如下图所示
 
 ## （5）ZGC
 
-![img](media/v2-16e4697a52a76c8fa7aaef5f191d1581_720w.jpg)
+![img](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/v2-16e4697a52a76c8fa7aaef5f191d1581_720w.jpg)
 
 使用了着色指针和内存屏障
 
@@ -553,42 +547,33 @@ CMS 新生代的 Young GC、G1 和 ZGC 都基于标记-复制算法，但算法�
 
 执行 javac -parameters -d . HellowWorld.java
 
-编译为 HelloWorld.class 后是这个样子的：
+编译为 HelloWorld.class 的结构组成
 
-[root\@localhost \~]\# od -t xC HelloWorld.class
 
-……
+
+0000000 ca fe ba be 00 00 00 34 00 23 0a 00 06 00 15 09
+
+0000020 00 16 00 17 08 00 18 0a 00 19 00 1a 07 00 1b 07
+
+
 
 1.1 魔数
 
-0\~3 字节，表示它是否是【class】类型的文件
-
-0000000 ca fe ba be 00 00 00 34 00 23 0a 00 06 00 15 09
+0\~3 字节，表示它是否是【class】类型的文件 ca fe ba be 
 
 1.2 版本
 
 4\~7 字节，表示类的版本 00 34（52） 表示是 Java 8
 
-0000000 ca fe ba be 00 00 00 34 00 23 0a 00 06 00 15 09
-
 1.3 常量池
 
-8\~9 字节，表示常量池长度，00 23 （35） 表示常量池有 \#1\~\#34 项，注意 \#0
-项不计入，也没有值
+8\~9 字节，表示常量池长度，00 23 （35） 表示常量池有 \#1\~\#34 项，注意 \#0项不计入，也没有值
 
-0000000 ca fe ba be 00 00 00 34 00 23 0a 00 06 00 15 09
+第\#1 项 0a 表示一个 Method 信息，
 
-第\#1 项 0a 表示一个 Method 信息，00 06 和 00 15（21） 表示它引用了常量池中 \#6
-和 \#21 项来获得 这个方法的【所属类】和【方法名】
+00 06 和 00 15（21） 表示它引用了常量池中 \#6和 \#21 项来获得 这个方法的【所属类】和【方法名】
 
-0000000 ca fe ba be 00 00 00 34 00 23 0a 00 06 00 15 09
-
-第\#2 项 09 表示一个 Field 信息，00 16（22）和 00 17（23） 表示它引用了常量池中
-\#22 和 \# 23 项 来获得这个成员变量的【所属类】和【成员变量名】
-
-0000000 ca fe ba be 00 00 00 34 00 23 0a 00 06 00 15 09
-
-0000020 00 16 00 17 08 00 18 0a 00 19 00 1a 07 00 1b 07
+第\#2 项 09 表示一个 Field 信息，00 16（22）和 00 17（23） 表示它引用了常量池中\#22 和 \# 23 项 来获得这个成员变量的【所属类】和【成员变量名】
 
 1.4 访问标识与继承信息
 
@@ -616,7 +601,7 @@ Java 虚拟机把描述类的数据从 Class 文件加载到内存，并对数�
 
 类从被加载到虚拟机内存中开始，到卸载出内存为止，它的整个生命周期包括了：加载（Loading）、验证（Verification）、准备（Preparation）、解析（Resolution）、初始化（Initialization）、使用（using）、和卸载（Unloading）七个阶段。其中验证、准备和解析三个部分统称为连接（Linking）
 
-![img](media/695890-20180302174748402-1201972789.png)
+![img](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/695890-20180302174748402-1201972789.png)
 
 JVM 就是按照上面的顺序一步一步的将字节码文件加载到内存中并生成相应的对象的。首先将字节码加载到内存中，然后对字节码进行连接，连接阶段包括了验证准备解析这 3 个步骤，连接完毕之后再进行初始化工作。
 
@@ -638,7 +623,7 @@ JVM 就是按照上面的顺序一步一步的将字节码文件加载到内存�
 
 `java`编译器将 `.java` 文件编译成扩展名为 `.class` 的文件。.class 文件中保存着 java 转换后，虚拟机将要执行的指令。当需要某个类的时候，java 虚拟机会加载 .class 文件，并创建对应的 class 对象，将 class 文件加载到虚拟机的内存，这个过程被称为类的加载。
 
-![image-20201229165142316](media/image-20201229165142316.png)
+![image-20201229165142316](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/image-20201229165142316.png)
 
 （1）加载
 
