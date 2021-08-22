@@ -64,6 +64,16 @@ IDEA顶部菜单：Tools——MybatisCodeHelper——Activation——OffineActiv
 
 （3）点击小鸟可实现 Dao 与 mapper.xml 文件的跳转
 
+## MybatisX
+
+由于mybatisCodeHelper收费新版破解失效，可以采用MybatisX代替；
+
+功能基本都有，对于生成代码的模板，可以到下面的目录下进行设置，然后其他生成代码操作和MybatisCodeHelperPro一样；
+
+![image-20210819092545888](media/image-20210819092545888.png)
+
+个人提供一个模板自己的模板；对于里面的一些参数，官网有文档：https://mp.baomidou.com/guide/mybatisx-idea-plugin.html#%E5%B8%B8%E8%A7%81%E9%97%AE%E7%AD%94
+
 ## Grep Console
 
 这是一个可以实现控制台彩色输出的插件，比如可以设置ERROR 和 SQL等以彩色方式输出
@@ -106,7 +116,7 @@ File——Setting——Plugins——MarketPlace搜索 ` Grep Console `
 
 ## FindBug 或 spotBugs 
 
-FindBug 新版不能用了，用 spotBugs 代替，它可以帮助寻找潜在的 Bug
+FindBug 新版不能用了，用 spotBugs 代替，它可以帮助寻找潜在的 Bug；安装后只需在文件中右键——Analyze Selected Files即可
 
 ## SequenceDiagram
 
@@ -130,13 +140,41 @@ FindBug 新版不能用了，用 spotBugs 代替，它可以帮助寻找潜在�
 
 代码迷你缩放图插件
 
-## Material Theme UI
-
-那就顺便推荐一下这个吧，超多的主题插件，各种颜色，各种模式，感兴趣的可以试一下，图我就不截了
-
 ## Translation
 
  翻译插件 ：将英文翻译成中文，阅读源码不再费劲；将中文翻译成英文，给接口起名字就不用费劲啦
+
+## IdeaJad
+
+以前查看class文件形式的时候或者jar，都会使用一个外部反编译工具，这样操作明显不方便，使用此插件可以一直在idea中查看文件。
+
+选择class文件，右键 Decompile,完成反编译
+
+## Lombok
+
+这个也能算插件吧，他能以简单的注解形式来简化java代码，提高开发人员的开发效率。比如添加注解自动生成getting/Setter方法等，这要看团队要求，如果大家都装了这个插件还好，使用记得添加依赖
+
+```xml
+<groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+<version>1.18.8</version>
+```
+
+## 美化插件
+
+推荐几个，这个根据个人审美自行试验选择；
+
+**Xcode-Dark Theme**：https://plugins.jetbrains.com/plugin/13106-xcode-dark-theme/versions
+
+**Vuesion Theme**：https://plugins.jetbrains.com/plugin/13106-xcode-dark-theme/versions
+
+**One Dark theme**：https://plugins.jetbrains.com/plugin/11938-one-dark-theme
+
+**Dark Purple Theme**：https://plugins.jetbrains.com/plugin/12100-dark-purple-theme
+
+Material Theme UI：
+
+**BackgroundImagePlus**：可以更换IDEA的背景图片，我个人没有用，感觉反倒看不清楚代码了有些图片
 
 # 开发插件
 
@@ -146,13 +184,13 @@ FindBug 新版不能用了，用 spotBugs 代替，它可以帮助寻找潜在�
 
 ![image-20210706211109671](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/image-20210706211109671.png)
 
-推荐使用社区版的 IDEA，这样可以阅读 IDEA 的源码：
+推荐使用社区版的 IDEA，这样可以阅读 IDEA 的源码：Gradle不会用的可以先去看我的另一篇笔记；
 
-版本配置
+## 结构和配置
 
-1：gradle 配置
+1：gradle 配置：build.gradle
 
-```gradle
+```groovy
 //默认会整成最新的JDk，这样导致有的项目不能用
 sourceCompatibility = 1.8
 //默认会整成最新的IDEA才能用，定义一个老一点的版本
@@ -166,9 +204,60 @@ intellij{
 
 resource-MATE-INF 目录下的 plugin.xml
 
-具体看下边
+具体内容如下
 
-3：打包成一个 zip 压缩包，
+```xml
+<idea-plugin url="https://github.com/XXX/myplugins" require-restart="false" allow-bundled-update="true">
+    <!--表示当前插件的唯一id号-->
+    <id>com.XXX.plugin.idea.myplugins</id>
+    <!--插件名-->
+    <name>myplugins</name>
+    <!--填写开发人的邮箱，公司名称-->
+    <vendor email="XXX" url="https://github.com/XXX/myplugins">MybatisX</vendor>
+	<!--描述-->
+    <description></description>
+    <change-notes></change-notes>
+	<!--表示当前插件所支持的所有Intellij Idea 的版本-->
+    <!--兼容性配置-->
+    <idea-version since-build="192.0"/>
+    <depends>com.intellij.modules.java</depends>
+    <depends optional="true" config-file="database.xml">com.intellij.database</depends>
+    <!-- support aliases -->
+    <depends optional="true" config-file="spring.xml">com.intellij.spring</depends>
+    <!-- support aliases -->
+    <depends optional="true" config-file="spring-boot.xml">com.intellij.spring.boot</depends>
+	<!--这里一般会放一些我们自己的扩展的东西，比如新增高亮显示，新增语言支持都是需要在这里进行扩展-->
+    <extensions defaultExtensionNs="com.intellij">
+    </extensions>
+
+</idea-plugin>
+```
+
+## 方法说明
+
+### 对话框绘制
+
+dialog文件夹下有个.from文件，点击打开可以在右侧选择相对应的组件，然后绑定组件的事件进行开发；
+
+右键添加：
+
+### Action
+
+
+
+
+
+
+
+### 给插件设置图标
+
+在 MATE-INF 文件夹下新建 pluginicorn.svg ，名称固定，
+
+
+
+## 打包安装
+
+打包成一个 zip 压缩包，
 
 自己的话自己从硬盘上安装就可以了
 
@@ -181,16 +270,3 @@ resource-MATE-INF 目录下的 plugin.xml
 直接点击自己头像下的 upload plugin，然后选择刚打包好的 zip 文件
 
 上传后，人家官方审核，审核通过即可从插件库下载到；
-
-## 1：给插件设置图标
-
-在 MATE-INF 文件夹下新建 pluginicorn.svg ，名称固定，
-
-## 2：配置
-
-```xml
-<!--兼容性配置-->
-<idea-version since-build="171.0"></idea-version>
-<description>
-</description>
-```
