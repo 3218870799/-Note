@@ -1,6 +1,6 @@
 # 一：Quertz简介
 
-　　Quertz是一个开源的作业任务调度框架，他可以完成像JavaScript定时器类式的功能，其实Java中Timer也可实现部分功能，但相比Quertz还是略逊一筹，本人这次需要解决的就是**定期统计消费记录**的功能。你还可以用他完成定期执行各类操作的功能。比如
+Quertz是一个开源的作业任务调度框架，他可以完成像JavaScript定时器类式的功能，其实Java中Timer也可实现部分功能，但相比Quertz还是略逊一筹，本人这次需要解决的就是**定期统计消费记录**的功能。你还可以用他完成定期执行各类操作的功能。比如
 
 o  想每月25号，信用卡自动还款
 
@@ -32,26 +32,22 @@ void execute(JobExecutionContext context)
 
 ```xml
 <!-- https://mvnrepository.com/artifact/org.quartz-scheduler/quartz -->
-        <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz</artifactId>
-            <version>2.3.0</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.springframework/spring-context-support -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context-support</artifactId>
-            <version>5.1.0.RELEASE</version>
-        </dependency>
+<dependency>
+    <groupId>org.quartz-scheduler</groupId>
+    <artifactId>quartz</artifactId>
+    <version>2.3.0</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.springframework/spring-context-support -->
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context-support</artifactId>
+    <version>5.1.0.RELEASE</version>
+</dependency>
 ```
 
-
-
-　　2：创建【com.xqc.campusshop.config.quartz】包进行相关配置
+2：创建【com.xqc.campusshop.config.quartz】包进行相关配置
 
 （我知道大家不喜欢看源码，但是我还是得说看源码效果好）源码中
-
-
 
 productSellDailyService为定期统计消费记录Service接口 
 
@@ -60,116 +56,98 @@ dailyCalculate 为ProductSellDailyService接口中执行定期统计的的方法
 triggerFactory.setCronExpression("? 0 0 * * ? *");为定时的时间，可访问在线cron表达式生成器生成相应时间 http://cron.qqe2.com/
 
 ```java
- 1 package com.xqc.campusshop.config.quartz;
- 2 
- 3 import org.springframework.beans.factory.annotation.Autowired;
- 4 import org.springframework.context.annotation.Bean;
- 5 import org.springframework.context.annotation.Configuration;
- 6 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
- 7 import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
- 8 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
- 9 
-10 import com.xqc.campusshop.service.ProductSellDailyService;
-11 
-12 @Configuration
-13 public class QuartzConfiguration {
-14     
-15     //定期统计消费记录Service接口
-16     @Autowired
-17     private ProductSellDailyService productSellDailyService;
-18     
-19     @Autowired
-20     private MethodInvokingJobDetailFactoryBean jobDetailFactory;
-21     
-22     @Autowired
-23     private CronTriggerFactoryBean productSellDailyTriggerFactory;
-24     
-25     /**
-26      * 创建jobDetail并返回
-27      * @return
-28      */
-29     @Bean(name="jobDetailFactory")
-30     public MethodInvokingJobDetailFactoryBean crateJobDetail(){
-31     
-32         //new出jobDetailFactory对象，此工厂主要用来制作一个jobDetail,及制作一个任务
-33         //由于我们所做的定时任务根本上讲其实就是执行一个方法，所以这个工厂比较方便
-34         MethodInvokingJobDetailFactoryBean jobDetailFactoryBean = new MethodInvokingJobDetailFactoryBean();
-35         //设置jobDetail的名字
-36         jobDetailFactoryBean.setName("product_sell_daily_job");
-37         //设置jobDetail的组名
-38         jobDetailFactoryBean.setGroup("job_product_sell_daily_group");
-39         //对于相同的JobDetail，当指定多个Triggger时，很可能第一个job完成以前，第二个job就开始了
-40         //指定设为false，多个job则不会并发运行，第二个job不会再第一个job完成前开始
-41         jobDetailFactoryBean.setConcurrent(false);
-42         //指定运行任务的类
-43         jobDetailFactoryBean.setTargetObject(productSellDailyService);
-44         //指定运行任务的方法
-45         jobDetailFactoryBean.setTargetMethod("dailyCalculate");
-46         
-47         return jobDetailFactoryBean;    
-48     }
-49     
-50     /**
-51      * 创建cronTriggerFactory并返回
-52      * 
-53      * @return
-54      */
-55     @Bean("productSellDailyTriggerFactory")
-56     public CronTriggerFactoryBean createProductSellDailyTrigger(){
-57         //创建TriggerFactory实例，用来创建trigger
-58         CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
-59         //设置triggerFactory的名字
-60         triggerFactory.setName("product_sell_daily_trigger");
-61         //设置组名
-62         triggerFactory.setGroup("job_product_sell_daily_group");
-63         //绑定jobDetail
-64         triggerFactory.setJobDetail(jobDetailFactory.getObject());
-65         //设置cron表达式，请访问:http://cron.qqe2.com/在线表达式生成器
-66         triggerFactory.setCronExpression("? 0 0 * * ? *");
-67         
-68         return triggerFactory;
-69         
-70     }
-71     /**
-72      * 创建调度工厂并返回
-73      * @return
-74      */
-75     @Bean("schedulerFactory")
-76     public SchedulerFactoryBean createSchedulerFactory(){
-77         
-78         SchedulerFactoryBean schedulerFactory = new SchedulerFactoryBean();
-79         schedulerFactory.setTriggers(productSellDailyTriggerFactory.getObject());
-80         return schedulerFactory;
-81         
-82     }
-83     
-84 
-85 }
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
+import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+import com.xqc.campusshop.service.ProductSellDailyService;
 
+ @Configuration
+ public class QuartzConfiguration {
+
+     //定期统计消费记录Service接口
+     @Autowired
+     private ProductSellDailyService productSellDailyService;
+
+     @Autowired
+     private MethodInvokingJobDetailFactoryBean jobDetailFactory;
+
+     @Autowired
+     private CronTriggerFactoryBean productSellDailyTriggerFactory;
+
+     /**
+      * 创建jobDetail并返回
+      * @return
+      */
+     @Bean(name="jobDetailFactory")
+     public MethodInvokingJobDetailFactoryBean crateJobDetail(){
+
+         //new出jobDetailFactory对象，此工厂主要用来制作一个jobDetail,及制作一个任务
+         //由于我们所做的定时任务根本上讲其实就是执行一个方法，所以这个工厂比较方便
+         MethodInvokingJobDetailFactoryBean jobDetailFactoryBean = new MethodInvokingJobDetailFactoryBean();
+         //设置jobDetail的名字
+         jobDetailFactoryBean.setName("product_sell_daily_job");
+         //设置jobDetail的组名
+         jobDetailFactoryBean.setGroup("job_product_sell_daily_group");
+         //对于相同的JobDetail，当指定多个Triggger时，很可能第一个job完成以前，第二个job就开始了
+         //指定设为false，多个job则不会并发运行，第二个job不会再第一个job完成前开始
+         jobDetailFactoryBean.setConcurrent(false);
+         //指定运行任务的类
+         jobDetailFactoryBean.setTargetObject(productSellDailyService);
+         //指定运行任务的方法
+         jobDetailFactoryBean.setTargetMethod("dailyCalculate");
+
+         return jobDetailFactoryBean;
+     }
+
+     /**
+      * 创建cronTriggerFactory并返回
+      *
+      * @return
+      */
+     @Bean("productSellDailyTriggerFactory")
+     public CronTriggerFactoryBean createProductSellDailyTrigger(){
+         //创建TriggerFactory实例，用来创建trigger
+         CronTriggerFactoryBean triggerFactory = new CronTriggerFactoryBean();
+         //设置triggerFactory的名字
+         triggerFactory.setName("product_sell_daily_trigger");
+         //设置组名
+         triggerFactory.setGroup("job_product_sell_daily_group");
+         //绑定jobDetail
+         triggerFactory.setJobDetail(jobDetailFactory.getObject());
+         //设置cron表达式，请访问:http://cron.qqe2.com/在线表达式生成器
+         triggerFactory.setCronExpression("? 0 0 * * ? *");
+
+         return triggerFactory;
+     }
+     /**
+      * 创建调度工厂并返回
+      * @return
+      */
+     @Bean("schedulerFactory")
+     public SchedulerFactoryBean createSchedulerFactory(){
+
+         SchedulerFactoryBean schedulerFactory = new SchedulerFactoryBean();
+         schedulerFactory.setTriggers(productSellDailyTriggerFactory.getObject());
+         return schedulerFactory;
+     }
+ }
 ```
-
-
 
 3：业务方法我就不贴了，大家可以打印一下测试一下即可(记得把cron表达式时间改小一点)，譬如
 
 ```java
- 1 package com.xqc.campusshop.service.impl;
- 2 
- 3 import org.springframework.stereotype.Service;
- 4 
- 5 @Service
- 6 public class ProductSellDailyServiceImpl implements ProductSellDailyService{
- 7     
- 8     @Override
- 9     public void dailyCalculate() {
-10             system.out.println("Quartz跑起来了！”）;
-11         
-12     }    
-13 }
-
+import org.springframework.stereotype.Service;
+@Service
+public class ProductSellDailyServiceImpl implements ProductSellDailyService{
+    @Override
+    public void dailyCalculate() {
+             system.out.println("Quartz跑起来了！”）;
+     }    
+ }
 ```
-
-
 
 **使用配置文件方式**
 
@@ -179,42 +157,40 @@ triggerFactory.setCronExpression("? 0 0 * * ? *");为定时的时间，可访问
 
 ```xml
 <!-- 使用MethodInvokingJobDetailFactoryBean，任务类可以不实现Job接口，通过targetMethod指定调用方法-->
-    <bean id="productSellDailyService" class="com.xqc.campusshop.service"/>
-    <bean id="jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-        <property name="group" value="job_product_sell_daily_group"/>
-        <property name="name" value="product_sell_daily_job"/>
-        <!--false表示等上一个任务执行完后再开启新的任务-->
-        <property name="concurrent" value="false"/>
-        <property name="targetObject">
-            <ref bean="productSellDailyService"/>
-        </property>
-        <property name="targetMethod">
-            <value>dailyCalculate</value>
-        </property>
-    </bean>
-    <!--  调度触发器 -->
-    <bean id="myTrigger"
-        class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-        <property name="name" value="product_sell_daily_trigger"/>
-        <property name="group" value="job_product_sell_daily_group"/>
-        <property name="jobDetail">
-            <ref bean="jobDetail" />
-        </property>
-        <property name="cronExpression">
-            <value>? 0 0 * * ? *</value>
-        </property>
-    </bean>
-    <!-- 调度工厂 -->
-    <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-        <property name="triggers">
-            <list>
-                <ref bean="myTrigger"/>
-            </list>
-        </property>
-    </bean>
+<bean id="productSellDailyService" class="com.xqc.campusshop.service"/>
+<bean id="jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="group" value="job_product_sell_daily_group"/>
+    <property name="name" value="product_sell_daily_job"/>
+    <!--false表示等上一个任务执行完后再开启新的任务-->
+    <property name="concurrent" value="false"/>
+    <property name="targetObject">
+        <ref bean="productSellDailyService"/>
+    </property>
+    <property name="targetMethod">
+        <value>dailyCalculate</value>
+    </property>
+</bean>
+<!--  调度触发器 -->
+<bean id="myTrigger"
+      class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+    <property name="name" value="product_sell_daily_trigger"/>
+    <property name="group" value="job_product_sell_daily_group"/>
+    <property name="jobDetail">
+        <ref bean="jobDetail" />
+    </property>
+    <property name="cronExpression">
+        <value>? 0 0 * * ? *</value>
+    </property>
+</bean>
+<!-- 调度工厂 -->
+<bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+    <property name="triggers">
+        <list>
+            <ref bean="myTrigger"/>
+        </list>
+    </property>
+</bean>
 ```
-
-
 
 3：编写业务方法（同上）
 
@@ -238,15 +214,13 @@ API：http://www.quartz-scheduler.org/api/2.2.1/index.html
 
 **核心关系图**
 
- 
-
-![img](media/clip_image002.jpg)
+![img](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/clip_image002.jpg)
 
  
 
 Quartz体系结构
 
-![img](media/clip_image004.jpg)
+![img](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/clip_image004.jpg)
 
 **重要组成部分**
 
@@ -300,7 +274,7 @@ Job实现类中添加Setter方法对应JobDataMap的键值（Quartz框架默认�
 
 **Trigger**的实现类
 
-![img](media/clip_image006.jpg)
+![img](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/clip_image006.jpg)
 
 **SimpleTrigger**
 
@@ -322,11 +296,19 @@ Job实现类中添加Setter方法对应JobDataMap的键值（Quartz框架默认�
 
 它的属性只有:
 
-o  Cron表达式。虽然有在线生成器，但是还是介绍一下
+Cron表达式。虽然有在线生成器，但是还是介绍一下
 
-![img](media/clip_image008.jpg)
+| 字段 | 是否必填 | 允许值           | 允许的特殊字符   |
+| ---- | -------- | ---------------- | ---------------- |
+| 秒   | 是       | 0-59             | ,-*/             |
+| 分   | 是       | 0-59             | ，-*/            |
+| 小时 | 是       | 0-23             | ，-*/            |
+| 日   | 是       | 1-31             | ，- * ？ / L W C |
+| 月   | 是       | 1-12或者JAN-DEC  | , - * /          |
+| 周   | 是       | 1-7或者SUN-SAT   | , - * ? / L C #  |
+| 年   | 否       | empty，1970-2099 | , - * /          |
 
-星号(*)**：可用在所有字段中，表示对应时间域的每一个时刻，例如，* 在分钟字段时，表示“每分钟”；
+星号()：可用在所有字段中，表示对应时间域的每一个时刻，例如，* 在分钟字段时，表示“每分钟”；
 
 问号（?）：该字符只在日期和星期字段中使用，它通常指定为“无意义的值”，相当于点位符；
 
@@ -352,7 +334,7 @@ C：该字符只在日期和星期字段中使用，代表“Calendar”的意�
 
  Quartz支持任务持久化，这可以让你在运行时增加任务或者对现存的任务进行修改，并为后续任务的执行持久化这些变更和增加的部分。中心概念是JobStore接口。默认的是RAMJobStore。
 
-![img](media/clip_image010.jpg)
+![img](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/clip_image010.jpg)
 
 **ThreadTool**
 
@@ -396,7 +378,7 @@ JobListener，TriggerListener，SchedulerListener
 
 代码略（网上一百度都有的HelloQuartz，我就懒得写了）
 
-**四：深入探究**
+# 四：深入探究
 
 **原理：**
 
@@ -416,11 +398,11 @@ Factory模式
 
 在 Quartz 中，有两类线程，Scheduler 调度线程和任务执行线程，其中任务执行线程通常使用一个线程池维护一组线程。
 
-![img](media/clip_image012.jpg)
+![img](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/clip_image012.jpg)
 
 　　Scheduler 调度线程主要有两个： 执行常规调度的线程，和执行 misfired trigger 的线程。常规调度线程轮询存储的所有 trigger，如果有需要触发的 trigger，即到达了下一次触发的时间，则从任务执行线程池获取一个空闲线程，执行与该 trigger 关联的任务。Misfire 线程是扫描所有的 trigger，查看是否有 misfired trigger，如果有的话根据 misfire 的策略分别处理。下图描述了这两个线程的基本流程：
 
-![img](media/clip_image014.jpg)
+![img](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/clip_image014.jpg)
 
 **启动流程**
 
