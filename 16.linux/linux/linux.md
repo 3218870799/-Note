@@ -1,4 +1,4 @@
-﻿# 一、Linux 发展史
+﻿﻿# 一、Linux 发展史
 
 ## 1、Linux 前身-Unix
 
@@ -68,17 +68,17 @@ Linux 是**开源**的操作系统。所谓开源就是指开放源代码。人 
 
 终端的形式：
 
-![img](media/clip_image098.png)
-
 终端组成部分：
-
-![img](media/clip_image100.jpg)
 
 **如何使用终端命令进行关机？**
 
 在 Linux 中关机命令 有以下几个：shutdown -h now（正常关机）、halt（关闭内存）、init 0
 
 # 三、Linux 系统的文件
+
+linu系统一切都是文件；
+
+![img](https://img2018.cnblogs.com/blog/1174906/201812/1174906-20181208191146414-1033793138.jpg)
 
 ## 1、文件与文件夹（目录）
 
@@ -94,31 +94,83 @@ Linux 是**开源**的操作系统。所谓开源就是指开放源代码。人 
 
 ## 2、Linux 系统的文件目录结构
 
-![img](media/clip_image113.jpg)
+![img](https://img2018.cnblogs.com/blog/1174906/201812/1174906-20181208191234149-756120965.png)
 
 目录结构：
 
-Bin：全称 binary，含义是二进制。该目录中存储的都是一些二进制文件，文件都是可以被运行的。
+/bin：全称 binary，含义是二进制。该目录中存储的都是一些二进制文件，文件都是可以被运行的。
 
-Dev：该目录中主要存放的是外接设备，例如盘、其他的光盘等。在其中的外接设备是不能直接被使用的，需要**挂载（类似 windows 下的分配盘符）**。
+/dev：该目录中主要存放的是外接设备，例如盘、其他的光盘等。在其中的外接设备是不能直接被使用的，需要**挂载（类似 windows 下的分配盘符）**。
 
-Etc：该目录主要存储一些配置文件。
+/etc：该目录主要存储一些配置文件。
 
-Home：表示“家”，表示**除了 root**用户以外其他用户的家目录，类似于 windows 下的 User/用户目录。
+/home：表示“家”，表示**除了 root**用户以外其他用户的家目录，类似于 windows 下的 User/用户目录。
 
-Proc：process，表示进程，该目录中存储的是 Linux 运行时候的进程。
+/proc：process，表示进程，该目录中存储的是 Linux 运行时候的进程。
 
-Root：该目录是 root 用户自己的家目录。
+/root：该目录是 root 用户自己的家目录。
 
-Sbin：全称 super binary，该目录也是存储一些可以被执行的二进制文件，但是必须得有 super 权限的用户才能执行。
+/sbin：全称 super binary，该目录也是存储一些可以被执行的二进制文件，但是必须得有 super 权限的用户才能执行。
 
-Tmp：表示“临时”的，当系统运行时候产生的临时文件会在这个目录存着。
+/tmp：表示“临时”的，当系统运行时候产生的临时文件会在这个目录存着。
 
-Usr：存放的是用户自己安装的软件。类似于 windows 下的 program files。
+/usr：存放的是用户自己安装的软件。类似于 windows 下的 program files。
 
-Var：存放的程序/系统的日志文件的目录。
+/var：存放的程序/系统的日志文件的目录。
 
-Mnt：当外接设备需要挂载的时候，就需要挂载到 mnt 目录下。
+/mnt：当外接设备需要挂载的时候，就需要挂载到 mnt 目录下。
+
+# 四：环境搭建
+
+以下链接为自己亲测写的很全面的
+
+1：安装Centos7系统
+
+　　https://www.osyunwei.com/archives/2307.html
+
+2：联网
+
+　　https://jingyan.baidu.com/article/19192ad8f7c320e53e570728.html
+
+3：gcc编辑器
+
+```
+　　yum install gcc-c++
+```
+
+3：卸载自带JDK并安装JDK
+
+https://www.cnblogs.com/sxdcgaq8080/p/7492426.html
+
+4：安装tomact
+
+ 
+
+5：安装Mysql数据库
+
+https://www.cnblogs.com/pythonal/p/6141516.html 
+
+6：安装Maven
+
+https://blog.csdn.net/qq_39871625/article/details/78067466
+
+7：安装Redis
+
+https://www.cnblogs.com/zuidongfeng/p/8032505.html
+
+ 8：安装Nginx
+
+https://www.cnblogs.com/kaid/p/7640723.html
+
+# 五：常见设置
+
+### 加载开机启动程序
+
+1：启动脚本都统一放在/etc/init.d 文件中，如果你要手动关闭或重启某个进程，直接到目录 /etc/init.d 中寻找启动脚本即可。比如，我要重启Apache服务器，就运行下面的命令：
+
+sudo /etc/init.d/apache2 restart
+
+/etc/init.d 这个目录名最后一个字母d，是directory的意思，表示这是一个目录，用来与程序 /etc/init 区分。
 
 # Linux 的基本指令
 
@@ -139,6 +191,10 @@ Mnt：当外接设备需要挂载的时候，就需要挂载到 mnt 目录下。
 操作对象也可以是多个
 
 例如：需要让张三同学帮忙去楼下小卖铺买一瓶农夫山泉水和清风餐巾纸，在这个指令中“买东西”是指令的主体，买的水和餐巾纸是操作的对象，农夫山泉、清风是操作的选项。
+
+
+
+
 
 # 二、基础指令（重点）
 
