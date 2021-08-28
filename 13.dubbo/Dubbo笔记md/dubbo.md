@@ -1,4 +1,6 @@
-﻿# 一、基础知识
+﻿﻿
+
+﻿﻿# 一、基础知识
 
 ## 1、分布式基础理论
 
@@ -151,6 +153,8 @@ RPC 多用于公司内部调用，Http 一般对外。
 
 Apache Dubbo (incubating) \|ˈdʌbəʊ\| 是一款高性能、轻量级的开源 JavaRPC 框架，它提供了三大核心能力：面向接口的远程方法调用，智能容错和负载均衡，以及服务自动注册和发现。
 
+使用Dubbo可以将应用分布到多个服务器上，当有访问时，Dubbo有帮你管理自动将请求分配给合适得到服务器去执行，即建立多个生产者，建立多个消费者，自动匹配生产者与消费者，以便达到负载均衡。关于集群与负载均衡的一些概念的简单解释也可以参考《[大话集群和负载均衡](https://www.cnblogs.com/nullering/p/9311151.html)》
+
 1：面向接口代理的高性能RPC调用：A服务要调用B服务的方法，只需要copy好B服务的接口，dubbo会自动帮A调用B服务的实现。屏蔽掉远程调用细节。
 
 2：智能负载均衡：A服务的多台服务器的调用可以直接负载均衡。
@@ -206,7 +210,13 @@ Apache Dubbo (incubating) \|ˈdʌbəʊ\| 是一款高性能、轻量级的开源
 
 2：解压 Zookeeper
 
-解压运行 zkServer.cmd ，初次运行会报错，没有 zoo.cfg 配置文件
+解压Zookeeper到目录【D:\Zookeeper】
+
+修改目录【D:\Zookeeper\zookeeper-3.4.12\zookeeper-3.4.12\conf】 下的【 zoo_sample.cfg 】文件为【zoo.cfg】
+
+点击【D:\Zookeeper\zookeeper-3.4.12\zookeeper-3.4.12\bin】目录下的【 zkServer.cmd】启动Zookeeper
+
+![img](https://images2018.cnblogs.com/blog/1174906/201808/1174906-20180818151439680-264567189.png)
 
 3：修改 zoo.cfg 配置文件
 
@@ -234,13 +244,25 @@ dubbo 本身并不是一个服务软件。它其实就是一个 jar 包能够帮
 
 但是为了让用户更好的管理监控众多的 dubbo 服务，官方提供了一个可视化的监控程序，不过这个监控即使不装也不影响使用。
 
+参考《 [solr服务器搭建与Tomact整合及使用](https://www.cnblogs.com/nullering/p/9432102.html) 》配置一台专门管理的Dubbo服务器
+
 1、下载 dubbo-admin <https://github.com/apache/incubator-dubbo-ops> ![media/18cd0b8df1b80d704865e7e6f1e16e6f.png](media/18cd0b8df1b80d704865e7e6f1e16e6f.png)
 
 2、进入目录，修改 dubbo-admin 配置 修改 src\\main\\resources\\application.properties 指定 zookeeper 地址 ![media/53ae7648a2982debe9ebe0efcb5f1ada.png](media/53ae7648a2982debe9ebe0efcb5f1ada.png)
 
 3、打包 dubbo-admin mvn clean package -Dmaven.test.skip=true
 
-4、运行 dubbo-admin java -jar dubbo-admin-0.0.1-SNAPSHOT.jar **注意：【有可能控制台看着启动了，但是网页打不开，需要在控制台按下 ctrl+c 即可】** 默认使用 root/root 登陆 ![media/8fc41c80aff1e21e1610cf9ac0edd5fa.png](media/8fc41c80aff1e21e1610cf9ac0edd5fa.png)
+4、运行 dubbo-admin java -jar dubbo-admin-0.0.1-SNAPSHOT.jar **注意：【有可能控制台看着启动了，但是网页打不开，需要在控制台按下 ctrl+c 即可】** 默认使用 root/root 登陆 
+
+配置好后，将 Dubbo-admin的 war 包解压放到你给Dubbo配置的服务器的根目录下【D:\Tomact\apache-tomcat-8.0.53-dubbo\webapps\ROOT】war包可以自己导入下载的Dubbo的maven文件生成。这是我生成的2.6.0版本的war包。链接：https://pan.baidu.com/s/1WHJKemdyLb8Sveq7a1PCuw 密码：1w2w
+
+6：然后启动  Tomact-Dubbo  服务器，启动时一定要保持Zookeeper开启。然后等带启动成功。打开浏览器输入你配置的端口
+
+注意：第一次输入的时候会让你登陆，Dubbo默认的用户名是root 密码是root
+
+以后就可以在这里管理生产者和消费者了。
+
+![img](https://img2018.cnblogs.com/blog/1174906/201810/1174906-20181003214223257-1025723521.png)
 
 ### 3.3）linux 安装 zookeeper
 
@@ -1172,7 +1194,21 @@ Dubbo 会在 Spring 实例化完 bean 之后，在刷新容器最后一步发布
 
 Socket 通信是一个全双工的方式，如果有多个线程同时进行远程方法调用，这时建立在 client server 之间的 socket 连接上会有很多双方发送的消息传递，这里使用了一个唯一 ID，然后传递给服务端，再服务端又回传回来，这样就知道结果是原先哪个线程的了。
 
-**整体流程：**
+启动流程：
+
+0：服务容器负责启动，加载，运行服务提供者
+
+1：服务提供者在启动时，向注册中心注册自己提供的服务，我们采用的注册中心就是Zookeeper。
+
+2：服务消费者在启动时，向注册中心订阅自己所需的服务。
+
+3：注册中心返回服务提供者地址列表给消费者，如果有变更，注册中心将基于长连接推送变更数据给消费者。
+
+4：服务消费者，从提供者地址列表中，基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用。
+
+5：服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心。
+
+**调用流程：**
 
 1：客户端线程调用远程接口，生成唯一 ID，Dubbo 是使用 AtomicLong 从 0 开始累计数字的，将打包的方法信息（接口名称，方法名称，参数值列表）和处理结果的回调对象 callback 全部封装在一起，组成一个对象 Object
 
@@ -1185,13 +1221,6 @@ Socket 通信是一个全双工的方式，如果有多个线程同时进行远�
 5：服务端接收到请求并处理，将结果发送给客户端，客户端 Socket 连接上专门监听消息的线程收到消息，分析结果，取到 ID，再从前面的 ConcurrentHashMap 中 get(ID)，从而找到 callback，将方法调用结果设置到 callBack 对象里。
 
 6：监听线程接着使用 synchronized 获取回调=对象 callBack 的锁（因为前面调用了 wait（）方法，那个线程已经释放 callback 锁了）再 notifyAll()，唤醒前面处于等待状态的线程继续执行（callback 的 get 方法继续执行就能拿到调用结果了），到此，整个过程结束。
-
-- 服务容器负责启动，加载，运行服务提供者。
-- 服务提供者在启动时，向注册中心注册自己提供的服务。
-- 服务消费者在启动时，向注册中心订阅自己所需的服务。
-- 注册中心返回服务提供者地址列表给消费者，如果有变更，注册中心将基于长连接推送变更数据给消费者。
-- 服务消费者，从提供者地址列表中，基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用。
-- 服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心。
 
 ### 6：序列化
 
