@@ -85,7 +85,6 @@ yum install gcc openssl openssl-devel pcre pcre-devel zlib zlib-devel -y
 
   安装成功后，可以切换到/usr/local/nginx 目录下，查看内容
 
-  ![](media/b053e41810942bdf06631857f50a54bb.png)
 
 ## 启动
 
@@ -93,23 +92,16 @@ yum install gcc openssl openssl-devel pcre pcre-devel zlib zlib-devel -y
 
 切换到 nginx 安装目录的 sbin 目录下，执行：./nginx
 
-![](media/1524e022c7ae92ea5d618f12b7d63d7f.png)
-
 通过配置文件启动
 
+```shell
 ./nginx -c /usr/local/nginx/conf/nginx.conf
-
 /usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf
+## 查看
+ps -ef | grep nginx
+```
 
 **其中-c 是指定配置文件,而且配置文件路径必须指定绝对路径**
-
-![](media/39ca676b1c9c72333e42f9236c7eadc6.png)
-
-检查 Nginx 是否启动
-
-通过查看进程：ps -ef \| grep nginx
-
-![](media/172b068c6a8578aaa9c3bcecb9913e16.png)
 
 nginx 体系结构由 master 进程和其 worker 进程组成
 
@@ -117,9 +109,7 @@ master 进程读取配置文件，并维护 worker 进程，而 worker 进程则
 
 Nginx 启动后，安装目录下会出现一些\_tmp 结尾的文件，这些是临时文件，不用管。
 
-在浏览器中输入<http://192.168.235.128:80/>访问 Nginx 服务器，出现以下界面
-
-![](media/c7cb5ba28f6e429def7f5266f8bcd8ed.png)
+在浏览器中输入<http://192.168.235.128:80/>访问 Nginx 服务器，出现欢迎页面
 
 ## 关闭
 
