@@ -1,66 +1,12 @@
-﻿# 第一章：Redis 介绍
+﻿﻿# 第一章：Redis 介绍
 
-## 1.1：什么是 NoSql
-
-为了解决高并发、高可用、高可扩展，大数据存储等一系列问题而产生的数据库解决方案，就是 NoSql。NoSql，叫非关系型数据库，它的全名 Not only sql。它不能替代关系型数据库，只能作为关系型数据库的一个良好补充。
-
-## 1.2：NoSql 的分类
-
-- 键值(Key-Value)存储数据库
-
-相关产品： Tokyo Cabinet/Tyrant、**Redis**、Voldemort、Berkeley DB
-
-典型应用： 内容缓存，主要用于处理大量数据的高访问负载。
-
-数据模型： 一系列键值对
-
-优势： 快速查询
-
-劣势： 存储的数据缺少结构化
-
-- 列存储数据库
-
-相关产品：Cassandra, **HBase**, Riak
-
-典型应用：分布式的文件系统
-
-数据模型：以列簇式存储，将同一列数据存在一起
-
-优势：查找速度快，可扩展性强，更容易进行分布式扩展
-
-劣势：功能相对局限
-
-- 文档型数据库
-
-相关产品：CouchDB、**MongoDB**
-
-典型应用：Web 应用（与 Key-Value 类似，Value 是结构化的）
-
-数据模型： 一系列键值对
-
-优势：数据结构要求不严格
-
-劣势： 查询性能不高，而且缺乏统一的查询语法
-
-- 图形(Graph)数据库
-
-相关数据库：Neo4J、InfoGrid、Infinite Graph
-
-典型应用：社交网络
-
-数据模型：图结构
-
-优势：利用图结构相关算法。
-
-劣势：需要对整个图做计算才能得出结果，不容易做分布式的集群方案。
-
-## 1.3：什么是 redis
+## 什么是 redis
 
 Redis 是使用 c 语言开发的一个高性能键值数据库。Redis 可以通过一些键值类型来存储数据。
 
 键值类型：String 字符类型 map 散列类型 list 列表类型 set 集合类型 sortedset 有序集合类型
 
-## 1.4：redis 历史发展
+## redis 历史发展
 
 2008 年，意大利的一家创业公司 Merzia 推出了一款基于 MySQL 的网站实时统计系统 LLOOGG，然而没过多久该公司的创始人
 Salvatore Sanfilippo 便对 MySQL 的性能感到失望，于是他决定亲自为 LLOOGG 量身定做一个数据库，并于 2009 年开发完成，这个数据库就是 Redis。不过 SalvatoreSanfilippo 并不满足只将 Redis 用于 LLOOGG 这一款产品，而是希望更多的人使用它，于是在同一年 Salvatore Sanfilippo 将 Redis 开源发布，并开始和 Redis 的另一名主要的代码贡献者 PieterNoordhuis 一起继续着 Redis 的开发，直到今天。
@@ -97,7 +43,7 @@ memcache 数据不可恢复，一旦挂掉。
 
 memcache 可以修改最大内存，使用 LRU 算法，而 Redis 目前底层使用了 VM，突破了物理内存的限制。
 
-## 1.5：redis 的应用场景
+## redis 的应用场景
 
 缓存（数据查询、短连接、新闻内容、商品内容等等）。（**最多使用**）但要知道经常修改的数据表不适合使用 redis，因为双删策略执行的结果是把 redis 中保存的那条数据删除了，以后的查询就都会去查询数据库。所以 redis 使用的是读远远大于改的数据缓存。
 
@@ -147,13 +93,13 @@ redis-cli -h localhost -p 6379 -a 123456
 
 ## 2：Linux 安装
 
-## 2.1：redis 下载
+1：下载
 
 官网地址：<http://redis.io/>
 
 下载地址：<http://download.redis.io/releases/redis-3.0.0.tar.gz>
 
-## 2.2：redis 的安装
+2：安装
 
 redis 的安装环境会安装到 linux 系统中。
 
@@ -188,9 +134,9 @@ make isntall  PREFIX=/usr/local/redis
 
 第七步：查看是否安装成功
 
-## 2.3：redis 启动
+3：redis 启动
 
-### 前端启动
+前端启动
 
 前端启动的命令：
 
@@ -214,7 +160,7 @@ make isntall  PREFIX=/usr/local/redis
 
 一旦客户端关闭，则 redis 服务也停掉。
 
-### 后端启动
+后端启动
 
 第一步：需要将 redis 解压之后的源码包中的 redis.conf 文件拷贝到 bin 目录下
 
@@ -226,7 +172,9 @@ cp /root/redis-3.0.0/redis.conf ./
 
 先要使用 vim redis.conf
 
-![](media/7b8b2844a91801ade69ee5c13417aad5.png)
+```txt
+daemonize yes
+```
 
 第三步：使用命令后端启动 redis
 
@@ -236,7 +184,9 @@ cp /root/redis-3.0.0/redis.conf ./
 
 第四步：查看是否启动成功
 
-![](media/849caff655973b89cf583040defebf9b.png)
+```shell
+ps -aux | grep redis
+```
 
 关闭后端启动的方式：
 
@@ -292,11 +242,9 @@ cp /root/redis-3.0.0/redis.conf ./
 
 安装之后，打开如下：
 
-![](media/5601ebec5b960cf4283631830176e5cd.png)
+![](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/5601ebec5b960cf4283631830176e5cd.png)
 
-防火墙设置：
-
-![](media/c07563023d5999a75c41aa25bd37a54f.png)
+![](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/c07563023d5999a75c41aa25bd37a54f.png)
 
 Redis.conf 中的数据库数量的设置：
 
@@ -309,9 +257,9 @@ select 15
 OK
 ```
 
-## 3.3：Jedis 客户端
+防火墙设置：
 
-### jedis 介绍
+## 3.3：Jedis 客户端
 
 Redis 不仅是使用命令来操作，现在基本上主流的语言都有客户端支持，比如 java、C、C\#、C++、php、Node.js、Go 等。
 
@@ -319,11 +267,19 @@ Redis 不仅是使用命令来操作，现在基本上主流的语言都有客�
 
 Jedis 同样也是托管在 github 上，地址：https://github.com/xetorthio/jedis
 
-### 工程搭建
+1：添加Jar包
 
-添加 jar 包
+```xml
+<dependency>
+    <groupId>redis.clients</groupId>
+    <artifactId>jedis</artifactId>
+    <version>2.9.0</version>
+    <type>jar</type>
+    <scope>compile</scope>
+</dependency>
+```
 
-### 单实例连接 redis
+2：单实例连接 redis
 
 ```java
 @Test
@@ -339,7 +295,123 @@ public void jedisclient (){
 
 ```
 
-### 使用 jedis 连接池连接 redis 服务器
+3：使用 jedis 连接池连接 redis 服务器
+
+Jedis当然也支持连接池，连接池的好处我就不再缀述，我就说说怎么用：
+
+首先将配置参数抽取出来写成redis.properties文件。例如：
+
+```properties
+#*****************jedis连接参数设置*********************
+#redis服务器ip
+redis.ip=xxx.xxx.xxx.xxx
+#redis服务器端口号
+redis.port=6379
+#redis访问密码
+redis.passWord=123456
+#与服务器建立连接的超时时间
+redis.timeout=3000
+#************************jedis池参数设置*******************
+#jedis的最大活跃连接数
+jedis.pool.maxActive=100
+#jedis最大空闲连接数
+jedis.pool.maxIdle=50
+#jedis池没有连接对象返回时，等待可用连接的最大时间，单位毫秒，默认值为-1，表示永不超时。
+#如果超过等待时间，则直接抛出JedisConnectionException
+jedis.pool.maxWait=1500
+#从池中获取连接的时候，是否进行有效检查
+jedis.pool.testOnBorrow=true
+#归还连接的时候，是否进行有效检查
+jedis.pool.testOnReturn=true
+```
+
+书写Redis连接池工具类RedisPoolUtil，网上有其他版本的方式，其实实现的本质都是一样的
+
+```java
+import java.util.Properties;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+
+/**
+ * Redis连接池工具类
+ */
+public class RedisPoolUtil {
+    private static JedisPool jedisPool = null;
+    private static String redisConfigFile = "redis.properties";
+    //把redis连接对象放到本地线程中
+    private static ThreadLocal<Jedis> local=new ThreadLocal<Jedis>();
+
+    //不允许通过new创建该类的实例
+    private RedisPoolUtil() {
+    }
+
+    /**
+     * 初始化Redis连接池
+     */
+    public static void initialPool() {
+        try {
+            Properties props = new Properties();
+            //加载连接池配置文件
+            props.load(RedisPoolUtil.class.getClassLoader().getResourceAsStream(redisConfigFile));
+            // 创建jedis池配置实例
+            JedisPoolConfig config = new JedisPoolConfig();
+            // 设置池配置项值
+            config.setMaxTotal(Integer.valueOf(props.getProperty("jedis.pool.maxActive")));
+            config.setMaxIdle(Integer.valueOf(props.getProperty("jedis.pool.maxIdle")));
+            config.setMaxWaitMillis(Long.valueOf(props.getProperty("jedis.pool.maxWait")));
+            config.setTestOnBorrow(Boolean.valueOf(props.getProperty("jedis.pool.testOnBorrow")));
+            config.setTestOnReturn(Boolean.valueOf(props.getProperty("jedis.pool.testOnReturn")));
+            // 根据配置实例化jedis池
+            jedisPool = new JedisPool(config, props.getProperty("redis.ip"),
+                    Integer.valueOf(props.getProperty("redis.port")),
+                    Integer.valueOf(props.getProperty("redis.timeout")),
+                    props.getProperty("redis.passWord"));
+            System.out.println("线程池被成功初始化");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 获得连接
+     * @return Jedis
+     */
+    public static Jedis getConn() {
+        //Redis对象
+        Jedis jedis =local.get();
+        if(jedis==null){
+            if (jedisPool == null) {
+                initialPool();
+            }
+            jedis = jedisPool.getResource();
+            local.set(jedis);
+        }
+        return jedis;
+    }
+
+    //归还连接
+    public static void closeConn(){
+        //从本地线程中获取
+        Jedis jedis =local.get();
+        if(jedis!=null){
+            jedis.close();
+        }
+        local.set(null);
+    }
+
+    //关闭池
+    public static void closePool(){
+        if(jedisPool!=null){
+            jedisPool.close();
+        }
+    }
+}
+```
+
+最后Test方法测试使用上述方法即可。
+
+注意：：：：可能会连接超时失败，其实是防火墙的问题，到时候打开防火墙口，然后重启防火墙就OK了。
 
 ```java
 @Test
@@ -552,7 +624,7 @@ User 对象 json(string) redis
 
 hash 叫散列类型，它提供了字段和字段值的映射。字段值只能是字符串类型，不支持散列类型、集合类型等其它类型。如下：
 
-![](media/8a877c23948dede5955016c726a51eff.png)
+![](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/8a877c23948dede5955016c726a51eff.png)
 
 Hash 对象也有两种实现方式：ziplist（压缩列表）和 hashtable（哈希表）
 
@@ -1521,7 +1593,9 @@ slaveof 192.168.242.137 6379
 
 在 redis.conf 中修改
 
-![](media/e11f7ea497ef415af6b3667360eac66a.png)
+```properties
+port 6380
+```
 
 第四步：清除从机中的持久化文件
 

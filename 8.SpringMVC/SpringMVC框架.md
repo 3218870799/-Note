@@ -1,4 +1,4 @@
-﻿# 第 1 章 ：SpringMVC 的基本概念
+﻿﻿# 第 1 章 ：基本概念
 
 ## 1.1 关于三层架构和 MVC
 
@@ -128,9 +128,9 @@ Spring MVC 使用更加简洁,同时还支持 JSR303, 处理 ajax 的请求更�
 
 Struts2 的 OGNL 表达式使页面的开发效率相比 Spring MVC 更高些，但执行效率并没有比 JSTL 提升，尤其是 struts2 的表单标签，远没有 html 执行效率高。
 
-# 第 2 章 SpringMVC 的入门
+# 第 2 章 ：入门
 
-## 2.1 SpringMVC 的入门案例
+## 2.1 入门案例
 
 2.1.1 前期准备
 
@@ -144,11 +144,10 @@ Struts2 的 OGNL 表达式使页面的开发效率相比 Spring MVC 更高些，
 
 jsp 中的内容：
 
-\<a href=_"_\${pageContext.request.contextPath}_/hello"_\>SpringMVC 入门案例\</a\>
-
-\<br/\>
-
-\<a href=_"hello"_\>SpringMVC 入门案例\</a\>
+```jsp
+<a href=_"_\${pageContext.request.contextPath}_/hello">SpringMVC 入门案例</a>
+<a href=_"hello">SpringMVC 入门案例</a>
+```
 
 2.1.2 拷贝 jar 包
 
@@ -228,7 +227,7 @@ public class HelloController {
 
 理论处理流程：
 
-![img](media/1174906-20200317211657375-433915799.png)
+![img](https://img2020.cnblogs.com/i-beta/1174906/202003/1174906-20200314214103736-715650237.png)
 
 （1）用户发送请求至前端控制器 DispatcherServlet；
 
@@ -254,7 +253,7 @@ public class HelloController {
 
 实现处理流程：
 
-![img](media/1174906-20180811205735659-1927603846.png)
+![img](https://images2018.cnblogs.com/blog/1174906/201808/1174906-20180811205735659-1927603846.png)
 
 1）在 Web.xml 中配置前端控制器
 
@@ -429,7 +428,52 @@ public String addUserByObjectJSON(@RequestBody User user){
 
 4.　 Map<String, String[]> getParameterMap()：获取所有参数的 map 集合
 
-# 第 4 章 常用注解
+# 第 4 章 注解
+
+## 配置
+
+添加扫描注解
+
+SpringMVC.xml添加扫描注解
+
+```xml
+<context:component-scan base-package="com.xqc"></context:component-scan>
+```
+
+配置注解的处理器映射器
+
+```xml
+ <!-- 配置注解处理器映射器
+           功能：寻找执行类Controller
+  -->
+ <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">
+ </bean>
+```
+
+配置注解的处理器适配器
+
+```xml
+ <!-- 配置注解处理器适配器 
+     功能：调用controller方法，执行controller
+-->
+ <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+</bean>
+```
+
+视图解析器
+
+```xml
+<!-- 配置sprigmvc视图解析器：解析逻辑试图 
+    后台返回逻辑试图：index
+    视图解析器解析出真正物理视图：前缀+逻辑试图+后缀====/WEB-INF/jsps/index.jsp
+-->
+<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    <property name="prefix" value="/WEB-INF/jsps/"></property>
+    <property name="suffix" value=".jsp"></property>        
+</bean>
+```
+
+## 常用注解：
 
 ## @RequestMapping
 
@@ -550,86 +594,6 @@ pageEncoding="UTF-8"%>
 
 当我们使用此种方式配置时，在**jsp**中第二种写法时，不要在访问**URL**前面加**/**，否则无法找到资源。
 
-**2.4.2.2 method**属性的示例：
-
-控制器代码：
-
-/\*\*
-
-\* 保存账户
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping(value="/saveAccount",method=RequestMethod.**POST**)
-
-**public** String saveAccount() {
-
-System.**out**.println("保存了账户");
-
-**return** "success";
-
-}
-
-**jsp**代码：
-
-\<!-- 请求方式的示例 --\>
-
-\<a href=_"account/saveAccount"_\>保存账户，get 请求\</a\>
-
-\<br/\>
-
-\<form action=_"account/saveAccount"_ method=_"post"_\>
-
-\<input type=_"submit"_ value=*"*保存账户，*post*请求*"*\>
-
-\</form\>
-
-注意：
-
-当使用 get 请求时，提示错误信息是 405，信息是方法不支持 get 方式请求
-
-**2.4.2.3 params**属性的示例：
-
-控制器的代码：
-
-/\*\*
-
-\* 删除账户
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping(value="/removeAccount",params= {"accountName","money\>100"})
-
-**public** String removeAccount() {
-
-System.**out**.println("删除了账户");
-
-**return** "success";
-
-}
-
-**jsp**中的代码：
-
-\<!-- 请求参数的示例 --\>
-
-\<a
-href=_"account/removeAccount?accountName=aaa&money\>100"_\>删除账户，金额 100\</a\>
-
-\<br/\>
-
-\<a
-href=_"account/removeAccount?accountName=aaa&money\>150"_\>删除账户，金额 150\</a\>
-
-注意：
-
-当我们点击第一个超链接时,可以访问成功。
-
-当我们点击第二个超链接时，无法访问。如下图：
-
 ## @RequestBody
 
 接受客户端传入的 JSON 数据
@@ -701,40 +665,6 @@ public String useRequestBody(@RequestBody(required=false) String body){
 value：请求参数中的名称。
 
 required：请求参数中是否必须提供此参数。默认值：true。表示必须提供，如果不提供将报错。
-
-### 4.1.2 示例
-
-**jsp**中的代码：
-
-\<!-- requestParams 注解的使用 --\>
-
-\<a href=_"springmvc/useRequestParam?name=test"_\>requestParam 注解\</a\>
-
-控制器中的代码：
-
-/\*\*
-
-\* requestParams 注解的使用
-
-\* **\@param** username
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping("/useRequestParam")
-
-**public** String useRequestParam(\@RequestParam("name")String username,
-
-\@RequestParam(value="age",required=**false**)Integer age){
-
-System.**out**.println(username+","+age);
-
-**return** "success";
-
-}
-
-运行结果：
 
 ## @PathVaribale
 
@@ -891,40 +821,6 @@ required：是否必须有此消息头
 
 在实际开发中一般不怎么用。
 
-### 4.4.2 示例
-
-**jsp**中代码：
-
-\<!-- RequestHeader 注解 --\>
-
-\<a href=_"springmvc/useRequestHeader"_\>获取请求消息头\</a\>
-
-控制器中代码：
-
-/\*\*
-
-\* RequestHeader 注解
-
-\* **\@param** user
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping("/useRequestHeader")
-
-**public** String useRequestHeader(\@RequestHeader(value="Accept-Language",
-
-required=**false**)String requestHeader){
-
-System.**out**.println(requestHeader);
-
-**return** "success";
-
-}
-
-运行结果：
-
 ## 4.5 CookieValue
 
 ### 4.5.1 说明
@@ -938,40 +834,6 @@ System.**out**.println(requestHeader);
 value：指定 cookie 的名称。
 
 required：是否必须有此 cookie。
-
-### 4.5.2 示例
-
-**jsp**中的代码：
-
-\<!-- CookieValue 注解 --\>
-
-\<a href=_"springmvc/useCookieValue"_\>绑定 cookie 的值\</a\>
-
-控制器中的代码：
-
-/\*\*
-
-\* Cookie 注解注解
-
-\* **\@param** user
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping("/useCookieValue")
-
-**public** String
-useCookieValue(\@CookieValue(value="JSESSIONID",required=**false**) String
-cookieValue){
-
-System.**out**.println(cookieValue);
-
-**return** "success";
-
-}
-
-运行结果：
 
 ## 4.6 ModelAttribute
 
@@ -997,238 +859,6 @@ value：用于获取数据的 key。key 可以是 POJO 的属性名称，也可�
 
 我们在编辑一个用户时，用户有一个创建信息字段，该字段的值是不允许被修改的。在提交表单数据是肯定没有此字段的内容，一旦更新会把该字段内容置为 null，此时就可以使用此注解解决问题。
 
-### 4.6.2 示例
-
-**4.6.2.1** 基于**POJO**属性的基本使用：
-
-**jps**代码：
-
-\<!-- ModelAttribute 注解的基本使用 --\>
-
-\<a href="springmvc/testModelAttribute?username=test"\>测试 modelattribute\</a\>
-
-控制器代码：
-
-/\*\*
-
-\* 被 ModelAttribute 修饰的方法
-
-\* **\@param** user
-
-\*/
-
-\@ModelAttribute
-
-**public void** showModel(User user) {
-
-System.**out**.println("执行了 showModel 方法"+user.getUsername());
-
-}
-
-/\*\*
-
-\* 接收请求的方法
-
-\* **\@param** user
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping("/testModelAttribute")
-
-**public** String testModelAttribute(User user) {
-
-System.**out**.println("执行了控制器的方法"+user.getUsername());
-
-**return** "success";
-
-}
-
-运行结果：
-
-**4.6.2.2** 基于**Map**的应用场景
-
-示例 1：ModelAttribute 修饰方法带返回值
-
-需求：
-
-修改用户信息，要求用户的密码不能修改
-
-**jsp**的代码：
-
-\<!-- 修改用户信息 --\>
-
-\<form action=_"springmvc/updateUser"_ method=_"post"_\>
-
-用户名称：\<input type=_"text"_ name=_"username"_ \>\<br/\>
-
-用户年龄：\<input type=_"text"_ name=_"age"_ \>\<br/\>
-
-\<input type=_"submit"_ value=*"*保存*"*\>
-
-\</form\>
-
-控制的代码：
-
-/\*\*
-
-\* 查询数据库中用户信息
-
-\* **\@param** user
-
-\*/
-
-\@ModelAttribute
-
-**public** User showModel(String username) {
-
-//模拟去数据库查询
-
-User abc = findUserByName(username);
-
-System.**out**.println("执行了 showModel 方法"+abc);
-
-**return** abc;
-
-}
-
-/\*\*
-
-\* 模拟修改用户方法
-
-\* **\@param** user
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping("/updateUser")
-
-**public** String testModelAttribute(User user) {
-
-System.**out**.println("控制器中处理请求的方法：修改用户："+user);
-
-**return** "success";
-
-}
-
-/\*\*
-
-\* 模拟去数据库查询
-
-\* **\@param** username
-
-\* **\@return**
-
-\*/
-
-**private** User findUserByName(String username) {
-
-User user = **new** User();
-
-user.setUsername(username);
-
-user.setAge(19);
-
-user.setPassword("123456");
-
-**return** user;
-
-}
-
-运行结果：
-
-**4.6.2.3** 基于**Map**的应用场景**ModelAttribute**修饰方法不带返回值
-
-需求：
-
-修改用户信息，要求用户的密码不能修改
-
-**jsp**中的代码：
-
-\<!-- 修改用户信息 --\>
-
-\<form action=_"springmvc/updateUser"_ method=_"post"_\>
-
-用户名称：\<input type=_"text"_ name=_"username"_ \>\<br/\>
-
-用户年龄：\<input type=_"text"_ name=_"age"_ \>\<br/\>
-
-\<input type=_"submit"_ value=*"*保存*"*\>
-
-\</form\>
-
-控制器中的代码：
-
-/\*\*
-
-\* 查询数据库中用户信息
-
-\* **\@param** user
-
-\*/
-
-\@ModelAttribute
-
-**public void** showModel(String username,Map\<String,User\> map) {
-
-//模拟去数据库查询
-
-User user = findUserByName(username);
-
-System.**out**.println("执行了 showModel 方法"+user);
-
-map.put("abc",user);
-
-}
-
-/\*\*
-
-\* 模拟修改用户方法
-
-\* **\@param** user
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping("/updateUser")
-
-**public** String testModelAttribute(\@ModelAttribute("abc")User user) {
-
-System.**out**.println("控制器中处理请求的方法：修改用户："+user);
-
-**return** "success";
-
-}
-
-/\*\*
-
-\* 模拟去数据库查询
-
-\* **\@param** username
-
-\* **\@return**
-
-\*/
-
-**private** User findUserByName(String username) {
-
-User user = **new** User();
-
-user.setUsername(username);
-
-user.setAge(19);
-
-user.setPassword("123456");
-
-**return** user;
-
-}
-
-运行结果：
-
 ## 4.7 SessionAttribute
 
 ### 4.7.1 说明
@@ -1243,86 +873,6 @@ value：用于指定存入的属性名称
 
 type：用于指定存入的数据类型。
 
-### 4.7.2 示例
-
-**jsp**中的代码：
-
-\<!-- SessionAttribute 注解的使用 --\>
-
-\<a href=_"springmvc/testPut"_\>存入 SessionAttribute\</a\>
-
-\<hr/\>
-
-\<a href=_"springmvc/testGet"_\>取出 SessionAttribute\</a\>
-
-\<hr/\>
-
-\<a href=_"springmvc/testClean"_\>清除 SessionAttribute\</a\>
-
-控制器中的代码：
-
-\@Controller("sessionAttributeController")
-
-\@RequestMapping("/springmvc")
-
-\@SessionAttributes(value ={"username","password"},types={Integer.**class**})
-
-**public class** SessionAttributeController {
-
-/\*\*
-
-\* 把数据存入 SessionAttribute
-
-\* **\@param** model
-
-\* **\@return**
-
-\* Model 是 spring 提供的一个接口，该接口有一个实现类 ExtendedModelMap
-
-\* 该类继承了 ModelMap，而 ModelMap 就是 LinkedHashMap 子类
-
-\*/
-
-\@RequestMapping("/testPut")
-
-**public** String testPut(Model model){
-
-model.addAttribute("username", "泰斯特");
-
-model.addAttribute("password","123456");
-
-model.addAttribute("age", 31);
-
-//跳转之前将数据保存到 username、password 和 age 中，因为注解\@SessionAttribute 中有这几个参数
-
-**return** "success";
-
-}
-
-\@RequestMapping("/testGet")
-
-**public** String testGet(ModelMap model){
-
-System.**out**.println(model.get("username")+";"+model.get("password")+";"+model.get("age"));
-
-**return** "success";
-
-}
-
-\@RequestMapping("/testClean")
-
-**public** String complete(SessionStatus sessionStatus){
-
-sessionStatus.setComplete();
-
-**return** "success";
-
-}
-
-}
-
-运行结果：
-
 # 第 5 章 响应数据和结果视图
 
 ## 1.1 返回值分类
@@ -1333,31 +883,17 @@ controller 方法返回字符串可以指定逻辑视图名，通过视图解析
 
 //指定逻辑视图名，经过视图解析器解析为 jsp 物理路径：/WEB-INF/pages/success.jsp
 
-\@RequestMapping("/testReturnString")
+```java
+@RequestMapping("/testReturnString")
 
-**public** String testReturnString() {
-
-System.**out**.println("AccountController 的 testReturnString
-方法执行了。。。。");
-
-**return** "success";
-
+public String testReturnString() {
+    System.**out**.println("AccountController 的 testReturnString
+    方法执行了。。。。");
+    **return** "success";
 }
-
-运行结果：
-
-![](media/501f6af3753925e0ea71facf14b177cb.png)
+```
 
 ### 1.1.2 void
-
-在昨天的学习中，我们知道 Servlet 原始 API 可以作为控制器中方法的参数：
-
-\@RequestMapping("/testReturnVoid")
-
-**public void** testReturnVoid(HttpServletRequest request,HttpServletResponse
-response) **throws** Exception {
-
-}
 
 在 controller 方法形参上可以定义 request 和 response，使用 request 或 response 指定响应结果：
 
@@ -1386,57 +922,20 @@ ModelAndView 是 SpringMVC 为我们提供的一个对象，该对象也可以�
 
 示例代码：
 
-/\*\*
-
-\* 返回 ModeAndView
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping("/testReturnModelAndView")
-
+```java
+@RequestMapping("/testReturnModelAndView")
 **public** ModelAndView testReturnModelAndView() {
 
-ModelAndView mv = **new** ModelAndView();
+    ModelAndView mv = **new** ModelAndView();
 
-mv.addObject("username", "张三");
+    mv.addObject("username", "张三");
 
-mv.setViewName("success");
+    mv.setViewName("success");
 
-return mv;
+    return mv;
 
 }
-
-响应的**jsp**代码：
-
-\<%\@ page language=_"java"_ contentType=_"text/html; charset=UTF-8"_
-pageEncoding=_"UTF-8"_%\>
-
-\<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd"\>
-
-\<html\>
-
-\<head\>
-
-\<meta http-equiv=_"Content-Type"_ content=_"text/html; charset=UTF-8"_\>
-
-\<title\>执行成功\</title\>
-
-\</head\>
-
-\<body\>
-
-执行成功！
-
-\${requestScope.username}
-
-\</body\>
-
-\</html\>
-
-输出结果：
+```
 
 注意：
 
@@ -1448,15 +947,8 @@ pageEncoding=_"UTF-8"_%\>
 
 controller 方法在提供了 String 类型的返回值之后，默认就是请求转发。我们也可以写成：
 
-/\*\*
-
-\* 转发
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping("/testForward")
+```java
+@RequestMapping("/testForward")
 
 **public** String testForward() {
 
@@ -1465,6 +957,7 @@ System.**out**.println("AccountController 的 testForward 方法执行了。。�
 **return** "forward:/WEB-INF/pages/success.jsp";
 
 }
+```
 
 需要注意的是，如果用了**formward**：则路径必须写成实际视图 url，不能写逻辑视图。
 
@@ -1474,15 +967,8 @@ System.**out**.println("AccountController 的 testForward 方法执行了。。�
 
 contrller 方法提供了一个 String 类型返回值之后，它需要在返回值里使用:**redirect:**
 
-/\*\*
-
-\* 重定向
-
-\* **\@return**
-
-\*/
-
-\@RequestMapping("/testRedirect")
+```java
+@RequestMapping("/testRedirect")
 
 **public** String testRedirect() {
 
@@ -1491,6 +977,9 @@ System.**out**.println("AccountController 的 testRedirect 方法执行了。。
 **return** "redirect:testReturnModelAndView";
 
 }
+```
+
+
 
 它相当于“response.sendRedirect(url)”。需要注意的是，如果是重定向到 jsp 页面，则 jsp 页面不能写在 WEB-INF 目录中，否则无法找到。
 
@@ -1502,230 +991,26 @@ System.**out**.println("AccountController 的 testRedirect 方法执行了。。
 
 该注解用于将 Controller 的方法返回的对象，通过 HttpMessageConverter 接口转换为指定格式的数据如：json,xml 等，通过 Response 响应给客户端
 
-### 1.3.2 示例
-
-需求：
-
-使用\@ResponseBody 注解实现将 controller 方法返回对象转换为 json 响应给客户端。
-
-前置知识点：
-
-Springmvc 默认用 MappingJacksonHttpMessageConverter 对 json 数据进行转换，需要加入 jackson 的包。
-
-注意：**2.7.0**以下的版本用不了
-
-**jsp**中的代码：
-
-\<script type=_"text/javascript"_
-src=_"_\${pageContext.request.contextPath}_/js/jquery.min.js"_\>\</script\>
-
-\<script type=_"text/javascript"_\>
-
-\$(**function**(){
-
-\$("\#testJson").click(**function**(){
-
-\$.ajax({
-
-type:"post",
-
-url:"\${pageContext.request.contextPath}/testResponseJson",
-
-contentType:"application/json;charset=utf-8",
-
-data:'{"id":1,"name":"test","money":999.0}',
-
-dataType:"json",
-
-success:**function**(data){
-
-alert(data);
-
-}
-
-});
-
-});
-
-})
-
-\</script\>
-
-\<!-- 测试异步请求 --\>
-
-\<input type=_"button"_ value=*"*测试*ajax*请求*json*和响应*json"*
-id=_"testJson"_/\>
-
-控制器中的代码：
-
-\@Controller("jsonController")
-
-**public class** JsonController {
-
-/\*\*
-
-\* 测试响应 json 数据
-
-\*/
-
-\@RequestMapping("/testResponseJson")
-
-**public** \@ResponseBody Account testResponseJson(\@RequestBody Account
-account) {
-
-System.**out**.println("异步请求："+account);
-
-**return** account;
-
-}
-
-}
-
-运行结果：
-
-![](media/e26e68ce023044b1e5381726795536ad.png)
-
-# 第 6 章 SpringMVC 实现文件上传
-
-## 2.1 文件上传的回顾
-
-### 2.1.1 文件上传的必要前提
-
-A form 表单的 enctype 取值必须是：multipart/form-data
-
-(默认值是:application/x-www-form-urlencoded)
-
-enctype:是表单请求正文的类型
-
-B method 属性取值必须是 Post
-
-C 提供一个文件选择域\<input type=”file” /\>
-
-### 2.1.2 文件上传的原理分析
-
-当 form 表单的 enctype 取值不是默认值后，request.getParameter()将失效。
-
-enctype=”application/x-www-form-urlencoded”时，form 表单的正文内容是：
-
-key=value&key=value&key=value
-
-当 form 表单的 enctype 取值为 Mutilpart/form-data 时，请求正文内容就变成：
-
-每一部分都是 MIME 类型描述的正文
-
-\-----------------------------7de1a433602ac 分界符
-
-Content-Disposition: form-data; name="userName" 协议头
-
-aaa 协议的正文
-
-\-----------------------------7de1a433602ac
-
-Content-Disposition: form-data; name="file";
-filename="C:\\Users\\zhy\\Desktop\\fileupload_demofile\\b.txt"
-
-Content-Type: text/plain 协议的类型（**MIME**类型）
-
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-
-\-----------------------------7de1a433602ac--
-
-### 2.1.3 借助第三方组件实现文件上传
-
-使用 Commons-fileupload 组件实现文件上传，需要导入该组件相应的支撑 jar 包：Commons-fileupload 和 commons-io。commons-io
-不属于文件上传组件的开发 jar 文件，但 Commons-fileupload 组件从 1.1
-版本开始，它工作时需要 commons-io 包的支持。
-
-## 2.2 springmvc 传统方式的文件上传
-
-### 2.2.1 说明
-
-传统方式的文件上传，指的是我们上传的文件和访问的应用存在于同一台服务器上。
-
-并且上传完成之后，浏览器可能跳转。
-
-### 2.2.2 实现步骤
-
-**2.2.2.1** 第一步：拷贝文件上传的**jar**包到工程的**lib**目录
-
-**2.2.2.2 第二步：编写 jsp 页面**
-
-\<form action=_"/fileUpload"_ method=_"post"_ enctype=_"multipart/form-data"_\>
-
-名称：\<input type=_"text"_ name=_"picname"_/\>\<br/\>
-
-图片：\<input type=_"file"_ name=_"uploadFile"_/\>\<br/\>
-
-\<input type=_"submit"_ value=*"*上传*"*/\>
-
-\</form\>
-
-**2.2.2.3** 第三步：编写控制器
-
 ```java
-@Controller("fileUploadController")
-public class FileUploadController {
-/**
-* 文件上传
-*/
-@RequestMapping("/fileUpload")
-public String testResponseJson(String picname,MultipartFile uploadFile,HttpServletRequest request) throws Exception{
-//定义文件名
-String fileName = "";
-//1.获取原始文件名
-String uploadFileName = uploadFile.getOriginalFilename();
-//2.截取文件扩展名
-String extendName = uploadFileName.substring(uploadFileName.lastIndexOf(".")+1, uploadFileName.length());
-//3.把文件加上随机数，防止文件重复
-String uuid = UUID.randomUUID().toString().replace("-", "").toUpperCase();
-//4.判断是否输入了文件名
-if(!StringUtils.isEmpty(picname)) {
-fileName = uuid+"_"+picname+"."+extendName;
-}else {
-fileName = uuid+"_"+uploadFileName;
-}
-System.out.println(fileName);
-//2.获取文件路径
-ServletContext context = request.getServletContext();
-String basePath = context.getRealPath("/uploads");
-//3.解决同一文件夹中文件过多问题
-String datePath = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-//4.判断路径是否存在
-File file = new File(basePath+"/"+datePath);
-if(!file.exists()) {
-file.mkdirs();
-}
-//5.使用MulitpartFile接口中方法，把上传的文件写到指定位置
-uploadFile.transferTo(new File(file,fileName));
-return "success";
+@Controller("jsonController")
+public class** JsonController {
+    @RequestMapping("/testResponseJson")
+    public** @ResponseBody Account testResponseJson(\@RequestBody Account
+    account) {
+        System.**out**.println("异步请求："+account);
 
+        **return** account;
+    }
+}
 ```
 
-**2.2.2.4** 第四步：配置文件解析器
 
-\<!-- 配置文件上传解析器 --\>
 
-\<bean id=_"multipartResolver"_ \<!-- id 的值是固定的--\>
+# 第 6 章文件上传
 
-class=_"org.springframework.web.multipart.commons.CommonsMultipartResolver"_\>
+## 跨服务器文件上传
 
-\<!-- 设置上传文件的最大尺寸为 5MB --\>
-
-\<property name=_"maxUploadSize"_\>
-
-\<value\>5242880\</value\>
-
-\</property\>
-
-\</bean\>
-
-注意：
-
-文件上传的解析器**id**是固定的，不能起别的名称，否则无法实现请求参数的绑定。（不光是文件，其他字段也将无法绑定）
-
-## 2.3 springmvc 跨服务器方式的文件上传
-
-### 2.3.1 分服务器的目的
+ 分服务器的目的：
 
 在实际开发中，我们会有很多处理不同功能的服务器。例如：
 
@@ -1741,19 +1026,7 @@ class=_"org.springframework.web.multipart.commons.CommonsMultipartResolver"_\>
 
 分服务器处理的目的是让服务器各司其职，从而提高我们项目的运行效率。
 
-### 2.3.2 准备两个 tomcat 服务器，并创建一个用于存放图片的 web 工程
-
-在文件服务器的 tomcat 配置中加入，允许读写操作。文件位置：
-
-加入内容：
-
-加入此行的含义是：接收文件的目标服务器可以支持写入操作。
-
-### 2.3.3 拷贝 jar 包
-
-在我们负责处理文件上传的项目中拷贝文件上传的必备 jar 包
-
-### 2.3.4 编写控制器实现上传图片
+2： 编写控制器实现上传图片
 
 ```java
 @Controller("fileUploadController2")
@@ -1793,39 +1066,34 @@ return "success";
 
 ```
 
-### 2.3.5 编写 jsp 页面
+3: 编写 jsp 页面
 
-\<form action="fileUpload2" method="post" enctype="multipart/form-data"\>
+```jsp
+<form action="fileUpload2" method="post" enctype="multipart/form-data"\>
+    名称：<input type="text" name="picname"><br>
+    图片：<input type="file" name="uploadFile"><br>
+    <input type="submit" value="上传">
+</form>
+```
 
-名称：\<input type="text" name="picname"/\>\<br/\>
+4：配置解析器
 
-图片：\<input type="file" name="uploadFile"/\>\<br/\>
+```xml
+<!-- 配置文件上传解析器 -->
+<bean id=_"multipartResolver" 
+class=_"org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    <!-- 设置上传文件的最大尺寸为 5MB -->
+    <property name=_"maxUploadSize">
+    	<value>5242880</value>
+    </property>
+</bean>
+```
 
-\<input type="submit" value="上传"/\>
 
-\</form\>
 
-### 2.3.6 配置解析器
+# 第 7 章 异常处理
 
-\<!-- 配置文件上传解析器 --\>
-
-\<bean id=_"multipartResolver"_
-
-class=_"org.springframework.web.multipart.commons.CommonsMultipartResolver"_\>
-
-\<!-- 设置上传文件的最大尺寸为 5MB --\>
-
-\<property name=_"maxUploadSize"_\>
-
-\<value\>5242880\</value\>
-
-\</property\>
-
-\</bean\>
-
-# 第 7 章 SpringMVC 中的异常处理
-
-## 3.1 异常处理的思路
+## 异常处理的思路
 
 系统中异常包括两类：预期异常和运行时异常 RuntimeException，前者通过捕获异常从而获取异常信息，后者主要通过规范代码开发、测试通过手段减少运行时异常的发生。
 
@@ -1833,9 +1101,9 @@ class=_"org.springframework.web.multipart.commons.CommonsMultipartResolver"_\>
 
 ![](media/04bb91d2a91d8bd56e2b3532fddd7beb.png)
 
-## 3.2 实现步骤
+##  实现
 
-### 3.2.1：编写异常类和错误页面
+1：编写异常类和错误页面
 
 ```java
 //自定义异常
@@ -1868,7 +1136,7 @@ pageEncoding="UTF-8"%>
 </html>
 ```
 
-### 3.2.2 自定义异常处理器
+2 自定义异常处理器
 
 ```java
 public class CustomExceptionResolver implements HandlerExceptionResolver {
@@ -1893,17 +1161,13 @@ public class CustomExceptionResolver implements HandlerExceptionResolver {
 }
 ```
 
-### 3.2.3 配置异常处理器
+3： 配置异常处理器
 
-\<!-- 配置自定义异常处理器 --\>
-
-\<bean id=_"handlerExceptionResolver"_
-
-class=_"com.xqc.exception.CustomExceptionResolver"_/\>
-
-**3.2.4** 运行结果：
-
-![](media/1bb56a082e30161d40f64a852a82ccef.png)
+```xml
+<!-- 配置自定义异常处理器 -->
+<bean id=_"handlerExceptionResolver"
+class=_"com.xqc.exception.CustomExceptionResolver">
+```
 
 # 第 8 章 拦截器
 
@@ -2108,9 +1372,5 @@ public class LoginInterceptor implements HandlerInterceptor{
 ## 5：拦截器适配器
 
 HandlerInterceptorAdapter：有时候我们可能只需要实现三个回调方法中的某一个，如果实现HandlerInterceptor接口的话，三个方法必须实现，不管你需不需要，此时spring提供了一个HandlerInterceptorAdapter适配器（种适配器设计模式的实现），允许我们只实现需要的回调方法。
-
-
-
-
 
 # 第九章:整合
