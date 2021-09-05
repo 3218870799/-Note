@@ -1,4 +1,4 @@
-﻿# 第 1 章 框架概述
+﻿﻿﻿﻿# 第 1 章 框架概述
 
 ##  JDBC 编程
 
@@ -102,8 +102,6 @@ MyBatis 可以完成：
 https://github.com/mybatis/mybatis-3/releases
 
 （1） 创建 mysql 数据库和表
-
-![](media/f6e25e9cbaee11363e6a61d1f3b79057.jpg)
 
 （2） 创建 maven 工程
 
@@ -242,7 +240,6 @@ public interface StudentDao {
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE configuration
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"         "http://mybatis.org/dtd/mybatis-3-config.dtd">
-
     <!--配置mybatis环境-->
     <environments default="mysql">
         <!--id:数据源的名称-->
@@ -402,48 +399,6 @@ int deleteStudent(int id);
 </delete>
 ```
 
-## 3 ：MyBatis对象分析
-
-### 对象使用
-
-（1） Resources 类
-
-Resources 类，顾名思义就是资源，用于读取资源文件。其有很多方法通过加载并解析资源文件，返回不同类型的 IO 流对象。
-
-（2） SqlSessionFactoryBuilder 类
-
-SqlSessionFactory 的创建，需要使用 SqlSessionFactoryBuilder 对象的 build()方法。由于 SqlSessionFactoryBuilder 对象在创建完工厂对象后，就完成了其历史使命，即可被销毁。所以，一般会将该 SqlSessionFactoryBuilder 对象创建为一个方法内的局部对象，方法结束，对象销毁。
-
-（3） SqlSessionFactory 接口
-
-SqlSessionFactory 接口对象是一个重量级对象（系统开销大的对象），是线程安全的，所以一个应用只需要一个该对象即可。创建 SqlSession 需要使用 SqlSessionFactory 接口的 openSession()方法。
-
-SqlSessionFactory 是 MyBatis 的关键对象,它是个单个数据库映射关系经过编译后的内存镜像.SqlSessionFactory 对象的实例可以通过 SqlSessionFactoryBuilder 对象类获得,SqlSessionFactoryBuilder 则可以从 XML 配置文件或一个预先定制的 Configuration 的实例构建出 SqlSessionFactory 的实例.每一个 MyBatis 的应用程序都以一个 SqlSessionFactory 对象的实例为核心.同时 SqlSessionFactory 也是线程安全的,SqlSessionFactory 一旦被创建,应该在应用执行期间都存在.在应用运行期间不要重复创建多次,建议使用单例模式.SqlSessionFactory 是创建 SqlSession 的工厂.
-
-openSession(true)：创建一个有自动提交功能的 SqlSession
-
-openSession(false)：创建一个非自动提交功能的 SqlSession，需手动提交
-
-openSession()：同 openSession(false)
-
-mybatis 框架主要是围绕着 SqlSessionFactory 进行的，创建过程大概如下：
-
-```xml
-(1)、定义一个Configuration对象，其中包含数据源、事务、mapper文件资源以及影响数据库行为属性设置settings
-
-(2)、通过配置对象，则可以创建一个SqlSessionFactoryBuilder对象
-
-(3)、通过 SqlSessionFactoryBuilder 获得SqlSessionFactory 的实例。
-
-(4)、SqlSessionFactory 的实例可以获得操作数据的SqlSession实例，通过这个实例对数据库进行操
-```
-
-（4）SqlSession 接口
-
-SqlSession 接口对象用于执行持久化操作。一个 SqlSession 对应着一次数据库会话，一次会话以 SqlSession 对象的创建开始，以 SqlSession 对象的关闭结束。
-
-SqlSession 的实例不能被共享，SqlSession 接口对象是线程不安全的，所以每次数据库会话结束前，需要马上调用其 close()方法，将其关闭。再次需要会话，再次创建。 SqlSession 在方法内部创建，.使用完 SqlSeesion 之后关闭 Session 很重要,应该确保使用 finally 块来关闭它.
-
 ## 4：代理CURD
 
 （**1**） 去掉 **Dao** 接口实现类
@@ -496,8 +451,6 @@ StudentDao.delectStudent(1006);
 
 动态代理
 
-![](media/bdd7936aae7acaded41ed39c477e1ea5.jpg)
-
 MapperProxy 类定义
 
 ```java
@@ -530,7 +483,7 @@ public Object execute( SqlSession sqlSession，0bject[] args){
 
 ```
 
-## 5： **深入理解参数**
+## 5： 深入理解参数
 
 ### parameterType
 
@@ -551,7 +504,7 @@ parameterType: 接口中方法参数的类型，类型的完全限定名或别�
 
 从 java 代码中把参数传递到 mapper.xml 文件。
 
-#### 一个简单参数
+1：一个简单参数
 
 Dao 接口中方法的参数只有一个简单类型（java 基本类型和 String），占位符 **\#{**任意字符 **}**，和方法的参数名无关。
 
@@ -565,7 +518,7 @@ mapper 文件：
 
 \#{studentId} , studentId 是自定义的变量名称，和方法参数名无关。
 
-#### 多个参数-使用@Param
+2：多个参数-使用@Param
 
 当 Dao 接口方法多个参数，需要通过名称使用参数。在方法形参前面加入@Param(“自定义参数名”)，
 
@@ -585,7 +538,7 @@ mapper 文件：
 </select>
 ```
 
-#### 多个参数-使用对象
+3：多个参数-使用对象
 
 使用 java 对象传递参数， java 的属性值就是 sql 需要的参数值。每一个属性就是一个参数。
 
@@ -631,7 +584,7 @@ mapper 文件：
 </select>
 ```
 
-#### 多个参数-按位置
+4：多个参数-按位置
 
 参数位置从 0 开始， 引用参数语法 **\#{ arg** 位置 **}** ， 第一个参数是\#{arg0}，第二个是\#{arg1}
 
@@ -651,7 +604,7 @@ mapper 文件
 </select>
 ```
 
-#### 多个参数-使用 Map
+5：多个参数-使用 Map
 
 Map 集合可以存储多个值，使用 Map 向 mapper 文件一次传入多个参数。Map 集合使用 String 的 key， Object 类型的值存储参数。 mapper 文件使用 \# { key } 引用参数值。
 
@@ -824,8 +777,6 @@ Mybatis 映射几种：
 
 3：查询条件不为空就添加该查询条件
 
-![](media/8bc55675eaf753a1ac11940957cefa7b.png)
-
 ## 3 \<where\>
 
 \<if/\>标签的中存在一个比较麻烦的地方：需要在 where 后手工添加 1=1 的子句。因为，若 where 后的所有\<if/\>条件均为 false，而 where 后若又没有 1=1
@@ -944,6 +895,30 @@ choose 标签是按顺序判断其内部 when 标签中的 test 条件出否成�
 
 # 第 5 章 配置文件
 
+https://mybatis.org/mybatis-3/zh/configuration.html
+
+- configuration（配置）
+  - [properties（属性）](https://mybatis.org/mybatis-3/zh/configuration.html#properties)
+  - [settings（设置）](https://mybatis.org/mybatis-3/zh/configuration.html#settings)
+  - [typeAliases（类型别名）](https://mybatis.org/mybatis-3/zh/configuration.html#typeAliases)
+  - [typeHandlers（类型处理器）](https://mybatis.org/mybatis-3/zh/configuration.html#typeHandlers)
+  - [objectFactory（对象工厂）](https://mybatis.org/mybatis-3/zh/configuration.html#objectFactory)
+  - [plugins（插件）](https://mybatis.org/mybatis-3/zh/configuration.html#plugins)
+  - environments（环境配置）
+    - environment（环境变量）
+      - transactionManager（事务管理器）
+      - dataSource（数据源）
+  - [databaseIdProvider（数据库厂商标识）](https://mybatis.org/mybatis-3/zh/configuration.html#databaseIdProvider)
+  - [mappers（映射器）](https://mybatis.org/mybatis-3/zh/configuration.html#mappers)
+
+顺序
+
+书写顺序必须遵循
+
+```xml
+properties;setting;typeAliases;typeHandlers;
+```
+
 ## 5.1 主配置文件
 
 主配置文件特点：
@@ -1017,7 +992,6 @@ dataSource 配置
     <property name="username" value="root"/>
     <property name="password" value="123456"/>
 </dataSource>
-
 ```
 
 MyBatis 在初始化时，根据\<dataSource\>的 type 属性来创建相应类型的的数据源 DataSource，即： type=”POOLED”：MyBatis 会创建 PooledDataSource 实例 type=”UNPOOLED” ： MyBatis 会创建 UnpooledDataSource 实例 type=”JNDI”：MyBatis 会从 JNDI 服务上查找 DataSource 实例，然后返回使用
@@ -1026,11 +1000,16 @@ MyBatis 在初始化时，根据\<dataSource\>的 type 属性来创建相应类�
 
 （1） 默认需要手动提交事务
 
-Mybatis 框架是对 JDBC 的封装，所以 Mybatis 框架的事务控制方式，本身也是用 JDBC 的 Connection 对象的 commit(), rollback() .Connection 对象的 setAutoCommit()方法来设置事务提交方式的。自动提交和手工提交、该标签用于指定 MyBatis 所使用的事务管理器。MyBatis 支持两种事务管理器类型：**JDBC** 与 **MANAGED**。
+Mybatis 框架是对 JDBC 的封装，所以 Mybatis 框架的事务控制方式，本身也是用 JDBC 的 Connection 对象的 commit(), rollback() .Connection 对象的 setAutoCommit()方法来设置事务提交方式的。自动提交和手工提交、该标签用于指定 MyBatis 所使用的事务管理器。
+
+MyBatis 支持两种事务管理器类型：**JDBC** 与 **MANAGED**。默认的是JDBC
 
 - JDBC：使用 JDBC 的事务管理机制。即，通过 Connection 的 commit()方法提交，通过 rollback()方法回滚。但默认情况下，MyBatis 将自动提交功能关闭了，改为了手动提交。即程序中需要显式的对事务进行提交或回滚。从日志的输出信息中可以看到。
 
-![](media/ca43a096480c53e5266c9b5592e41124.jpg)
+```txt
+Created connection 1956710488.
+Setting autocommit to false on JDBC Connection [com.mys==> Preparing: insert into student(id,name, email,age)
+```
 
 - MANAGED：由容器来管理事务的整个生命周期（如 Spring 容器）。
 
@@ -1055,11 +1034,16 @@ SqlSession openSession(boolean autoCommit);
 
 在 resources 目录创建 jdbc.properties 文件，文件名称自定义。
 
-![](media/e9a78db108ab047b4f3c5301d102502f.jpg)
+```properties
+jdbc.driver=com.mysql.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:3306/ssm?charset=utf-8
+jdbc.username=root
+jdbc.password=123456
+```
 
 （**2**） 使用 properties标签
 
-![](media/b57690224d6d63fb8faccbb6b1530134.jpg)
+通过
 
 5.5 typeAliases（类型别名）
 
@@ -1074,6 +1058,10 @@ Mybatis 支持默认别名，我们也可以采用自定义别名方式来开发
 （2） \<package name=""/\>指定包下的所有 Dao 接口
 
 如：\<package name="com.xqc.dao"/\> 注意：此种方法要求 Dao 接口名称和 mapper 映射文件名称相同，且在同一个目录中。
+
+
+
+
 
 # 第六章：原理
 
@@ -1097,11 +1085,55 @@ Mapper接口及其映射文件是在加载mybatis-config配置文件的时候存
 
 ## SQL执行流程
 
-![图片](media/640.png)
+![image-20210905175526025](media/image-20210905175526025.png)
 
+生命周期
 
+开始时，Resource获取加载全局配置文件，实例化sqlSessionFactoryBuild构造器，加载mybatis.xml配制文件，产生SqlSessionFactory，创建一个执行器Executor，通过工厂产生SqlSession，然后通过SqlSession访问mapper文件，生成SQL
 
+SqlSessionFactoryBuild：
 
+（1） Resources 类
+
+Resources 类，顾名思义就是资源，用于读取资源文件。其有很多方法通过加载并解析资源文件，返回不同类型的 IO 流对象。
+
+（2） SqlSessionFactoryBuilder 类
+
+只是用build()方法来创建SqlSessionFactory，一旦创建完成就没用了；所以，一般会将该 SqlSessionFactoryBuilder 对象创建为一个方法内的局部对象，方法结束，对象销毁。
+
+（3） SqlSessionFactory 接口
+
+相当于一个数据库连接池；一旦创建就一直存在，没有理由丢弃或者重新创建另一个实例；
+
+SqlSessionFactory 接口对象是一个重量级对象（系统开销大的对象），是线程安全的，所以一个应用只需要一个该对象即可。创建 SqlSession 需要使用 SqlSessionFactory 接口的 openSession()方法。
+
+SqlSessionFactory 是 MyBatis 的关键对象,它是个单个数据库映射关系经过编译后的内存镜像.SqlSessionFactory 对象的实例可以通过 SqlSessionFactoryBuilder 对象类获得,SqlSessionFactoryBuilder 则可以从 XML 配置文件或一个预先定制的 Configuration 的实例构建出 SqlSessionFactory 的实例.每一个 MyBatis 的应用程序都以一个 SqlSessionFactory 对象的实例为核心.同时 SqlSessionFactory 也是线程安全的,SqlSessionFactory 一旦被创建,应该在应用执行期间都存在.在应用运行期间不要重复创建多次,建议使用单例模式.SqlSessionFactory 是创建 SqlSession 的工厂.
+
+openSession(true)：创建一个有自动提交功能的 SqlSession
+
+openSession(false)：创建一个非自动提交功能的 SqlSession，需手动提交
+
+openSession()：同 openSession(false)
+
+mybatis 框架主要是围绕着 SqlSessionFactory 进行的，创建过程大概如下：
+
+```xml
+(1)、定义一个Configuration对象，其中包含数据源、事务、mapper文件资源以及影响数据库行为属性设置settings
+
+(2)、通过配置对象，则可以创建一个SqlSessionFactoryBuilder对象
+
+(3)、通过 SqlSessionFactoryBuilder 获得SqlSessionFactory 的实例。
+
+(4)、SqlSessionFactory 的实例可以获得操作数据的SqlSession实例，通过这个实例对数据库进行操
+```
+
+（4）SqlSession 接口
+
+每个线程都应该有一个；不是线程安全的；用完就应该关闭掉；
+
+SqlSession 接口对象用于执行持久化操作。一个 SqlSession 对应着一次数据库会话，一次会话以 SqlSession 对象的创建开始，以 SqlSession 对象的关闭结束。
+
+SqlSession 的实例不能被共享，SqlSession 接口对象是线程不安全的，所以每次数据库会话结束前，需要马上调用其 close()方法，将其关闭。再次需要会话，再次创建。 SqlSession 在方法内部创建，.使用完 SqlSeesion 之后关闭 Session 很重要,应该确保使用 finally 块来关闭它.
 
 
 
@@ -1109,13 +1141,13 @@ Mapper接口及其映射文件是在加载mybatis-config配置文件的时候存
 
 ## 7.1 PageHelper
 
-### 7.1.1 Mybatis 通用分页插件
+
 
 <https://github.com/pagehelper/Mybatis-PageHelper>
 
 PageHelper 支持多种数据库
 
-### **7.1.2 基于 PageHelper 分页：**
+基于 PageHelper 分页：
 
 实现步骤
 
@@ -1184,6 +1216,36 @@ select * from tableA where id > 8000000 limit 10;
 但是这种可能会出现问题，要是第一次查了 1 到 10，记录 ID 为 10 现在，然后我把第 7 条记录删除了，那查出的就错乱了。
 
 https://mp.weixin.qq.com/s?__biz=MzI1NDQ3MjQxNA==&mid=2247493234&idx=2&sn=ade716af50bde91bd2b554fe663ac002&chksm=e9c61fc3deb196d5273e1f645cbdf5c914537a3e0b3e0d9c970a02faff25c857d61394cfe08b&mpshare=1&scene=23&srcid=0314G21ZMghwYncHwfaLf6a2&sharer_sharetime=1615719630444&sharer_shareid=36a11a4ebb04967d7698241b47b50050#rd
+
+## 日志工厂
+
+STDOUT_LOGGING 标准输出；
+
+```xml
+<setting name="logImpl" value="STDOUT_LOGGING " />
+```
+
+LOG4J的实现：
+
+配置；我个人是只想打印SQL不想打印结果集
+
+```properties
+log4j.logger.java.sql.Connection = DEBUG  
+log4j.logger.java.sql.Statement = DEBUG  
+log4j.logger.java.sql.PreparedStatement = DEBUG 
+log4j.logger.java.sql.ResultSet = TRACE
+```
+
+单元测试使用
+
+```java
+static Logger logger = Logger.getLogger(UserMapper.class);
+logger.info("info");
+logger.debug("debug");
+logger.error("error");
+```
+
+
 
 # 第九章：多表查询
 
@@ -1345,14 +1407,13 @@ Mybatis 中缓存分为一级缓存，二级缓存。
 
 ![](media/5109d80f05a963e35e69214a91c8be8a.png)
 
-一级缓存: 基于 PerpetualCache 的 HashMap 本地缓存，其存储作用域为 Session，当 Session
-flush 或 close 之后，该 Session 中的所有 Cache 就将清空。
+一级缓存: 基于 PerpetualCache 的 HashMap 本地缓存，其存储作用域为 Session，当 Sessionflush 或 close 之后，该 Session 中的所有 Cache 就将清空。
 
-二级缓存与一级缓存其机制相同，默认也是采用 PerpetualCache，HashMap 存储，不同在于
-其存储作用域为 Mapper(Namespace)，并且可自定义存储源，如 Ehcache。
+二级缓存与一级缓存其机制相同，默认也是采用 PerpetualCache，HashMap 存储，不同在于其存储作用域为 Mapper(Namespace)，
 
-对于缓存数据更新机制，当某一个作用域(一级缓存 Session/二级缓存 Namespaces)的进行了
-C/U/D 操作后，默认该作用域下所有 select 中的缓存将被 clear。
+为了提高扩展性，Mybatis定义了缓存接口Cache，我们可以通过实现Cache接口来定义二级缓存；
+
+对于缓存数据更新机制，当某一个作用域(一级缓存 Session/二级缓存 Namespaces)的进行了C/U/D 操作后，默认该作用域下所有 select 中的缓存将被 clear。
 
 **但是二级缓存会带来问题：**
 
@@ -1369,9 +1430,20 @@ tableB 更新了 col1 与 col2 两个字段
 MapperA 再次执行上述 sql 语句查询这 6 个字段〈前提是没有执行过任何 insert、delete、update 操作)
 此时问题就来了，即使第(2）步 tableB 更新了 col1 与 col2 两个字段，第(3)步 MapperA 走二级缓存查询到的这 6 个字段依然是原来的这 6 个字段的值
 
-## 1：Mybatis 一级缓存
+执行顺序：如果开启了二级缓存，先走二级缓存，再走一级缓存；
 
-### 1.1 证明一级缓存的存在
+
+
+## 1：一级缓存
+
+禁用一级缓存
+
+```xml
+<select id="selectById" resultMap="BaseResultMap" flushCache="true">
+</select>
+```
+
+### 证明一级缓存的存在
 
 一级缓存是 SqlSession 级别的缓存，只要 SqlSession 没有 flush 或 close，它就存在。
 
@@ -1470,69 +1542,7 @@ public class UserTest {
 
 MyBatis 的一级缓存是默认开启的，不需要任何的配置。
 
-### 1.3 测试一级缓存的清空
 
-测试一级缓存
-
-```java
-public class UserTest {
-    private InputStream in ;
-    private SqlSessionFactory factory;
-    private SqlSession session;
-    private IUserDao userDao;
-    @Test
-    public void testFindById() {
-        //6.执行操作
-
-        User user = userDao.findById(41);
-        System.out.println("第一次查询的用户："+user);
-        User user2 = userDao.findById(41);
-        System.out.println("第二次查询用户："+user2);
-        System.out.println(user == user2);
-    }
-
-    @Before//在测试方法执行之前执行
-    public void init()throws Exception {
-        //1.读取配置文件
-        in = Resources.getResourceAsStream("SqlMapConfig.xml");
-        //2.创建构建者对象
-        SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
-        //3.创建SqlSession工厂对象
-        factory = builder.build(in);
-        //4.创建SqlSession对象
-        session = factory.openSession();
-        //5.创建Dao的代理对象
-        userDao = session.getMapper(IUserDao.class);
-    }
-
-    @After//在测试方法执行完成之后执行
-    public void destroy() throws Exception{
-        //7.释放资源
-        session.close();
-        in.close();
-    }
-}
-
-```
-
-测试缓存同步
-
-```java
-@Test
-public void testClearlCache(){
-    //1.根据id查询用户
-    User user1 = userDao.findById(41);
-    System.out.println(user1);
-    //2.更新用户信息
-    user1.setUsername("update user clear cache");
-    user1.setAddress("北京市海淀区");
-    userDao.updateUser(user1);
-    //3.再次查询id为41的用户
-    User user2 = userDao.findById(41);
-    System.out.println(user2);
-    System.out.println(user1 == user2);
-}
-```
 
 当执行 sqlSession.close()后，再次获取 sqlSession 并查询 id=41 的 User 对象时，又重新执行了 sql 语句，从数据库进行了查询操作。
 
@@ -1749,23 +1759,57 @@ cache-ref 代表引用别的命名空间的 Cache 配置，两个命名空间的
 
 @Insert
 
-![](media/88dd004c8f57da65a9fc11abe4a22c5e.png)
+```java
+//属性userGeneratedKeys=true表示使用数据库自动增长的主键该操作需要底层数据库的支持
+// keyProperty="id"表示将插入数据生成的主键设置到user对象的id当中
+@Insert("insert into tb_user(name , sex,age)values (#{(name},#{ sex} ,#{age})")
+@Options(useGeneratedKeys=true ,keyProperty="id")
+int saveUser (User user);l
+```
 
 @delete
 
-![](media/2a9530a6848ac161ce64f972956e4bf2.png)
+```java
+@Delete ( "delete from tb user where id=# {id}")
+int removeUser (Integer id) ;
+```
 
 @update
 
-![](media/1067488368f7456b3a312be4995631db.png)
+```java
+@Update ( "update tb_user set name=#{name} ,sex=#(sex} ,age=#{age} where id=#(id)")
+void modifyUser (User user);
+```
 
 @select
 
-![](media/bff2bd9a3b459e64d7430c4b5890d19c.png)
+```java
+//调用该方法的时候会执行@select中的sql语句@result注解用于查询到的列和对应实体类之间的映射
+//如果列和属性名称相同，则可省略@result注解mybatis会自动进行映射
+@select ( "select *from tb_user where id=# {id} ")
+@Results({
+    @Result(id=true , column="id" ,property="id"),
+    @Result(column="name" ,property="name" ) ,
+    @Result(column="sex" ,property="sex"),
+    @Result(column="age" ,property="age")
+})
+User selectUserById(Integer id) ;
+```
 
 @one：一对一关系
 
-![](media/392523d66e7d41333202e0bdb07ee6dd.png)
+```java
+@select ( "select *from tb_person where id=#{id}")
+@Results ( {
+    @Result(id=true ,property="id" ,column="id"),
+    @Result(property="name" ,column="name" ) ,
+    @Result(property="sex" ,column="sex"),
+    @Result(property="age" ,column="age" ) ,
+    @Result(property="card" ,column="card id",
+            one=@one(select="Intefaceproxy.cardMapper.selectcardById",fetchType=FetchType.LAZY))
+})
+Person selectPersonById (Integer id) ;
+```
 
 # 第十三章：流式查询
 
