@@ -1,4 +1,4 @@
-﻿﻿# 第 1 章 Spring 概述
+﻿﻿﻿﻿﻿# 第 1 章 Spring 概述
 
 ## 1.1 简介
 
@@ -1624,21 +1624,115 @@ Spring 事务的本质其实就是数据库对事务的支持，没有数据库�
 
 **分类：**
 
-- ① 编程式事务管理：使用 TransactionTemplate 或者直接使用底层的 PlatformTransactionManager。对于编程式事务管理，spring 推荐使用 TransactionTemplate。
+① 编程式事务管理：使用 TransactionTemplate 或者直接使用底层的 PlatformTransactionManager。对于编程式事务管理，spring 推荐使用 TransactionTemplate。
 
-- ② 声明式事务管理建立在 AOP 之上的。其本质是对方法前后进行拦截，然后在目标方法开始之前创建或者加入一个事务，在执行完目标方法之后根据执行情况提交或者回滚事务。声明式事务最大的优点就是不需要通过编程的方式管理事务，这样就不需要在业务逻辑代码中掺杂事务管理的代码，只需在配置文件中做相关的事务规则声明(或通过基于@Transactional 注解的方式)，便可以将事务规则应用到业务逻辑中。
+一种是配置，一种是注解；
 
-  声明式事务管理也有两种常用的方式，一种是基于 tx 和 aop 名字空间的 xml 配置文件，另一种就是基于@Transactional 注解。显然基于注解的方式更简单易用，更清爽。
+配置：
+
+```xml
+<!--事务管理器-->
+<bean id="tranctionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="cxDataSource"/>
+    </bean>
+<!--事务管理模板-->
+<bean id="tranctionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+        <property name="tranctionManager" ref="tranctionManager"/>
+    </bean>
+```
+
+不同的底层框架使用不同的事务管理器；事务管理器需要注入自己的数据源cxDataSource；
+
+```java
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+
+    public void transfer(String fromName,String toName,Integer money){
+        transactionTemplate.execute(status -> {
+            userMapper.out(fromName,money);//转出钱
+            int x = 10;
+            if (x==10)
+                throw new RuntimeException("!!!!!");
+            userMapper.in(toName,money);//转入钱
+        })
+    }
+```
+
+测试：
+
+```java
+ApplicationContext applicationContext = new ClassPathXmlApplicationContext("service-beans.xml");
+UserServiceImpl userService = (UserServiceImpl) applicationContext.getBean("UserServiceImpl");
+UserDTO a = new UserDTO();
+userService.checkUsername(a);
+```
+
+实际开发中不会使用编程式事务，太麻烦！如果使用注解方式进行配置，只是将xml文件写成程序的Bean而已；
+
+② 声明式事务管理建立在 AOP 之上的。其本质是对方法前后进行拦截，然后在目标方法开始之前创建或者加入一个事务，在执行完目标方法之后根据执行情况提交或者回滚事务。声明式事务最大的优点就是不需要通过编程的方式管理事务，这样就不需要在业务逻辑代码中掺杂事务管理的代码，只需在配置文件中做相关的事务规则声明(或通过基于@Transactional 注解的方式)，便可以将事务规则应用到业务逻辑中。
+
+声明式事务管理也有两种常用的方式，一种是基于 tx 和 aop 名字空间的 xml 配置文件，另一种就是基于@Transactional 注解。显然基于注解的方式更简单易用，更清爽。
 
 显然声明式事务是优于编程式事务的，他对代码的侵入性较小。
 
 事务原本是数据库中的概念，在 Dao 层。但一般情况下，需要将事务提升到业务层，即 Service 层。这样做是为了能够使用事务的特性来管理具体的业务。
 
-> 在 Spring 中通常可以通过以下两种方式来实现对事务的管理：
+在 Spring 中通常可以通过以下两种方式来实现对事务的管理：
 
 1.  使用 Spring 的事务注解管理事务
-
 2.  使用 AspectJ 的 AOP 配置管理事务
+
+配置：
+
+1：添加事务管理器
+
+```xml
+<!--事务管理器-->
+<bean id="tranctionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="cxDataSource"/>
+    </bean>
+```
+
+2：添加事务定义的配置和AOP的配置，以AspectJ申明的事务；
+
+```xml
+	<tx:advice id="yhTxAdvice" transaction-manager="yhTxManager">
+		<tx:attributes>
+          <tx:method name="transfer" isolation="DEFAULT" propagation="REQUIRED"/>
+            <!--
+				isolation:DEFAULT,事务的隔离级别
+				propagation：事务的传播行为
+				read-only:false，不是只读
+				timeout：-1超时时间，解除死锁
+				no-rollback-for:发生哪些异常不回滚
+				rollback-for:发生哪些异常回滚事务
+			-->
+		  <tx:method name="*Query" read-only="true"/>
+		  <tx:method name="*Get" read-only="true"/>
+		  <tx:method name="*Count" read-only="true"/>
+		  <tx:method name="*" rollback-for="java.lang.Exception"/>
+		</tx:attributes>
+	</tx:advice>
+<!--aop配置定义切面和切点的信息-->
+	<aop:config>
+        <!--定义切点，哪些类的哪些方法应用增强-->
+		<aop:pointcut 
+                      id="yhServiceMethods" 
+                      expression="(execution(* zt.o.*.services.impl.*.*(..)) or 
+                                  execution(* zt.o.*.*.services.impl.*.*(..))
+                                  ) and !execution(* zt.o.commonfee.services.impl.CommonPerformanceFeeServiceImpl.calculaCustomerHightWaterPerformFee(..)) and !execution(* zt.o.stagging.services.impl.StaggingCalendarServiceImpl.staggingCalendarListQuery(..))"/>
+	 	<!-- Advisor定义，其中切入点为yhServiceMethods，通知为yhTxAdvice -->
+	 	<aop:advisor advice-ref="yhTxAdvice" pointcut-ref="yhServiceMethods"/>
+	</aop:config>
+```
+
+原本的业务方法就不用做任何操作了；
+
+
+
+
+
+
 
 ## 5.2 Spring 事务管理 API
 
@@ -1882,7 +1976,8 @@ Step3：在容器中添加事务管理器
 ```xml
 <!--声明事务管理器-->
 <bean id="transactionManager"
-class="org.springframework.jdbc.datasource.DataSourceTransactionManager"><property name="datasource" ref="dataSource"/>
+    class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="datasource" ref="dataSource"/>
 </bean>
 
 ```
@@ -1955,6 +2050,8 @@ public void savefunc2(){
         proxy.saveEmployee()
 }
 ```
+
+## 事务配置
 
 
 
@@ -2052,6 +2149,15 @@ Spring 容器均为同一个对象。
 ```xml
 <import resource="applicationContext-dao.xml"/>
 <import resource="applicationContext-service.xml"/>
+```
+
+程序获取
+
+```java
+ApplicationContext applicationContext = new ClassPathXmlApplicationContext("service-beans.xml");
+UserServiceImpl userService = (UserServiceImpl) applicationContext.getBean("UserServiceImpl");
+UserDTO a = new UserDTO();
+userService.checkUsername(a);
 ```
 
 
