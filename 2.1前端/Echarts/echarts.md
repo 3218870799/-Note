@@ -91,3 +91,42 @@ myChart.setOption(option);
 
 ### 地图
 
+
+
+# 生命周期
+
+chart是我们初始化的表格
+
+.on方法用于绑定后续操作
+
+redered代表在表格渲染过程中
+
+finished代表表格渲染结束
+
+```html
+let promise= newPromise((resolve,reject)=>{
+    //初始化
+    let xxx = echart.init(document.getElementById('main'))
+    //为初始化表格添加数据
+    xxx.setOption(
+
+
+    )
+    //渲染停止时触发
+    xxx.on('finished',() => {
+        resolve();
+    })
+});
+promise.then(()=>{
+	console.log("此处编写想要书写的函数");
+})
+```
+
+
+
+
+
+使用1PhantomJS在服务端生成ECharts图片
+
+https://gitee.com/saintlee/echartsconvert/tree/master
+
