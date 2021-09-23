@@ -130,7 +130,21 @@ FindBug 新版不能用了，用 spotBugs 代替，它可以帮助寻找潜在�
 
 ## Maven Helper
 
-帮助解决 Maven 冲突
+帮助解决 Maven 冲突;
+
+当安装成功后，打开项目的pom.xml文件，会多出来一个试图 ` Deendency Analyzer ` 
+
+切换到此试图即可进行相应操作：
+
+1. Conflicts（查看冲突）
+2. All Dependencies as List（列表形式查看所有依赖）
+3. All Dependencies as Tree（树形式查看所有依赖）
+
+选中冲突的包，右键Exclude 冲突包
+
+![img](https://img-blog.csdn.net/20170728200031383?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZGlmZmZhdGU=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
+
 
 ## CamelCase
 
