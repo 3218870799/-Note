@@ -1,3 +1,11 @@
+# 简介
+
+POI比价耗内存，EasyExcel减少内存溢出的可能性，POI是净文件直接加载到内存，然后再写入文件，而EasyExcel是一行行的将文件读，一行行的写入到文件中去；
+
+小文件使用POI，大文件使用EasyExcel；
+
+
+
 # 使用：
 
 1：添加依赖
@@ -29,7 +37,7 @@
 
 
 
-2：读
+## 读
 
 编写导出实体类，字段和顺序需要和表格一一对应，实体类的属性位置就是表格从左到右的属性
 
@@ -113,7 +121,7 @@ public class StudentReadListener extends AnalysisEventListener<Student> {
     }}
 ```
 
-3：写
+## 写
 
 ```java
 @Test
@@ -189,7 +197,7 @@ public class Student {
     private String ignore;}
 ```
 
-4：文件上传
+## 文件上传
 
 （1）添加依赖
 
@@ -348,7 +356,7 @@ public class WebUploadAndDownload {
     }}
 ```
 
-5：文件下载
+## 文件下载
 
 ```java
 @GetMapping("download")
