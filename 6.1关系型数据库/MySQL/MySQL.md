@@ -213,6 +213,16 @@ create table t_student(student_id int(10), student_name varchar(20),sex char(2),
 truncate table 表名
 ```
 
+truncate table在功能上与不带where子句的DELETE语句相同，二者均删除表中的全部行，但 truncate table比delete速度快，且使用的系统和事务日志资源少；
+
+```txt
+TRUNCATE TABLE：删除内容、释放空间但不删除定义。
+DELETE TABLE:删除内容不删除定义，不释放空间。
+DROP TABLE：删除内容和定义，释放空间。
+```
+
+
+
 ### 表结构
 
 采用 alter table 来增加/删除/修改表结构，不影响表中的数据
