@@ -1,4 +1,4 @@
-﻿# 一、Spring Boot 入门
+﻿﻿﻿# 一、Spring Boot 入门
 
 ## 1、简介
 
@@ -2525,3 +2525,50 @@ public class DruidConfig {
 # 十：安全
 
 CSRF 代表跨站请求伪造。这是一种攻击，迫使最终用户在当前通过身份验证的 Web 应用程序上执行不需要的操作。CSRF 攻击专门针对状态改变请求，而不是数据窃取，因为攻击者无法查看对伪造请求的响应。
+
+## 跨域问题：
+
+浏览器执行脚本时，会检查这个脚本属于哪个页面，如果不是同源页面，就不会被执行；同源策略要求源相同才能正常进行通信，及协议，域名，端口号都完全一直；
+
+解决方案：
+
+1：前端使用JSONP请求，不过只支持GET请求，不支持POST请求；
+
+2：CORS
+
+通过在Response header中添加 Access-Control-Allow-Origin 来让浏览器知道服务器所在的域，对用于访问的域进行了授权。
+
+创建跨域拦截器，实现HandlerInterceptor接口，并实现其方法，在请求处理前设置头信息，并放行；
+
+CORS是一个W3C标准，全称是”跨域资源共享”（Cross-origin resource sharing），允许浏览器向跨源服务器，发出XMLHttpRequest请求，从而克服了AJAX只能同源使用的限制。它通过服务器增加一个特殊的Header[Access-Control-Allow-Origin]来告诉客户端跨域的限制，如果浏览器支持CORS、并且判断Origin通过的话，就会允许XMLHttpRequest发起跨域请求。
+
+方法一：注入重写方法WebMVCConfigurer
+
+整个Application的handle均允许跨域；
+
+CORSCofig.java
+
+```java
+@Configuration
+public class CORSConfig{
+    @Bean
+    public WebMvcConfigurer corsConfigurer(){
+             return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedHeaders("*")
+                        .allowedMethods("*")
+                        .allowedOrigins("*");
+            }
+        };
+    }   
+}
+```
+
+方法二：@CrossOrigin
+
+只需要在允许跨域的接口方法上进行添加注解即可，也可以直接在Controller类上添加，表示该Controller
+
+
+
