@@ -1,4 +1,4 @@
-﻿# 第 1 章 Kafka 概述
+﻿﻿# 第 1 章 Kafka 概述
 
 观察者模式
 
@@ -577,27 +577,19 @@ patition 数量多，并行就高了。
 
 ### 4.1.1 消息发送流程
 
-Kafka 的 Producer
-发送消息采用的是异步发送的方式。在消息发送的过程中，涉及到了两个线程——**main**
-线程和 **Sender** 线程，以及一个线程共享变量——**RecordAccumulator**。 main
-线程将消息发送给 RecordAccumulator，Sender 线程不断从 RecordAccumulator
-中拉取消息发送到 Kafka broker。
+Kafka 的 Producer发送消息采用的是异步发送的方式。在消息发送的过程中，涉及到了两个线程——main线程和 Sender线程，以及一个线程共享变量——**RecordAccumulator**。 main线程将消息发送给 RecordAccumulator，Sender 线程不断从 RecordAccumulator中拉取消息发送到 Kafka broker。
 
 相关参数：
 
 **batch.size**：只有数据积累到 batch.size 之后，sender 才会发送数据。
 
-**linger.ms**：如果数据迟迟未达到 batch.size，sender 等待 linger.time
-之后就会发送数据。
+**linger.ms**：如果数据迟迟未达到 batch.size，sender 等待 linger.time之后就会发送数据。
 
 ### 4.1.2 异步发送 API
 
-1.  导入依赖
+1：导入依赖
 
-| \<dependency\> \<groupId\>org.apache.kafka\</groupId\> \<artifactId\>kafka-clients\</artifactId\> \<version\>0.11.0.0\</version\> \</dependency\> |
-| ------------------------------------------------------------------------------------------------------------------------------------------------- |
-
-2.  编写代码需要用到的类：
+2：编写代码需要用到的类：
 
 **KafkaProducer**：需要创建一个生产者对象，用来发送数据
 
@@ -607,65 +599,29 @@ Kafka 的 Producer
 
 **1.**不带回调函数的 **API**
 
-| package com.xqc.kafka; import org.apache.kafka.clients.producer.\*; import java.util.Properties; import java.util.concurrent.ExecutionException; public class CustomProducer { public static void main(String[] args) throws ExecutionException,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| InterruptedException { Properties props = new Properties(); //kafka 集群，broker-list props.put("bootstrap.servers", "hadoop102:9092"); props.put("acks", "all"); //重试次数 props.put("retries", 1); //批次大小 props.put("batch.size", 16384); //等待时间 props.put("linger.ms", 1); //RecordAccumulator 缓冲区大小 props.put("buffer.memory", 33554432); props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer"); props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer"); Producer\<String, String\> producer = new KafkaProducer\<\>(props); for (int i = 0; i \< 100; i++) { producer.send(new ProducerRecord\<String, String\>("first", Integer.toString(i), Integer.toString(i))); } producer.close(); } } |
+```java
 
-> **2.**带回调函数的 **API** 回调函数会在 producer 收到 ack
-> 时调用，为异步调用，该方法有两个参数，分别是
+```
 
-RecordMetadata 和 Exception，如果 Exception 为 null，说明消息发送成功，如果
 
-> Exception 不为 null，说明消息发送失败。注意：消息发送失败会自动重试，不需要我们在回调函数中手动重试。
 
-package com.xqc.kafka;
-
-import org.apache.kafka.clients.producer.\*;
-
-import java.util.Properties;
-
-import java.util.concurrent.ExecutionException;
-
-public class CustomProducer {
-
-public static void main(String[] args) throws ExecutionException,
-InterruptedException {
-
-| Properties props = new Properties(); props.put("bootstrap.servers", "hadoop102:9092");//kafka 集群，broker-list props.put("acks", "all"); props.put("retries", 1);//重试次数 props.put("batch.size", 16384);//批次大小 props.put("linger.ms", 1);//等待时间 props.put("buffer.memory", 33554432);//RecordAccumulator 缓冲区大小 props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer"); props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer"); Producer\<String, String\> producer = new KafkaProducer\<\>(props); for (int i = 0; i \< 100; i++) { producer.send(new ProducerRecord\<String, String\>("first", Integer.toString(i), Integer.toString(i)), new Callback() { //回调函数，该方法会在 Producer 收到 ack 时调用，为异步调用 \@Override public void onCompletion(RecordMetadata metadata, Exception exception) { if (exception == null) { System.out.println("success-\>" + metadata.offset()); } else { exception.printStackTrace(); } } }); } producer.close(); } } |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+2.带回调函数的 **API** 回调函数会在 producer 收到 ack时调用，为异步调用，该方法有两个参数，分别是RecordMetadata 和 Exception，如果 Exception 为 null，说明消息发送成功，如果Exception 不为 null，说明消息发送失败。注意：消息发送失败会自动重试，不需要我们在回调函数中手动重试。
 
 ### 4.1.3 同步发送 API
 
-同步发送的意思就是，一条消息发送之后，会阻塞当前线程，直至返回 ack。由于 send
-方法返回的是一个 Future 对象，根据 Futrue
-对象的特点，我们也可以实现同步发送的效果，只需在调用 Future 对象的 get
-方发即可。
-
-package com.xqc.kafka;
-
-import org.apache.kafka.clients.producer.KafkaProducer; import
-org.apache.kafka.clients.producer.Producer;
-
-| import org.apache.kafka.clients.producer.ProducerRecord; import java.util.Properties; import java.util.concurrent.ExecutionException; public class CustomProducer { public static void main(String[] args) throws ExecutionException, InterruptedException { Properties props = new Properties(); props.put("bootstrap.servers", "hadoop102:9092");//kafka 集群，broker-list props.put("acks", "all"); props.put("retries", 1);//重试次数 props.put("batch.size", 16384);//批次大小 props.put("linger.ms", 1);//等待时间 props.put("buffer.memory", 33554432);//RecordAccumulator 缓冲区大小 props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer"); props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer"); Producer\<String, String\> producer = new KafkaProducer\<\>(props); for (int i = 0; i \< 100; i++) { producer.send(new ProducerRecord\<String, String\>("first", Integer.toString(i), Integer.toString(i))).get(); } producer.close(); } } |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+同步发送的意思就是，一条消息发送之后，会阻塞当前线程，直至返回 ack。由于 send方法返回的是一个 Future 对象，根据 Futrue对象的特点，我们也可以实现同步发送的效果，只需在调用 Future 对象的 get方发即可。
 
 ## 4.2 Consumer API
 
-Consumer 消费数据时的可靠性是很容易保证的，因为数据在 Kafka
-中是持久化的，故不用担心数据丢失问题。
+Consumer 消费数据时的可靠性是很容易保证的，因为数据在 Kafka中是持久化的，故不用担心数据丢失问题。
 
-由于 consumer 在消费过程中可能会出现断电宕机等故障，consumer
-恢复后，需要从故障前的位置的继续消费，所以 consumer 需要实时记录自己消费到了哪个
-offset，以便故障恢复后继续消费。
+由于 consumer 在消费过程中可能会出现断电宕机等故障，consumer恢复后，需要从故障前的位置的继续消费，所以 consumer 需要实时记录自己消费到了哪个offset，以便故障恢复后继续消费。
 
-> 所以 offset 的维护是 Consumer 消费数据是必须考虑的问题。
+所以 offset 的维护是 Consumer 消费数据是必须考虑的问题。
 
 ### 4.2.1 自动提交 offset
 
 1.  导入依赖
-
-| \<dependency\> \<groupId\>org.apache.kafka\</groupId\> \<artifactId\>kafka-clients\</artifactId\> \<version\>0.11.0.0\</version\> \</dependency\> |
-| ------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 2.  编写代码需要用到的类：
 
@@ -673,19 +629,13 @@ offset，以便故障恢复后继续消费。
 
 **ConsumerConfig**：获取所需的一系列配置参数
 
-> **ConsuemrRecord**：每条数据都要封装成一个 ConsumerRecord
-> 对象为了使我们能够专注于自己的业务逻辑，Kafka 提供了自动提交 offset 的功能。
-
-自动提交 offset 的相关参数：
+**ConsuemrRecord**：每条数据都要封装成一个 ConsumerRecord对象为了使我们能够专注于自己的业务逻辑，Kafka 提供了自动提交 offset 的功能。自动提交 offset 的相关参数：
 
 **enable.auto.commit**：是否开启自动提交 offset 功能
+
 **auto.commit.interval.ms**：自动提交 offset 的时间间隔
 
 以下为自动提交 offset 的代码：
-
-| package com.xqc.kafka; import org.apache.kafka.clients.consumer.ConsumerRecord; import org.apache.kafka.clients.consumer.ConsumerRecords; import org.apache.kafka.clients.consumer.KafkaConsumer; import java.util.Arrays; import java.util.Properties; public class CustomConsumer { public static void main(String[] args) { Properties props = new Properties(); props.put("bootstrap.servers", "hadoop102:9092"); props.put("group.id", "test"); props.put("enable.auto.commit", "true"); props.put("auto.commit.interval.ms", "1000"); props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer"); props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer"); KafkaConsumer\<String, String\> consumer = | new |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --- |
-| KafkaConsumer\<\>(props); consumer.subscribe(Arrays.asList("first")); while (true) { ConsumerRecords\<String, String\> records = consumer.poll(100); for (ConsumerRecord\<String, String\> record : records) System.out.printf("offset = %d, key = %s, value = %s%n", record.offset(), record.key(), record.value()); } } }                                                                                                                                                                                                                                                                                                                                                                                                                                                    |     |
 
 ### 4.2.2 手动提交 offset
 
@@ -701,26 +651,14 @@ commitAsync（异步提交）。两者的相同点是，都会将本次 **poll**
 
 1.  同步提交 **offset**
 
-    由于同步提交 offset 有失败重试机制，故更加可靠，以下为同步提交 offset
-    的示例。
-
-| package com.xqc.kafka.consumer; import org.apache.kafka.clients.consumer.ConsumerRecord; import org.apache.kafka.clients.consumer.ConsumerRecords; import org.apache.kafka.clients.consumer.KafkaConsumer; import java.util.Arrays; import java.util.Properties; public class CustomComsumer { public static void main(String[] args) { Properties props = new Properties(); //Kafka 集群 props.put("bootstrap.servers", "hadoop102:9092"); //消费者组，只要 group.id 相同，就属于同一个消费者组 props.put("group.id", "test"); props.put("enable.auto.commit", "false");//关闭自动提交 offset                                                                                |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer"); props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer"); KafkaConsumer\<String, String\> consumer = new KafkaConsumer\<\>(props); consumer.subscribe(Arrays.asList("first"));//消费者订阅主题 while (true) { //消费者拉取数据 ConsumerRecords\<String, String\> records = consumer.poll(100); for (ConsumerRecord\<String, String\> record : records) { System.out.printf("offset = %d, key = %s, value = %s%n", record.offset(), record.key(), record.value()); } //同步提交，当前线程会阻塞直到 offset 提交成功 consumer.commitSync(); } } } |
+    由于同步提交 offset 有失败重试机制，故更加可靠，
 
 2.  异步提交 **offset**
 
-虽然同步提交 offset
-更可靠一些，但是由于其会阻塞当前线程，直到提交成功。因此吞吐量会收到很大的影响。因此更多的情况下，会选用异步提交
+虽然同步提交 offset更可靠一些，但是由于其会阻塞当前线程，直到提交成功。因此吞吐量会收到很大的影响。因此更多的情况下，会选用异步提交
 offset 的方式。
 
-> 以下为异步提交 offset 的示例：
-
-| package com.xqc.kafka.consumer; import org.apache.kafka.clients.consumer.\*; import org.apache.kafka.common.TopicPartition; import java.util.Arrays; import java.util.Map; import java.util.Properties; public class CustomConsumer { public static void main(String[] args) { Properties props = new Properties(); //Kafka 集群 props.put("bootstrap.servers", "hadoop102:9092"); //消费者组，只要 group.id 相同，就属于同一个消费者组 props.put("group.id", "test");                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| //关闭自动提交 offset props.put("enable.auto.commit", "false"); props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer"); props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer"); KafkaConsumer\<String, String\> consumer = new KafkaConsumer\<\>(props); consumer.subscribe(Arrays.asList("first"));//消费者订阅主题 while (true) { ConsumerRecords\<String, String\> records = consumer.poll(100);//消费者拉取数据 for (ConsumerRecord\<String, String\> record : records) { System.out.printf("offset = %d, key = %s, value = %s%n", record.offset(), record.key(), record.value()); } //异步提交 consumer.commitAsync(new OffsetCommitCallback() { \@Override public void onComplete(Map\<TopicPartition, OffsetAndMetadata\> offsets, Exception exception) { if (exception != null) { System.err.println("Commit failed for" + offsets); } } }); } } |
-
-1.  数据漏消费和重复消费分析
+数据漏消费和重复消费分析
 
 无论是同步提交还是异步提交
 offset，都有可能会造成数据的漏消费或者重复消费。先提交 offset
@@ -746,10 +684,6 @@ offset 位置继续消费。
 **ConsumerRebalanceListener**，以下为示例代码，其
 
 中提交和获取 offset 的方法，需要根据所选的 offset 存储系统自行实现。
-
-| package com.xqc.kafka.consumer; import org.apache.kafka.clients.consumer.\*; import org.apache.kafka.common.TopicPartition; import java.util.\*; public class CustomConsumer { private static Map\<TopicPartition, Long\> currentOffset = new HashMap\<\>(); public static void main(String[] args) { //创建配置信息 Properties props = new Properties(); //Kafka 集群 props.put("bootstrap.servers", "hadoop102:9092"); //消费者组，只要 group.id 相同，就属于同一个消费者组 props.put("group.id", "test"); //关闭自动提交 offset props.put("enable.auto.commit", "false"); //Key 和 Value 的反序列化类 props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer"); props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer"); //创建一个消费者 KafkaConsumer\<String, String\> consumer = new KafkaConsumer\<\>(props); //消费者订阅主题 consumer.subscribe(Arrays.asList("first"), new ConsumerRebalanceListener() { //该方法会在 Rebalance 之前调用 \@Override public void onPartitionsRevoked(Collection\<TopicPartition\> partitions) { commitOffset(currentOffset); } //该方法会在 Rebalance 之后调用 \@Override public void onPartitionsAssigned(Collection\<TopicPartition\> partitions) { |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| currentOffset.clear(); for (TopicPartition partition : partitions) { consumer.seek(partition, getOffset(partition));// 定位到最近提交的 offset 位置继续消费 } } }); while (true) { ConsumerRecords\<String, String\> records = consumer.poll(100);//消费者拉取数据 for (ConsumerRecord\<String, String\> record : records) { System.out.printf("offset = %d, key = %s, value = %s%n", record.offset(), record.key(), record.value()); currentOffset.put(new TopicPartition(record.topic(), record.partition()), record.offset()); } commitOffset(currentOffset);//异步提交 } } //获取某分区的最新 offset private static long getOffset(TopicPartition partition) { return 0; } //提交该消费者所有分区的 offset private static void commitOffset(Map\<TopicPartition, Long\> currentOffset) { } }                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
 ## 4.3 自定义 Interceptor
 
