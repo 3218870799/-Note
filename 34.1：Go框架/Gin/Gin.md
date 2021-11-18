@@ -1,6 +1,38 @@
-liwenzhou.com
-
 # 一：Gin基本使用
+
+1：下载安装gin
+
+```shell
+go get - u github.com/gin-goinc/gin
+```
+
+2：将Gin引入到代码中
+
+```go
+import "github.com/gin-gonic.gin"
+```
+
+3：使用mod管理
+
+```shell
+go mod init test01
+```
+
+4：运行
+
+```shell
+go run main.go
+```
+
+5：热加载
+
+```shell
+go get github.com/pilu/fresh
+
+fresh
+```
+
+
 
 新建Go module (vgo)
 
@@ -12,10 +44,6 @@ liwenzhou.com
 
 go语言通过首字母大小写分辨是否对外可见；大写对外可见，小写不可见；
 
-## 渲染
-
-模板语言
-
 ## 路由
 
 其实就是Controller层
@@ -23,7 +51,9 @@ go语言通过首字母大小写分辨是否对外可见；大写对外可见，
 路由组：将拥有共同URL前缀的路由划分为一个路由组，习惯上用一堆{}包裹同组路由，路由组同样支持嵌套
 
 ```go
+// 创建一个默认的路由引擎
 r := gin.Default()
+//配置路由
 shopGroup := r.Group("/shop")
 	{
 		shopGroup.GET("/index", func(c *gin.Context) {...})
@@ -33,8 +63,61 @@ shopGroup := r.Group("/shop")
 		xx := shopGroup.Group("xx")
 		xx.GET("/oo", func(c *gin.Context) {...})
 	}
-r.run()
+//启动服务,指定端口号
+r.Run("8081")
 ```
+
+2：返回JSON数据
+
+```go
+r.GET("/getjson",func(c *gin.Context){
+    c.JSON(200,map[string]interface{}{
+        "success":true,
+        "msg":"hello gin"
+    })
+})
+//与使用H相同，其实就是gin封装了一下
+r.GET("/getjson",func(c *gin.Context){
+    c.JSON(200,gin.H{
+        "success":true,
+        "msg":"hello gin"
+    })
+})
+```
+
+3：返回xml数据
+
+```go
+r.GET("/getxml",func(c *gin.Context){
+    c.XML(http.statusOK,gin.H{"message":"hello world"})
+})
+```
+
+4：加载html
+
+```go
+//配置模板文件
+r.LoadHTMLGlob("templates/*")
+r.GET("/getnews",func(c *gin.Context){
+    c.HTML(http.statusOK,"news.html",gin.H{"title":"hello world"})
+})
+```
+
+页面
+
+```html
+<h2>
+    {{.title}}
+</h2>
+```
+
+## 渲染
+
+路由第五条的模板语言
+
+
+
+
 
 ## 中间件
 
@@ -75,6 +158,10 @@ shopGroup := r.Group("/shop", StatCost())
 {
 }
 ```
+
+
+
+
 
 
 
@@ -142,4 +229,3 @@ func main() {
 其他复杂的查询有点像MybatisPlus的语法，可以参考官网；
 
 ## 结构体标记(tags)
-
