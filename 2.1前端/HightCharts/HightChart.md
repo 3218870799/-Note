@@ -116,3 +116,40 @@ var chart = Highcharts.chart('container',option);
     });
 ```
 
+### 转换图片
+
+有时hightChart的并不能下载，需要下载等必须转换成base64编码转换成图片
+
+```js
+<!--引入highstock相关的依赖，版本必须一致-->
+<script src="${appServer}/plugins/highstock/6.1.4/highstock.js"></script>
+<script src="${appServer}/plugins/highstock/6.1.4/highcharts-3d.js"></script>
+<script src="${appServer}/plugins/highstock/6.1.4/highcharts-more.js"></script>
+<script src="${appServer}/plugins/highstock/6.1.4/exporting.js"></script>
+<!--引入画布相关依赖-->
+<script type="text/javascript" src="${appServer}/plugins/html-docx/FileSaver.js" charset="utf-8"></script>
+<script type="text/javascript" src="${appServer}/plugins/html-docx/jquery.wordexport.js" charset="utf-8"></script>
+<script type="text/javascript" src="${appServer}/plugins/html-docx/rgbcolor.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="${appServer}/plugins/html-docx/canvg.js" charset="utf-8"></script>
+
+
+
+<!--页面内容-->
+
+<div id="profitChart" style="height:460px;width: 1100px;margin: 40px 0px 0px 40px;">
+    </div>
+<canvas id="profitChart_img" style="height: 400px"></canvas>
+<img id="profitChart_img2" style="height:460px;width: 1100px;margin: 40px 0px 0px 40px;" width="613"></img>
+
+
+<!--操作js脚本，必须在渲染完成后进行，mychart为渲染的图表信息-->
+var myChart = Highcharts.stockChart('profitChart', {……略})
+
+var chartsvg = myChart.getSVG();
+var svgContainer = document.getElementById("profitChart_img");
+canvg(svgContainer, chartsvg);
+var img = svgContainer.toDataURL("image/png");
+$("#profitChart_img2").attr("src",img);
+
+```
+
