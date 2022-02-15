@@ -193,7 +193,7 @@ print("数据比例是 %.02f%%" % (scale * 100))
 
 ### 2：列表List
 
-[1,2]其实就是数组
+一个“打了激素”的数组”形容十分贴切   以中括号[1,2,'大王'，1.2]表示
 
 ```python
 name_list = ["zhangsan", "lisi", "wangwu"]
@@ -214,6 +214,12 @@ for name in name_list:
     循环内部针对列表元素进行操作
     print(name)
 ```
+
+方法：添加一个 list.append(‘内容’)   扩展列表  list.extend(['内容1','内容2']) （也可以+但不建议使用）   插入  list.insert(1,'内容')  获取元素  与数组一样 list[2]
+
+删除  list.remove('内容')  del list[位置]   弹出：list.pop(索引)  列表分片：list[1:9:2]获得一个新的列表，为原列表重第一个到第九个每2个取一个值  反转 list.reverse()
+
+排序：sort()从小到大 默认归并排序
 
 ### 3：元组Tuple
 
@@ -392,7 +398,7 @@ TensorFlow
 
 自动化测试
 
-## 第十一章
+# 第十一章
 
 1：安装pip
 
@@ -401,4 +407,14 @@ TensorFlow
 打开cmd，找到get-pip.py文件的路径 ，然后输入python get-pip.py，敲回车就开始安装。
 
 测试：cmd输入pip 有提示即安装成功
+
+pip install 默认路径修改
+
+```shell
+# 使用命令查看pip默认安装路径
+python -m site
+# 查看对应的配置文件
+python -m site -help
+# 找到对应的site.py文件，修改USER_SITE和USER_BASE
+```
 

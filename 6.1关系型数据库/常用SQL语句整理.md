@@ -112,3 +112,27 @@ select datediff('2008-08-01', '2008-08-08'); -- -7
 
 ```
 
+
+
+## 其他语句
+
+1：ON DUPLICATE KEY UPDATE
+
+mysql特有语法，意思是当insert已经存在的记录是，执行update操作；
+
+```sql
+INSERT INTO user_admin_t (_id,password) 
+VALUES 
+('1','多条插入1') ,
+('UpId','多条插入2')
+ON DUPLICATE KEY UPDATE 
+password =  VALUES(password);
+```
+
+修改表结构
+
+```sql
+-- 修改字段为自动增长
+alter table 表A change 字段名 字段名 字段类型 auto_increment
+```
+

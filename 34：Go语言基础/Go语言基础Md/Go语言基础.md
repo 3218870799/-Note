@@ -50,7 +50,7 @@ D:\Golang\Workplace>go run test.go
 
 1）引入包的概念，用于组织程序结构，Go 语言的一个文件否要归属于一个包。
 
-2）垃圾回收机制，内存自动回收
+2）垃圾回收机制，内存自动回收，runtime系统调用机制；
 
 3）天然并发（重要特点）
 
@@ -862,8 +862,6 @@ func main(){
     //先从pool取出一个链接
     conn:=pool.Get()
     defer conn.Close()
-
-
 }
 ```
 

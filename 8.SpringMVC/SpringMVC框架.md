@@ -1,4 +1,4 @@
-﻿﻿# 第 1 章 ：基本概念
+﻿﻿﻿# 第 1 章 ：基本概念
 
 ## 1.1 关于三层架构和 MVC
 
@@ -1006,7 +1006,16 @@ public class** JsonController {
 
 
 
-# 第 6 章文件上传
+# 第 6 章：文件上传下载
+
+SpringMVC中，文件的上传，是通过MultipartResolver实现的，需要在 spring-mvc.xml 中注册相应的 MultipartResolver 即可。
+
+MultiparResolver的实现类有两个：
+
+1. CommonsMultipartResolver
+2. StandardServletMultipartResolver
+
+两个区别在于：第一个需要使用Apache的common-fileupload等jar包支持，能够在比较旧的servlet版本中使用；第二个不需要第三方jar包支持，它使用servlet内置的上传功能，但是只能在servlet3以上的版本使用；
 
 ## 跨服务器文件上传
 
@@ -1088,6 +1097,10 @@ class=_"org.springframework.web.multipart.commons.CommonsMultipartResolver">
     </property>
 </bean>
 ```
+
+
+
+
 
 
 

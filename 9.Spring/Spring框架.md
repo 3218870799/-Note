@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿# 第 1 章 Spring 概述
+﻿﻿﻿﻿﻿﻿# 第 1 章 Spring 概述
 
 ## 1.1 简介
 
@@ -715,6 +715,14 @@ byType： 根据类型自动注入
 </bean>
 
 ```
+
+#### （3）@Resource与@Autowired
+
+@Autowired是按照类型byType装配对象，如果想使用byName来装配，可以结合@Qualifier注解一起使用；
+
+@Resource默认按照ByName自动注入，可以设置name属性或者type属性来设置使用那种方式；
+
+最好是将@Resource放在setter方法上，因为这样更符合面向对象的思想，通过set、get去操作属性，而不是直接去操作属性。
 
 ### 2.3.3 为应用指定多个 Spring 配置文件
 

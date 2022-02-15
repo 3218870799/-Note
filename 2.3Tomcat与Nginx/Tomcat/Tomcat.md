@@ -373,6 +373,45 @@ Session复制：
 
 SSO单点登录：
 
+## Window下多台配置
+
+1：在D盘Tomcat目录下复制多个Tomcat压缩包文件夹；建议改名为对应端口：如Tomcat9_8080；Tomcat9_8081；Tomcat9_8082；
+
+2：添加环境变量：右键单击我的电脑->选择属性->选择高级->选择环境变量：添加系统变量：
+CATALINA_HOME_8080，其值为：
+CATALINA_HOME_8081，其值为：
+CATALINA_HOME_8082，其值为：
+
+3：修改启动和关闭端口
+
+打开server.xml文件
+
+```shell
+（1）<Server port="8006" shutdown="SHUTDOWN">
+修改这个port=”8006”，原来默认的为：8005，使得它的关闭端口和另一个关闭端口不发生冲突。
+（2）<Connector port="8081" maxHttpHeaderSize="8192"
+               maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
+               enableLookups="false" redirectPort="8443" acceptCount="100"
+               connectionTimeout="20000" disableUploadTimeout="true" />
+修改port=”8081”，原来默认的为“8080”，使得它的连接端口和另一个不冲突。
+（3）<Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
+修改这个port=”8010”，原来默认的为：8009，AJP 1.3 Connector定义的地方。
+```
+
+4：修改startup.bat和catalina.bat文件内容：
+
+把其中所有CATALINA_HOME替换为CATALINA_HOME_8081。
+
+
+
+
+
+
+
+
+
+
+
 
 
 # 六：安全

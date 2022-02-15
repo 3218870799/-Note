@@ -20,6 +20,7 @@ File——Setting——Plugins——MarketPlace搜索 ` JRebel and XRebel `
 
 ```txt
 https://jrebel.qekang.com/+生成的guid
+7edb2e7c-0b83-4b0f-b81a-6c053ba240c4
 ```
 
 第二个选项则填写你自己的邮箱即可
@@ -87,6 +88,12 @@ File——Setting——Plugins——MarketPlace搜索 ` Grep Console `
 ![image-20201026212441919](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/image-20201026212441919.png)
 
 我是配合打印 SQL 语句，这样直观；如果你还不知道如何打印 SQL 语句，可以参考我的文章使用拦截器，或者使用另一个插件MybatisLog
+
+![image-20220104093826844](media/image-20220104093826844.png)
+
+
+
+
 
 ## Mybatis Log
 

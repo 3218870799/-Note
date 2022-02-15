@@ -234,6 +234,30 @@ Base标签
 
  
 
+## 7：Servlet包
+
+1：@WebServlet注解：
+
+load-on-startup：1标识web应用启动时创建servlet实例；
+
+等同于再web.xml中配置
+
+```xml
+ <!-- 配置和映射servlet -->
+    <servlet>
+        <!-- servlet注册的名字 -->
+        <servlet-name>helloServlet</servlet-name>
+        <!-- servlet的全类名 -->
+        <servlet-class>com.dao.chu.HelloServlet</servlet-class>
+        <!-- load-on-startup节点 -->
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+```
+
+
+
+
+
  
 
 # 四：JSP

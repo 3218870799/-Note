@@ -37,8 +37,6 @@ String title = driver.getTitle();
 driver.close();
 ```
 
-
-
 获取input内的值
 
 ```java
@@ -68,9 +66,6 @@ driver.quit();
 使用service优化：
 
 ```java
-package zt.o.cbsreportservice.utils;
-
-
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -137,8 +132,11 @@ public class WebDriverUtil {
         return "";
     }
 }
-
 ```
+
+
+
+## 多线程
 
 
 

@@ -31,6 +31,7 @@
   - [面向对象方法](0.4：软件工程/面向对象方法/面向对象方法.md)
   - [项目开发管理](0.4：软件工程/项目开发管理/项目开发管理.md)
 - 1.1：版本控制
+  
   * [Git](1.1版本控制/1.Git/Git/Git.md)
   * [Github使用](1.1版本控制/3.GitHub/Github使用.md)
 - 1.2：开发工具
@@ -73,11 +74,9 @@
 
 - 4：maven与Gradle
   
-  - [Gradle](4.maven与Gradle/Gradle/Gradle.md)
-  
-  - [Maven](4.maven与Gradle/Maven/maven.md)
-  
-  - [Nexus](4.maven与Gradle/Nexus/Nexus.md)
+  * [Gradle](4.maven与Gradle/Gradle/Gradle.md)
+  * [Maven](4.maven与Gradle/Maven/maven.md)
+  * [Nexus](4.maven与Gradle/Nexus/Nexus.md)
   
 - 6.1：关系型数据库
 
@@ -99,14 +98,14 @@
   * [怎么实现读写分离](6.2分库分表/怎么实现读写分离.md)
 
 - 6.3时序数据库
-  - [Influx DB](6.3时序数据库/influxDB/influxDB.md)
+
+  * [Influx DB](6.3时序数据库/influxDB/influxDB.md)
   
 - 7：非关系型数据库
 
   * [ehcache技术详解](7.Redis，Ehcache，Mongdb/Ehcache/ehcache技术详解.md)
-
-  - [redis笔记](7.Redis，Ehcache，Mongdb/Redis/redis笔记/redis笔记.md)
-  - 客户端[Another](7.Redis，Ehcache，Mongdb/Redis/客户端/Another.md)
+  * [redis笔记](7.Redis，Ehcache，Mongdb/Redis/redis笔记/redis笔记.md)
+  * 客户端[Another](7.Redis，Ehcache，Mongdb/Redis/客户端/Another.md)
 
 - 8.SpringMVC
   * [SpringMVC框架](8.SpringMVC/SpringMVC框架.md)

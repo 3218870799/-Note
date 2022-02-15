@@ -1,4 +1,4 @@
-﻿﻿# 第 1 章 Kafka 概述
+﻿﻿﻿﻿﻿# 第 1 章 Kafka 概述
 
 观察者模式
 
@@ -62,13 +62,21 @@ Queue 支持存在多个消费者，但是对一个消息而言，只会有一�
 
 **Topic** ：可以理解为一个队列，生产者和消费者面向的都是一个 topic；
 
-**Partition**：为了实现扩展性，一个非常大的 topic 可以分布到多个 broker（即服务器）上，一个 **topic** 可以分为多个 **partition**，每个 partition 是一个有序的队列；
+**Partition分区**：为了实现扩展性，一个非常大的 topic 可以分布到多个 broker（即服务器）上，一个 **topic** 可以分为多个 **partition**，每个 partition 是一个有序的队列；
 
 **Replica**：副本，为保证集群中的某个节点发生故障时，该节点上的 partition 数据不丢失，且 kafka 仍然能够继续工作，kafka 提供了副本机制，一个 topic 的每个分区都有若干个副本，一个 **leader** 和若干个 **follower**。
 
 **leader**：每个分区多个副本的“主”，生产者发送数据的对象，以及消费者消费数据的对象都是 leader。
 
 **follower**：每个分区多个副本中的“从”，实时从 leader 中同步数据，保持和 leader 数据的同步。leader 发生故障时，某个 follower 会成为新的 follower。
+
+消息位移：Offset。表示分区中每条消息的位置信息，是一个单调递增且不变的值。
+
+消费者位移：Consumer Offset。表示消费者消费进度，每个消费者都有自己的消费者位移。offset保存在broker端的内部topic中，不是在clients中保存
+
+消费者组：Consumer Group。多个消费者实例共同组成的一个组，同时消费多个分区以实现高吞吐。
+
+重平衡：Rebalance。消费者组内某个消费者实例挂掉后，其他消费者实例自动重新分配订阅主题分区
 
 # 第 2 章 Kafka 快速入门
 
@@ -235,6 +243,12 @@ bin/kafka-topics.sh hadoop102:2181 --describe --topic first
 bin/kafka-topics.sh hadoop102:2181 --alter --topic first --partitions 6
 ```
 
+## 配置
+
+
+
+
+
 # 第 3 章 Kafka 架构深入
 
 ![image-20210404220413324](media/image-20210404220413324.png)
@@ -288,6 +302,18 @@ index 和 log 文件以当前 segment 的第一条消息的 offset 命名。下�
 保留数据时 Kafka 的一个基本特性，Kafka 不会一直保留数据，也不会等到所有消费者都读取了消息之后才删除消息。相反，Kafka 管理员为每个主题配置了数据保留期限，规定数据被删除之前可以保留多长时间，或者清理数据之前可以保留的数据量大小。 因为在一个大文件里查找和删除消息是很费时的，也很容易出错，所以我们把分区分成若干个片段。默认情况下，index 大小为 10M，每个片段(log)包含 1GB 或一周数据，以较小的那个为准。当前正在写入数据的片段叫做**活跃片段**，活跃片段永远不会被删除。
 
 ### Message 格式
+
+### broker存储
+
+Kafka 使用消息日志（Log）来保存数据，一个日志就是磁盘上一个只能追加写（Append-only）消息的物理文件。因为只能追加写入，故避免了缓慢的随机 I/O 操作，改为性能较好的顺序 I/O 写操作，这也是实现 Kafka 高吞吐量特性的一个重要手段。
+
+不过如果你不停地向一个日志写入消息，最终也会耗尽所有的磁盘空间，因此 Kafka 必然要定期地删除消息以回收磁盘。怎么删除呢？
+
+简单来说就是通过日志段（Log Segment）机制。在 Kafka 底层，一个日志又近一步细分成多个日志段，消息被追加写到当前最新的日志段中，当写满了一个日志段后，Kafka 会自动切分出一个新的日志段，并将老的日志段封存起来。Kafka 在后台还有定时任务会定期地检查老的日志段是否能够被删除，从而实现回收磁盘空间的目的。
+
+### 备份机制
+
+副本的工作机制也很简单：生产者总是向`leader副本`写消息；而消费者总是从`leader副本`读消息。至于follow副本，它只做一件事：向leader副本以异步方式发送pull请求，请求leader把最新的消息同步给它，必然有一个时间窗口导致它和leader中的数据是不一致的，或者说它是落后于leader。
 
 ## 3.2 Kafka 生产者
 
@@ -400,6 +426,28 @@ At Least Once + 幂等性 = Exactly Once
 
 要启用幂等性，只需要将 Producer 的参数中 enable.idompotence 设置为 true 即可。Kafka 的幂等性实现其实就是将原来下游需要做的去重放在了数据上游。开启幂等性的 Producer 在初始化的时候会被分配一个 PID，发往同一 Partition 的消息会附带 SequenceNumber。而 Broker 端会对\<PID, Partition,SeqNumber\>做缓存，当具有相同主键的消息提交时，Broker 只会持久化一条。但是 PID 重启就会变化，同时不同的 Partition 也具有不同主键，所以幂等性无法保证跨分区跨会话的 Exactly Once。
 
+### 消息压缩
+
+生产者程序中配置`compression.type` 参数即表示启用指定类型的压缩算法。
+
+`props.put(“compression.type”, “gzip”)`，它表明该 Producer 的压缩算法使用的是`GZIP`。这样 Producer 启动后生产的每个消息集合都是经 GZIP 压缩过的，故而能很好地节省网络传输带宽以及 Kafka Broker 端的磁盘占用。
+
+但如果Broker又指定了不同的压缩算法，如：`Snappy`，会将生产端的消息解压然后按自己的算法重新压缩。
+
+> 各压缩算法比较：吞吐量方面：LZ4 > Snappy > zstd 和 GZIP；而在压缩比方面，zstd > LZ4 > GZIP > Snappy。
+
+kafka默认不指定压缩算法。
+
+2：解压缩
+
+当 Consumer pull消息时，Broker 会原样发送出去，当消息到达 Consumer 端后，由 Consumer 自行解压缩还原成之前的消息。
+
+### 事务型
+
+- 
+
+
+
 ## 3.3 Kafka 消费者
 
 ### 3.3.1 消费方式
@@ -414,11 +462,14 @@ pull 模式不足之处是，如果 kafka 没有数据，消费者可能会陷�
 
 一个 consumer group 中有多个 consumer，一个 topic 有多个 partition，所以必然会涉及到 partition 的分配问题，即确定那个 partition 由哪个 consumer 来消费。
 
-Kafka 有两种分配策略，一是 RoundRobin，一是 Range。
+编写一个类实现`org.apache.kafka.clients.Partitioner`接口。实现内部两个方法：`partition()`和`close()`。然后显式地配置生产者端的参数`partitioner.class`
 
-RoundRobin
+常见的策略：
 
-Range
+- 轮询策略（默认）。保证消息最大限度地被平均分配到所有分区上。
+- 随机策略。随机策略是老版本生产者使用的分区策略，在新版本中已经改为轮询了。
+- 按key分区策略。key可能是uid或者订单id，将同一标志位的所有消息都发送到同一分区，这样可以保证一个分区内的消息有序
+- 其他分区策略。如：基于地理位置的分区策略
 
 ### 3.3.3 offset 的维护
 
@@ -499,7 +550,7 @@ Kafka 集群中有一个 broker 会被选举为 Controller，负责管理集群 
 
 zookeeper 是一个分布式的协调组件，早期版本的 kafka 用 zk 做 meta 信息存储，consumer 的消费状态，group 的管理以及 offset 的值。考虑到 zk 本身的一些因素以及整个架构较大概率存在单点问题，新版本中逐渐弱化了 zookeeper 的作用。新的 consumer 使用了 kafka 内部的 group coordination 协议，也减少了对 zookeeper 的依赖
 
-但是 broker 依然依赖于 ZK，zookeeper 在 kafka 中还用来选举 controller 和 检测 broker 是否存活等等。
+但是 broker 依然依赖于 ZK，zookeeper 在 kafka 中还用来选举 controller 和 检测 broker 是否存活等等。负责协调管理并保存 Kafka 集群的所有元数据信息，比如集群都有哪些 Broker 在运行、创建了哪些 Topic，每个 Topic 都有多少分区以及这些分区的 Leader 副本都在哪些机器上等信息。
 
 以下为 partition 的 leader 选举过程：
 
@@ -512,6 +563,27 @@ Kafka 从 0.11 版本开始引入了事务支持。事务可以保证 Kafka 在 
 为了实现跨分区跨会话的事务，需要引入一个全局唯一的 Transaction ID，并将 Producer 获得的 PID 和 Transaction ID 绑定。这样当 Producer 重启后就可以通过正在进行的 Transaction ID 获得原来的 PID。
 
 为了管理 Transaction，Kafka 引入了一个新的组件 Transaction Coordinator。Producer 就是通过和 Transaction Coordinator 交互获得 Transaction ID 对应的任务状态。Transaction Coordinator 还负责将事务所有写入 Kafka 的一个内部 Topic，这样即使整个服务重启，由于事务状态得到保存，进行中的事务状态可以得到恢复，从而继续进行。
+
+能够保证将消息原子性地写入到多个分区中。这批消息要么全部写入成功，要么全部失败。能够保证跨分区、跨会话间的幂等性。
+
+```
+producer.initTransactions();
+try {
+            producer.beginTransaction();
+            producer.send(record1);
+            producer.send(record2);
+            //提交事务
+            producer.commitTransaction();
+} catch (KafkaException e) {
+            //事务终止
+            producer.abortTransaction();
+}
+```
+
+实际上即使写入失败，Kafka 也会把它们写入到底层的日志中，也就是说 Consumer 还是会看到这些消息。要不要处理在 Consumer 端设置 `isolation.level` ，这个参数有两个值:
+
+- read_uncommitted：这是默认值，表明 Consumer 能够读取到 Kafka 写入的任何消息
+- read_committed：表明 Consumer 只会读取事务型 Producer 成功提交事务写入的消息
 
 ### 3.6.2 Consumer 事务
 
@@ -536,6 +608,8 @@ kafka 实际上有个 offset 的概念，就是每个消息写进去，都有一
 kafka 每个 partition 中的消息在写入时都是有序的，消费时，每个 partition 只能被每一个 group 中的一个消费者消费，保证了消费时也是有序的。
 
 整个 topic 不保证有序。如果为了保证 topic 整个有序，那么将 partition 调整为 1.
+
+方法二：通过有key分组，同一个key的消息放入同一个分区，保证局部有序
 
 ## 延时队列
 
@@ -1032,3 +1106,17 @@ partition leader（ISR），controller（先到先得）
 20.Kafka 的哪些设计让它有如此高的性能？
 
 分区，顺序写磁盘，0-copy
+
+
+
+# 第八章：生产问题
+
+问题1：生产上发现kafka服务器没有接收到需要消费的消息，有哪些步骤可以排查？
+
+解决方案：
+
+1：.使用todb的插件，查看相关管理功能号，看kafka传输情况，事务号，kafka连接状态等
+
+2.查看dlogex日志
+
+3.抓包看从节点那边是否发送出去消息

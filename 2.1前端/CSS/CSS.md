@@ -1050,6 +1050,10 @@ CSS 代码：
 
 ![img](http://www.w3cplus.com/sites/default/files/gradient29.png)
 
-著作权归作者所有。
-商业转载请联系作者获得授权,非商业转载请注明出处。
-原文: http://www.w3cplus.com/content/css3-gradient © [w3cplus.com](http://www.w3cplus.com/)
+## 继承
+
+屏蔽掉父元素的影响：
+
+方式一：覆盖
+
+默认继承的属性：

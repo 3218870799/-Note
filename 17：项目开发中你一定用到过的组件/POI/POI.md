@@ -52,7 +52,7 @@ Workbook workbook = new XSSFWorkbook();
 
 
 
-输出
+#### 输出
 
 ```java
 FileOutputStream fileOutputStream = new FileOutputStream(PATH + "测试表格.xls");
@@ -97,6 +97,26 @@ String formula = cell.getCellFormula();
 //根据公式进行计算
 CellValue evalutate = formulaEvaluator.evalutate(cell);
 String cellValue = evalutate.formatAsString();
+```
+
+### 删除列
+
+循环删除某一列的单元格；
+
+```java
+public static void removeColumn(XSSFSheet sheet, int removeColumnNum, int removeColumnTotal){
+		  if(sheet == null){
+		   		return;
+		  }
+		  for (Iterator<Row> rowIterator = sheet.rowIterator(); rowIterator.hasNext();) {
+		         XSSFRow row = (XSSFRow)rowIterator.next();
+		         XSSFCell cell = row.getCell(removeColumnNum);
+		         if(cell == null){
+		          	continue;
+		         }
+		         row.removeCell(cell);
+		  }
+}
 ```
 
 

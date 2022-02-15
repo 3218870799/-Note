@@ -241,19 +241,19 @@ Nginx
 
 ## :dancer:项目管理工具
 
-Maven
-
-Nexus 搭建
-
-Gradle
+  - [Maven](4.maven与Gradle/Maven/maven.md)
+  - [Nexus](4.maven与Gradle/Nexus/Nexus.md)
+  - [Gradle](4.maven与Gradle/Gradle/Gradle.md)
 
 ## :dancers:关系型数据库
 
+   [关系型数据库](6.1关系型数据库/关系型数据库.md)
+
+  * [oracle笔记](6.1关系型数据库/Oracle/oracle笔记.md)
+  * [Postgre](6.1关系型数据库/postgre/postgre.md)
+  *  [My SQL](6.1关系型数据库/MySQL/MySQL.md)
 
 
-MYSQL
-
-Oracle
 
 
 

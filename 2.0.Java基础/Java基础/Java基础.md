@@ -278,9 +278,9 @@ String percent=df.format(d);
 其实不止是 Integer ，在 Java 中所有的整型都是有缓存的，在 Byte 中也是有的，这个缓存的大小正好也是 Byte 的范围。
 
 ```java
-        Integer a=100,b=100,c=200,d=200;
-        System.out.println(a==b);
-        System.out.println(c==d);
+Integer a=100,b=100,c=200,d=200;
+System.out.println(a==b);
+System.out.println(c==d);
 ```
 
 所以，上诉答案应该是， `true , false`
@@ -1815,7 +1815,7 @@ System.out.println("通过Map.keySet遍历key和value：");
 
 ```java
  System.out.println("通过Map.entrySet遍历key和value");
- **for** (Map.Entry<String, String> entry : map.entrySet()) {
+ for (Map.Entry<String, String> entry : map.entrySet()) {
  		System.out.println("key= " + entry.getKey() + " and value= " + entry.getValue());
  }
 ```
@@ -1839,8 +1839,6 @@ Map.entrySet 迭代器会生成 EntryIterator,其返回的实例是一个包含 
 
 异常体系
 
-![异常体系](media/异常体系-1607604130815.png)
-
 1：Exception 和 Error 有什么区别？
 
 Exception 和 Error 都是 Throwable 的子类。Exception 用于用户程序可以捕获的异常情况。Error 定义了不期望被用户程序捕获的异常。
@@ -1848,8 +1846,6 @@ Exception 和 Error 都是 Throwable 的子类。Exception 用于用户程序可
 分类
 
 ![异常的分类](media/异常的分类.png)
-
--
 
 异常事件可分为两类：
 
@@ -2016,7 +2012,9 @@ d.在多线程 OS 中，进程不是一个可执行的实体。
 
 守护线程：
 
-守护线程是运行在后台的一种特殊进程。它独立于控制终端并且周期性地执行某种任务或等待处理某些发生的事件。在Java 中垃圾回收线程就是特殊的守护线程。
+守护线程是运行在后台的一种特殊进程。它独立于控制终端并且周期性地执行某种任务或等待处理某些发生的事件。在Java 中垃圾回收线程就是特殊的守护线程。所有用户线程结束，守护线程直接中断；主要用来为其他线程提供服务支持的情况；或者在任何情况下，程序结束时，这个线程必须正常且like关闭；
+
+Java自带的多线程框架，比如ExecutorService，会将守护线程转换为用户线程；
 
 ## 1：原理/方法机制
 
@@ -2034,7 +2032,7 @@ wait/notify 必须存在于 synchronized 块中，因为如果 wait 执行到了
 
 volatile：多线程的内存模型：main memory（主存）、working memory（线程栈），在处理数据时，线程会把值从主存 load 到本地栈，完成操作后再 save 回去(volatile 关键词的作用：每次针对该变量的操作都激发一次 load and save)。
 
-## 2：状态及声明周期
+## 2：状态及生命周期
 
 当线程被创建并启动以后，它既不是一启动就进入了执行状态，也不是一直处于执行状态。在线程的生命周期中，枚举中给出了六种线程状态：
 
@@ -2077,7 +2075,7 @@ volatile：多线程的内存模型：main memory（主存）、working memory�
 
 sleep 执行后线程进入阻塞状态，sleep（0）表示当前线程被冻结了一下，让其他线程有机会优先执行，当前线程暂时放弃了 CPU，相当于一个让位动作，让当前线程立即回到就绪队列
 
-yield 执行后线程进入就绪状态
+yield 执行后线程进入就绪状态，马上释放CPU；
 
 join 执行后线程进入阻塞状态
 
@@ -2216,7 +2214,7 @@ ThreadLocal 与 Synchronized 的区别：
 
 当线程结束时，将线程设为 null，如果 key 也设置成强引用指向 ThreadLocal，那么在线程结束时 ThreadLocal 不能被回收，，容易发生内存泄漏。
 
-**4、重点来了，突然我们 ThreadLocal 是 null 了，也就是要被垃圾回收器回收了，但是此时我们的 ThreadLocalMap 生命周期和 Thread 的一样，它不会回收，这时候就出现了一个现象。那就是 ThreadLocalMap 的 key 没了，但是 value 还在，这就造成了内存泄漏。**
+4、重点来了，突然我们 ThreadLocal 是 null 了，也就是要被垃圾回收器回收了，但是此时我们的 ThreadLocalMap 生命周期和 Thread 的一样，它不会回收，这时候就出现了一个现象。那就是 ThreadLocalMap 的 key 没了，但是 value 还在，这就造成了内存泄漏。
 
 **解决办法：使用完 ThreadLocal 后，执行 remove 操作，避免出现内存溢出情况。**
 
@@ -3009,7 +3007,7 @@ rwLock.readLock().unlock();
 
 AbstractQueuedSynchronizer 抽象队列同步器
 
-ReentrantLock、CountDownLatch、CycleBarrier 底层都是通过 AQS 来实现的
+ReentrantLock、CountDownLatch、CycleBarrier 底层都是通过 AQS 来实现的，内部类继承AQS；
 
 **AQS 的核心思想**：如果被请求的共享资源空闲，则将当前请求的资源的线程设置为有效的工作线程，并将共享资源设置为锁定状态，如果被请求的共享资源被占用，那么就需要一套线程阻塞等待以及唤醒时锁分配的机制，这个 AQS 是用 CLH 队列锁实现的，即将暂时获取不到的锁的线程加入到队列中。CLH 队列是一个虚拟的双向队列，虚拟的双向队列即不存在队列的实例，仅存在节点之间的关联关系。
 
@@ -3080,6 +3078,14 @@ CountDownLatch
 通过 lockInterruptibly()方法获取某个锁，如果不能获取到，只有进行等待的情况下，是可以响应中断的，而用 synchronized 修饰的话，当一个线程处于等待某个锁的状态，是无法被中断的，只有一只等待下去。
 
 打断之后 node 状态的变化(state 变为 cancelled)
+
+#### 公平与非公平
+
+公平锁FairSync中加锁lock执行AQS方法acquire；其中acquire方法会先去tryAcquire，然后
+
+
+
+
 
 ## 9：线程协作
 
@@ -3276,6 +3282,8 @@ copyOnWrite 适用于读多写少的场景；
 
 ### ReentrantLock
 
+内部继承AQS，内部类实现Sync实现公平锁与非公平锁；
+
 ReenTrantLock 的实现是一种自旋锁，通过循环调用 CAS 操作来实现加锁。它的性能比较好也是因为避免了使线程进入内核态的阻塞状态。**想尽办法避免线程进入内核的阻塞状态是我们去分析和理解锁设计的关键钥匙。**
 
 **与 synchronized 的区别？**
@@ -3293,6 +3301,14 @@ ReenTrantLock 的实现是一种自旋锁，通过循环调用 CAS 操作来实�
 5：ReentantLock 相比于 Synchronized 可以更方便的获取锁，可以操作读写锁，可以唤醒指定线程等等，
 
 6：Synchronized 适合于并发竞争低的情况，因为 Synchronized 的锁升级如果最终升级为重量级锁在使用的过程中是没有办法降级的（GC 必须），意味着每次都要和 cpu 去请求锁资源，而 ReentrantLock 主要是提供了阻塞的能力，**通过在高并发下线程的挂起，来减少竞争，提高并发能力**
+
+底层实现：
+
+加入队列中后，将线程改为阻塞线程，阻塞线程利用 ` LockSupport. ` 还是用的 ` unsafe ` 类中的方法，绕过虚拟机，直接操作底层中断阻塞；
+
+
+
+
 
 ### ReetrantReadWriteLock 读写锁
 
@@ -3359,6 +3375,12 @@ synchronized 控制同步的时候，可以配合 Object 的 wait(),notify(),not
 
 - 一个是用于共享资源的互斥使用
 - 另一个用于并发线程数或者任务数量控制
+
+·
+
+
+
+
 
 ### 4，Exchanger
 
@@ -3428,7 +3450,7 @@ java.util.concurrent.BlockingQueue 接口有以下阻塞队列的实现：
 创建删除功能的方法
 
 - `public boolean createNewFile()` ：当且仅当具有该名称的文件尚不存在时，创建一个新的空文件。
-- `public boolean delete()` ：删除由此 File 表示的文件或目录。
+- `public boolean delete()` ：删除由此 File 表示的文件或目录。删除失败可能是文件的流没有关闭。
 - `public boolean mkdir()` ：创建由此 File 表示的目录。
 - `public boolean mkdirs()` ：创建由此 File 表示的目录，包括任何必需但不存在的父目录。
 - public Boolean renameTo(File dest)把文件 重命名为指定的路
@@ -3636,6 +3658,22 @@ RandomAccessFile 类
 long getFilePointer()：获取文件记录指针的当前位置
 
 void seek(long pos)：将文件记录指针定位到 pos 位置
+
+
+
+### ZipOutputStream
+
+是FileOutputStream中的一种，它可以经内容直接写入Zip包中。一般创建ZipOutputStrean 通常封装一个FileOutputStream ，然后再每写入一个文件之前，需要调用一次putNextEntry，然后使用write写入byte[] 类型的数据，当写入完毕的时候使用closeEntry来结束这个文件的打包；
+
+ ZipEntry  表示压缩文件的条目   (就相当与java文件中的directory目录一样)
+
+乱码问题：
+
+
+
+
+
+
 
 ## 11：BIO
 
@@ -4058,6 +4096,12 @@ public class NIOServer {
 针对 HTTP 协议的 URLConnection 类
 
 提供了最高级网络应用。URL 的网络资源的位置来同一表示 Internet 上各种网络资源。通过 URL 对象可以创建当前应用程序和 URL 表示的网络资源之 间的连接，这样当前程序就可以读取网络资源数据，或者把自己的数据传送到网络上去。
+
+## 远程调用
+
+
+
+
 
 # 八：JDBC
 

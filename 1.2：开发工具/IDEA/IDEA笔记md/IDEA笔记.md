@@ -1,4 +1,4 @@
-﻿﻿﻿﻿# 一、IntelliJIDEA
+﻿﻿﻿﻿﻿﻿﻿# 一、IntelliJIDEA
 
 ## 主要优势：(相较于 Eclipse 而言)
 
@@ -15,6 +15,8 @@
 ## 下载地址：
 
 https://www.jetbrains.com/idea/download/
+
+历史版本：https://www.jetbrains.com/idea/download/other.html
 
 IDEA 分为两个版本：旗舰版**(Ultimate)**和社区版**(Community)**。
 
@@ -343,6 +345,10 @@ during the file creation.
 etc. \${MONTH_NAME_FULL} - full name of a month. Example: January, February,
 etc.
 
+### 编码
+
+https://www.cnblogs.com/votory/p/12283176.html
+
 # 七、关于模板(Templates)
 
 (Editor – Live Templates 和 Editor – General – Postfix Completion)
@@ -594,6 +600,10 @@ Alt + F8 ：debugger 时选中查看值
 选择行，ctrl + u。还可以在查看框中输入编写代码时的其他方法：
 
 ![](media/0b8e56dd900c51f2f04e4cbf963468be.jpg)
+
+### 多线程调试
+
+![image-20220113215918214](media/image-20220113215918214.png)
 
 # 十二、配置 Maven
 

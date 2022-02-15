@@ -149,16 +149,16 @@ MySQL 支持多种类型，大致可以分为三类：数值、日期/时间和�
 
 数值类型：
 
-| 类型           | 大小                                          | 范围（有符号）                    | 范围（无符号）     | 用途     |
-| -------------- | --------------------------------------------- | --------------------------------- | ------------------ | -------- |
-| tinyint        | 1 byte                                        | (-128,127)                        | (0,255)            | 小整数值 |
-| smallint       | 2 byte                                        | （-32 768,32 767）                | （0,65535）        | 大整数值 |
-| mediumint      | 3 byte                                        | （-8 388 608,8 388 606）          | (0，4 294 967 295) | 大整数值 |
-| int 或 integer | 4 byte                                        | （- 2 147 484 648,2 147 483 647） | （0,4 294 967 2950 | 大整数值 |
-| bigint         | 8 byte                                        |                                   |                    |          |
-| Float          | 4 byte                                        |                                   |                    |          |
-| double         | 8 byte                                        |                                   |                    |          |
-| decimal        | 对 DECIMAL(M,D) ，如果 M>D，为 M+2 否则为 D+2 |                                   |                    |          |
+| 类型           | 大小                                          | 范围（有符号）                    | 范围（无符号）     | 用途         |
+| -------------- | --------------------------------------------- | --------------------------------- | ------------------ | ------------ |
+| tinyint        | 1 byte                                        | (-128,127)                        | (0,255)            | 小整数值     |
+| smallint       | 2 byte                                        | （-32 768,32 767）                | （0,65535）        | 大整数值     |
+| mediumint      | 3 byte                                        | （-8 388 608,8 388 606）          | (0，4 294 967 295) | 大整数值     |
+| int 或 integer | 4 byte                                        | （- 2 147 484 648,2 147 483 647） | （0,4 294 967 2950 | 大整数值     |
+| bigint         | 8 byte                                        |                                   |                    |              |
+| Float          | 4 byte                                        |                                   |                    |              |
+| double         | 8 byte                                        |                                   |                    |              |
+| decimal        | 对 DECIMAL(M,D) ，如果 M>D，为 M+2 否则为 D+2 | M范围1到65；D范围0到30；          |                    | 保留精度的列 |
 
 注意：int(5) 和 int(10)的区别
 
@@ -2214,7 +2214,172 @@ MyISAM 使用的是非聚簇索引，**非聚簇索引的两棵 B+树看上去�
 
 ![image-20200723110258929](media/image-20200723110258929.png)
 
-# 第七章：优化
+# 第七章：性能分析
+
+## processlist
+
+```sql
+```
+
+
+
+ID ：mysql线程的唯一标识，一般一个连接一个线程；
+
+```sql
+kill ID
+```
+
+USER：数据库连接用户
+
+HOST：服务器IP+端口
+
+DB：执行的数据库
+
+COMMAND ：连接状态，该项值常见的有Sleep(休眠)、Query(查询)、Connect(连接)
+
+Time ：显示状态持续的时间（秒）
+
+state ：显示语句执行状态，状态较多，主要有
+
+```txt
+mysql列出的状态主要有以下几种：
+
+Checking table   #正在检查数据表（这是自动的）。 
+
+Closing tables   #正在将表中修改的数据刷新到磁盘中，同时正在关闭已经用完的表。这是一个很快的操作，如果不是这样的话，就应该确认磁盘空间是否已经满了或者磁盘是否正处于重负中。 
+
+Connect Out      #复制从服务器正在连接主服务器。 
+
+Copying to tmp table on disk #由于临时结果集大于 tmp_table_size，正在将临时表从内存存储转为磁盘存储以此节省内存。 
+
+Creating tmp table #正在创建临时表以存放部分查询结果。 
+
+deleting from main table #服务器正在执行多表删除中的第一部分，刚删除第一个表。 
+
+deleting from reference tables  #服务器正在执行多表删除中的第二部分，正在删除其他表的记录。 
+
+Flushing tables  #正在执行 FLUSH TABLES，等待其他线程关闭数据表。 
+
+Killed   #发送了一个kill请求给某线程，那么这个线程将会检查kill标志位，同时会放弃下一个kill请求。MySQL会在每次的主循环中检查kill标志位，不过有些情况下该线程可能会过一小段才能死掉。如果该线程程被其他线程锁住了，那么kill请求会在锁释放时马上生效。 
+
+Locked    #被其他查询锁住了。 
+
+Sending data  #正在处理 SELECT 查询的记录，同时正在把结果发送给客户端。 
+
+Sorting for group #正在为 GROUP BY 做排序。 
+
+Sorting for order  #正在为 ORDER BY 做排序。 
+
+Opening tables  #这个过程应该会很快，除非受到其他因素的干扰。例如，在执 ALTER TABLE 或 LOCK TABLE 语句行完以前，数据表无法被其他线程打开。 正尝试打开一个表。 
+
+Removing duplicates  #正在执行一个 SELECT DISTINCT 方式的查询，但是MySQL无法在前一个阶段优化掉那些重复的记录。因此，MySQL需要再次去掉重复的记录，然后再把结果发送给客户端。 
+
+Reopen table #获得了对一个表的锁，但是必须在表结构修改之后才能获得这个锁。已经释放锁，关闭数据表，正尝试重新打开数据表。 
+
+Repair by sorting #修复指令正在排序以创建索引。 
+
+Repair with keycache #修复指令正在利用索引缓存一个一个地创建新索引。它会比 Repair by sorting 慢些。 
+
+Searching rows for update  #正在讲符合条件的记录找出来以备更新。它必须在 UPDATE 要修改相关的记录之前就完成了。 
+
+Sleeping #正在等待客户端发送新请求. 
+
+System lock #正在等待取得一个外部的系统锁。如果当前没有运行多个mysqld服务器同时请求同一个表，那么可以通过增加 --skip-external-locking参数来禁止外部系统锁。 
+
+Upgrading lock 
+
+INSERT DELAYED #正在尝试取得一个锁表以插入新记录。 
+
+Updating #正在搜索匹配的记录，并且修改它们。 
+
+INSERT DELAYED #已经处理完了所有待处理的插入操作，正在等待新的请求。
+
+```
+
+INFO：显示执行语句内容；
+
+## information_schema
+
+排查数据库性能，最早用的是`show processlist`，方便快捷毋庸置疑，但使用的越多，对实时链接的多维度过滤、统计需求就愈发强烈。
+
+```sql
+select * from information_schema.processlist
+```
+
+连接数相关统计：
+
+```sql
+## 统计总数
+select count(*) from information_schema.processlist;
+## 按[用户、数据库、状态]汇总
+SELECT count(*),user,db,command FROM information_schema.processlist group by user, db,command;
+## 按来源汇总
+SELECT substring(host, 1, instr(host, ":")-1), count(*) from information_schema.processlist 
+group by  substring(host, 1, instr(host, ":")-1);
+
+## 开启2秒以上的连接
+SELECT id,user,db,command,state,time,info FROM information_schema.processlist 
+where command <> 'sleep' and time > 2 order by time;
+
+## 以运行超过2秒的执行计划
+SELECT id,user,db,command,state,time FROM information_schema.processlist where command <> 'sleep' and time > 2 and info like "select xxx from xxx%";
+
+```
+
+数据量相关统计：
+
+```sql
+## 统计指定库+表的数据量(行数，数据大小，索引大小)
+select table_name, TABLE_ROWS,
+	concat(round(DATA_LENGTH/1024/1024, 2),'MB') as DATA_LENGTH,
+	concat(round( INDEX_LENGTH/1024/1024, 2),'MB') as INDEX_LENGTH,
+	concat(round(DATA_FREE/1024/1024, 2),'MB') as DATA_FREE 
+from information_schema.tables 
+where table_schema = 'database' and table_name = 'table'
+
+## 统计多表的数据大小
+select table_name, sum(TABLE_ROWS) as rows, 
+	concat(round(sum(DATA_LENGTH)/1024/1024, 2),'MB') as DATA_LENGTH,
+	concat(round( sum(INDEX_LENGTH)/1024/1024, 2),'MB') as INDEX_LENGTH, 
+	concat(round(sum(DATA_FREE)/1024/1024, 2),'MB') 
+from information_schema.tables 
+where table_schema like "table_xx%" group by table_name order by sum(DATA_LENGTH) limit 10;
+
+## 字符串字段分离度判断，一般用于需否建索引的参考
+SELECT COUNT(DISTINCT(LEFT(column_xxx, 10)))/count(*) AS selectivity FROM table_xxx;
+```
+
+事务/锁相关统计
+
+```sql
+## 未提交的事务，或热点行更新
+SELECT r.trx_id waiting_trx_id, r.trx_mysql_thread_id waiting_thread,    
+    TIMESTAMPDIFF(SECOND, r.trx_wait_started, CURRENT_TIMESTAMP) wait_time,    
+    r.trx_query waiting_query, l.lock_table waiting_table_lock,    
+    b.trx_id blocking_trx_id, b.trx_mysql_thread_id blocking_thread,    
+    SUBSTRING(p.HOST, 1, INSTR(p.HOST, ':')-1) blocking_host,    
+    SUBSTRING(p.HOST, INSTR(p.HOST, ':')+1) blocking_port,
+	IF (p.COMMAND = 'Sleep', p.TIME, 0) idel_in_trx,    
+	b.trx_query blocking_query    
+FROM information_schema.INNODB_LOCK_WAITS w    
+	INNER JOIN information_schema.INNODB_TRX b ON b.trx_id = w.blocking_trx_id    
+	INNER JOIN information_schema.INNODB_TRX r ON r.trx_id = w.requesting_trx_id    
+	INNER JOIN information_schema.INNODB_LOCKS l ON w.requested_lock_id = l.lock_id    
+	LEFT JOIN information_schema. PROCESSLIST p ON p.ID = b.trx_mysql_thread_id    
+ORDER BY wait_time DESC;
+
+## 查看锁的情况
+SELECT * FROM performance_schema.events_statements_history 
+WHERE thread_id IN (
+	SELECT b.`THREAD_ID`
+	FROM sys.`innodb_lock_waits` a
+		INNER JOIN performance_schema.threads b ON a.`blocking_pid` = b.`PROCESSLIST_ID`
+)
+ORDER BY timer_start ASC;
+
+```
+
+
 
 ## 语句优化
 
@@ -2487,6 +2652,12 @@ mysqldumpslow – help
 ## 工具
 
 https://mp.weixin.qq.com/s/2e6_J5PvxhB59tschGO4yA
+
+
+
+
+
+
 
 # 第七章、视图
 
