@@ -2377,6 +2377,13 @@ WHERE thread_id IN (
 )
 ORDER BY timer_start ASC;
 
+
+select * from information_schema.INNODB_LOCKS;
+select * from information_schema.INNODB_TRX;
+
+select * from information_schema.`PROCESSLIST` ;
+
+kill 38088
 ```
 
 
@@ -2533,9 +2540,11 @@ mysql的join语句连接表使用的是nested-loop join算法；这个过程类�
 
 给被驱动表的join字段建立索引；
 
-小结果集驱动大结果集；如果无法判断哪个是大表哪个是小表，可以用inner join连接，MYSQL会自动选择小表去驱动达标；
+小结果集驱动大结果集；如果无法判断哪个是大表哪个是小表，可以用inner join连接，MYSQL会自动选择小表去驱动大表；
 
 ### Union优化
+
+能不用union就不用，非要用用union all
 
 MySQL处理union的策略是先创建临时表，然后将各个查询结果填充到临时表中最后再来做查询，很多优化策略在union查询中都会失效，因为它无法利用索引
 
@@ -2543,7 +2552,15 @@ MySQL处理union的策略是先创建临时表，然后将各个查询结果填�
 
 此外，除非确实需要服务器去重，一定要使用union all，如果不加all关键字，MySQL会给临时表加上distinct选项，这会导致对整个临时表做唯一性检查，代价很高
 
+### 批量操作
+
+
+
+
+
 ## 索引优化
+
+没加索引加索引；索引没生效。强选索引或者修改语句；
 
 ### 创建
 
@@ -2621,6 +2638,10 @@ show variables like '%slow_query_log%';
 ```sql
 -- 临时开启，退出关闭服务即关闭
 set global slow_query_log = 1;
+## 或者
+set global slow_query_log='ON'; 
+set global slow_query_log_file='/usr/local/mysql/data/slow.log';
+set global long_query_time=2;
 
 --永久开启，一般不用
 /etc/my.cnf中追加配置

@@ -2,7 +2,7 @@ Spring Security是一个功能强大且高度可定制的身份验证和访问�
 
 认证，授权（vip1，vip2，vip3）
 
-
+主要是Oauth2的支持；
 
 功能权限
 
