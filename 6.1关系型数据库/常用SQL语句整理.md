@@ -54,6 +54,12 @@ select * from tableA where DATE_SUB(curdate(),INTRRVAL 1 YEAR) <= date(datecolum
 select * from tableA where YEAR(datecolumn) = YEAR(NOW());
 ```
 
+时间戳格式的今天的数据
+
+```sql
+select * from TABLE where datetime >20220101 and datatime <20220103
+```
+
 
 
 ### 有关时间的操作
@@ -114,7 +120,7 @@ select datediff('2008-08-01', '2008-08-08'); -- -7
 
 
 
-## 其他语句
+### 其他语句
 
 1：ON DUPLICATE KEY UPDATE
 
@@ -129,10 +135,32 @@ ON DUPLICATE KEY UPDATE
 password =  VALUES(password);
 ```
 
-修改表结构
+### 2：查问题
 
 ```sql
--- 修改字段为自动增长
-alter table 表A change 字段名 字段名 字段类型 auto_increment
+-- 查看是否锁表
+show OPEN TABLE where in_use > 0;
+
+-- 查看进程
+show processlist;
+
+-- 查看等待锁的事务
+select * from INFORMATION_SCHEMA.INNODB_LOCK_WAITS;
+
+-- 查看正在锁的事务
+select * from INFORMATION_SCHEMA.INNODB_LOCKS;
+
+-- 查看服务器状态
+show status like '%lock%';
+-- 查看服务器状态
+show status like '%lock%';
+-- 
+show engine innodb status;
+
+show FULL PROCESSLIST;
+
+select * from information_schema.innodb_trx;
 ```
+
+
 

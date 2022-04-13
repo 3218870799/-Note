@@ -221,7 +221,16 @@ DELETE TABLE:删除内容不删除定义，不释放空间。
 DROP TABLE：删除内容和定义，释放空间。
 ```
 
+修改表结构：
 
+```sql
+-- 修改字段为自动增长
+alter table 表A change 字段名 字段名 字段类型 auto_increment;
+
+-- 修改字段长度
+alter table T1 alter column F1 varchar(100)
+-- 有时候不支持修改长度，可以先建一个新列，然后将旧的数据拷贝到新的列，然后删除旧字段
+```
 
 ### 表结构
 
@@ -2055,6 +2064,22 @@ select * from tb1 where name = ? and age = ?
 在 mysql5.6 之后，根据 name 和 age 两个列的值去获取数据，直到把数据返回。
 
 通过对比能够发现，第一个的效率低，第二个的效率高，因为整体的 IO 量少了，原来是把数据查询出来，在 server 层进行筛选，而现在在存储引擎层面进行筛选，然后返回结果。我们把这个过程就称为 **索引下推**
+
+### 谓词下推
+
+sql优化中对join条件进行谓词下推，也就是将过滤条件下推到离数据源更近的地方，最好再table_scan时就能过滤掉不需要的数据，由于join查询的特殊性，在优化join condition中的谓词时，对应不同的join 内型，有不同的策略。
+
+ ` inner join ` 的结果集是左表和右表都要满足条件，所以inner join condition 中条件都是可以下推的，比如：
+
+```sql
+select t1.* from A t1 inner join B t2 on t1.id = t2.id and t1.id = 5;
+-- 可以优化为：
+select * from(select * from A t1 where t1.id = 5) t3 inner join (select * from B t2 where t2.id = 5) t4 on t3.id = t4.id;
+```
+
+` left join ` 由于左表是保留表，所以右表条件可以下推，对于right join则相反；
+
+outter join 由于左右表都是保留表，这都不能下推；
 
 ### 隐式转换
 
