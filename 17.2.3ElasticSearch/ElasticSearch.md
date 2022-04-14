@@ -1,4 +1,4 @@
-﻿# Elastic Stack 简介
+﻿﻿# Elastic Stack 简介
 
 如果你没有听说过 Elastic Stack，那你一定听说过 ELK，实际上 ELK 是三款软件的简称，分别是 Elasticsearch、
 Logstash、Kibana 组成，在发展的过程中，又有新成员 Beats 的加入，所以就形成了 Elastic Stack。所以说，ELK 是旧的称呼，Elastic Stack 是新的名字。
@@ -63,6 +63,10 @@ ES 与关系型数据库
 索引库 Index ——类型 TYPE——文档 DOCUMENT——字段 Field
 
 分词建立索引，底层使用倒排索引
+
+特点：分布式，高可用，多类型，多API，面向文档；
+
+近实时，集群，
 
 ### 索引
 
@@ -353,6 +357,27 @@ ERROR: Elasticsearch did not exit normally - check the logs at /soft/elsearch/lo
 node.name: node-1
 cluster.initial_master_nodes: ["node-1"]
 ```
+
+## 集成
+
+添加依赖：
+
+
+
+修改配置
+
+Application.properties
+
+```properties
+# ES 服务地址
+spring.data.elasticsearch.cluster-nodes=localhost:9300
+# 设置连接超时时间
+spring.data.elasticsearch.properties.transport.tcp.connect_time=120s
+```
+
+
+
+
 
 ## Head 可视化工具
 
