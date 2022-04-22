@@ -718,48 +718,25 @@ LOCATE(substr,str), 　　LOCATE(substr,str,pos)
 
 分组查询主要涉及到两个子句，分别是：group by 和 having
 
-8.1、group by
+1：group by
 
-- 取得每个工作岗位的工资合计，要求显示岗位名称和工资合计
+取得每个工作岗位的工资合计，要求显示岗位名称和工资合计
 
+```sql
 select job, sum(sal) from emp group by job;
+```
 
 如果使用了 order by，order by 必须放到 group by 后面
 
-![](media/979bc4ef9146b69008db8edc5b2ea730.png)
-
-- 按照工作岗位和部门编码分组，取得的工资合计
-
-  - 原始数据
-
-- 分组语句
-
-select job,deptno,sum(sal) from emp group by job,deptno;
-
-mysql\> select empno,deptno,avg(sal) from emp group by deptno;
-
-\| empno \| deptno \| avg(sal)
-
-\| 7782 \| 10 \| 2916.666667 \|
-
-\| 7369 \| 20 \| 2175.000000 \|
-
-\| 7499 \| 30 \| 1566.666667 \|
-
-以上 SQL 语句在 Oracle 数据库中无法执行，执行报错。
-
-以上 SQL 语句在 Mysql 数据库中可以执行，但是执行结果矛盾。
-
-在 SQL 语句中若有 group by
-语句，那么在 select 语句后面只能跟**分组函数+参与分组的字段**。
-
-8.2、having
+2、having
 
 如果想对分组数据再进行过滤需要使用 having 子句
 
 取得每个岗位的平均工资大于 2000
 
-| select job, avg(sal) from emp group by job having avg(sal) \>2000; |
+```sql
+select job, avg(sal) from emp group by job having avg(sal)>2000; 
+```
 
 分组函数的执行顺序：
 
@@ -769,7 +746,7 @@ mysql\> select empno,deptno,avg(sal) from emp group by deptno;
 
 采用 having 过滤，取得正确的数据
 
-8.3、select 语句总结
+3、select 语句总结
 
 一个完整的 select 语句格式如下
 
@@ -2243,11 +2220,6 @@ MyISAM 使用的是非聚簇索引，**非聚簇索引的两棵 B+树看上去�
 
 ## processlist
 
-```sql
-```
-
-
-
 ID ：mysql线程的唯一标识，一般一个连接一个线程；
 
 ```sql
@@ -2691,6 +2663,26 @@ long_query_time = 3;
 show global status like '%slow_querise%';--只显示有几条，具体是哪条查看日志文件
 ```
 
+### 缓冲池优化
+
+1.缓冲池是保存表、索引和其他辅助缓冲区的缓存数据的内存区域；
+
+2.缓冲池的大小对MySQL的性能很重要；
+
+3.推荐的大小是物理内存的50%到75%；
+
+4.inndb_buffer_pool_size可以在MySQL运行时动态调整。
+
+5."Configuring InnoDB Buffer Pool Size"这个配置手册中提到默认值为128兆。
+
+```shell
+set global innodb_buffer_pool_size = 25769803776
+```
+
+
+
+
+
 通过工具查看
 
 mysqldumpslow – help
@@ -2789,8 +2781,6 @@ username——你将创建的用户名,
 
 password——该用户的登陆密码,密码可以为空,如果为空则该用户可以不需要密码登陆服务器.
 
-例如： create user p361 identified by '123';
-
 (2)可以登录但是只可以看见一个库 information_schema
 
 命令详解
@@ -2811,17 +2801,23 @@ with grant option; 表示该用户还可以授权给其他用户
 
 细粒度授权 首先以 root 用户进入 mysql，然后键入命令：
 
-grant select,insert,update,delete on \*.\* to p361 \@localhost Identified by "123";
+```sql
+grant select,insert,update,delete on *.* to p361 @localhost Identified by "123";
+```
 
 如果希望该用户能够在任何机器上登陆 mysql，则将 localhost 改为 "%" 。
 
 粗粒度授权 我们测试用户一般使用该命令授权，
 
-GRANT ALL PRIVILEGES ON \*.\* TO 'p361'\@'%' Identified by "123";
+```sql
+GRANT ALL PRIVILEGES ON *.* TO 'p361'@'%' Identified by "123";
+```
 
 注意:用以上命令授权的用户不能给其它用户授权,如果想让该用户可以授权,用以下命令:
 
-GRANT ALL PRIVILEGES ON \*.\* TO 'p361'\@'%' Identified by "123" WITH GRANT OPTION;
+```sql
+GRANT ALL PRIVILEGES ON *.* TO 'p361'@'%' Identified by "123" WITH GRANT OPTION;
+```
 
 privileges 包括： alter：修改数据库的表 create：创建新的数据库或表 delete：删除表数据 drop：删除数据库/表 index：创建/删除索引 insert：添加表数据 select：查询表数据 update：更新表数据 all：允许任何操作 usage：只允许登录
 
@@ -2934,7 +2930,19 @@ chown -R mysql.mysql /var/lib/mysql
 
 ```
 
+## 误操作数据恢复
 
+用于解析binlog的工具；mysql server必须设置一下参数胡
+
+```shell
+server_id = 1
+log_bin = /var/log/mysql/mysql_bin.log
+max_binlog_size = 1G
+binlog_foramt = row
+binlog_row_image=full
+```
+
+https://www.cnblogs.com/ryanzheng/p/15371199.html
 
 
 
