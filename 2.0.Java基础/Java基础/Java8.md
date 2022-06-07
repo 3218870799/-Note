@@ -738,8 +738,6 @@ public interface MyFun{
 
 距离 1970 年的毫秒数
 
-5.1
-
 日期：LocalDate : 时间：LocalTime :日期时间：LocalDateTime
 
 三个类的方法大体一样，以最全的 LocalDateTime 为例
@@ -803,6 +801,43 @@ System.out.println(odt);
 //获取毫秒时间
 System.out.println(ins.toEpochMilli());
 ```
+
+转换：
+
+```java
+// LocalDate 转 String 
+LocalDate date = LocalDate.now();
+DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+String dateStr = date.format(fmt);
+System.out.println("LocalDate转String:"+dateStr);
+
+// String 转  
+String str = "2017-11-21 14:41:06:612";
+DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS");     
+LocalDate date = LocalDate.parse(str, fmt);
+LocalDateTime time = LocalDateTime.parse(str, fmt);
+System.out.println("date:"+date);
+System.out.println("time:"+time);
+
+```
+
+特殊日期特殊时间获取
+
+```java
+LocalDate localDate = LocalDate.now();
+//今天
+Date day = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+//这个月的第一天
+Date monthStart = Date.from(localDate.with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
+//今年的第一天
+Date yearStart = Date.from(localDate.with(TemporalAdjusters.firstDayOfYear()).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+
+```
+
+
+
+
 
 ## 6：重复注解和类型注解
 
