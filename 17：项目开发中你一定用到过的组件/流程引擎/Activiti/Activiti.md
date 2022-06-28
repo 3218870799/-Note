@@ -1,10 +1,14 @@
 固定流程直接搞个表也能做，但是如果加个流程，多部门协同审批这种，代码变化就比较大了；
 
+Activiti的官网地址是 https://www.activiti.org
+
 # BPMN建模语言
 
 业务流程模型和符号；
 
+![image-20220531200225168](media/image-20220531200225168.png)
 
+而对于一个完整的BPMN图形流程，其实最终是通过XML进行描述的。通常，会将BPMN流程最终保存为一个.bpmn的文件，然后可以使用文本编辑器打开进行查看。而图形与xml文件之间，会有专门的软件来进行转换。
 
 # 搭建
 
@@ -57,13 +61,15 @@ http://www.springframework.org/schema/tx/spring-tx.xsd">
 ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
 ```
 
+![image-20220601101519804](media/image-20220601101519804.png)
 
+ACT_RE ：'RE'表示 repository。 这个前缀的表包含了流程定义和流程静态资源（图片，规则，等等）。
 
-act_hi开头的：历史相关的；
+ACT_RU：'RU'表示 runtime。 这些运行时的表，包含流程实例，任务，变量，异步任务，等运行中的数据。 Activiti 只在流程实例执行过程中保存这些数据， 在流程结束时就会删除这些记录。 这样运行时表可以一直很小速度很快。
 
-act_ru开头的：运行时相关的；
+ACT_HI：'HI'表示 history。 这些表包含历史数据，比如历史流程实例， 变量，任务等等。
 
-act_ge开头的：通用的信息；
+ACT_GE ： GE 表示 general。 通用数据， 用于不同场景下
 
 
 
@@ -271,11 +277,110 @@ BusinessKey：业务关键字；
 
 比如：如果请假超过3天需要总经理审批；
 
+流程变量的类型是Map<String,Object>。所以，流程变量比 业务关键字要强大很多。变量值不仅仅是字符串，也可以是POJO对象。但是当需要 将一个POJO对象放入流程变量时，要注意这个对象必须要实现序列化接口 serializable。
+
 启动时设置：
 
-```xlm
+1：作用域：
+
+Global变量：是流程变量的默认作用域，表示是一个完整的流程实例。 Global变量中变量 名不能重复。如果设置了相同的变量名，后面设置的值会直接覆盖前面设置的变 量值。 
+
+```java
+//启动流程实例时设置流程变量
+ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(key, map);
+
+//任务办理时设置变量
+//在完成任务时设置流程变量，该流程变量只有在该任务完成后其它结点才可使用该 变量，它的作用域是整个流程实例，如果设置的流程变量的key在流程实例中已存在 相同的名字则后设置的变量替换前边设置的变量
+taskService.complete(task.getId(),map);
+
+//通过当前流程实例设置
+//该流程实例必须未执行完成。
+ @Test    
+public void setGlobalVariableByExecutionId(){
+    //    当前流程实例执行 id，通常设置为当前执行的流程实例        
+    String executionId="2601"; 
+    //     获取processEngine        
+    ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine(); 
+    //        获取RuntimeService       
+    RuntimeService runtimeService = processEngine.getRuntimeService(); 
+    //        创建出差pojo对象        
+    Evection evection = new Evection(); 
+    //        设置天数        
+    evection.setNum(3d); 
+    //      通过流程实例 id设置流程变量        
+    runtimeService.setVariable(executionId, "myLeave", evection);
+    //      一次设置多个值 
+    //runtimeService.setVariables(executionId, variables)    
+}
 
 
-
+//通过当前任务设置
+@Test    
+public void setGlobalVariableByTaskId(){                
+    //当前待办任务id        
+    String taskId="1404";
+    //     获取processEngine       
+    ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();        
+    TaskService taskService = processEngine.getTaskService();       
+    Evection evection = new Evection();        
+    evection.setNum(3);        
+    //通过任务设置流程变量        
+    taskService.setVariable(taskId, "evection", evection);        
+    //一次设置多个值         
+    //taskService.setVariables(taskId, variables)   
+}
 ```
 
+Local变量：域只针对一个任务或一个执行实例的范围，没有流程实例大。 Local变量由于作用在不同的任务或不同的执行实例中，所以不同变量的作用域是 互不影响的，变量名可以相同。Local变量名也可以和Global变量名相同，不会 有影响。
+
+
+
+
+
+## 网关
+
+![image-20220601101926622](media/image-20220601101926622.png)
+
+### 排他网关ExclusiveGateway
+
+排他网关，用来在流程中实现决策。 当流程执行到这个网关，所有分支都会判断条件是否为true，如果为true则执行该分支，
+
+排他网关只会选择一个为true的分支执行。如果有两个分支条件 都为true，排他网关会选择id值较小的一条分支去执行。
+
+如果从网关出去的线所有条件都不满足则系统抛出异常。
+
+### 并行网关ParallelGateway
+
+两个连线都要走，分开后还要聚合：
+
+并行网关允许将流程分成多条分支，也可以把多条分支汇聚到一起，并行网关的功 能是基于进入和外出顺序流的：
+
+fork分支：并行后的所有外出顺序流，为每个顺序流都创建一个并发分支。
+
+join汇聚： 所有到达并行网关，在此等待的进入分支， 直到所有进入顺序流的分支 都到达以后， 流程就会通过汇聚网关。
+
+注意，如果同一个并行网关有多个进入和多个外出顺序流， 它就同时具 有分支和汇聚功能。 这时，网关会先汇聚所有进入的顺序流，然后再切 分成多个并行分支。
+
+与其他网关的主要区别是，并行网关不会解析条件。 即使顺序流中定义了条件，也 会被忽略。
+
+### 包含网关
+
+### 事件网关
+
+
+
+
+
+## 个人任务管理
+
+
+
+## 组任务
+
+任何一个经理审批都可以；候选人还需要主动认领任务；
+
+
+
+# 整合
+
+配合 SpringSecurity，SpringBoot，Activiti7开发：
