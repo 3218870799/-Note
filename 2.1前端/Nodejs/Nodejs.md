@@ -26,8 +26,11 @@
 
 ```cmd
 npm config set prefix "D:\Program Files\nodejs\node_global"
+npm config set prefix "D:\Node\node_global"
 
 npm config set cache "D:\Program Files\nodejs\node_cache"
+npm config set cache "D:\Node\node_cache"
+
 ```
 
 （3）设置环境变量
@@ -60,6 +63,34 @@ Npm install npm –g
 
  
 
- 
+#  二：核心模块
+
+1：不同浏览器使用不同的JS解析引擎；
+
+Chrome——V8(目前性能最好的)
+
+Firefox——OdinMonkey
+
+Safri——JSCore
+
+IE——Chakra(查克拉):
+
+每个浏览器都内置了DOM，BOM这样的API函数，浏览器交给解析引擎去执行；
+
+2：运行环境
+
+![image-20220629201848355](media/image-20220629201848355.png)
+
+V8引擎负责解析和执行JS代码；
+
+内置API由运行环境提供的特殊接口，只能在所属的运行环境中被调用；
+
+3：JS能否做后端开发？
+
+可以，需要借助Node.js，也是一个运行环境；
+
+
+
+
 
  
