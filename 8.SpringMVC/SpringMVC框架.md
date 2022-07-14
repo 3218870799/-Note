@@ -1,4 +1,4 @@
-﻿﻿﻿# 第 1 章 ：基本概念
+# 第 1 章 ：基本概念
 
 ## 1.1 关于三层架构和 MVC
 
@@ -1385,5 +1385,22 @@ public class LoginInterceptor implements HandlerInterceptor{
 ## 5：拦截器适配器
 
 HandlerInterceptorAdapter：有时候我们可能只需要实现三个回调方法中的某一个，如果实现HandlerInterceptor接口的话，三个方法必须实现，不管你需不需要，此时spring提供了一个HandlerInterceptorAdapter适配器（种适配器设计模式的实现），允许我们只实现需要的回调方法。
+
+## 6：URL后缀匹配
+
+有时我们下载东西时，没有后缀或者其他后缀也能匹配上，是怎么匹配Handle的呢？
+
+其实，springmvc在获取处理器映射器阶段会根据用户请求的url查找对应的HandlerMapping，在查找时会通过PatternsRequestCondition类匹配url的后缀（默认时开启的），url中如果有小数点，它便会匹配成功这个Handler
+
+```java
+@Configuration
+public class JswWebMvcConfiguration extends WebMvcConfigurerAdapter {
+ 
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        configurer.setUseSuffixPatternMatch(false);//设置禁止url后缀匹配
+    }
+}
+```
 
 # 第九章:整合
