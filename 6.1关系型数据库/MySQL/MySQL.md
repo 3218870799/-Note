@@ -2603,8 +2603,6 @@ select * from t where t.sex in (0,1) and t.username = "XXX";
 
 union
 
-
-
 2：exist 和 in
 
 如果主查询的数据集大，则使用 In。如果子查询的数据量大，则使用 exist
@@ -2660,8 +2658,12 @@ long_query_time = 3;
 查询超过慢查询阈值的命令
 
 ```sql
-show global status like '%slow_querise%';--只显示有几条，具体是哪条查看日志文件
+show global status like '%slow_querise%';
+--只显示有几条，具体是哪条查看日志文件
+cat /var/lib/mysql/data/localhost-slow.log
 ```
+
+如果阿里云部署，直接由慢SQL监控，里面连优化建议都有：
 
 ### 缓冲池优化
 
@@ -2678,10 +2680,6 @@ show global status like '%slow_querise%';--只显示有几条，具体是哪条�
 ```shell
 set global innodb_buffer_pool_size = 25769803776
 ```
-
-
-
-
 
 通过工具查看
 

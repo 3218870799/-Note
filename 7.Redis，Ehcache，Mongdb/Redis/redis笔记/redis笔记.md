@@ -1,4 +1,4 @@
-﻿﻿# 第一章：Redis 介绍
+# 第一章：Redis 介绍
 
 ## 什么是 redis
 
@@ -510,6 +510,14 @@ public void jedisPool() {
 	}
 
 ```
+
+## 4：pipeline
+
+
+
+
+
+
 
 # 第四章：Redis 数据类型
 
@@ -1951,6 +1959,22 @@ Hash：StringRedisTemplate.opsForHash()方法
 
 ZSet：StringRedisTemplate.opsForZSet()方法
 
+
+
+RedisTemplate.boundValueOps
+
+RedisTemplate.boundHashOps
+
+RedisTemplate.boundListOps
+
+RedisTemplate.boundSetOps
+
+RedisTemplate.boundZSetOps
+
+
+
+
+
 # 第九章：常见问题
 
 ## 内存管理策略
@@ -2402,4 +2426,5 @@ Redis 基于 reactor （反应堆）模式开发了网络事件处理器，这�
 
 还是 QPS 太高的，采用分布式或集群有缺点，维护代价大
 
-![image-20210405155343866](media/image-20210405155343866.png)
+
+

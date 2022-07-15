@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿# 第 1 章 Spring 概述
+# 第 1 章 Spring 概述
 
 ## 1.1 简介
 
@@ -239,7 +239,7 @@ C**、** 使用 spring 容器创建的 java 对象
 
 ![](media/9324f0294fe12578500c994e1f2359fb.jpg)
 
-## 2.3：Bean
+## 3：Bean
 
 ### 2.3.1：实例化方式
 
@@ -385,7 +385,7 @@ prototype
 
 ThreadLocal 和线程同步机制都是为了解决多线程中相同变量的访问冲突问题。同步机制采用了“时间换空间"的方式，仅提供一份变量，不同的线程在访问前需要获取锁，没获得锁的线程则需要排队。而 ThreadLocal 采用了“空间换时间"的方式。
 
-### 2.3.4 生命周期
+### 4 生命周期
 
 ![image-20200614155732584](media/image-20200614155732584.png)
 
@@ -393,15 +393,17 @@ Spring 容器启动扫描，把 BeanName 变成 BeanDefinition 存到 BeanDefini
 
 **（1）实例化 Bean：在堆中开辟空间**
 
-对于 BeanFactory 容器，当客户向容器请求一个尚未初始化的 bean 时，或初始化 bean 的时候需要注入另一个尚未初始化的依赖时，容器就会调用 createBean 进行实例化。
+对于 BeanFactory 容器，当客户向容器请求一个尚未初始化的 bean 时，或初始化 bean 的时候需要注入另一个尚未初始化的依赖时，容器就会调用 createBeanInstance 进行实例化。
 
 对于 ApplicationContext 容器，当容器启动结束后，通过获取 BeanDefinition 对象中的信息，实例化所有的 bean。
 
 **（2）设置对象属性（依赖注入）：**
 
-实例化后的对象被封装在 BeanWrapper 对象中，紧接着，Spring 根据 BeanDefinition 中的信息以及 通过 BeanWrapper 提供的设置属性的接口完成依赖注入。
+当Bean对象创建完成之后，对象的属性值都是默认值，所以要开始给bean填充属性，通过popularteBean方法来完成对象属性的填充
 
 **（3）处理 Aware 接口：一些需要的属性**
+
+即处理spring容器自己需要的bean；
 
 接着，Spring 会检测该对象是否实现了 xxxAware 接口，并将相关的 xxxAware 实例 set 给 Bean：
 
@@ -897,6 +899,10 @@ XML 方式优点是：
 - 在 xml 中做修改，无需编译代码，只需重启服务器即可将新的配置加载。
 
   xml 的缺点是：编写麻烦，效率低，大型项目过于复杂。
+
+## 容器
+
+存储对象，使用map结构存储对象，在spring中存储对象的时候一般有三级缓存，singletonObject存放完整的对象，earlySingleObject存放半成品对象，singletonFactory用来存放lambda表达式和对象名称的映射，bean的声明周期从创建到销毁，各个环节都有容器控制；
 
 # 第**3**章 **AOP** 面向切面编程
 

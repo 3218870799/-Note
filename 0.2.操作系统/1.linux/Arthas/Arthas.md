@@ -63,6 +63,17 @@ java -jar arthas-boot.jar
 
 2：thread命令查看正在运行的线程
 
+```shell
+# 打印当前最忙的3个线程的堆栈信息
+thread -n 3
+# 查看ID为1都线程的堆栈信息
+thread 1
+# 找出当前阻塞其他线程的线程
+thread -b
+# 查看指定状态的线程
+thread -state WAITING
+```
+
 3：cls：清屏
 
 4：jad反编译源代码：
@@ -134,7 +145,55 @@ keymap：显示快捷键以及自定义快捷键
 
 ![image-20210506203123304](media/image-20210506203123304.png)
 
-# JVM相关命令
+
+
+8：Logger
+
+使用`logger`命令可以查看日志信息，并改变日志级别，这个命令非常有用。
+
+比如我们在生产环境上一般是不会打印`DEBUG`级别的日志的，当我们在线上排查问题时可以临时开启`DEBUG`级别的日志，帮助我们排查问题，下面介绍下如何操作。
+
+- 我们的应用默认使用的是`INFO`级别的日志，使用`logger`命令可以查看；
+
+
+
+![img](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/7/5/1731dd383b65c2ec~tplv-t2oaga2asx-zoom-in-crop-mark:3024:0:0:0.awebp)
+
+
+
+- 使用如下命令改变日志级别为`DEBUG`，需要使用`-c`参数指定类加载器的HASH值；
+
+```
+logger -c 21b8d17c --name ROOT --level debug
+```
+
+- 再使用`logger`命令查看，发现`ROOT`级别日志已经更改；
+
+
+
+![img](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/7/5/1731dd385715158a~tplv-t2oaga2asx-zoom-in-crop-mark:3024:0:0:0.awebp)
+
+
+
+- 使用`docker logs -f mall-tiny-arthas`命令查看容器日志，发现已经打印了DEBUG级别的日志；
+
+
+
+![img](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/7/5/1731dd38572c5361~tplv-t2oaga2asx-zoom-in-crop-mark:3024:0:0:0.awebp)
+
+
+
+- 查看完日志以后记得要把日志级别再调回`INFO`级别。
+
+```
+logger -c 21b8d17c --name ROOT --level info
+```
+
+
+
+
+
+### JVM相关命令
 
 dashboard：
 
@@ -167,7 +226,7 @@ null
 
 - [heapdump](https://arthas.aliyun.com/doc/heapdump.html)——dump java heap, 类似jmap命令的heap dump功能
 
-# class/Classloader相关
+### class/Classloader相关
 
 - [sc](https://arthas.aliyun.com/doc/sc.html)——查看JVM已加载的类信息
 
@@ -242,9 +301,10 @@ profiler stop
 
 
 
-
-
 # 本地的WebSocket连接
 
 访问http://127.0.0.1:8563/
 
+
+
+# ArthasTunnel

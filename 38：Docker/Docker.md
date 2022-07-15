@@ -678,3 +678,8 @@ EXPOSE 80
 CMD ["nginx"]
 ```
 
+
+
+# IDEA插件
+
+https://juejin.cn/post/7111500936547139614

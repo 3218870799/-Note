@@ -170,3 +170,33 @@ java -jar rocketmq-console-ng-1.0.0.jar
 
 # 三：消息发送
 
+
+
+# 四：组件
+
+Topic主题：
+
+一个Topic的Queue中的消息只能被一个消费者组里的消费者消费；
+
+Broker：
+
+
+
+## NameServer
+
+作用：
+
+维护Borker的服务地址，即各个Topic下的各个Queue所在的地址；支持Broker的动态注册与发现；给Producer、Consumer提供各个Topic的Broker列表。其实早期就是Zookeeper，作用相当于Zookeeper；
+
+### 路由注册
+
+
+
+
+
+## 系统架构
+
+1：Producer生产者：producer通过MQ的负载均衡模块选择相应的Borker集群队列进行消息投递，投递的过程支持快速失败并且低延迟；
+
+2：Consumer消费者：
+

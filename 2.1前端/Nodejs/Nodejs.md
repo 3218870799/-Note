@@ -1,4 +1,46 @@
-# 一：安装与配置
+#  一：简介
+
+1：不同浏览器使用不同的JS解析引擎；
+
+Chrome——V8(目前性能最好的)
+
+Firefox——OdinMonkey
+
+Safri——JSCore
+
+IE——Chakra(查克拉):
+
+每个浏览器都内置了DOM，BOM这样的API函数，浏览器交给解析引擎去执行；
+
+2：运行环境
+
+![image-20220629201848355](media/image-20220629201848355.png)
+
+V8引擎负责解析和执行JS代码；
+
+内置API由运行环境提供的特殊接口，只能在所属的运行环境中被调用；
+
+3：JS能否做后端开发？
+
+可以，需要借助Node.js，也是一个运行环境；
+
+NodeJS是一个基于V8引擎的JS运行环境；
+
+浏览器是JavaScript 的前端运行环境。Node.js 是JavaScript 的后端运行环境。Node.js 中无法调用DOM和BOM等浏览器内置API
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 二：安装与配置
 
 官网下载安装包，链接：https://nodejs.org/en/download/
 
@@ -19,7 +61,7 @@
 
 (7)打开命令行（cmd）输入node -v 和npm -v 查看版本
 
-可以看到node的版本为12.16.1 npm的版本为6.13.4
+可以看到node的版本为12.16.1 npm的版本为6.13.4 
  3.环境变量的配置
  （1）在目录nodejs文件夹下创建两个文件夹node_global和 node_cache，用来放安装过程的缓存文件以及最终的模块配置位置
  （2）在cmd中输入如下命令：（注意修改为自己nodejs的目录)
@@ -63,34 +105,51 @@ Npm install npm –g
 
  
 
-#  二：核心模块
+（5）执行JS文件
 
-1：不同浏览器使用不同的JS解析引擎；
-
-Chrome——V8(目前性能最好的)
-
-Firefox——OdinMonkey
-
-Safri——JSCore
-
-IE——Chakra(查克拉):
-
-每个浏览器都内置了DOM，BOM这样的API函数，浏览器交给解析引擎去执行；
-
-2：运行环境
-
-![image-20220629201848355](media/image-20220629201848355.png)
-
-V8引擎负责解析和执行JS代码；
-
-内置API由运行环境提供的特殊接口，只能在所属的运行环境中被调用；
-
-3：JS能否做后端开发？
-
-可以，需要借助Node.js，也是一个运行环境；
+```shell
+node test.js
+```
 
 
 
+# 三：核心模块
+
+## FS文件系统模块
+
+fs.readFile()用来读取指定文件的内容；
+
+```javascript
+const fs = require('fs')
+fs.readFile('./files/1.txt','utf8',function(err,result){
+    if(err){
+        return console.log('文件读取失败'+err.message)
+    }
+})
+```
+
+fs.writeFile()用来向指定的文件写入内容；
+
+```javascript
+const fs = require('fs')
+fs.writeFile('./files/1.txt','data','utf8',function(err,result){
+    if(err){
+        return console.log('文件写入失败'+err.message)
+    }
+})
+```
+
+## PATH路径模块
+
+```javascript
+const paht = require('path')
+path.join('/a','/b/c','../','/d'); //输出 /a/b/d
+
+path.basename();//获取文件名称
+path.extname();//获取文件扩展名.html
+```
+
+## HTTTP模块
 
 
- 
+

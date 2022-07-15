@@ -1,4 +1,4 @@
-﻿﻿# 简介
+﻿﻿﻿# 简介
 
 ﻿﻿﻿﻿﻿## 一、Linux 发展史
 
@@ -3411,8 +3411,6 @@ tail -10000 catalina.out > 20211103lastCatalina.log
 
 ps -ef | grep java
 jstack pid 
-
-
 ```
 
 
