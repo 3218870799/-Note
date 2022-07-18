@@ -513,9 +513,29 @@ public void jedisPool() {
 
 ## 4：pipeline
 
+一个Redis客户端执行一条命令分为4个过程
 
+```txt
+发送命令－〉命令排队－〉命令执行－〉返回结果
+```
 
+这个过程称为**Round trip time(简称RTT, 往返时间)**，mget mset有效节约了RTT，但大部分命令（如hgetall，并没有mhgetall）不支持批量操作，需要消耗N次RTT ，这个时候需要pipeline来解决这个问题。
 
+未使用pipeline执行N条命令
+
+![在这里插入图片描述](http://qn.javajgs.com/20220209/a4b6176c-9313-4d6e-8047-3b59dea6c4e6202202098a3c678e-5f73-484d-8779-5cc1286693501.jpg)
+
+使用了pipeline执行N条命令
+
+![在这里插入图片描述](http://qn.javajgs.com/20220209/45f256ca-0377-4eaf-a435-7b4623820ad6202202098dc0a03f-b9d5-4a0d-b2b2-132748f5b49c1.jpg)
+
+2：原生的批处理命令(mset，mget)与Pipeline对比：
+
+原生批命令是原子性，pipeline是非原子性；
+
+原生批命令一命令多个key, 但pipeline支持多命令（存在事务），非原子性；
+
+原生批命令是服务端实现，而pipeline需要服务端与客户端共同完成；
 
 
 
