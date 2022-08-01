@@ -1777,13 +1777,11 @@ A、 常用的两个实现类
 
 > HibernateTransactionManager：使用 Hibernate 进行持久化数据时使用。
 
-B**、** Spring **的回滚方式**(**理解**)
+B、 Spring 的回滚方式(理解)
 
 Spring 事务的默认回滚方式是：发生运行时异常和 error 时回滚，发生受查(编译)异常时提交。不过，对于受查异常，程序员也可以手工设置其回滚方式。
 
-**C**、 回顾错误与异常**(**理解**)**
-
-![](media/b52dfc6d24a5a11d44ad083e3f07f9e4.png)
+**C**、 回顾错误与异常**(**理解)
 
 Throwable 类是 Java 语言中所有错误或异常的超类。只有当对象是此类(或其子类之一)
 的实例时，才能通过 Java 虚拟机或者 Java 的 throw 语句抛出。
@@ -1861,13 +1859,13 @@ b**、** PROPAGATION_SUPPORTS （propagation_supports）
 
 ![](media/be02e5bd7fb603ca136b043339e071f3.jpg)
 
-c**、** PROPAGATION_REQUIRES_NEW (propagation_requires_new)
+c、 PROPAGATION_REQUIRES_NEW (propagation_requires_new)
 
 > 总是新建一个事务，若当前存在事务，就将当前事务挂起，直到新事务执行完毕。
 
 ![](media/4df275eef6022f7608416d922e3deda0.jpg)
 
-**D：PROPAGATION_MANDATORY（propagation_mandatory）：支持当前事务，如果当前存在事务，就加入该事务，如果当前不存在事务，就抛出异常。**
+D：PROPAGATION_MANDATORY（propagation_mandatory）：支持当前事务，如果当前存在事务，就加入该事务，如果当前不存在事务，就抛出异常。
 
 **E:PROPAGATION_NOT_SUPPORTED（Propagation_not_supported）：以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。**
 
