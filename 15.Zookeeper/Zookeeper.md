@@ -1,4 +1,4 @@
-﻿# 第 1 章 Zookeeper 简介
+# 第 1 章 Zookeeper 简介
 
 Zookeeper 是一个开源的分布式的，为分布式应用提供协调服务的 Apache 项目。是 Hadoop 和 HBase 的重要组件。
 
@@ -30,6 +30,8 @@ Zookeeper 是一个开源的分布式的，为分布式应用提供协调服务�
 
 基本特性同临时节点，增加了顺序属性，节点名后边会追加一个由父节点维护的自增整型数字。
 
+ZNode具有原子性操作，存储数据大小有限制；
+
 ## 工作状态
 
 服务器具有四种状态，分别是 LOOKING、FOLLOWING、LEADING、OBSERVING。
@@ -47,7 +49,7 @@ ZAB 协议包括两种基本的模式：崩溃恢复和消息广播。
 
 当整个 zookeeper 集群刚刚启动或者 Leader 服务器宕机、重启或者网络故障导致不存在过半的服务器与 Leader 服务器保持正常通信时，所有进程（服务器）进入崩溃恢复模式，首先选举产生新的 Leader 服务器，然后集群中 Follower 服务器开始与新的 Leader 服务器进行数据同步，当集群中超过半数机器与该 Leader 服务器完成数据同步之后，退出恢复模式进入消息广播模式，Leader 服务器开始接收客户端的事务请求生成事物提案来进行事务请求处理。
 
-## 1.2 特点
+## 特点
 
 最终一致性
 
@@ -67,23 +69,31 @@ ZAB 协议包括两种基本的模式：崩溃恢复和消息广播。
 
 8）实时性，在一定时间范围内，client 能读到最新数据。
 
+
+
+## 作用
+
+命名服务；
+
+配置管理；
+
+集群管理
+
+
+
 # 第 2 章 Zookeeper 安装
 
 ## 下载地址
 
-> 1．官网首页：
+1．官网首页： https://zookeeper.apache.org/
 
-> https://zookeeper.apache.org/
-
-> 2．下载截图，如图 5-5，5-6，5-7 所示
+2．下载截图
 
 ![](media/c39b696d594e2275e2ab23f470b21fe1.jpg)
 
-> 图 5-5 Zookeeper 下载（一）
+
 
 ![](media/14a926bd8d6cd4c347264c93422222cc.jpg)
-
-> 图 5-6 Zookeeper 下载（二）
 
 ![](media/7711935a1d50d6a0a7a798e37a68fd2b.jpg)
 
@@ -97,60 +107,51 @@ ZAB 协议包括两种基本的模式：崩溃恢复和消息广播。
 
 3.  解压到指定目录
 
-[qcx\@hadoop102 software]\$ tar 3.4.10.tar.gz -C /opt/module/ | \-zxvf | zookeeper-
+```shell
+tar 3.4.10.tar.gz -C /opt/module/ | -zxvf zookeeper- |
+```
 
 ### 2．配置修改
 
 1.  将/opt/module/zookeeper-3.4.10/conf 这个路径下的 zoo_sample.cfg 修改为 zoo.cfg；
 
-[qcx\@hadoop102 conf]\$ mv zoo_sample.cfg zoo.cfg
+2. 打开 zoo.cfg 文件，修改 dataDir 路径：
 
-2.  打开 zoo.cfg 文件，修改 dataDir 路径：
+   ```txt
+   dataDir=/opt/module/zookeeper-3.4.10/zkData
+   ```
 
-    [qcx\@hadoop102 zookeeper-3.4.10]\$ vim zoo.cfg
+3. 在/opt/module/zookeeper-3.4.10/这个目录上创建 zkData 文件夹
 
-    修改如下内容：
-
-    dataDir=/opt/module/zookeeper-3.4.10/zkData
-
-3.  在/opt/module/zookeeper-3.4.10/这个目录上创建 zkData 文件夹
-
-    [qcx\@hadoop102 zookeeper-3.4.10]\$ mkdir zkData
+   ```shell
+   mkdir zkData
+   ```
 
 ### 3．操作 Zookeeper
 
-1.  启动 Zookeeper
+1. 启动 Zookeeper
 
-    [qcx\@hadoop102 zookeeper-3.4.10]\$ bin/zkServer.sh start
+   ```shell
+   bin/zkServer.sh start
+   ```
 
-2.  查看进程是否启动
+2. 查看进程是否启动：jps
 
-    [qcx\@hadoop102 zookeeper-3.4.10]\$ jps
+3. 查看状态：
 
-    4020 Jps
+4. 启动客户端：
 
-    4001 QuorumPeerMain
+   ```shell
+   bin/zkCli.sh
+   ```
 
-3.  查看状态：
+5. 退出客户端：
 
-    [qcx\@hadoop102 zookeeper-3.4.10]\$ bin/zkServer.sh status ZooKeeper JMX
-    enabled by default
+6. 停止 Zookeeper
 
-    Using config: /opt/module/zookeeper-
-
-    3.4.10/bin/../conf/zoo.cfg Mode: standalone
-
-4.  启动客户端：
-
-    [qcx\@hadoop102 zookeeper-3.4.10]\$ bin/zkCli.sh
-
-5.  退出客户端：
-
-    [zk: localhost:2181(CONNECTED) 0] quit
-
-6.  停止 Zookeeper
-
-    [qcx\@hadoop102 zookeeper-3.4.10]\$ bin/zkServer.sh stop
+   ```shell
+   bin/zkServer.sh stop
+   ```
 
 ## 2.2 配置参数解读
 
@@ -172,46 +173,6 @@ Zookeeper 使用的基本时间，服务器之间或客户端与服务器之间�
 4．dataDir：数据文件目录+数据持久化路径主要用于保存 Zookeeper 中的数据。
 
 5．clientPort =2181：客户端连接端口监听客户端连接的端口。
-
-## 3：实践：centos7 安装 Zookeeper
-
-1：解压 Zookeeper
-
-tar -zxvf zookeeper-3.4.11.tar.gz
-
-2：修改配置文件
-
-cd zookeeper/conf/
-
-cp zoo_sample.cfg zoo.cfg
-
-vim zoo.cfg
-
-tickTime=2000
-
-dataDir=/home/hadoop/zookeeperdata
-
-clientPort=2181
-
-initLimit=5
-
-syncLimit=2
-
-server.1=server1:2888:3888
-
-server.2=server2:2888:3888
-
-注：
-
-tickTime ：心跳时间，单位毫秒。
-
-同时 tickTime 又是 zookeeper 中的基本单位，比如后面的 initLimit=5 就是指 5 个 tickTime 时间，在这里是 10 秒。
-
-dataDir ：存储数据信息的本地目录
-
-3：启动
-
-bin/zkServer.sh start
 
 # 第 3 章 Zookeeper 实战（开发重点）
 
@@ -244,128 +205,6 @@ Nginx 等都是基于服务器端的负载均衡，Zookeeper 的负载均衡是�
 
 - 保持独占：
 
-## 3.1 分布式安装部署
-
-### 1．集群规划
-
-在 hadoop102、hadoop103 和 hadoop104 三个节点上部署 Zookeeper。
-
-### 2．解压安装
-
-1.  解压 Zookeeper 安装包到/opt/module/目录下
-
-[qcx\@hadoop102 software]\$ tar 3.4.10.tar.gz -C /opt/module/ | \-zxvf zookeeper- |
-
-2.  同步/opt/module/zookeeper-3.4.10 目录内容到 hadoop103、hadoop104
-
-    [qcx\@hadoop102 module]\$ xsync zookeeper-3.4.10/
-
-### 3．配置服务器编号
-
-（1）在/opt/module/zookeeper-3.4.10/这个目录下创建 zkData
-
-[qcx\@hadoop102 zookeeper-3.4.10]\$ mkdir -p zkData
-
-( 2）在/opt/module/zookeeper-3.4.10/zkData 目录下创建一个 myid 的文件
-
-[qcx\@hadoop102 zkData]\$ touch myid
-
-添加 myid 文件，注意一定要在 linux 里面创建，在 notepad++里面很可能乱码
-
-1.  编辑 myid 文件
-
-    [qcx\@hadoop102 zkData]\$ vi myid
-
-    在文件中添加与 server 对应的编号：2
-
-2.  拷贝配置好的 zookeeper 到其他机器上
-
-    [qcx\@hadoop102 zkData]\$ xsync myid
-
-并分别在 hadoop103、hadoop104 上修改 myid 文件中内容为 3、4
-
-4．配置 zoo.cfg 文件
-
-1.  重命名/opt/module/zookeeper-3.4.10/conf 这个目录下的 zoo_sample.cfg 为
-    zoo.cfg
-
-    [qcx\@hadoop102 conf]\$ mv zoo_sample.cfg zoo.cfg
-
-2.  打开 zoo.cfg 文件
-
-    [qcx\@hadoop102 conf]\$ vim zoo.cfg
-
-修改数据存储路径配置
-
-dataDir=/opt/module/zookeeper-3.4.10/zkData
-
-增加如下配置
-
-> \#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#cluster\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#
-> server.2=hadoop102:2888:3888 server.3=hadoop103:2888:3888
-> server.4=hadoop104:2888:3888
-
-1.  同步 zoo.cfg 配置文件
-
-    [qcx\@hadoop102 conf]\$ xsync zoo.cfg
-
-2.  配置参数解读
-
-    server.A=B:C:D。
-
-**A**是一个数字，表示这个是第几号服务器；集群模式下配置一个文件 myid，这个文件在
-dataDir 目录下，这个文件里面有一个数据就是 A 的值，Zookeeper
-启动时读取此文件，拿到里面的数据与 zoo.cfg 里面的配置信息比较从而判断到底是哪个
-server。
-
-> **B**是这个服务器的地址；
-
-> **C**是这个服务器 Follower 与集群中的 Leader 服务器交换信息的端口；
-
-> **D**是万一集群中的 Leader
-> 服务器挂了，需要一个端口来重新进行选举，选出一个新的
-
-> Leader，而这个端口就是用来执行选举时服务器相互通信的端口。
-
-### 4．集群操作
-
-1.  分别启动 Zookeeper
-
-    [qcx\@hadoop102 zookeeper-3.4.10]\$ bin/zkServer.sh start
-    [qcx\@hadoop103 zookeeper-3.4.10]\$ bin/zkServer.sh start
-
-    [qcx\@hadoop104 zookeeper-3.4.10]\$ bin/zkServer.sh start
-
-2.  查看状态
-
-    [qcx\@hadoop102 zookeeper-3.4.10]\# bin/zkServer.sh status
-
-    JMX enabled by default
-
-    Using config: /opt/module/zookeeper-
-
-    3.4.10/bin/../conf/zoo.cfg
-
-    Mode: follower
-
-    [qcx\@hadoop103 zookeeper-3.4.10]\# bin/zkServer.sh status
-
-    JMX enabled by default
-
-    Using config: /opt/module/zookeeper-
-
-    3.4.10/bin/../conf/zoo.cfg
-
-    Mode: leader
-
-    [qcx\@hadoop104 zookeeper-3.4.5]\# bin/zkServer.sh status
-
-    JMX enabled by default
-
-    Using config: /opt/module/zookeeper-
-
-    3.4.10/bin/../conf/zoo.cfg Mode: follower
-
 ## 3.2 客户端命令行操作
 
 | 命令基本语法     | 功能描述                                         |
@@ -380,137 +219,20 @@ server。
 | delete           | 删除节点                                         |
 | rmr              | 递归删除节点                                     |
 
-> 1．启动客户端
+1：创建节点
 
-> [qcx\@hadoop103 zookeeper-3.4.10]\$ bin/zkCli.sh
+```shell
+## 创建永久节点
+create /test node
+## 创建临时节点
+create -e /test node
+## 创建顺序节点
+create -s /test
+## 创建临时顺序节点
+create -e -s /test
+```
 
-> 2．显示所有操作命令
 
-> [zk: localhost:2181(CONNECTED) 1] help
-
-> 3．查看当前 znode 中所包含的内容
-
-> [zk: localhost:2181(CONNECTED) 0] ls /
-
-> [zookeeper]
-
-> 4．查看当前节点详细数据
-
-| [zk: localhost:2181(CONNECTED) 1] ls2 / [zookeeper] cZxid = 0x0 ctime = Thu Jan 01 08:00:00 CST 1970 mZxid = 0x0 mtime = Thu Jan 01 08:00:00 CST 1970 pZxid = 0x0 |
-
-cversion = -1 dataVersion = 0 aclVersion = 0 ephemeralOwner = 0x0 dataLength= 0 numChildren = 1
-
-> 5．分别创建 2 个普通节点
-
-> [zk: localhost:2181(CONNECTED) 3] create /sanguo "jinlian"
-
-> Created /sanguo
-
-> [zk: localhost:2181(CONNECTED) 4] create /sanguo/shuguo
-
-> "liubei"
-
-> Created /sanguo/shuguo
-
-> 6．获得节点的值
-
-| [zk: localhost:2181(CONNECTED) 5] get /sanguo jinlian cZxid = 0x100000003 ctime = Wed Aug 29 00:03:23 CST 2018 mZxid = 0x100000003 mtime = Wed Aug 29 00:03:23 CST 2018 pZxid = 0x100000004 cversion = 1 dataVersion = 0 aclVersion = 0 ephemeralOwner = 0x0 dataLength = 7 numChildren = 1 [zk: localhost:2181(CONNECTED) 6] [zk: localhost:2181(CONNECTED) 6] get /sanguo/shuguo liubei cZxid = 0x100000004 ctime = Wed Aug 29 00:04:35 CST 2018 mZxid = 0x100000004 mtime = Wed Aug 29 00:04:35 CST 2018 pZxid = 0x100000004 cversion = 0 dataVersion = 0 aclVersion = 0 ephemeralOwner = 0x0 dataLength = 6 numChildren = 0 |
-
-> 7．创建短暂节点
-
-> [zk: localhost:2181(CONNECTED) 7] create -e /sanguo/wuguo
-
-> "zhouyu"
-
-> Created /sanguo/wuguo
-
-1.  在当前客户端是能查看到的
-
-    [zk: localhost:2181(CONNECTED) 3] ls /sanguo
-
-    [wuguo, shuguo]
-
-2.  退出当前客户端然后再重启客户端
-
-    [zk: localhost:2181(CONNECTED) 12] quit
-
-    [qcx\@hadoop104 zookeeper-3.4.10]\$ bin/zkCli.sh
-
-3.  再次查看根目录下短暂节点已经删除
-
-    [zk: localhost:2181(CONNECTED) 0] ls /sanguo
-
-    [shuguo]
-
-    8．创建带序号的节点
-
-4.  先创建一个普通的根节点/sanguo/weiguo
-
-    [zk: localhost:2181(CONNECTED) 1] create /sanguo/weiguo
-
-    "caocao"
-
-    Created /sanguo/weiguo
-
-5.  创建带序号的节点
-
-| [zk: localhost:2181(CONNECTED) 2]                                                                                                                                                   | create | \-s |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | --- |
-| /sanguo/weiguo/xiaoqiao "jinlian" Created /sanguo/weiguo/xiaoqiao0000000000 [zk: localhost:2181(CONNECTED) 3]                                                                       | create | \-s |
-| /sanguo/weiguo/daqiao "jinlian" Created /sanguo/weiguo/daqiao0000000001 [zk: localhost:2181(CONNECTED) 4] /sanguo/weiguo/diaocan "jinlian" Created /sanguo/weiguo/diaocan0000000002 | create | \-s |
-
-> 如果原来没有序号节点，序号从 0 开始依次递增。如果原节点下已有 2
-> 个节点，则再排序时从 2 开始，以此类推。
-
-> 9．修改节点数据值
-
-> [zk: localhost:2181(CONNECTED) 6] set /sanguo/weiguo "simayi"
-
-> 10．节点的值变化监听
-
-（1）在 hadoop104 主机上注册监听/sanguo 节点数据变化
-
-| [zk: localhost:2181(CONNECTED) 26] localhost:2181(CONNECTED) 8] get /sanguo watch | [zk: |
-| --------------------------------------------------------------------------------- | ---- |
-| 2）在 hadoop103 主机上修改/sanguo 节点的数据                                      |      |
-| [zk: localhost:2181(CONNECTED) 1] set /sanguo "xisi"                              |      |
-| 3）观察 hadoop104 主机收到数据变化的监听                                          |      |
-| WATCHER:: WatchedEvent state:SyncConnected type:NodeDataChanged path:/sanguo      |      |
-
-> （
-
-> （
-
-> 11．节点的子节点变化监听（路径变化）
-
-1.  在 hadoop104 主机上注册监听/sanguo 节点的子节点变化
-
-    [zk: localhost:2181(CONNECTED) 1] ls /sanguo watch
-
-    [aa0000000001, server101]
-
-2.  在 hadoop103 主机/sanguo 节点上创建子节点
-
-    [zk: localhost:2181(CONNECTED) 2] create /sanguo/jin "simayi" Created
-    /sanguo/jin
-
-3.  观察 hadoop104 主机收到子节点变化的监听
-
-    WATCHER::
-
-    WatchedEvent state:SyncConnected type:NodeChildrenChanged path:/sanguo
-
-    12．删除节点
-
-    [zk: localhost:2181(CONNECTED) 4] delete /sanguo/jin
-
-    13．递归删除节点
-
-    [zk: localhost:2181(CONNECTED) 15] rmr /sanguo/shuguo
-
-    14．查看节点状态
-
-| [zk: localhost:2181(CONNECTED) 17] stat /sanguo cZxid = 0x100000003 ctime = Wed Aug 29 00:03:23 CST 2018 mZxid = 0x100000011 mtime = Wed Aug 29 00:21:23 CST 2018 pZxid = 0x100000014 cversion = 9 dataVersion = 1 aclVersion = 0 ephemeralOwner = 0x0 dataLength = 4 numChildren = 1 |
 
 ## 3.3 API 应用
 
@@ -634,122 +356,126 @@ public void exist() throws Exception {
 服务器端向 Zookeeper 注册代码
 
 ```java
-package com.qcx.zkcase; import java.io.IOException;
 
-import org.apache.zookeeper.CreateMode; import org.apache.zookeeper.WatchedEvent; import org.apache.zookeeper.Watcher; import org.apache.zookeeper.ZooKeeper; import org.apache.zookeeper.ZooDefs.Ids;
+import java.io.IOException;
+import org.apache.zookeeper.CreateMode; 
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher; 
+import org.apache.zookeeper.ZooKeeper; 
+import org.apache.zookeeper.ZooDefs.Ids;
 
 public class DistributeServer {
 
- private 	static 	String 	connectString 	=
-"hadoop102:2181,hadoop103:2181,hadoop104:2181";  private static int sessionTimeout = 2000;  private ZooKeeper zk = null;
+ private static String connectString="hadoop102:2181,hadoop103:2181,hadoop104:2181";  
+ private static int sessionTimeout = 2000;  
+ private ZooKeeper zk = null;
  private String parentNode = "/servers";
 
  // 创建到zk的客户端连接
  public void getConnect() throws IOException{
-
-  zk = new ZooKeeper(connectString, sessionTimeout, new Watcher() {
-
-   @Override
-   public void process(WatchedEvent event) {
-   }
-  });
+      zk = new ZooKeeper(connectString, sessionTimeout, new Watcher() {
+           @Override
+           public void process(WatchedEvent event) {
+           }
+      });
  }
 
  // 注册服务器
  public void registServer(String hostname) throws Exception{
+      String create = zk.create(parentNode+"/server",hostname.getBytes(),Ids.OPEN_ACL_UNSAFE,CreateMode.EPHEMERAL_SEQUENTIAL);
 
-  String create = zk.create(parentNode + "/server", hostname.getBytes(), 	Ids.OPEN_ACL_UNSAFE,
-CreateMode.EPHEMERAL_SEQUENTIAL);
-
-  System.out.println(hostname +" is online "+ create);
+      System.out.println(hostname +" is online "+ create);
  }
 
  // 业务功能
  public void business(String hostname) throws Exception{
-  System.out.println(hostname+" is working ...");
+      System.out.println(hostname+" is working ...");
 
-  Thread.sleep(Long.MAX_VALUE);
+      Thread.sleep(Long.MAX_VALUE);
  }
 
  public static void main(String[] args) throws Exception {
 
-// 1获取zk连接
-  DistributeServer server = new DistributeServer();   server.getConnect();
+	// 1获取zk连接
+  	DistributeServer server = new DistributeServer();   
+    server.getConnect();
 
-  // 2 利用zk连接注册服务器信息
-  server.registServer(args[0]);
+     // 2 利用zk连接注册服务器信息
+     server.registServer(args[0]);
 
-  // 3 启动业务功能
-  server.business(args[0]);
+      // 3 启动业务功能
+      server.business(args[0]);
  }
 ```
 
 1.  客户端代码
 
 ```java
-package com.qcx.zkcase; import java.io.IOException; import java.util.ArrayList; import java.util.List;
-import org.apache.zookeeper.WatchedEvent; import org.apache.zookeeper.Watcher; import org.apache.zookeeper.ZooKeeper;
+
+import java.io.IOException; 
+import java.util.ArrayList; 
+import java.util.List;
+import org.apache.zookeeper.WatchedEvent; 
+import org.apache.zookeeper.Watcher; 
+import org.apache.zookeeper.ZooKeeper;
 
 public class DistributeClient {
 
- private 	static 	String 	connectString 	=
-"hadoop102:2181,hadoop103:2181,hadoop104:2181";  private static int sessionTimeout = 2000;  private ZooKeeper zk = null;
- private String parentNode = "/servers";
+ private static String connectString =
+"hadoop102:2181,hadoop103:2181,hadoop104:2181";  
+    private static int sessionTimeout = 2000;  
+    private ZooKeeper zk = null;
+    private String parentNode = "/servers";
 
  // 创建到zk的客户端连接
  public void getConnect() throws IOException {
-  zk = new ZooKeeper(connectString, sessionTimeout, new Watcher() {
-
-   @Override
-   public void process(WatchedEvent event) {
-
-    // 再次启动监听
-    try {
-     getServerList();
-    } catch (Exception e) {
-     e.printStackTrace();
-    }
-   }
-  });
+  	zk = new ZooKeeper(connectString, sessionTimeout, new Watcher() {
+           @Override
+           public void process(WatchedEvent event) {
+                // 再次启动监听
+                try {
+                 getServerList();
+                } catch (Exception e) {
+                 e.printStackTrace();
+                }
+   			}
+  	});
  }
 
  // 获取服务器列表信息
  public void getServerList() throws Exception {
-
   // 1获取服务器子节点信息，并且对父节点进行监听
   List<String> children = zk.getChildren(parentNode, true);
 
-        // 2存储服务器信息列表
+  // 2存储服务器信息列表
   ArrayList<String> servers = new ArrayList<>();
 
-        // 3遍历所有节点，获取节点中的主机名称信息
+  // 3遍历所有节点，获取节点中的主机名称信息
   for (String child : children) {
-   byte[] data = zk.getData(parentNode + "/" + child, false, null);
-
-   servers.add(new String(data));
+       byte[] data = zk.getData(parentNode + "/" + child, false, null);
+       servers.add(new String(data));
   }
 
-        // 4打印服务器列表信息
-  System.out.println(servers);
+     // 4打印服务器列表信息
+     System.out.println(servers);
  }
 
  // 业务功能
  public void business() throws Exception{
-
-  System.out.println("client is working ..."); Thread.sleep(Long.MAX_VALUE);
+  	System.out.println("client is working ..."); Thread.sleep(Long.MAX_VALUE);
  }
 
  public static void main(String[] args) throws Exception {
 
-  // 1获取zk连接
-  DistributeClient client = new DistributeClient();
-  client.getConnect();
+      // 1获取zk连接
+      DistributeClient client = new DistributeClient();
+      client.getConnect();
 
-  // 2获取servers的子节点信息，从中获取服务器信息列表
-  client.getServerList();
+      // 2获取servers的子节点信息，从中获取服务器信息列表
+      client.getServerList();
 
-  // 3业务进程启动
-  client.business();
+      // 3业务进程启动
+      client.business();
  }
 }
 
@@ -771,8 +497,6 @@ czxid-创建节点的事务 zxid 每次修改 ZooKeeper 状态都会收到一个
 8.  ephemeralOwner- 如果是临时节点，这个是 znode 拥有者的 session
     id。如果不是临时节点则是 0。
 9.  dataLength- znode 的数据长度 11）numChildren - znode 子节点数量
-
--
 
 ## 4.3 监听器原理（面试重点）
 
@@ -838,15 +562,26 @@ Watcher 特性总结：
 
 将通知状态（SyncConnected）、事件类型（NodeDataChanged）以及节点路径封装成一个 WatchedEvent 对象
 
+事件类型：WatchEvent.getType()
+
+```java
+## 节点创建
+Event.EventType.NodeCreated 
+## 删除节点
+Event.EventType.NodeDeleted
+```
+
+
+
 2.2 查询 Watcher
 
 从 WatchTable 中根据节点路径查找 Watcher
 
-2.3 没找到；说明没有客户端在该数据节点上注册过 Watcher
+没找到；说明没有客户端在该数据节点上注册过 Watcher
 
-2.4 找到；提取并从 WatchTable 和 Watch2Paths 中删除对应 Watcher（从这里可以看出 Watcher 在服务端是一次性的，触发一次就失效了）
+找到；提取并从 WatchTable 和 Watch2Paths 中删除对应 Watcher（从这里可以看出 Watcher 在服务端是一次性的，触发一次就失效了）
 
-（3）调用 process 方法来触发 Watcher
+调用 process 方法来触发 Watcher
 
 这里 process 主要就是通过 ServerCnxn 对应的 TCP 连接发送 Watcher 事件通知。
 
@@ -855,6 +590,12 @@ Watcher 特性总结：
 客户端 SendThread 线程接收事件通知，交由 EventThread 线程回调 Watcher。
 
 客户端的 Watcher 机制同样是一次性的，一旦被触发后，该 Watcher 就失效了。
+
+
+
+
+
+
 
 ## 4.4 选举机制（面试重点）
 
@@ -875,14 +616,20 @@ Watcher 特性总结：
 4.  服务器 4 启动，发起一次选举。此时服务器 1，2，3 已经不是 LOOKING 状态，不会更改选票信息。交换选票信息结果：服务器 3 为 3 票，服务器 4 为 1 票。此时服务器 4 服从多数，更改选票信息为服务器 3，并更改状态为 FOLLOWING；
 5.  服务器 5 启动，同 4 一样当小弟。
 
-## ACL 权限控制机制
+## 访问机制ACL
 
-Access Control List 访问控制列表
+创建Znode的时候，需要传入访问控制列表ACL，用于决定谁可以对它执行何种操作。
+
+```txt
+OPEN_ACL_UNSAFE  : 完全开放的ACL，任何连接的客户端都可以操作该属性znode,练习中使用的是
+CREATOR_ALL_ACL : 只有创建者才有ACL权限
+READ_ACL_UNSAFE：只能读取ACL
+```
 
 1：权限模式
 
 - IP：从 IP 地址粒度进行权限控制
-- Digest：最常用，用类似于 username:password 的权限标识来进行权限配置，便于区分不同应用来进行权限控制
+- Digest：最常用，通过用户名和密码识别客户端；
 - World：最开放的权限控制方式，是一种特殊的 digest 模式，只有一个权限标识“world:anyone”
 - Super：超级用户
 
@@ -897,6 +644,10 @@ Access Control List 访问控制列表
 - READ：数据节点的读取权限，允许授权对象访问该数据节点并读取其数据内容或子节点列表等
 - WRITE：数据节点更新权限，允许授权对象对该数据节点进行更新操作
 - ADMIN：数据节点管理权限，允许授权对象对该数据节点进行 ACL 相关设置操作
+
+
+
+
 
 ## 4.5 写数据流程
 
