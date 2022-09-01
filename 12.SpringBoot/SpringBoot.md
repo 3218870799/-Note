@@ -1,4 +1,4 @@
-﻿﻿﻿# 一、Spring Boot 入门
+# 一、Spring Boot 入门
 
 ## 1、简介
 
@@ -144,38 +144,11 @@ public class MyBean implements CommandLineRunner
 }
 ```
 
-## 自动配置
-
-在 Spring 程序 main 方法中，run 方法刷新容器，扫描` @SpringBootApplication`注解， ` @SpringBootApplication` 注解为组合注解，其中 `@EnableAutoConfiguration ` 会自动去 maven 中读取每个 starter 中的 MRTA-INF 目录下的 `spring.factories` 文件，该文件里配置了很多自动配置类，自动配置类会根据条件注解，将所有需要被创建的 bean 加载到 Spring 容器里
-
-如果我们要禁用特定的自动配置，我们可以使用 @EnableAutoConfiguration 注解的 exclude 属性来指示它。
-
-@Conditional 派生注解（Spring 注解版原生的@Conditional 作用）
-
-作用：必须是@Conditional 指定的条件成立，才给容器中添加组件，配置配里面的所有内容才生效；
-
-| @Conditional 扩展注解           | 作用（判断是否满足当前指定条件）                     |
-| ------------------------------- | ---------------------------------------------------- |
-| @ConditionalOnJava              | 系统的 java 版本是否符合要求                         |
-| @ConditionalOnBean              | 容器中存在指定 Bean；                                |
-| @ConditionalOnMissingBean       | 容器中不存在指定 Bean；                              |
-| @ConditionalOnExpression        | 满足 SpEL 表达式指定                                 |
-| @ConditionalOnClass             | 系统中有指定的类                                     |
-| @ConditionalOnMissingClass      | 系统中没有指定的类                                   |
-| @ConditionalOnSingleCandidate   | 容器中只有一个指定的 Bean，或者这个 Bean 是首选 Bean |
-| @ConditionalOnProperty          | 系统中指定的属性是否有指定的值                       |
-| @ConditionalOnResource          | 类路径下是否存在指定资源文件                         |
-| @ConditionalOnWebApplication    | 当前是 web 环境                                      |
-| @ConditionalOnNotWebApplication | 当前不是 web 环境                                    |
-| @ConditionalOnJndi              | JNDI 存在指定项                                      |
-
-自动配置类必须在一定的条件下才能生效；我们怎么知道哪些自动配置类生效；
-
-我们可以通过启用 debug=true 属性；来让控制台打印自动配置报告，这样我们就可以很方便的知道哪些自动配置类生效；
 
 
 
-## 启动器
+
+## 启动器Starters
 
 Starters包含了一系列可以集成到应用里面的依赖包，你可以一站式集成Spring及其他技术，而不需要到处找示例代码和依赖包。
 
@@ -196,6 +169,63 @@ Spring Boot官方的启动器都是以 `spring-boot-starter-`命名的，代表�
 | spring-boot-starter-web-services | SOAP Web Services                                            |
 | spring-boot-starter-security     | 使用 SpringSecurity 进行身份验证和授权                       |
 |                                  |                                                              |
+
+### 原理
+
+#### 起步依赖：
+
+将具备某种功能的坐标打包到一起，可以简化依赖导入的过程；
+
+#### 自动配置
+
+在 Spring 程序 main 方法中，run 方法刷新容器，扫描` @SpringBootApplication`注解， ` @SpringBootApplication` 注解为组合注解，其中 `@EnableAutoConfiguration ` 会自动去 maven 中读取每个 starter 中的 MRTA-INF 目录下的 `spring.factories` 文件，该文件里配置了很多自动配置类，自动配置类会根据条件注解，将所有需要被创建的 bean 加载到 Spring 容器里
+
+1：基于Java代码的Bean的配置；
+
+@Configuration和@Bean这两个注解一起使用就可以创建一个基于java代码的配置类，可以用来替代传统的xml配置文件。
+
+@Configuration注解的类可以看作是能生产让Spring loC容器管理的Bean实例的工厂@Bean注解的方法返回的对象可以被注册到spring容器中。
+
+2：自动配置的条件依赖
+
+如果我们要禁用特定的自动配置，我们可以使用 @EnableAutoConfiguration 注解的 exclude 属性来指示它。
+
+@Conditional 派生注解（Spring 注解版原生的@Conditional 作用）
+
+作用：必须是@Conditional 指定的条件成立，才给容器中添加组件，配置配里面的所有内容才生效；
+
+| @Conditional 扩展注解           | 作用（判断是否满足当前指定条件）                     |
+| ------------------------------- | ---------------------------------------------------- |
+| @ConditionalOnJava              | 系统的 java 版本是否符合要求                         |
+| @ConditionalOnBean              | 容器中存在指定 Bean；                                |
+| @ConditionalOnMissingBean       | 容器中不存在指定 Bean时，才实例化这个Bean            |
+| @ConditionalOnExpression        | 满足 SpEL 表达式指定                                 |
+| @ConditionalOnClass             | 系统中有指定的类                                     |
+| @ConditionalOnMissingClass      | 系统中没有指定的类                                   |
+| @ConditionalOnSingleCandidate   | 容器中只有一个指定的 Bean，或者这个 Bean 是首选 Bean |
+| @ConditionalOnProperty          | 系统中指定的属性是否有指定的值                       |
+| @ConditionalOnResource          | 类路径下是否存在指定资源文件                         |
+| @ConditionalOnWebApplication    | 当前是 web 环境                                      |
+| @ConditionalOnNotWebApplication | 当前不是 web 环境                                    |
+| @ConditionalOnJndi              | JNDI 存在指定项                                      |
+
+自动配置类必须在一定的条件下才能生效；我们怎么知道哪些自动配置类生效；
+
+我们可以通过启用 debug=true 属性；来让控制台打印自动配置报告，这样我们就可以很方便的知道哪些自动配置类生效；
+
+3：Bean的参数获取
+
+```java
+@ConfigureationProperties(prefix="spring.datasource")
+```
+
+读取配置文件的内容，然后封装成一个Bean对象；
+
+4：Bean的发现
+
+springboot默认扫描启动类所在的包下的主类与之类的所有组件，但并没有包括依赖包中的类，依赖包中的bean是开启自动配置注解的中的` @import ` 注解 ，然后去 META-INF/spring.factories 下加载自动配置类；
+
+5：Bean的加载
 
 ### 自定义启动器
 
