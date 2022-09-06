@@ -52,6 +52,10 @@ JVM 的代理（Instrumentation）、消息发送（Messaging）、核心容器�
 
 ## 1.4：事件
 
+Spring Event是Spring的事件通知机制，可以将相互耦合的代码解耦，其实是一个监听者模式的具体实现
+
+监听者模式包含了监听者Listener，时间Event，事件发布这EventPulish，过程就是EventPulish发布一个事件，被监听者捕获到，然后执行事件相应的方法；
+
 Spring 提供了以下 5 种标准的事件：
 
 （1）上下文更新事件（ContextRefreshedEvent）：在调用 ConfigurableApplicationContext
@@ -67,6 +71,55 @@ Spring 提供了以下 5 种标准的事件：
 
 如果一个 bean 实现了 ApplicationListener 接口，当一个 ApplicationEvent
 被发布以后，bean 会自动被通知。
+
+例子：
+
+1：定义事件
+
+```java
+public class MySpringEvent extends ApplicationEvent {
+	/**
+	* 定义事件
+	*/
+    public MySpringEvent(LogDTO logDTO) {
+        super(logDTO);
+    }
+}
+```
+
+2：定义监听器
+
+```java
+@Slf4j
+@Component
+public class MsgListener {
+    //声明监听哪种事件,异步处理
+  @Async
+  @EventListener(MySpringEvent.class)
+  public void sendMsg(MySpringEvent event) {
+    LogDTO logDTO = (LogDTO)event.getSource();
+  }
+}
+```
+
+3：发布事件
+
+```java
+@Autowired
+private ApplicationContext applicationContext;
+
+public void buyOrder() {
+    //构造对象
+    LogDTO logDTO = new LogDTO();
+   
+    //构造事件对象
+    ApplicationEvent event = new MySpringEvent(logDTO);
+    //发布事件
+    applicationContext.publishEvent(event);
+}
+```
+
+
 
 ## 1.5：原理
 
