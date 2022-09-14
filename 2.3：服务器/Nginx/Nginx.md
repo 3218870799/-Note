@@ -119,8 +119,6 @@ Nginx 启动后，安装目录下会出现一些\_tmp 结尾的文件，这些�
 
 执行命令：kill -QUIT 主 pid
 
-![](media/e775271d7ab803d8f3782af6fab073d4.png)
-
 **注意：**
 
 - 其中 pid 是主进程号的 pid（master process），其他为子进程 pid（worker process）
@@ -139,7 +137,6 @@ kill -TERM 主 pid
 
 - 这种关闭方式不管请求是否处理完成，直接关闭，比较暴力，称之为快速的关闭
 
-  ![](media/95719982ec34c6cfff60967b7082ec62.png)
 
 重启 Nginx：
 
@@ -151,73 +148,157 @@ kill -TERM 主 pid
 
 /usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf –t
 
-![](media/5f1ea066b88872bef25fad6975c96a8c.png)
+
 
 ## 其它
 
-> Linux 上查看 nginx 版本：/usr/local/nginx/sbin/nginx -V
+Linux 上查看 nginx 版本：/usr/local/nginx/sbin/nginx -V
 
-> \-v （小写的 v）显示 nginx 的版本
 
-> \-V （大写的 V）显示 nginx 的版本、编译器版本和配置参数
-
-![](media/37d2208a17113c944e4ba210ebc3d686.png)
 
 ## Window 下环境搭建（了解）
 
-> 在官方网站下载最新 windows 版的 nginx：http://nginx.org/en/download.html
+在官方网站下载最新 windows 版的 nginx：http://nginx.org/en/download.html
 
-> 将下载下来的 nginx 压缩包解压到一个目录下，解压后该软件就可以启动使用了
+将下载下来的 nginx 压缩包解压到一个目录下，解压后该软件就可以启动使用了
 
-> 启动方式 1：双击解压目录下的 nginx.exe 文件即可运行 nginx；
+启动方式 1：双击解压目录下的 nginx.exe 文件即可运行 nginx；
 
-> 启动方式 2：进入 dos 窗口，切换到 nginx 主目录下，在 dos 窗口执行命令：start nginx
+启动方式 2：进入 dos 窗口，切换到 nginx 主目录下，在 dos 窗口执行命令：start nginx
 
-> 关闭方式 1：在资源管理器杀掉 Nginx 进程（有两个进程）
+关闭方式 1：在资源管理器杀掉 Nginx 进程（有两个进程）
 
-> 关闭方式 2：在 dos 窗口切换到 Nginx 安装主目录下执行命令：nginx -s stop
+关闭方式 2：在 dos 窗口切换到 Nginx 安装主目录下执行命令：nginx -s stop
 
-# 三：配置文件及 应用
-
-## Nginx 的核心配置文件
+# 三：配置文件及应用
 
 学习 Nginx 首先需要对它的核心配置文件有一定的认识，这个文件位于 Nginx 的安装目录/usr/local/nginx/conf 目录下，名字为 nginx.conf
-
-![](media/0b1ff5f8f03b5d58eef964aa6da1ab8e.png)
-
-> 详细配置，可以参考 resources 目录下的\<\<nginx 配置中文详解.conf\>\>
 
 **Nginx 的核心配置文件主要由三个部分构成**
 
 ### 基本配置
 
-![](media/58eae0fc52b25a413c5e05c4f562db0c.png)
+```txt
+#user  nobody;
+#工作进程数，一般配置成和cpu数量一致或2倍
+worker_processes  1;
+
+#全局错误日志及pid文件存放位置
+error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+
+#nginx 启动master进程pid号
+#pid        logs/nginx.pid;
+```
 
 ### events 配置
 
-![](media/9628270df44b7aeb04517c1f8b45289a.png)
+```txt
+#配置工作模式和连接数 
+events {
+	#标识单个worker进程的最大并发数
+    worker_connections  1024;
+}
+```
 
 ### http 配置
 
 #### 基本配置
 
-![](media/4d6dfa8885acbd0a13e99ca93e222530.png)
+```txt
+http {
+    #引入 mime 类型定义文件 配置支持哪些多媒体配置类型
+    include       mime.types;
+    #默认流类型，可以认为任意类型
+    default_type  application/octet-stream;
+    #设置日志生成格式
+    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+    #                  '$status $body_bytes_sent "$http_referer" '
+    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+    # 配置日志存放路径
+    #access_log  logs/access.log  main;
+    # 开启文件搞笑传输模式
+    sendfile        on;
+    # 防止网络阻塞
+    #tcp_nopush     on;
+    #连接的超时时间 秒
+    #keepalive_timeout  0;
+    keepalive_timeout  65;
+    #开启gzip压缩
+    #gzip  on;
+    #此处配置多台tomcat服务器(名称不能有下划线：webServer）
+    upstream webServer{
+        server 127.0.0.1:8081;
+        server 127.0.0.1:8082;
+     }
+   
+	#此处配置多台tomcat服务器(名称不能有下划线：webs2Server）
+    #upstream webs2Server{
+      #server 192.168.30.19:8083;
+      #server 192.168.32.12:8085;
+    }
+```
 
 #### server 配置，可以有多个
 
-![](media/62c9903034ca529c51959276e0c4faa3.png)
+```txt
+  server {
+        #定义当前这个server监听的端口
+        listen       80;
+        #定义使用localhost访问
+        server_name  localhost;
+        #charset koi8-r;
+        #access_log  logs/host.access.log  main;
+        #默认请求地址，如果请求是：192.168.10.80:80/  那么会进入这个里面的tomcat反向代理地址
+        #一个location里面只能有一个proxy_pass
+        location / {
+        #此处可以配置Tomcat反向代理地址比如：
+        #此处可以引用上面upstream 的多台tomcat；也可以单独配置一台
+        proxy_pass http://127.0.0.1:8081/; #配置单台
+        #proxy_pass http://webServer/; #引用上面的多台
+        #引用上面的多台配置
+           # root   html; #默认的网站根目录的位置
+            #index  index.html index.htm; #网站的欢迎页,起始页
+        }
+        #表示如果请求是：192.168.10.80:80/web 那么会进入这个里面的tomcat反向代理地址
+        location /web {
+            #此处引用上面的配置的多台tomcat
+            #proxy_pass http://127.0.0.1:8082/;
+            #proxy_pass http://web2Server/; #引用上面的多台Tomcat配置
+        }
 
-## Nginx 主要应用
+        #error_page  404              /404.html;
+        # redirect server error pages to the static page /50x.html
+        #错误提示页面
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+        # proxy the PHP scripts to Apache listening on 127.0.0.1:80
+        #
+        #location ~ \.php$ {
+        #    proxy_pass   http://127.0.0.1;
+        #}
 
-- 静态网站部署
+        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+        #
+        #location ~ \.php$ {
+        #    root           html;
+        #    fastcgi_pass   127.0.0.1:9000;
+        #    fastcgi_index  index.php;
+        #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+        #    include        fastcgi_params;
+        #}
 
-  - 负载均衡
-
-  - 静态代理
-
-  - 动静分离
-
-  - 虚拟主机
+        # deny access to .htaccess files, if Apache's document root
+        # concurs with nginx's one
+        #
+        #location ~ /\.ht {
+        #    deny  all;
+        #}
+    }
+```
 
 
 # 四：负载均衡
@@ -259,25 +340,23 @@ Nginx 通过在 nginx.conf 文件进行配置即可实现负载均衡
 
 **注意：这里的轮询并不是每个请求轮流分配到不同的后端服务器，与 ip_hash 类似，但是按照访问 url 的 hash 结果来分配请求，使得每个 url 定向到同一个后端服务器，主要应用于后端服务器为缓存时的场景下**。**如果后端服务器 down 掉，将自动剔除**
 
+```txt
 upstream backserver {
-
-server 127.0.0.1:8080;
-
-server 127.0.0.1:9090;
-
+    server 127.0.0.1:8080;
+    server 127.0.0.1:9090;
 }
+```
 
 2：权重
 
 **每个请求按一定比例分发到不同的后端服务器，weight 值越大访问的比例越大，用于后端服务器性能不均的情况**
 
+```txt
 upstream backserver {
-
-server 192.168.0.14 weight=5;
-
-server 192.168.0.15 weight=2;
-
+    server 192.168.0.14 weight=5;
+    server 192.168.0.15 weight=2;
 }
+```
 
 3：ip_hash
 
@@ -285,59 +364,25 @@ server 192.168.0.15 weight=2;
 
 **算法：hash("124.207.55.82") % 2 = 0, 1**
 
+```txt
 upstream backserver {
-
-ip_hash;
-
-server 127.0.0.1:8080;
-
-server 127.0.0.1:9090;
-
+    ip_hash;
+    server 127.0.0.1:8080;
+    server 127.0.0.1:9090;
 }
+```
 
 4：最少连接
 
 **web 请求会被转发到连接数最少的服务器上**
 
+```txt
 upstream backserver {
-
-least_conn;
-
-server 127.0.0.1:8080;
-
-server 127.0.0.1:9090;
-
+    least_conn;
+    server 127.0.0.1:8080;
+    server 127.0.0.1:9090;
 }
-
-## 其他配置
-
-**配置 1：**
-
-upstream backserver {
-
-server 127.0.0.1:9100;
-
-\#其它所有的非 backup 机器 down 的时候，才请求 backup 机器
-
-server 127.0.0.1:9200 backup;
-
-}
-
-> **配置 2：**
-
-upstream backserver {
-
-> server 127.0.0.1:9100;
-
-> \#down 表示当前的 server 是 down 状态，不参与负载均衡
-
-server 127.0.0.1:9200 down;
-
-}
-
-一般在项目上线的时候，可以分配部署不同的服务器上，然后对 Nginx 重新 reload。
-
-reload 不会影响用户的访问，或者可以给一个提示页面,系统正在升级...
+```
 
 # 五：静态代理
 
@@ -347,20 +392,15 @@ reload 不会影响用户的访问，或者可以给一个提示页面,系统正
 
 ![](media/d33b8da89e21c09c5d792bc0aaa21257.png)
 
-## Nginx 静态代理实现方式
+## 实现方式
 
 方式一 在 nginx.conf 的 location 中配置静态资源的后缀
 
 **例如：当访问静态资源，则从 linux 服务器/opt/static 目录下获取（举例）**
 
-location \~
-.\*\\.(js\|css\|htm\|html\|gif\|jpg\|jpeg\|png\|bmp\|swf\|ioc\|rar\|zip\|txt\|flv\|mid
+```txt
 
-> \|doc\|ppt\|pdf\|xls\|mp3\|wma)\$ {
-
-root /opt/static;
-
-}
+```
 
 **说明**
 
@@ -386,19 +426,7 @@ root /opt/static;
 
 **例如：当访问静态资源，则从 linux 服务器/opt/static 目录下获取（举例）**
 
-location \~ .\*/(css\|js\|img\|images) {
 
-root /opt/static;
-
-}
-
-xxx/css
-
-xxx/js
-
-xxx/img
-
-xxx/images
 
 我们将静态资源放入 /opt/static 目录下，然后用户访问时由 nginx 返回这些静态资源
 
@@ -414,12 +442,6 @@ Nginx 的负载均衡和静态代理结合在一起，我们可以实现动静�
 
 动静分离充分利用了它们各自的优势，从而达到更高效合理的架构
 
-## 动静分离案例
-
-### 架构图
-
-![](media/1a64762be008a35adeb56153959d4d14.png)
-
 整个架构中，一个 nginx 负责负载均衡，两个 nginx 负责静态代理。Nginx 在一台 Linux 上安装一份，可以启动多个 Nginx，每个 Nginx 的配置文件不一样即可
 
 # 七：虚拟主机
@@ -434,91 +456,64 @@ Nginx 下，一个 server 标签就是一个虚拟主机。nginx 的虚拟主机
 
 比如一个公司有多个二级域名，没有必要为每个二级域名都提供一台 Nginx 服务器，就可以使用虚拟主机技术，在一台 nginx 服务器上，模拟多个虚拟服务器。
 
-## 配置虚拟主机方式
-
 ### 基于端口的虚拟主机（了解）
 
 基于端口的虚拟主机配置，使用端口来区分
 
 浏览器使用 同一个域名+端口 或 同一个 ip 地址+端口访问；
 
-**server {**
+```txt
+server {
+    listen 8080;
+    server_name www.myweb.com;
+    location /myweb {
+    	proxy_pass http://www.myweb.com;
+    }
+}
 
-> **listen 8080;**
-
-**server_name www.myweb.com;**
-
-**location /myweb {**
-
-**proxy_pass http://www.myweb.com;**
-
-**}**
-
-> **}**
-
-**server {**
-
-**listen 9090;**
-
-**server_name www.myweb.com;**
-
-**location /p2p {**
-
-**proxy_pass http://www.p2p.com;**
-
-**}**
-
-> **}**
+server {
+    listen 9090;
+    server_name www.myweb.com;
+    location /p2p {
+    	proxy_pass http://www.p2p.com;
+    }
+}
+```
 
 ### 基于域名的虚拟主机（掌握）
 
 基于域名的虚拟主机是最常见的一种虚拟主机
 
-**server {**
+```txt
+server {
+    listen 80;
+    server_name www.myweb.com;
+    location /myweb {
+    	proxy_pass http://www. myweb.com;
+    }
+}
+server {
+    listen 80;
+    server_name www.p2p.com;
+    location /myweb {
+    	proxy_pass http://www.p2p.com;
+    }
+}
+```
 
-**listen 80;**
 
-**server_name www.myweb.com;**
-
-**location /myweb {**
-
-**proxy_pass http://www. myweb.com;**
-
-**}**
-
-**}**
-
-**server {**
-
-**listen 80;**
-
-**server_name www.p2p.com;**
-
-**location /myweb {**
-
-**proxy_pass http://www.p2p.com;**
-
-**}**
-
-**}**
 
 需要修改一下本地的 hosts 文件，文件位置：C:\\Windows\\System32\\drivers\\etc\\hosts
 
 在 hosts 文件配置：
 
-> 192.168.208.128 www.myweb.com
+```txt
+192.168.208.128 www.myweb.com
 
-> 192.168.208.128 www.p2p.com
+192.168.208.128 www.p2p.com
+```
 
 前面是 Linux 的 IP，后面是你自定义的域名
-
-## 案例
-
-模拟城市站点网站（我们配置三个城市站点）
-
-### 架构图
-
-![](media/2dcc66a515ae5d7ec9d012d1980d7870.png)
 
 # 八：Nginx 限流
 
