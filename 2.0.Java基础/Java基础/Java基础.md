@@ -2,13 +2,36 @@
 
 ## 1：基本概念
 
-标识符：
+1：标识符：标识符可以包含英文字母 26 个(区分大小写) 、0-9 数字 、$（美元符号） 和\_（下划线） 。标识符不能以数字开头。标识符不能是关键字。
 
-标识符可以包含英文字母 26 个(区分大小写) 、0-9 数字 、$（美元符号） 和\_（下划线） 。
-标识符不能以数字开头。
-标识符不能是关键字。
+2：变量
 
-### 1.1：关键字
+局部变量与成员变量
+
+```txt
+定义的位置不同：局部变量定义在方法内部，成员变量定义在方法外部，直接写在类中
+作用范围不一样：局部变量只有方法中才能用，成员变量都可以用
+默认值不一样：局部变量没有默认值，如果想要使用，必须手动进行赋值，成员变量会有默认值，规则与数组相同
+内存的位置不一样：局部变量位于栈内存，成员变量位于堆内存
+生命周期不一样：局部变量随着方法进栈而诞生，方法出栈而消失。成员变量随对象创建而诞生
+```
+
+注：当局部变量与成员变量冲突时，根据就近原则，优先使用局部变量
+
+3：访问控制
+
+类中的数据成员和成员函数据具有的访问权限包括：public、private、protect、default（包访问权限）
+
+```txt
+public : 所有类可
+protected :本包和所有子类都可见（本包中的子类非子类均可访问，不同包中的子类可以访问，不是子类不能访问）
+default :本包可见（即默认的形式）（本包中的子类非子类均可访问，不同包中的类及子类均不能访问）
+priavte :本类可见
+```
+
+**在非本包子类，通过父类的对象实例只能访问父类的 public 成员,不能访问 protected 成员。**
+
+### 1.1：常用关键字
 
 类与接口的声明：class（类）,extends（继承）,implements（实现）,interface
 
@@ -81,58 +104,7 @@ volatile 只能保证对单次读/写的原子性。i++ 这种操作不能保证
 
 - volatile 不会造成线程的阻塞；synchronized 可能会造成线程的阻塞。
 
-**String、StringBuffer、StringBuilder**
 
-5.1
-
-String s=new String("abc") 创建了几个对象?
-
-“abc” 创建一个对象 new String（） 创建一个对象。
-
-5.2
-
-String 被 final 修饰，声明不可改变的对象每次操作都会生成新的 String
-对象，然后将指针指向新的 String 对象，修改用 StringBuffer.append(“fkf”);方法
-
-StringBuffer 是线程安全的，
-
-StringBuilder 是不安全的，但是其性能却高于 StringBuffer，单线程使用 StringBuilder，多线程用 StringBuffer
-
-5.3
-
-String 类为什么是 final 类型
-
-为了实现字符串池(只有当字符是不可变的，字符串池才有可能实现)
-
-为了线程安全(字符串自己便是线程安全的)
-
-为了实现 String 可以创建 HashCode 不可变性(Map 的 key 一般 String 用的最多原因就是这个)
-
-5.4
-
-indexOf()：返回指定字符的索引。
-
-charAt()：返回指定索引处的字符。
-
-replace()：字符串替换。
-
-trim()：去除字符串两端空白。
-
-split()：分割字符串，返回一个分割后的字符串数组。
-
-getBytes()：返回字符串的 byte 类型数组。
-
-length()：返回字符串长度。
-
-toLowerCase()：将字符串转成小写字母。
-
-toUpperCase()：将字符串转成大写字符。
-
-substring()：截取字符串。
-
-equals()：字符串比较。
-
-stringBuffer. reverse()字符串反转
 
 - #### Serilizable 和 transient
 
@@ -145,37 +117,7 @@ Instanceof：用来指出对象是否是特定类或接口或该类子类的一�
   super ：代表父类的存储空间标识(可以理解为父亲的引用)。
   this ：代表当前对象的引用(谁调用就代表谁)。
 
-### 1.2：变量
 
-局部变量与成员变量
-
-定义的位置不同：局部变量定义在方法内部，成员变量定义在方法外部，直接写在类中
-
-作用范围不一样：局部变量只有方法中才能用，成员变量都可以用
-
-默认值不一样：局部变量没有默认值，如果想要使用，必须手动进行赋值，成员变量会有默认值，规则与数组相同
-
-内存的位置不一样：局部变量位于栈内存，成员变量位于堆内存
-
-生命周期不一样：局部变量随着方法进栈而诞生，方法出栈而消失。成员变量随对象创建而诞生
-
-注：当局部变量与成员变量冲突时，根据就近原则，优先使用局部变量
-
-### 1.3：访问控制
-
-类中的数据成员和成员函数据具有的访问权限包括：public、private、protect、default（包访问权限）
-
-public 所有类可见
-
-protected
-本包和所有子类都可见（本包中的子类非子类均可访问，不同包中的子类可以访问，不是子类不能访问）
-
-default
-本包可见（即默认的形式）（本包中的子类非子类均可访问，不同包中的类及子类均不能访问）
-
-priavte 本类可见
-
-**在非本包子类，通过父类的对象实例只能访问父类的 public 成员,不能访问 protected 成员。**
 
 ## 2：数据类型
 
@@ -192,12 +134,6 @@ priavte 本类可见
 | char        | 2        | \u0000(空格) | 0~216-1                    |        |
 | boolean     | 1        |              | true/false                 |        |
 |             |          |              |                            |        |
-
-
-
-![media/219b1f57a4f3764f0a5010ef0e32ee60.png](media/219b1f57a4f3764f0a5010ef0e32ee60.png)
-
-![image-20201125195254176](media/image-20201125195254176.png)
 
 数据范围与字节数不一定相关，float 数据范围比 long 更加广泛，但是 float 是 4 字节，long 是 8 字节。
 
@@ -284,6 +220,38 @@ System.out.println(c==d);
 ```
 
 所以，上诉答案应该是， `true , false`
+
+### 字符串
+
+字符串池：JVM中由String类维护一个共享的字符串池，由于String类为final类型，故不用担心对象共享而给程序带来混乱；
+
+**String 类为什么是 final 类型？**
+
+String 被 final 修饰，声明不可改变的对象每次操作都会生成新的 String对象，然后将指针指向新的 String 对象
+
+为了实现字符串池(只有当字符是不可变的，字符串池才有可能实现)
+
+为了线程安全(字符串自己便是线程安全的)
+
+为了实现 String 可以创建 HashCode 不可变性(Map 的 key 一般 String 用的最多原因就是这个)
+
+**String对象创建？**
+
+```java
+//2个，“abc”创建一个，new String创建一个
+String s=new String("abc");
+
+//1个，“abc”
+String a = "abc";
+
+//1个，由于都是常量，在编译时就被确定为“abcd”，故创建一个“abcd”
+String c = "ab"+"cd";
+
+```
+
+**String、StringBuffer、StringBuilder**
+
+方法StringBuffer 是线程安全的，StringBuilder 是不安全的，但是其性能却高于 StringBuffer，单线程使用 StringBuilder，多线程用 StringBuffer
 
 ### ==与 equals
 
@@ -502,6 +470,12 @@ FlyAble f = new FlyAble(){
     }
 };
 ```
+
+### 类的初始化顺序
+1.父类--静态变量  2. 父类--静态初始化块  3. 子类--静态变量   4.子类--静态初始化块 
+5.父类--变量 6. 父类--初始化块 7. 父类--构造器 8. 子类--变量 9. 子类--初始化块 10. 子类--构造器
+
+
 
 ## 5：抽象与接口
 
@@ -2064,6 +2038,72 @@ volatile读
 
 ```
 
+### synchronized
+
+JDK 早期，synchronized 叫做重量级锁， 因为申请锁资源必须通过 kernel, 系统调用，后来调整为**锁升级**的过程：无锁 - 偏向锁 - 轻量级锁 （自旋锁，自适应自旋）- 重量级锁
+
+synchronized：保证在同一时刻，只有一个线程可以执行某个方法或某个代码块，同时 synchronized 可以保证一个线程的变化可见（可见性），即可以代替 volatile。悲观锁，非公平锁（底层调用 mutex 锁，内核提供的这个锁并不保证公平）
+
+可以修饰代码块，方法，静态方法，类
+
+底层原理：底层实现依赖于对象监视器object monitor ，编译后在执行前后加上 monito enter 和 monitor exit 指令，锁存储再对象头里面
+
+注意：用 synchronized 修饰不同类型的方法时，由于获取的对象头中的 monitor 对象可能不同，也可能会出现线程安全问题。因为：每个对象都存在一个 monitor 与之关联，对象与 monitor 之间的关系存在多种实现方式。
+
+修饰实例方法：对当前实例加锁，进入方法需要获得当前实例的锁
+
+修饰静态方法：对当前类对象加锁，进入静态方法需要获得当前类对象的锁
+
+修饰代码块：对指定对象进行加锁，进入代码块需要获得指定对象的锁
+
+### volatile
+
+Volatile 是 Java 虚拟机提供的`轻量级`的同步机制（三大特性）
+
+- 保证可见性
+- 不保证原子性
+- 禁止指令重排
+
+**实现机制**：相比于没加 volatile 关键字，汇编代码会加入一个 lock 前缀指令，相当于一个**内存屏障**（禁止处理器指令重排，而 vloatile 是禁止编译器重排序）。此时
+
+（1）会将当前处理器缓存行的数据立即写会系统主存
+
+（2）这个写回内存的操作会引起在其他 cpu 里缓存了该内存地址的数据无效（MES 协议）
+
+线程 2 将 initFlag 的值 store 到主内存时要通过总线，**cpu 总线嗅探机制**监听到 initFlag 值被修改，线程 1 的 initFlag 失效，线程 1 需要重新 read initFlag 的值。
+
+如果大量使用 volatile，由于 Volatile 的 MESI 缓存一致性协议，需要不断的从主内存嗅探和 cas 不断循环，无效交互会导致总线带宽达到峰值。**造成总线风暴**。
+
+Q：**synchronized 和 volatile 的区别是什么？**
+
+- volatile 是变量修饰符；synchronized 是修饰类、方法、代码段。
+
+- volatile 仅能实现变量的修改可见性，不能保证原子性；而 synchronized 则可以保证变量的修改可见性和原子性。
+
+- volatile 不会造成线程的阻塞；synchronized 可能会造成线程的阻塞。
+
+**Q：synchronized 和 lock 有什么区别？**
+
+- synchronized 属于 JVM 层面的，Lock 是 API 层面的
+- synchronized 不需要手动释放锁，Lock 需要主动释放，否则可能出现死锁
+- synchronized 不可中断，除非抛出异常或则正常运行完成，ReetrantLock 可以中断，可以设置超时方法。
+
+**重排序：**
+
+指令重排序包括：编译器优化重排，指令级并行重排，内存系统读写重排
+
+指令：
+
+store：将 cpu 缓存的数据刷新到主存中
+
+load：将主存中的数据拷贝进 cpu
+
+内存屏障种类：
+
+volatile 写实现内存屏障“
+
+对 volatile 变量进行写操作是，会在写操作后加入一条 store 屏障指令，将工作内存中的共享变量值刷新会到主内存。
+
 ## 2：状态及生命周期
 
 当线程被创建并启动以后，它既不是一启动就进入了执行状态，也不是一直处于执行状态。在线程的生命周期中，枚举中给出了六种线程状态：
@@ -2071,7 +2111,7 @@ volatile读
 | 线程状态              | 导致状态发生条件                                             |
 | --------------------- | ------------------------------------------------------------ |
 | NEW新建               | 线程刚被创建，但是并未启动，还没调用start方法                |
-| Runable就绪           | 线程可以在Java虚拟机中运行的状态，可能正在运行自己代码，也可能没有，这取决于操作系统处理器 |
+| Runable可运行，就绪   | 线程可以在Java虚拟机中运行的状态，可能正在运行自己代码，也可能没有，这取决于操作系统处理器 |
 | Block锁阻塞           | 当一个线程试图获取一个对象锁，而该对象锁被其他线程持有，但该线程进入Blocked状态；当该线程持有锁是，该进程将变成Runnable状态 |
 | Waiting无限等待       | 一个线程在等待另一个线程执行一个（唤醒）动作时，该线程进入waiting状态，进入这个状态后是不能自动唤醒的，必须等待另一个线程调用notify或者notifyall方法才能唤醒； |
 | Timed Waiting计时等待 | 同wait状态，有几个方法有超时参数，调用他们将进入Timed Waiting状态，这一状态将保持到超时期满或者接到唤醒通知 |
@@ -2140,24 +2180,6 @@ public static class DemoThread extends Thread{
     }
 }
 ```
-
-## 3：Thread 类
-
-构造
-
-- public Thread() :分配一个新的线程对象。
-- public Thread(String name) :分配一个指定名字的新的线程对象。
-- public Thread(Runnable target) :分配一个带有指定目标新的线程对象。
-- public Thread(Runnable target,String name) :分配一个带有指定目标新的线程对象并指定名字。
-
-常用方法：
-
-- public String getName() :获取当前线程名称。
-- public void start() :导致此线程开始执行; Java 虚拟机调用此线程的 run 方法。
-- public void run() :此线程要执行的任务在此处定义代码。
-- public static void sleep(long millis) :使当前正在执行的线程以指定的毫秒数暂停（暂时停止执行）。
-- public static Thread currentThread() :返回对当前正在执行的线程对象的引用。
-- public boolean isAlive()：测试线程是否已经启动
 
 ## 4：ThreadLocal
 
@@ -2272,8 +2294,6 @@ ThreadLocal 与 Synchronized 的区别：
 ThreadLocalMap 是 ThreadLocal 的内部类，没有实现 Map 接口，用独立的方式实现了 Map 的功能，其内部的 Entry 也是独立实现。
 
 存储结果 Entry
-
-### Spring 中使用
 
 ## 5：线程实现方式
 
@@ -2558,7 +2578,7 @@ ThreadPoolExecutor：**线程池最核心的一个类**，继承了`AbstractExec
 
 - 混合型：CPU 密集型的任务与 IO 密集型任务的执行时间差别较小，拆分为两个线程池；否则没有必要拆分。
 
-### 3：状态
+### 7：状态
 
 - running：这是最正常的状态，接受新的任务，处理等待队列中的任务。
 
@@ -2579,7 +2599,7 @@ ThreadPoolExecutor：**线程池最核心的一个类**，继承了`AbstractExec
 
 方法三：使用手动锁 Lock。
 
-### 4；关闭方式
+### 8；关闭方式
 
 Shutdown shutdownNow tryTerminate 清空工作队列，终止线程池中各个线程，销毁线程池
 
@@ -2587,7 +2607,7 @@ Wait 方法：只能在同步代码块中调用，wait 会释放掉对象锁，�
 
 Notify 方法：
 
-### 6：线程池中遇到的问题
+### 9：线程池中遇到的问题
 
 （3）：Java 线程池是如何保证核心线程不被销毁的？
 
@@ -2607,7 +2627,7 @@ Q：线程池是通过队列的 take 方法来阻塞核心线程 Worker 的 run 
 　　　　　　　 b）假如是业务时间长集中在计算操作上，也就是计算密集型任务，这个就没办法了，和（1）一样吧，线程池中的线程数设置得少一些，减少线程上下文的切换
 　　　　 3）并发高、业务执行时间长，解决这种类型任务的关键不在于线程池而在于整体架构的设计，看看这些业务里面某些数据是否能做缓存是第一步，增加服务器是第二步，至于线程池的设置，设置参考 2）。最后，业务执行时间长的问题，也可能需要分析一下，看看能不能使用中间件对任务进行拆分和解耦。
 
-### 7：注意解决
+### 10：注意解决
 
 1：使用线程池在流量突发期间能够平滑地服务降级
 
@@ -3148,6 +3168,12 @@ java.util.concurrent 类库中提供了 Condition 类来实现线程之间的协
 
 相比于 wait() 这种等待方式，await() 可以指定等待的条件，因此更加灵活。
 
+
+
+
+
+
+
 ## 10：concurrent 并发包
 
 JUC 包增加了并发编程中常用的工具类，用于定义类似于线程的自定义子 系统，包括线程池、异步 IO 和轻量级任务框架。提供可调的、灵活的线程池。还提供了设计用于多线程上下文中的 Collection 实现等。
@@ -3158,75 +3184,9 @@ JUC 包下的容器类分为两部分，一部分是**并发集合类**，一部
 
 ![在这里插入图片描述](media/20210306105116240.png)
 
-1：ConcurrentLinkedQueue
 
-一个基于连接节点的无界线程安全的队列，删除节点是将 item 设置为 null, 队列迭代时跳过 item 为 null 节点，所以不允许 null 入队，添加等都是使用 CAS 算法
 
-#### synchronized
 
-JDK 早期，synchronized 叫做重量级锁， 因为申请锁资源必须通过 kernel, 系统调用，后来调整为**锁升级**的过程：无锁 - 偏向锁 - 轻量级锁 （自旋锁，自适应自旋）- 重量级锁
-
-synchronized：保证在同一时刻，只有一个线程可以执行某个方法或某个代码块，同时 synchronized 可以保证一个线程的变化可见（可见性），即可以代替 volatile。悲观锁，非公平锁（底层调用 mutex 锁，内核提供的这个锁并不保证公平）
-
-可以修饰代码块，方法，静态方法，类
-
-注意：用 synchronized 修饰不同类型的方法时，由于获取的对象头中的 monitor 对象可能不同，也可能会出现线程安全问题。因为：每个对象都存在一个 monitor 与之关联，对象与 monitor 之间的关系存在多种实现方式。
-
-修饰实例方法：对当前实例加锁，进入方法需要获得当前实例的锁
-
-修饰静态方法：对当前类对象加锁，进入静态方法需要获得当前类对象的锁
-
-修饰代码块：对指定对象进行加锁，进入代码块需要获得指定对象的锁
-
-#### volatile
-
-Volatile 是 Java 虚拟机提供的`轻量级`的同步机制（三大特性）
-
-- 保证可见性
-- 不保证原子性
-- 禁止指令重排
-
-**实现机制**：相比于没加 volatile 关键字，汇编代码会加入一个 lock 前缀指令，相当于一个**内存屏障**（禁止处理器指令重排，而 vloatile 是禁止编译器重排序）。此时
-
-（1）会将当前处理器缓存行的数据立即写会系统主存
-
-（2）这个写回内存的操作会引起在其他 cpu 里缓存了该内存地址的数据无效（MES 协议）
-
-线程 2 将 initFlag 的值 store 到主内存时要通过总线，**cpu 总线嗅探机制**监听到 initFlag 值被修改，线程 1 的 initFlag 失效，线程 1 需要重新 read initFlag 的值。
-
-如果大量使用 volatile，由于 Volatile 的 MESI 缓存一致性协议，需要不断的从主内存嗅探和 cas 不断循环，无效交互会导致总线带宽达到峰值。**造成总线风暴**。
-
-Q：**synchronized 和 volatile 的区别是什么？**
-
-- volatile 是变量修饰符；synchronized 是修饰类、方法、代码段。
-
-- volatile 仅能实现变量的修改可见性，不能保证原子性；而 synchronized 则可以保证变量的修改可见性和原子性。
-
-- volatile 不会造成线程的阻塞；synchronized 可能会造成线程的阻塞。
-
-**Q：synchronized 和 lock 有什么区别？**
-
-- synchronized 属于 JVM 层面的，Lock 是 API 层面的
-- synchronized 不需要手动释放锁，Lock 需要主动释放，否则可能出现死锁
-- synchronized 不可中断，除非抛出异常或则正常运行完成，ReetrantLock 可以中断，可以设置超时方法。
-
-**重排序：**
-
-指令重排序包括：编译器优化重排，指令级并行重排，内存系统读写重排
-
-指令：
-
-store：将 cpu 缓存的数据刷新到主存中
-
-load：将主存中的数据拷贝进 cpu
-
-内存屏障种类：
-
-![在这里插入图片描述](media/b59274c5da2bf48ef50fd1ac089d0448.png)
-
-volatile 写实现内存屏障“
-
-对 volatile 变量进行写操作是，会在写操作后加入一条 store 屏障指令，将工作内存中的共享变量值刷新会到主内存。
 
 ### 原子类
 
@@ -3274,36 +3234,6 @@ AQS 等也是用来 CAS 算法，unsafe 类是 CAS 的核心类，原子等无�
 
 申请内存：All
 
-3：ConcurrentHashMap
-
-见前
-
-4：CountDownLatch（闭锁）
-
-一个同步辅助类，在完成一组正在其他线程中执行的操作之前，它允许一个或多个线程一直等待。
-
-**CountDownLatch 最重要的方法是 countDown()——倒数 和 await()，前者主要是倒数一次，后者是等待倒数到 0，如果没有到达 0，就只有阻塞等待了。**
-
-5：Lock 同步锁
-
-6：Condition 控制线程通信
-
-###
-
-8：**线程 8 锁**
-
-**AbstractQueuedSynchronizer (AQS)**
-
-提供了一个基于 FIFO 队列
-
-**6.1 ConcurrentHashMap**
-
-**6.3 Condition**
-
-**6.6 ArrayBlockingQueue**
-
-\*\*6.7 ThreadPoolExecutor
-
 ### CopyOnWrite
 
 写时复制：当修改 JAVA 中 Contains 的元素时，不直接修改该容器，而是先复制一份副本，在副本上进行修改，修改完成之后，净指向原本容器的引用指向新的容器副本；
@@ -3340,8 +3270,6 @@ ReenTrantLock 的实现是一种自旋锁，通过循环调用 CAS 操作来实�
 
 
 
-
-
 ### ReetrantReadWriteLock 读写锁
 
 Read 的时候是共享锁，Write 的时候是排它锁（互斥锁），默认使用非公平方式获取锁，可重入锁
@@ -3356,7 +3284,7 @@ Read 的时候是共享锁，Write 的时候是排它锁（互斥锁），默认
 
 乐观读：允许读的过程中也可以获取写锁后写入，
 
-### 1，CountDownLatch
+### CountDownLatch
 
 使一个线程等待其他线程各自执行完毕后再执行。
 
@@ -3367,7 +3295,7 @@ CountDownLatch .await();//当前线程阻塞，等待其他线程完成
 CountDownLatch .countDown();//当前子线程结束，通知等待线程可以减一
 ```
 
-### 2，CyclicBarrier
+### CyclicBarrier
 
 与 CountDownLatch 相反，这个类是为了帮助猿友们方便的实现多个线程一起启动的场景，就像赛跑一样，只要大家都准备好了，那就开始一起冲。也就是做加法。
 
@@ -3401,7 +3329,7 @@ synchronized 控制同步的时候，可以配合 Object 的 wait(),notify(),not
 
 调用 Condition 的 signal 方法，将会唤醒在等待队列中等待时间最久的节点（首节点—），在唤醒节点之前，会将节点移动同步队列中。
 
-### 3，Semaphore 信号量
+### Semaphore 信号量
 
 信号量主要用于两个目的
 
@@ -4609,507 +4537,7 @@ List<?>是只读类型的，不能进行增加、修改操作，因为编译器�
 
 List<Object>也可以读写操作，但是它执行写入操作时需要向上转型（Upcast),在读 取数据后需要向下转型（Downcast)
 
-# Java9
 
-从此以后六个月迭代一次，小步快跑，快速迭代。
-
-官方提供的新特性列表：
-
-https://docs.oracle.com/javase/9/whatsnew/toc.htm\#JSNEW-GUID-C23AFD78-C777-460B-8ACE-58BE5EA681F6
-
-或参考 OpenJDK
-
-http://openjdk.java.net/projects/jdk9/
-
-在线 OracleJDK9Documentation
-
-https://docs.oracle.com/javase/9/
-
-## 1：下载安装
-
-与以前版本不冲突，安装 jdk 并安装 jre
-
-配置环境变量
-
-## 1：目录结构的改变
-
-![](media/ffb2eb22dcae8ef40c6853761a415c89.png)
-
-![](media/25724d7ababb496a843fcce7ca30814b.png)
-
-不包含 jre 目录了
-
-## 2：模块系统
-
-最大变化之一引入模块系统（Jigsaw 项目）—>
-
-运行环境的碰撞与臃肿，需要加载 rt.jar
-
-减少内存消耗
-
-对外暴露
-
-java9demo 模块
-
-![image-20201201163540677](media/image-20201201163540677.png)
-
-在引入模块
-
-![image-20201201163633858](media/image-20201201163633858.png)
-
-## 3：REPL 工具：jShell 命令
-
-![](media/dc5707368d6100dee1c96a3864bba584.png)
-
-REPL（read-evaluate-print-loop）交互式编程环境
-
-bin 目录下 jshell.exe
-
-配好环境变量后
-
-cmd 输入 jshell
-
-输出：
-
-定义变量
-
-定义方法：
-
-如果定义一个已经存在的方法则直接修改原本的方法
-
-```jshell
-/edit add
-```
-
-可以直接修改 add 方法
-
-tab 键补全
-
-从外部文件加载源代码
-
-/open 文件路径
-
-受检异常
-
-编译前异常，比如 IOExcetption
-
-jshell 直接隐藏处理了
-
-## 4：多版本兼容 jar 包
-
-向后兼容
-
-说明：root.jar 可以在Java 9中使用，不过A或B类使用的不是顶层的root.A或root.B这两个class，而是处在“META-INF/versions/9”下面的这两个。这是特别为Java 9 准备的class版本,可以运用Java 9所提供的特性和库。同时,在早期的Java诸版本中使用这个JAR也是能运行的,因为较老版本的Java只会看到顶层的A类或B类。|
-
-## 5：接口的私有方法
-
-接口中放啊的访问权限修饰符可以声明为 private 的了
-
-```java
-//声明私有方法
-interface MyInterface{
-    //jdk7:只能声明全局常量（public static final)和抽象方法(public abstract)
-    void method1();
-    
-    //jdk8:声明静态方法和默认方法
-    public static void method2{
-        System.out.println("method2");
-    }
-    
-    default void method3(){
-        System.out.println("method3");
-    }  
-}
-```
-
-抽象类和接口的异同
-
-1：声明的方式
-
-2：内部结构
-
-3：共同点
-
-不能实例化，以多态的方式使用
-
-4：不同点
-
-单继承，多实现
-
-## 6：钻石操作符的使用升级
-
-即泛型
-
-```java
-//JDK7
-Set<String> set = new HashSet<String>();
-//JDK8可以进行类型推断
-Set<String> set = new HashSet<>();
-//JDK9中能够与匿名实现类共同使用钻石操作符
-Set<String> set = new HashSet<>(){};
-```
-
-匿名实现类与钻石操作符共同使用在 8 中会报错，Java9 可以
-
-```java
-Comparator<Object> com = new Comparator<>(){
-    @Override
-    public int compare(0bject o1，Object o2) {
-    	return 0;
-    }
-}
-```
-
-## 7：try 语句优化
-
-流资源的关闭
-
-JDK7 以前
-
-```java
-InputStreamReader reader = null;
-try{
-    reader = new InputStreamReader(System.in);
-    //读取数据的过程
-    reader.read();
-}catch(IOException e){
-    e.printStackTrace();
-}finally{
-    //资源的关闭操作
-    if(reader!=null){
-        try{
-            reader.close();
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-    }
-}
-```
-
-JDK8 在 try 中声明的资源会自动关闭，不用显示处理资源的关闭，必须在资源对象实例化必须放在 try（）中
-
-```java
-try(InputStreamReader reader = new InputStreamReader(System.in)){
-    reader.read();
-}catch(IOException e){
-    e.printStackTrace();
-}
-```
-
-JDK9 支持在外部声明资源文件,此时的 reader 是 final 的，不可再被赋值。而且可以传多个，然后用；分开
-
-```java
-InputStreamReader reader = new InputStreamReader(System.in);
-OutputStreamReader writer = new OutputStreamWriter(System.in);
-try(reader;writer){
-    reader.read();
-}catch(IOException e){
-    e.printStackTrace();
-}
-```
-
-## 8：下划线
-
-String \_是不允许的，是一个特殊的关键字
-
-## API 层面
-
-## 9：String
-
-JDK8 以前 String 以前是 char[]存储的，每个是两个字节
-
-JDK9 使用 byte[]数组，并使用 encodeFlag 标记编码类型，防止中文等两个字节存储
-
-UTF-16 存储都是两个字节
-
-StringBuilder 和 StringBuffer 也是做了同样的改变。
-
-问题：String，StringBuilder 和 StringBuffer？
-
-## 10：集合
-
-创建只读集合，不可改变的集合
-
-```java
-//调用Collection中方法，将list变成只读的
-List<String> newList = Collections.unmodifiablelist(list);
-//遍历JDK8
-newList.forEach(System.out::println);
-```
-
-//对只读 Map 的创建
-
-```java
-//匿名子类和泛型可以一起使用
-Map<Object,Object> map = COllections.unmodifiableMap(new HashMap<>(){
-    {
-        put("1",1);
-        put("2",2);
-        put("3",3);
-    }
-})
- //遍历
-map.forEach((k,v)->System.out.println(k + ":" + v));
-```
-
-//JDK9 中提供了更加方便的只读集合方法
-
-```java
-//创建只读list
-List<Integer> list = List.of(1,2,3);
-list.forEach(System.out::println);
-//创建只读Set
-Set<Integer> set = Set.of(2,3,4);
-//创建只读Map法一
-Map<String,Integer> map = Map.of("1",1,"2",2,"3",3);
-//创建只读Map法二
-Map<String,Integer> map = Map.ofEntries(Map.entry("1",1),Map.entry("2",2));
-```
-
-## 11：增强的 StreamAPI
-
-JDK9 中针对 Stream 中添加了四个方法
-
-1：takeWhile()：一直取直到满足条件就不取了，不同于 filter
-
-```java
-List<Integer> list = Arrays.asList(1,2,3,4,5,6,7,8);
-Stream<Integer> stream = list.stream();
-stream.takeWhile(x-x<5).forEach(System.out::println);
-//此时输出为：1,2,3,4
-```
-
-2：dropWhile()：与 takeWhile 正好相反
-
-```java
-List<Integer> list = Arrays.asList(1,2,3,4,5,6,7,8);
-Stream<Integer> stream = list.stream();
-stream.dropWhile(x-x<5).forEach(System.out::println);
-//此时输出为：5,6,7,8
-```
-
-3：ofNullable
-
-Java8 中 Stream 不能完全为 null，否则会报空指针异常。而 Java9 中可以使用 ofNullable 方法创建一个单元素
-
-```java
-//Stream其中一种实例化方法of
-
-Stream<Integer> stream = Stream.of(1,2,3，null);
-//此时没有问题
-stream.forEach(System.out::println);
-
-//如果单元素且为null就会报空指针异常
-Stream<Object> stream = Stream.of(null);
-
-//JDK9中可以创建
-Stream<String> stream = Stream.ofNullAble("Tom");
-System.out.println(stream.count());//输出1
-Stream<String> stream = Stream.ofNullAble(null);
-System.out.println(stream.count());//输出0
-```
-
-4：iterator()的重载
-
-Stream 的实例化方法：
-
-通过集合的 stream()
-
-通过数组工具类 Arrays
-
-Stream 中静态方法 of
-
-iterator()/gen
-
-```java
-//JDK8中
-Stream.iterator(0,x->x+1).limit(10).forEach(System.out::println);
-//输出0 1 2 3 4 5 6 7 8 9
-//JDK9中对其进行重载，添加一个判定条件
-Stream.iterate(0,x->x<10,x->x+1).forEach(System.out::println);
-```
-
-## 12：optional 的变化
-
-可以转换成 stream
-
-```java
-Optional<List<String>> optional = Optional.ofNullable(list);
-
-Stream<String> stream = optional.stream().flatMap(x->x.stream());
-stream.forEach(System.out::println);
-```
-
-## 13：高分辨率图像 API
-
-## 14：全新的 HTTP 客户端 API
-
-2015 年推出 HTTP2
-
-HTTP1.1 和 HTTP2 的主要区别在哪里？
-
-区别在如何在客户端和服务器之间构件和传输数据
-
-Http1 依赖于请求响应周期，Http2 允许服务器 push 数据，它可以发送比客户端请求更多的数据，这使得他可以优先处理并发送对于首先加载网页至关重要的数据
-
-```java
-//JDK9中可以使用HttpClient替换原有的HttpURLConnection
-HttpClient client = HttpClient.newHttpClient();
-HttpRequest req = HttpRequest.newBuilder(URL.create("http://www.baidu.com")).GET().build();
-HttpResponse<String> response = null;
-response = client.send(req,HttpResponse.BodyHandler.asString());
-System.out.println(response.statusCode());
-System.out.println(response.version.name());
-System.out.println(response.body());
-```
-
-## 15：Deprecated 的 API
-
-抛弃了几个不常用的 API，主要是 Applet API
-
-## 16：智能 Java 编译工具
-
-sjavac 慢慢代替 javac
-
-## 17：统一的 JVM 日志系统
-
-G1 作为了默认垃圾回收器
-
-# Java10
-
-## 1：局部变量类型推断
-
-var ：JDK10 中提供的保留类型
-
-只针对局部变量
-
-var 是保留类型不是关键字，意味着我们还可以用 var 来定义变量名和方法名
-
-```java
-public static void main(String[] args){
-    var i =10;
-    var str = "abc";
-    var list = new ArrayList<>();
-    list.add("test");
-
-    var set = new HashSet<>();
-
-    var user = new User();
-}
-```
-
-注意：不允许赋值为 null
-
-```java
-var aa = null;//错误
-```
-
-## 2：垃圾收集器的优化
-
-Java9 的改变
-
-新生代：ParNew
-
-老年代：Paraller Old
-
-JDK10：G1（Grabage -First）收集器：全收集器，既可以收集新生代又可以收集老年代。
-
-分析工具
-
-![image-20201203163004298](media/image-20201203163004298.png)
-
-## 3：新增的 API 功能
-
-### 3.1：copyOf()方法
-
-在 List，Set 和 Map 下新增了 copyOf 方法
-
-拷贝后的集合不可修改
-
-且是根据其迭代顺序拷贝的
-
-### 3.2：Java.io.ByteArrayOutStream::toString(Charset)
-
-对 toString 进行重载，可以指定编码，默认使用 UTF-8
-
-```java
-String str = "中文测试";
-//将str以GBK编码转换成Byte转换成流
-ByteArrayInputStream bis = new ByteArrayInputStream(str.getByte("GBK"));
-
-ByteArrayOutStream bos = new ByteArrayOutStream();
-
-int c =0;
-while((c=bis.read())!=-1){
-    bos.write(c);
-}
-System.out.println(bos.toString());
-System.out.println(bos.toString("GBK"));
-```
-
-### 3.3：PrintStream 和 PrintWrite 新增构造方法
-
-```java
-public static void main(String[] args){
-    String str = "我是中国人";
-    var p = new PrintWriter("d:/aa.txt","gbk");
-    p.println(str);
-    p.flush();
-    p.close();
-}
-```
-
-### 3.4：Reader::transferTo
-
-### 3.5：Scanner 和 Formatter 新增构造方法
-
-# Java11
-
-长期支持的版本
-
-## 1：新增字符串处理方法
-
-![](media/a40a44e6d85ae5d2d6a337bdfe5eab43.png)
-
-## 2：全新 HTTP 客户端 API
-
-## 3：Epsilon 垃圾收集器
-
-开发一个处理内存分配但不实现任何实际内存回收的机制的 GC
-
-## 3：全新垃圾收集器 ZGC
-
-可伸缩的，低延迟的！！初始只支持 64 位，支持 TB 级的，
-
-热对象置于 DRAM
-
-冷对象置于 NVMe 闪存
-
-ZGC 是一个并发，基于 region，压缩型的垃圾收集器，只有 root 扫描阶段会 STW（所有线程暂停），因此 GC 停顿时间不会随着堆的增长和存活对象的增长而变长。
-
-用法：-XX：+UnlockExperimentalVMOptions -XX:+UseZGC
-
-在 Window 中暂时没有提供
-
-由 oracle 开发，承诺在数 TB 的堆上具有非常低的暂停时间，多层堆（即热对象置于 DRAM 和冷对象置于 NVMe 闪存），压缩堆
-
-SWT 阶段：应用程序线程被暂停，以便 gc 执行其工作。当应用程序因为 GC 暂停时，这通常是由于 Stop The World 阶段。
-
-ZGC 给 Hotspot Garbage Collectors 增加了两种新技术：着色指针和读屏障。
-
-### 着色指针
-
-着色指针是一种将信息存储在指针（或使用 Java 术语引用）中的技术。因为在 64 位平台上（ZGC 仅支持 64 位平台），指针可以处理更多的内存，因此可以使用一些位来存储状态。
-ZGC 将限制最大支持 4Tb 堆（42-bits），那么会剩下 22 位可用，它目前使用了 4 位：
-finalizable， remap， mark0 和 mark1。
-
-着色指针的一个问题是，当您需要取消着色时，它需要额外的工作（因为需要屏蔽信息位）。
-
-### 多重映射
-
-### 读屏障
-
-读屏障是每当应用程序线程从堆加载引用时运行的代码片段（即访问对象上的非原生字段 non-primitive field）：
 
 # Java12
 
