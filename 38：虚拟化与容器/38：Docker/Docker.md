@@ -48,6 +48,10 @@ docker镜像是不会下载宿主机内核的，只会下载操作系统的发�
 
 # 三、安装 Docker
 
+1：https://blog.csdn.net/weixin_39912640/article/details/120391027
+
+
+
 **1）、安装 linux 虚拟机**
 
  1）、VMWare、VirtualBox（安装）；
@@ -108,6 +112,26 @@ https://www.freesion.com/article/32491172601/
 3：打开API服务
 
 https://blog.csdn.net/zuo84526076/article/details/120353935
+
+4：IDEA 冲突
+
+在开始菜单中，找到windows系统，右键点击命令提示符并且选择以管理员身份打开，然后输入此命令暂时关闭hyper-v。
+
+```text
+dism.exe /Online /Disable-Feature:Microsoft-Hyper-V
+```
+
+接下来需要重新启动系统。
+
+重新启动后，按如下方法操作，在开始菜单中，找到windows系统，右键点击命令提示符并且选择以管理员身份打开，然后分别输入以下命令。
+
+```text
+netsh int ipv4 set dynamicport tcp start=49152 num=16383
+netsh int ipv4 set dynamicport udp start=49152 num=16383
+dism.exe /Online /Enable-Feature:Microsoft-Hyper-V /All
+```
+
+这样预留一些端口给Intellij IDEA。
 
 
 
