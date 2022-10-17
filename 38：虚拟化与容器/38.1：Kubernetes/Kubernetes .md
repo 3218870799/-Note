@@ -1,10 +1,18 @@
 # 第一章：基本概念
 
-## K8S概述
+## 概述
 
 kubernetes，简称K8s，是用8 代替8 个字符“ubernete”而成的缩写。是一个开源的，用于管理云平台中多个主机上的容器化的应用，Kubernetes 的目标是让部署容器化的应用简单并且高效（powerful）,Kubernetes 提供了应用部署，规划，更新，维护的一种机制。
 
 docker单机版比较方面，k8s对于集群更加方便，K8S有如下作用与优势：
+
+**服务发现与负载均衡**
+
+用户不需使用额外的服务发现机制，就能够基于Kubernetes 自身能力实现服务发现和负载均衡，对外提供统一的入口，让它来做节点的调度和负载均衡， 相当于微服务里面的网关
+
+**存储编排**
+
+K8S允许你自动挂载你选择的存储系统，本地或者云提供商，存储交给K8S管理编排；
 
 **自动装箱**
 
@@ -24,100 +32,64 @@ docker单机版比较方面，k8s对于集群更加方便，K8S有如下作用�
 
 当我们有大量的请求来临时，我们可以增加副本数量，从而达到水平扩展的效果
 
-**服务发现**
-
-用户不需使用额外的服务发现机制，就能够基于Kubernetes 自身能力实现服务发现和负载均衡
-
-> 对外提供统一的入口，让它来做节点的调度和负载均衡， 相当于微服务里面的网关？
-
-![image-20200928101711968](media/image-20200928101711968.png)
-
 **滚动更新**
 
-可以根据应用的变化，对应用容器运行的应用，进行一次性或批量式更新
-
-添加应用的时候，不是加进去就马上可以进行使用，而是需要判断这个添加进去的应用是否能够正常使用
+可以根据应用的变化，对应用容器运行的应用，进行一次性或批量式更新；添加应用的时候，不是加进去就马上可以进行使用，而是需要判断这个添加进去的应用是否能够正常使用
 
 **版本回退**
 
 可以根据应用部署情况，对应用容器运行的应用，进行历史版本即时回退
 
-类似于Git中的回滚
-
 **密钥和配置管理**
 
 在不需要重新构建镜像的情况下，可以部署和更新密钥和应用配置，类似热部署。
-
-**存储编排**
-
-自动实现存储系统挂载及应用，特别对有状态应用实现数据持久化非常重要
-
-存储系统可以来自于本地目录、网络存储(NFS、Gluster、Ceph 等)、公共云存储服务
 
 批处理
 
 提供一次性任务，定时任务；满足批量数据处理和分析的场景
 
-## K8S架构组件
+## 架构
 
-完整架构图
+K8S架构主要包含两部分：Master（主控节点）和 node（工作节点）；
 
-![image-20200928103059652](media/image-20200928103059652.png)
+集群 = N 个Master Node (奇数个) + N个 Worker Node ；
 
 
-
-![image-20200928110124821](media/image-20200928110124821.png)
-
-架构细节
-
-K8S架构主要包含两部分：Master（主控节点）和 node（工作节点）
-
-master节点架构图
-
-![image-20201122113057343](media/image-20201122113057343.png)
-
-Node节点架构图
-
-![image-20201122155629990](media/image-20201122155629990.png)
 
 k8s 集群控制节点，对集群进行调度管理，接受集群外用户去集群操作请求；
 
-- **master**：主控节点
+**master**：主控节点
 
-  - API Server：集群统一入口，以restful风格进行操作，同时交给etcd存储
-    - 提供认证、授权、访问控制、API注册和发现等机制
-  - scheduler：节点的调度，选择node节点应用部署
-  - controller-manager：处理集群中常规后台任务，一个资源对应一个控制器
-  - etcd：存储系统，用于保存集群中的相关数据
+- controller-manager：处理集群中常规后台任务，一个资源对应一个控制器，相当于公司决策者；
 
-- **Work node**：工作节点
+- API Server：集群统一入口，以restful风格进行操作，同时交给etcd存储；提供认证、授权、访问控制、API注册和发现等机制；
 
-  - Kubelet：master派到node节点代表，管理本机容器
-    - 一个集群中每个节点上运行的代理，它保证容器都运行在Pod中
-    - 负责维护容器的生命周期，同时也负责Volume(CSI) 和 网络(CNI)的管理
-  - kube-proxy：提供网络代理，负载均衡等操作
+- scheduler：节点的调度，选择node节点应用部署
 
-- 容器运行环境【**Container Runtime**】
+- etcd：存储系统，用于保存集群中的相关数据
 
-  - 容器运行环境是负责运行容器的软件
-  - Kubernetes支持多个容器运行环境：Docker、containerd、cri-o、rktlet以及任何实现Kubernetes CRI (容器运行环境接口) 的软件。
+  
+
+**Work node**：工作节点
+
+- Kubelet：master派到node节点代表，管理本机容器；一个集群中每个节点上运行的代理，它保证容器都运行在Pod中；负责维护容器的生命周期，同时也负责Volume(CSI) 和 网络(CNI)的管理；
+- kube-proxy：提供网络代理，负载均衡等操作
+
+- 容器运行环境【**Container Runtime**】：容器运行环境是负责运行容器的软件；Kubernetes支持多个容器运行环境：Docker、containerd、cri-o、rktlet以及任何实现Kubernetes CRI (容器运行环境接口) 的软件。
 
 - fluentd：是一个守护进程，它有助于提升 集群层面日志
 
 
 
+![image-20221013161051175](media/image-20221013161051175.png)
+
+完整图：
 
 
 
-每个Node节点运行着相互独立的Pod，Pod是Kubernetes 中可以部署的最小执行单元，也就是一个或多个容器集合；
+![image-20200928110124821](media/image-20200928110124821.png)
 
-控制平面来控制Pod，
 
-yaml文件定义集群信息，有点像docker里的dockerfile
-
-集群中的pod对外是不可见的，如果对外暴露，可以使用Service；
-
-kubectl 可以与集群进行交互，包括本地的minikube的模拟集群；
 
 
 
@@ -129,35 +101,11 @@ kubectl 可以与集群进行交互，包括本地的minikube的模拟集群；
 
 先安装Docker；
 
-
-
-
-
-
-
 ## 云平台
 
 可视化搭建，只需简单几步就可以创建好一个集群。
 
 ## 裸机
-
-### 集群架构
-
-一套完整的Kubernetes集群至少需要包括`master`节点和`node`节点，下图是常规k8s的集群架构，`master`节点一般是独立的，用于协调调试其它节点之用，而容器实际运行都是在node节点上，`kubectl`位于 `master`节点。
-
-单master集群
-
-单个master节点，然后管理多个node节点
-
-![image-20200928110456495](media/image-20200928110456495.png)
-
-
-
-多master集群
-
-多个master节点，管理多个node节点，同时中间多了一个负载均衡的过程
-
-![image-20200928110543829](media/image-20200928110543829.png)
 
 ### Kubeadm部署集群
 
@@ -358,8 +306,6 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 kubectl get nodes
 ```
 
-
-
 能够看到，目前有一个master节点已经运行了，但是还处于未准备状态
 
 下面我们还需要在Node节点执行其它的命令，将node1和node2加入到我们的master节点上
@@ -388,8 +334,6 @@ kubeadm token create --print-join-command
 ```bash
 kubectl get node
 ```
-
-
 
 6：部署CNI网络插件
 
@@ -462,9 +406,9 @@ http://192.168.177.130:30529/
 
 发现我们的nginx已经成功启动了
 
-到这里为止，我们就搭建了一个单master的k8s集群
 
-![image-20201113204158884](media/image-20201113204158884.png)
+
+8：安装K8S可视化界面dashboard
 
 
 
@@ -758,9 +702,9 @@ kubectl get deploy nginx -o=yaml --export > nginx.yaml
 
 # 第五章：核心概念
 
-pod是最小的单元，一个pod中可以包含多个Docker，每个Docker中又可以安装多个程序，封装成一个，可以有多个这种pod组成集群，k8s中内置了kube_Proxy做负载均衡，使用Etcd做一致性监控，保证一致性。
-
 ## Pod
+
+pod是最小的单元，一个pod中可以包含多个Docker，每个Docker中又可以安装多个程序，封装成一个，可以有多个这种pod组成集群，k8s中内置了kube_Proxy做负载均衡，使用Etcd做一致性监控，保证一致性。
 
 Pod是Kubernetes的最重要概念，每一个Pod都有一个特殊的被称为 “根容器”的Pause容器。Pause容器对应的镜像属于Kubernetes平台的一部分，除了Pause容器，每个Pod还包含一个或多个紧密相关的用户业务容器。
 
@@ -774,8 +718,6 @@ Pod是Kubernetes的最重要概念，每一个Pod都有一个特殊的被称为 
 
 - 创建容器使用docker，一个docker对应一个容器，一个容器运行一个应用进程
 - Pod是多进程设计，运用多个应用程序，也就是一个Pod里面有多个容器，而一个容器里面运行一个应用程序
-
-![image-20201114190018948](media/image-20201114190018948.png)
 
 - Pod的存在是为了亲密性应用
   - 两个应用之间进行交互
@@ -810,8 +752,6 @@ Pod是K8S集群中所有业务类型的基础，可以把Pod看作运行在K8S�
 
 而在 `info容器` 中会独立出  ip地址，mac地址，port 等信息，然后实现网络的共享
 
-![image-20201114190913859](media/image-20201114190913859.png)
-
 完整步骤如下
 
 - 通过 Pause 容器，把其它业务容器加入到Pause容器里，让所有业务容器
@@ -819,8 +759,6 @@ Pod是K8S集群中所有业务类型的基础，可以把Pod看作运行在K8S�
 **共享存储**
 
 Pod持久化数据，专门存储到某个地方中
-
-![image-20201114193124160](media/image-20201114193124160.png)
 
 使用 Volumn数据卷进行共享存储
 
@@ -873,10 +811,6 @@ spec:
 ### 资源限制
 
 也就是我们Pod在进行调度的时候，可以对调度的资源进行限制，例如我们限制 Pod调度是使用的资源是 2C4G，那么在调度对应的node节点时，只会占用对应的资源，对于不满足资源的节点，将不会进行调度
-
-![image-20201114194057920](media/image-20201114194057920.png)
-
-示例
 
 我们在下面的地方进行资源的限制
 
@@ -1095,64 +1029,40 @@ kubectl taint node k8snode1 env_role:NoSchedule-
 
 污点容忍就是某个节点可能被调度，也可能不被调度
 
-## StatefulSet
+## 
 
 
 
 ## Controller
 
-Controller是在集群上管理和运行容器的对象，Controller是实际存在的，Pod是虚拟的
+Controller是在集群上管理和运行容器的对象，Controller是实际存在的，Pod是虚拟的；
 
-- 确保预期的pod副本数量【ReplicaSet】
-- 无状态应用部署【Depoltment】
-  - 无状态就是指，不需要依赖于网络或者ip
-- 有状态应用部署【StatefulSet】
-  - 有状态需要特定的条件
-- 确保所有的node运行同一个pod 【DaemonSet】
-- 一次性任务和定时任务【Job和CronJob】
+工作负载：
 
-Pod和Controller的关系
+Deployment:无状态应用部署，比如微服务，提供多副本等功能，无状态就是指，不需要依赖于网络或者ip
 
-Pod是通过Controller实现应用的运维，比如弹性伸缩，滚动升级等
+StatefulSet:有状态应用部署，比如redis，提供稳定的存储、网络等功能
 
-Pod 和 Controller之间是通过label标签来建立关系，同时Controller又被称为控制器工作负载
+DaemonSet:守护型应用部署，比如日志收集组件，在每个机器都运行一份
 
-![image-20201116092431237](media/image-20201116092431237.png)
+Job/CronJob:定时任务部署，比如垃圾清理组件，可以在指定时间运行
 
-### Deployment控制器应用
+### Deployment
 
-- Deployment控制器可以部署无状态应用
-- 管理Pod和ReplicaSet
-- 部署，滚动升级等功能
-- 应用场景：web服务，微服务
+定义一组Pod副本数目，版本等，通过控制器【Controller】维持Pod数目【自动回复失败的Pod】；通过控制器以指定的策略控制版本【滚动升级、回滚等】；
 
-Deployment表示用户对K8S集群的一次更新操作。Deployment是一个比RS( Replica Set, RS) 应用模型更广的 API 对象，可以是创建一个新的服务，更新一个新的服务，也可以是滚动升级一个服务。滚动升级一个服务，实际是创建一个新的RS，然后逐渐将新 RS 中副本数增加到理想状态，将旧RS中的副本数减少到0的复合操作。
+可以用来组合pod，同时对外提供服务
 
-这样一个复合操作用一个RS是不好描述的，所以用一个更通用的Deployment来描述。以K8S的发展方向，未来对所有长期伺服型的业务的管理，都会通过Deployment来管理。
-
-### Deployment部署应用
-
-![image-20210108104527589](media/image-20210108104527589.png)
-
-
-
-之前我们也使用Deployment部署过应用，如下代码所示
+1：多副本：启动多副本，如果其中一个Pod挂了，自动从新启动，如果要删除，必须要删除这个deploy才能删除这个应用；
 
 ```bash
+## 创建deployment
 kubectrl create deployment web --image=nginx
 ```
 
-但是上述代码不是很好的进行复用，因为每次我们都需要重新输入代码，所以我们都是通过YAML进行配置
+或使用一个yaml配置文件 `nginx.yml` ，配置文件如下所示
 
-但是我们可以尝试使用上面的代码创建一个镜像【只是尝试，不会创建】
-
-```bash
-kubectl create deployment web --image=nginx --dry-run -o yaml > nginx.yaml
-```
-
-然后输出一个yaml配置文件 `nginx.yml` ，配置文件如下所示
-
-```bash
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -1179,247 +1089,58 @@ spec:
 status: {}
 ```
 
-我们看到的 selector 和 label 就是我们Pod 和 Controller之间建立关系的桥梁
 
+2：扩容与缩容能力：
 
+可以自定义或者交给K8S判断，如果某个Pod的负载太高，新建Pod；
 
-#### 使用YAML创建Pod
-
-通过刚刚的代码，我们已经生成了YAML文件，下面我们就可以使用该配置文件快速创建Pod镜像了
-
-```bash
-kubectl apply -f nginx.yaml
+```shell
+kubectrl scale deploy/my-dep --replicas=5
 ```
 
-但是因为这个方式创建的，我们只能在集群内部进行访问，所以我们还需要对外暴露端口
+或者修改yaml文件的副本数量；
 
-```bash
-kubectl expose deployment web --port=80 --type=NodePort --target-port=80 --name=web1
+3：自愈和故障转移
+
+机器坏了，可以将这个机器中所有的Pod转移到其他机器上；
+
+4：滚动更新(灰度发布)
+
+不停机更新，先启动一个新Pod
+
+```shell
+kubectrl set image deployment/my-dep nginx=nginx1.16.1 --record
+kubectrl rollout status deployment/my-dep
 ```
 
-关于上述命令，有几次参数
+5：版本回退
 
-- --port：就是我们内部的端口号
-- --target-get-port：就是暴露外面访问的端口号
-- --name：名称
-- --type：类型
+```shell
+## 查看历史记录
+kubectrl rollout history deployment/my-dep
 
-同理，我们一样可以导出对应的配置文件
-
-```bash
-kubectl expose deployment web --port=80 --type=NodePort --target-port=80 --name=web1 -o yaml > web1.yaml
+## 回退到指定版本
+kubectrl rollout undo deployment/my-dep --to-revision=1
 ```
-
-得到的web1.yaml如下所示
-
-```bash
-apiVersion: v1
-kind: Service
-metadata:
-  creationTimestamp: "2020-11-16T02:26:53Z"
-  labels:
-    app: web
-  managedFields:
-  - apiVersion: v1
-    fieldsType: FieldsV1
-    fieldsV1:
-      f:metadata:
-        f:labels:
-          .: {}
-          f:app: {}
-      f:spec:
-        f:externalTrafficPolicy: {}
-        f:ports:
-          .: {}
-          k:{"port":80,"protocol":"TCP"}:
-            .: {}
-            f:port: {}
-            f:protocol: {}
-            f:targetPort: {}
-        f:selector:
-          .: {}
-          f:app: {}
-        f:sessionAffinity: {}
-        f:type: {}
-    manager: kubectl
-    operation: Update
-    time: "2020-11-16T02:26:53Z"
-  name: web2
-  namespace: default
-  resourceVersion: "113693"
-  selfLink: /api/v1/namespaces/default/services/web2
-  uid: d570437d-a6b4-4456-8dfb-950f09534516
-spec:
-  clusterIP: 10.104.174.145
-  externalTrafficPolicy: Cluster
-  ports:
-  - nodePort: 32639
-    port: 80
-    protocol: TCP
-    targetPort: 80
-  selector:
-    app: web
-  sessionAffinity: None
-  type: NodePort
-status:
-  loadBalancer: {}
-```
-
-然后我们可以通过下面的命令来查看对外暴露的服务
-
-```bash
-kubectl get pods,svc
-```
-
-然后我们访问对应的url，即可看到 nginx了 `http://192.168.177.130:32639/`
-
-### 升级回滚和弹性伸缩
-
-- 升级：  假设从版本为1.14 升级到 1.15 ，这就叫应用的升级【升级可以保证服务不中断】
-- 回滚：从版本1.15 变成 1.14，这就叫应用的回滚
-- 弹性伸缩：我们根据不同的业务场景，来改变Pod的数量对外提供服务，这就是弹性伸缩
-
-应用升级和回滚
-
-首先我们先创建一个 1.14版本的Pod
-
-```bash
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  creationTimestamp: null
-  labels:
-    app: web
-  name: web
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: web
-  strategy: {}
-  template:
-    metadata:
-      creationTimestamp: null
-      labels:
-        app: web
-    spec:
-      containers:
-      - image: nginx:1.14
-        name: nginx
-        resources: {}
-status: {}
-```
-
-我们先指定版本为1.14，然后开始创建我们的Pod
-
-```bash
-kubectl apply -f nginx.yaml
-```
-
-同时，我们使用docker images命令，就能看到我们成功拉取到了一个 1.14版本的镜像
-
-我们使用下面的命令，可以将nginx从 1.14 升级到 1.15
-
-```bash
-kubectl set image deployment web nginx=nginx:1.15
-```
-
-在我们执行完命令后，能看到升级的过程
-
-- 首先是开始的nginx 1.14版本的Pod在运行，然后 1.15版本的在创建
-- 然后在1.15版本创建完成后，就会暂停1.14版本
-- 最后把1.14版本的Pod移除，完成我们的升级
-
-我们在下载 1.15版本，容器就处于ContainerCreating状态，然后下载完成后，就用 1.15版本去替换1.14版本了，这么做的好处就是：升级可以保证服务不中断
-
-![image-20201116111614085](media/image-20201116111614085.png)
-
-我们到我们的node2节点上，查看我们的 docker images;
-
-能够看到，我们已经成功拉取到了 1.15版本的nginx了
-
-查看升级状态
-
-下面可以，查看升级状态
-
-```bash
-kubectl rollout status deployment web
-```
-
-查看历史版本
-
-我们还可以查看历史版本
-
-```bash
-kubectl rollout history deployment web
-```
-
-应用回滚
-
-我们可以使用下面命令，完成回滚操作，也就是回滚到上一个版本
-
-```bash
-kubectl rollout undo deployment web
-```
-
-然后我们就可以查看状态
-
-```bash
-kubectl rollout status deployment web
-```
-
-同时我们还可以回滚到指定版本
-
-```bash
-kubectl rollout undo deployment web --to-revision=2
-```
-
-弹性伸缩
-
-弹性伸缩，也就是我们通过命令一下创建多个副本
-
-```bash
-kubectl scale deployment web --replicas=10
-```
-
-能够清晰看到，我们一下创建了10个副本
-
-
 
 ## Service
 
-### 存在的意义
+主要用于服务发现与负载均衡；service是一组Pod公开为网络服务的方法；
 
 1：防止Pod失联【服务发现】
 
 因为Pod每次创建都对应一个IP地址，而这个IP地址是短暂的，每次随着Pod的更新都会变化，假设当我们的前端页面有多个Pod时候，同时后端也多个Pod，这个时候，他们之间的相互访问，就需要通过注册中心，拿到Pod的IP地址，然后去访问对应的Pod
 
-![image-20201117093606710](media/image-20201117093606710.png)
-
 2：定义Pod访问策略【负载均衡】
 
-页面前端的Pod访问到后端的Pod，中间会通过Service一层，而Service在这里还能做负载均衡，负载均衡的策略有很多种实现策略，例如：
-
-- 随机
-- 轮询
-- 响应比
-
-![image-20201117093902459](media/image-20201117093902459.png)
-
-### Pod和Service的关系
-
-这里Pod 和 Service 之间还是根据 label 和 selector 建立关联的 【和Controller一样】
-
-![image-20201117094142491](media/image-20201117094142491.png)
-
-我们在访问service的时候，其实也是需要有一个ip地址，这个ip肯定不是pod的ip地址，而是 虚拟IP `vip` 
+页面前端的Pod访问到后端的Pod，中间会通过Service一层，而Service在这里还能做负载均衡，负载均衡的策略有很多种实现策略，例如：随机；轮询；响应比
 
 ### Service常用类型
 
 Service常用类型有三种
 
-- ClusterIp：集群内部访问
-- NodePort：对外访问应用使用
+- ClusterIp：集群内部访问，对外暴露一个虚拟IP，默认方式
+- NodePort：对外访问应用使用，每一个Pod都有一个公网IP，端口默认暴露30000—32767之间；
 - LoadBalancer：对外访问应用使用，公有云
 
 举例
@@ -1492,32 +1213,35 @@ kubectl apply -f service.yaml
 - Pod的负载均衡，提供一个或多个Pod的稳定访问地址
 - 支持多种方式【ClusterIP、NodePort、LoadBalancer】
 
-![image-20201122161132055](media/image-20201122161132055.png)
+## Ingree
+
+service的统一网关入口，所有请求流量进入到ingree，然后再由ingree转发给service；和其他网关一样，可以设置路由转发，路径重写，限流等功能；
+
+## 存储抽象
+
+文件系统构建存储层，假设一个Pod在机器1上，挂载的数据也挂载到机器1上，当Pod失效时，可能会在机器2上重新启动一个Pod，文件系统就会找到机器2上对机器1文件系统挂载的备份；
+
+网络文件系统：NFS
 
 
 
+PV和PVC：持久卷和持久卷申明
 
+PV池动态供应；当创建Pod挂载时，创建一个PVC向PV池申请一块内存，当删除一个Pod时，PVC相对应被删除，指向的PV池的内存就被释放了；
 
-
-
-#### Volume
+### Volume
 
 - 声明在Pod容器中可访问的文件目录
 - 可以被挂载到Pod中一个或多个容器指定路径下
 - 支持多种后端存储抽象【本地存储、分布式存储、云存储】
 
 
-### Deployment
 
-- 定义一组Pod副本数目，版本等
-- 通过控制器【Controller】维持Pod数目【自动回复失败的Pod】
-- 通过控制器以指定的策略控制版本【滚动升级、回滚等】
+### Secret
 
-![image-20201122161601349](media/image-20201122161601349.png)
+用于保存敏感信息，例如密码，令牌和秘钥等；
 
 
-
-可以用来组合pod，同时对外提供服务
 
 ### Label
 
@@ -1532,6 +1256,20 @@ label：标签，用于对象资源查询，筛选
 - 同一个namespace所有资源不能重复
 - 不同namespace可以资源名重复
 
+```shell
+## 查看名称空间
+kubectl get ns
+
+## 创建名称空间
+kubectl create ns hello
+## 删除名称空间
+kubectl delete ns hello
+```
+
+如果创建资源在不指定名称空间的情况下，默认在default名称空间下；
+
+
+
 ### API
 
 我们通过Kubernetes的API来操作整个集群
@@ -1541,26 +1279,6 @@ label：标签，用于对象资源查询，筛选
 如下：使用yaml部署一个nginx的pod
 
 
-
-# 组件
-
-## kubelet
-
-## APIServer
-
-
-
-## kube-scheduler
-
-创建pod；过滤掉资源不符合的节点；再剩余可用节点中进行筛选；选中节点；
-
-
-
-## kube-control-manager
-
-## kube-proxy
-
-## etcd
 
 ## 完整流程
 
