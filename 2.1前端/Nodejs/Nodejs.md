@@ -142,7 +142,7 @@ fs.writeFile('./files/1.txt','data','utf8',function(err,result){
 ## PATH路径模块
 
 ```javascript
-const paht = require('path')
+const path= require('path')
 path.join('/a','/b/c','../','/d'); //输出 /a/b/d
 
 path.basename();//获取文件名称
@@ -151,5 +151,70 @@ path.extname();//获取文件扩展名.html
 
 ## HTTTP模块
 
+```javascript
+const http = require('http')
 
+//创建web服务器实例
+const server = http.createServer();
+
+//为服务器实例绑定request事件
+server.on('request',(req,res)=>{
+    console.log("Someone visit our web server")
+})
+
+//启动服务器
+server.listen(80,()=>{
+    console.log("server running")
+})
+```
+
+## 模块化
+
+module：存储当前模块的信息；
+
+module.exports：往外部共享当前模块的变量； 
+
+
+
+## CommonJS
+
+
+
+## npm与包
+
+第三方模块；npm公司的包共享平台；提供了npm包管理工具；
+
+使用packag.json中记录使用了哪些包，上传忽略module模块；
+
+
+
+dependencies节点：包的信息；
+
+安装所有包：
+
+```shell
+npm install
+```
+
+卸载包：
+
+```shell
+npm uninstall 包名
+```
+
+devDependencies：只在开发时使用的节点 
+
+```shell
+npm install -D
+```
+
+全局包：安装到AppData/Roaming/npm/node_modules目录下；
+
+```shell
+npm install -g
+```
+
+是否需要全局安装参考官方的教程； 
+
+## 模块的加载机制
 

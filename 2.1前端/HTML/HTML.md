@@ -35,6 +35,12 @@ document.getElementById(‘show').hidden = true;//隐藏该元素
 document.getElementById('hidden').hidden = false;//显示该元素
 ```
 
+独立的网页内容区域
+
+```js
+<article></article>
+```
+
 
 
 事件流三阶段：
