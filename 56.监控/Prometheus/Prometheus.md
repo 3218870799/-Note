@@ -24,6 +24,85 @@
 
 
 
+## 指标Metrics
+
+1：CPU利用率：node_cpu_seconds_total
+
+计算5min为取样每秒的瞬时利用率
+
+```basic
+100 - avg (irate(node_cpu_seconds_total{job="node",mode="idle"}[5m])) by (instance) * 100
+```
+
+5m是range vector,表示使用记录的上一个5分钟的数据.
+
+irate是瞬时变化率,适合变化较频繁的metric.
+
+avg是因为有多个metrics(分别是每核的)
+
+2：CPU饱和度：node_load*
+
+后面的*有1 5 15,表示多少分钟.
+
+该metric和核数有关,查看核数可以使用:
+
+```mipsasm
+count by (instance)(node_cpu_seconds_total{mode="idle"})
+```
+
+3：内存使用：node_memory_*
+列出空闲内存
+
+```lisp
+(node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Cached_bytes + node_memory_Buffers_bytes)) / node_memory_MemTotal_bytes * 100
+```
+
+4：内存饱和度
+
+/proc/vmstat
+
+node_vmstat_pswpin
+
+node_vmstat_pswpout
+
+```lisp
+1024 * sum by (instance) (
+(rate(node_vmstat_pgpgin[1m])
+       + rate(node_vmstat_pgpgout[1m]))
+)
+```
+
+算出每分钟的变化量
+rate是平均变化率,相比irate适合变化幅度不剧烈的数据.
+
+5：磁盘使用率：node_filesystem_*
+
+使用率:
+
+```fsharp
+(node_filesystem_size_bytes{mountpoint="/"} - node_filesystem_free_bytes{mountpoint="/"}) / node_filesystem_size_bytes{mountpoint="/"} * 100
+```
+
+可以用=~匹配正则 相对的有!~
+
+```scss
+predict_linear(node_filesystem_free_bytes{job="node"}[1h], 4*3600) < 0
+```
+
+通过1h的估计量 看看4h后是否会用完
+
+6：exporter的可用性监控
+
+可以使用up.
+
+```x86asm
+up{job="node"}
+```
+
+返回1表示node_exporter存活.
+
+
+
 # 二：安装
 
 直接下载：启动，访问http://localhost:9090/
@@ -35,4 +114,8 @@
 采集数据可以通过：http://127.0.0.1:9090/metrics 
 
 进行查看；
+
+
+
+可视化：使用grafana
 
