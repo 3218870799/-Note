@@ -660,8 +660,6 @@ Random r = new Random();
 
 int i = r.nextInt();
 
-###
-
 ### **3：ArrayList 类**
 
 大小可变的数组的实现，
@@ -1968,17 +1966,21 @@ catch 尽可能进行区分异常类型，再做对应的异常处理。给出�
 
 # 五：多线程
 
-1：为什么使用多线程开发：我相信所有的东西都是以实际使用价值而去学习的，没有实际价值的学习，学了没用，没用就不会学的好。多线程也是一样，以前学习java并没有觉得多线程有多了不起，不用多线程我一样可以开发，但是做的久了你就会发现，一些东西必须用多线程去解决。
+## 1：原理/方法机制
 
-明白并发编程是通过cpu调度算法，让用户看上去同时执行，实际上从cpu操作层面不是真正的同时。多线程安全问题原因是在cpu执行多线程时，在执行的过程中可能随时切换到其他的线程上执行。
-
-2：区分并发与并行
+1：区分并发与并行
 
 并行：多个 cpu 实例或者多台机器同时执行一段处理逻辑，是真正的同时。
 
 并发：通过 cpu 调度算法，让用户看上去同时执行，实际上从 cpu 操作层面不是真正的同时。
 
-3：线程与进程的区别归纳：
+
+
+加速比 = 优化前的耗时/优化后的耗时；只要有足够的并行化，那么加速比和CPU个数成正比；
+
+
+
+2：线程与进程的区别归纳：
 
 **a.地址空间和其它资源**：进程间相互独立，同一进程的各线程间共享。某进程内的线程在其它进程不可见。
 
@@ -1988,13 +1990,17 @@ catch 尽可能进行区分异常类型，再做对应的异常处理。给出�
 
 d.在多线程 OS 中，进程不是一个可执行的实体。
 
-守护线程：
+
+
+3：守护线程：
 
 守护线程是运行在后台的一种特殊进程。它独立于控制终端并且周期性地执行某种任务或等待处理某些发生的事件。在Java 中垃圾回收线程就是特殊的守护线程。所有用户线程结束，守护线程直接中断；主要用来为其他线程提供服务支持的情况；或者在任何情况下，程序结束时，这个线程必须正常且like关闭；
 
 Java自带的多线程框架，比如ExecutorService，会将守护线程转换为用户线程；
 
-## 1：原理/方法机制
+
+
+4：基本的线程同步操作
 
 多线程执行时，在栈内存中，其实每一个执行线程都有一片自己所属的栈内存空间。进行方法的压栈和弹栈。
 
@@ -2012,13 +2018,11 @@ volatile：多线程的内存模型：main memory（主存）、working memory�
 
 
 
-可见性：
+5：线程的基本内存模型
 
-线程运算时会将值复制到本线程内去，其他线程修改了该值，要保证其他线程知道这个值已经变了；比如加个volatile，加了volatile，修改后立即通知其他线程，其他语言也有；
+可见性：线程运算时会将值复制到本线程内去，其他线程修改了该值，要保证其他线程知道这个值已经变了；比如加个volatile，加了volatile，修改后立即通知其他线程，其他语言也有；
 
-有序性：
-
-单个线程，两条语句未必按顺序执行；如果保证有序性，可以使用内存屏障，内存屏障就是一个屏障，屏障前面的必须执行完才能执行后边的；
+有序性：单个线程，两条语句未必按顺序执行；如果保证有序性，可以使用内存屏障，内存屏障就是一个屏障，屏障前面的必须执行完才能执行后边的；
 
 interl的内存屏障汇编指令：lfence，sfence，mfence；
 
@@ -3055,6 +3059,16 @@ rwLock.readLock().unlock();
 
 条件：互斥，请求保持，不剥夺，循环等待
 
+
+
+#### CAS
+
+CAS（比较交换）是一种无锁非阻塞的算法实现，包含三个操作数：内存位置（V）、预期原值（A）和新值(B)
+
+CAS 会导致 ABA 问题，线程 1 准备用 CAS 将变量的值由 A 替换为 B，在此之前，线程 2 将变量的值由 A 替换为 C，又由 C 替换为 A，然后线程 1 执行 CAS 时发现变量的值仍然为 A，所以 CAS 成功。但实际上这时的现场已经和最初不同了，尽管 CAS 成功，但可能存在潜藏的问题。
+
+解决办法（版本号 AtomicStampedReference），基础类型简单值不需要版本号
+
 ### AQS
 
 AbstractQueuedSynchronizer 抽象队列同步器
@@ -3137,6 +3151,18 @@ CountDownLatch
 
 
 
+#### 锁优化
+
+减少锁持有时间；
+
+减小锁的粒度；
+
+锁分离：读写锁分离，
+
+锁粗化：减少线程切换，资源释放等消耗；
+
+锁消除；
+
 
 
 ## 9：线程协作
@@ -3188,6 +3214,8 @@ JUC 包下的容器类分为两部分，一部分是**并发集合类**，一部
 
 
 
+
+
 ### 原子类
 
 对于 Java 中的运算操作，例如自增或自减，若没有进行额外的同步操作，在多线程环境下就是线程不安全的。num++解析为 num=num+1，明显，这个操作不具备原子性，多线程并发共享这个变量时必然会出现问题。就算加上 volatile 也不能保证其原子性。只有将其声明为原子类
@@ -3203,14 +3231,6 @@ JUC 包下的容器类分为两部分，一部分是**并发集合类**，一部
 标量原子变量类 AtomicInteger，AtomicLong 和 AtomicBoolean 类分别支持对原始数据类型 int，long 和 boolean 的操作。当引用变量需要以原子方式更新时，AtomicReference 类用于处理引用数据类型。
 
 原子数组类 有三个类称为 AtomicIntegerArray，AtomicLongArray 和 AtomicReferenceArray，它们表示一个 int，long 和引用类型的数组，其元素可以进行原子性更新。
-
-### CAS
-
-CAS（比较交换）是一种无锁非阻塞的算法实现，包含三个操作数：内存位置（V）、预期原值（A）和新值(B)
-
-CAS 会导致 ABA 问题，线程 1 准备用 CAS 将变量的值由 A 替换为 B，在此之前，线程 2 将变量的值由 A 替换为 C，又由 C 替换为 A，然后线程 1 执行 CAS 时发现变量的值仍然为 A，所以 CAS 成功。但实际上这时的现场已经和最初不同了，尽管 CAS 成功，但可能存在潜藏的问题。
-
-解决办法（版本号 AtomicStampedReference），基础类型简单值不需要版本号
 
 ### Unsafe 类
 
@@ -3270,7 +3290,7 @@ ReenTrantLock 的实现是一种自旋锁，通过循环调用 CAS 操作来实�
 
 
 
-### ReetrantReadWriteLock 读写锁
+### ReetrantReadWriteLock
 
 Read 的时候是共享锁，Write 的时候是排它锁（互斥锁），默认使用非公平方式获取锁，可重入锁
 
@@ -3319,9 +3339,11 @@ CyclicBarrier：在线程内调用 await()，用于控制线程内的后面的�
 
 CountDownLatch 用来控制线程外的代码，用于阻塞父线程的代码，CyclicBarrier 用于控制线程内的代码，用于阻塞当前线程的代码
 
-### ConditionObject 通知
+### Condition
 
-synchronized 控制同步的时候，可以配合 Object 的 wait(),notify(),notifyAll()系列方法实现等待/通知模式，而 Lock，它提供了条件 Condition 接口，配合 await(),signal(),signalAll()等方法也可以实现等待/通知机制。ConditionObject 实现了 Condition 接口，给 AQS 提供条件变量的支持。
+synchronized 控制同步的时候，可以配合 Object 的 wait(),notify(),notifyAll()系列方法实现等待/通知模式，而 Lock，它提供了条件 Condition 接口，配合 await(),signal(),signalAll()等方法也可以实现等待/通知机制。
+
+ConditionObject 实现了 Condition 接口，给 AQS 提供条件变量的支持。
 
 一个 Condition 包含一个等待队列，Condition 拥有节点（firstWaiter）和尾节点（lastWaiter），当前线程调用 Condition.await()方法，将会以当前线程构造节点，并将节点从尾部加入等待队列。
 
@@ -3356,6 +3378,27 @@ future.get();还是阻塞的，虽然那时异步的，但是这还是阻塞，�
 
 谷歌的 guava 类库使用监听者模式，监听一个装饰者的线程池，于是 JDK 抄了一个 CompleteListener
 
+```java
+public class FutureMain {
+public static void main(String[args) throws InterruptedException, ExecutionException {
+    //构造FutureTask
+    FutureTask<String> future = new FutureTask<String>(new RealData("a"));
+    ExecutorService executor = Executors.newFixedThreadPool(1);
+    //执行FutureTask
+    //在这里开启线程进行RealData的call()执行
+    executor.submit(future);
+    System.out.println("请求完毕");
+    try {
+    	//这里依然可以做额外的数据操作，这里使用sleep代替其他业务逻辑的处理
+        Thread.sleep(2000);
+    } catch (InterruptedException e) {}
+    //取得方法返回值，如果此时方法没有执行完成，则依然会等待
+    System.out.println("数据=" + future.get());
+}
+```
+
+
+
 ### 6：BlockingQueue 阻塞队列
 
 java.util.concurrent.BlockingQueue 接口有以下阻塞队列的实现：
@@ -3381,6 +3424,17 @@ java.util.concurrent.BlockingQueue 接口有以下阻塞队列的实现：
 ### 7：ForkJoin
 
 主要用于并行计算中，和 MapReduce 原理类似，都是把大的计算任务拆分成多个小任务并行计算。
+
+### LockSupport
+
+提供阻塞源语
+
+```java
+LockSupport.park();
+LockSupport.unpark(t1);
+```
+
+
 
 
 

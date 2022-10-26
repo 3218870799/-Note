@@ -428,6 +428,20 @@ public String addUserByObjectJSON(@RequestBody User user){
 
 4.　 Map<String, String[]> getParameterMap()：获取所有参数的 map 集合
 
+
+
+## 参数解析器
+
+实现接口：HandlerMethodArgumentResolver；
+
+
+
+
+
+
+
+
+
 # 第 4 章 注解
 
 ## 配置

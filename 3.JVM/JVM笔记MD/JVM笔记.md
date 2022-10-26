@@ -1373,68 +1373,7 @@ java -XX:+PrintFlagsFinal -version | grep HeapSize
  java -XX:+PrintFlagsFinal -version | grep ThreadStackSize
 ```
 
-2：jstat命令查看JVM的GC情况
 
-（1）定时打印Java堆情况
-
-```shell
-#每隔500毫秒打印一次Java堆状况，打印5次
-jstat -gcutil 线程号 500 5
-```
-
-各参数的含义
-
-```txt
-   S0  -- Heap上的 Survivor space 0 区已使用空间的百分比 
-    S1  -- Heap上的 Survivor space 1 区已使用空间的百分比 
-    E   -- Heap上的 Eden space 区已使用空间的百分比 
-    O   -- Heap上的 Old space 区已使用空间的百分比 
-    P   -- Perm space 区已使用空间的百分比 
-    YGC -- 从应用程序启动到采样时发生 Young GC 的次数 
-    YGCT-- 从应用程序启动到采样时 Young GC 所用的时间(单位秒) 
-    FGC -- 从应用程序启动到采样时发生 Full GC 的次数 
-    FGCT-- 从应用程序启动到采样时 Full GC 所用的时间(单位秒) 
-    GCT -- 从应用程序启动到采样时用于垃圾回收的总时间(单位秒)
-```
-
-(2)静态其他统计
-
-![image-20210716103803084](media/image-20210716103803084.png)
-
-Loaded：加载class的数量；
-
-Bytes：所占用空间大小；
-
-unloaded：未加载数量；
-
-Bytes：未加载占用空间
-
-Time：时间
-
-```shell
-# 编译统计
-jstat -compiler 线程号
-# 垃圾回收统计
-jstat -gc 线程号
-# 堆内存统计
-jstat -gccapacity 线程号
-# 新生代垃圾回收统计
-jstat -gcnew 线程号
-# 新生代内存统计
-jstat -gcnewcapacity 线程号
-# 老年代垃圾回收统计
-jstat -gcold 线程号
-# 老年代内存统计
-jstat -gcoldcapacity 线程号
-#总结垃圾回收
-jstat -gcutil 线程号
-```
-
-3：Tomcat部署配置的话，可以在Tomcat/bin/catalina.sh文件中查看配置
-
-```properties
-JAVA_OPTS="-Xms1024M -Xmx2048M"
-```
 
 ## 3：堆的分配参数
 
@@ -1694,6 +1633,87 @@ deep of calling = 748
 # 六：VisualVM 的使用
 
 ## 命令
+
+2：jstat命令查看JVM的GC情况
+
+（1）定时打印Java堆情况
+
+```shell
+#每隔500毫秒打印一次Java堆状况，打印5次
+jstat -gcutil 线程号 500 5
+```
+
+各参数的含义
+
+```txt
+   S0  -- Heap上的 Survivor space 0 区已使用空间的百分比 
+    S1  -- Heap上的 Survivor space 1 区已使用空间的百分比 
+    E   -- Heap上的 Eden space 区已使用空间的百分比 
+    O   -- Heap上的 Old space 区已使用空间的百分比 
+    P   -- Perm space 区已使用空间的百分比 
+    YGC -- 从应用程序启动到采样时发生 Young GC 的次数 
+    YGCT-- 从应用程序启动到采样时 Young GC 所用的时间(单位秒) 
+    FGC -- 从应用程序启动到采样时发生 Full GC 的次数 
+    FGCT-- 从应用程序启动到采样时 Full GC 所用的时间(单位秒) 
+    GCT -- 从应用程序启动到采样时用于垃圾回收的总时间(单位秒)
+```
+
+(2)静态其他统计
+
+![image-20210716103803084](media/image-20210716103803084.png)
+
+Loaded：加载class的数量；
+
+Bytes：所占用空间大小；
+
+unloaded：未加载数量；
+
+Bytes：未加载占用空间
+
+Time：时间
+
+```shell
+# 编译统计
+jstat -compiler 线程号
+# 垃圾回收统计
+jstat -gc 线程号
+# 堆内存统计
+jstat -gccapacity 线程号
+# 新生代垃圾回收统计
+jstat -gcnew 线程号
+# 新生代内存统计
+jstat -gcnewcapacity 线程号
+# 老年代垃圾回收统计
+jstat -gcold 线程号
+# 老年代内存统计
+jstat -gcoldcapacity 线程号
+#总结垃圾回收
+jstat -gcutil 线程号
+```
+
+3：Tomcat部署配置的话，可以在Tomcat/bin/catalina.sh文件中查看配置
+
+```properties
+JAVA_OPTS="-Xms1024M -Xmx2048M"
+```
+
+4：jstack堆栈
+
+```shell
+# 打印调用栈
+jstack 线程数
+```
+
+5：jmap
+
+```shell
+## 查看对象占用情况
+jmap -hosto 线程数|head -20
+```
+
+
+
+
 
 jps：查看 Java 进程概述，安装了 java 就有
 

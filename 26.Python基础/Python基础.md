@@ -62,12 +62,6 @@ Exit()或者Ctrl+d即可退出
 
 3：ipython
 
- 
-
-# 第二章：开发工具PyCharm使用
-
-参考开发工具pycharm
-
 # 第三章：语法基础
 
 ## 1：注释

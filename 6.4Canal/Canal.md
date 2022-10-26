@@ -82,6 +82,115 @@ select * from mysql.user where User="canal" \G
 
 修改myCat配置文件
 
+
+
+3：修改canal相关配置文件
+
+`canal.deployer-1.1.5\conf\example\instance.properties` 进行局部实例配置，可以修改数据库账号和密码、数据库表名、binlog 文件名和 position 等
+
+```txt
+# 没有改变的就没有贴出来，注意 MySQL 的用户名和密码
+canal.instance.master.address=192.168.58.131:3306
+# username/password
+canal.instance.dbUsername=test
+canal.instance.dbPassword=liubihao
+canal.instance.connectionCharset = UTF-8
+# enable druid Decrypt database password
+canal.instance.enableDruid=false
+# table regex
+canal.instance.filter.regex=.*\\..*
+# table black regex
+canal.instance.filter.black.regex=
+```
+
+4：处理
+
+```java
+import com.alibaba.otter.canal.client.CanalConnector;
+import com.alibaba.otter.canal.client.CanalConnectors;
+import com.alibaba.otter.canal.protocol.CanalEntry.*;
+import com.alibaba.otter.canal.protocol.Message;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.net.InetSocketAddress;
+
+@Component
+public class CanalClient {
+  private static void printEntries(List<Entry> entries) throws Exception {
+    for (Entry entry : entries) {
+      if (entry.getEntryType() != EntryType.ROWDATA) {
+        continue;
+      }
+
+      RowChange rowChange = RowChange.parseFrom(entry.getStoreValue());
+
+      EventType eventType = rowChange.getEventType();
+      System.out.println(String.format("================> binlog[%s:%s] , name[%s,%s] , eventType : %s",
+                                       entry.getHeader().getLogfileName(), entry.getHeader().getLogfileOffset(),
+                                       entry.getHeader().getSchemaName(), entry.getHeader().getTableName(), eventType));
+
+      for (RowData rowData : rowChange.getRowDatasList()) {
+        switch (rowChange.getEventType()) {
+          case INSERT:
+            System.out.println("INSERT ");
+            printColumns(rowData.getAfterColumnsList());
+            break;
+          case UPDATE:
+            System.out.println("UPDATE ");
+            printColumns(rowData.getAfterColumnsList());
+            break;
+          case DELETE:
+            System.out.println("DELETE ");
+            printColumns(rowData.getBeforeColumnsList());
+            break;
+          default:
+            break;
+        }
+      }
+    }
+  }
+
+  private static void printColumns(List<Column> columns) {
+    for (Column column : columns) {
+      System.out.println(column.getName() + " : " + column.getValue() + " update=" + column.getUpdated());
+    }
+  }
+
+  public static void main(String[] args) throws Exception {
+    // hostname, port, destination, username, password
+    CanalConnector connector = CanalConnectors.newSingleConnector(new InetSocketAddress("127.0.0.1", 11111), "example", "", "");
+    try {
+      connector.connect();
+      // 监听的表，格式为数据库.表名,数据库.表名
+      connector.subscribe(".*\\..*");
+      connector.rollback();
+
+      while (true) {
+        Message message = connector.getWithoutAck(100); // 获取指定数量的数据
+        long batchId = message.getId();
+        if (batchId == -1 || message.getEntries().isEmpty()) {
+          Thread.sleep(1000);
+          continue;
+        }
+        // System.out.println(message.getEntries());
+        printEntries(message.getEntries());
+        connector.ack(batchId); // 提交确认，消费成功，通知server删除数据
+        // connector.rollback(batchId);// 处理失败, 回滚数据，后续重新获取数据
+      }
+    } catch (Exception e) {
+      System.out.println("Something Error.");
+    } finally {
+      connector.disconnect();
+    }
+  }
+}
+```
+
+
+
+
+
 ## 验证
 
 https://github.com/alibaba/canal/wiki/ClientExample

@@ -1,4 +1,4 @@
-﻿﻿
+
 
 ﻿﻿# 一、基础知识
 
@@ -1087,7 +1087,9 @@ public class HelloServiceImpl implements HelloService {
 
 # 四、dubbo 原理
 
-高性能的 RPC 远程服务调用，提供了基于长连接的 NOI 框架封装抽象，
+高性能的 RPC 远程服务调用，提供了基于长连接的 NOI 框架封装抽象；
+
+
 
 ## 2、netty 通信原理
 

@@ -1,4 +1,4 @@
-本文的目的是搞清楚 Java 中各种日志 Log 之间是怎么的关系，如何作用、依赖，好让我们平时在工作中如果遇到“日志打不出”或者“日志 jar 包冲突”等之类的问题知道该如何入手解决，以及在各种场景下如何调整项目中的各个框架的日志输出，使得输出统一。
+ 本文的目的是搞清楚 Java 中各种日志 Log 之间是怎么的关系，如何作用、依赖，好让我们平时在工作中如果遇到“日志打不出”或者“日志 jar 包冲突”等之类的问题知道该如何入手解决，以及在各种场景下如何调整项目中的各个框架的日志输出，使得输出统一。
 
 在日常工作中我们可能看到项目中依赖的跟日志相关的 jar 包有很多，`commons-logging.jar`、`log4j.jar`、`sl4j-api.jar`、`logback.jar`等等，眼花缭乱。我们要正确的配置，使得 jar 包相互作用生效之前，就先要理清它们之间的关系。
 
@@ -799,6 +799,10 @@ debug: 当此属性设置为 true 时，将打印出 logback 内部日志信息�
 　　　<property name="APP_Name" value="myAppName" />
 　　　<contextName>${APP_Name}</contextName>
 　　　<!--其他配置省略-->
+　　　
+　　　<!--等级，文件路径，格式-->
+　　　
+　　　
 </configuration>
 ```
 
@@ -819,9 +823,29 @@ datePattern: 设置将当前时间（解析配置文件的时间）转换为字�
 
 (5) 子节点<appender>：负责写日志的组件，它有两个必要属性 name 和 class。name 指定 appender 名称，class 指定 appender 的全限定名
 
+```xml
+<appender namas="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+        <pattern></pattern>
+    </encoder>
+</appender>
+```
+
+
+
 （6）子节点<loger>：用来设置某一个包或具体的某一个类的日志打印级别、以及指定<appender>。<loger>仅有一个 name 属性，一个可选的 level 和一个可选的 addtivity 属性。可以包含零个或多个<appender-ref>元素，标识这个 appender 将会添加到这个 loger，name: 用来指定受此 loger 约束的某一个包或者具体的某一个类。level: 用来设置打印级别，大小写无关：TRACE, DEBUG, INFO, WARN, ERROR, ALL 和 OFF，还有一个特俗值 INHERITED 或者同义词 NULL，代表强制执行上级的级别。 如果未设置此属性，那么当前 loger 将会继承上级的级别。addtivity: 是否向上级 loger 传递打印信息。默认是 true。同<loger>一样，可以包含零个或多个<appender-ref>元素，标识这个 appender 将会添加到这个 loger。
 
 （7）子节点<root>:它也是<loger>元素，但是它是根 loger,是所有<loger>的上级。只有一个 level 属性，因为 name 已经被命名为"root",且已经是最上级了。level: 用来设置打印级别，大小写无关：TRACE, DEBUG, INFO, WARN, ERROR, ALL 和 OFF，不能设置为 INHERITED 或者同义词 NULL。 默认是 DEBUG。
+
+
+
+Logger：日志记录器
+
+Appender：指定日志输出的目的地
+
+Layout：负责把时间转换成字符串，输出格式化的日志信息
+
+
 
 ## 项目出现问题怎么排查日志
 

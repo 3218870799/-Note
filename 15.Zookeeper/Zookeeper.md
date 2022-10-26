@@ -203,7 +203,96 @@ Nginx 等都是基于服务器端的负载均衡，Zookeeper 的负载均衡是�
 
 锁服务可以分为两类：一个是保持独占，另一个是控制时序
 
-- 保持独占：
+因为Zookeeper在创建节点的时候，需要保证节点的唯一性，也就是实现原理就是，每次一个线程获取到了锁，那就在Zookeeper上创建一个临时节点，但用完锁之后，在把这个节点删除掉
+
+```
+create /node v0410  # 创建一个持久节点
+crate -e /node v0410 # 创建一个临时节点
+```
+
+对于单进程的并发场景，我们可以使用synchronized关键字和Reentrantlock等
+
+对于 分布式场景，我们可以使用分布式锁。
+
+创建锁
+
+多个JVM服务器之间，同时在zookeeper上创建相同一个临时节点，因为临时节点路径是保证唯一，只要谁能创建节点成功，谁就能获取到锁。
+
+没有创建成功节点，只能注册个监听器监听这个锁并进行等待，当释放锁的时候，采用事件通知给其它客户端重新获取锁的资源。
+
+这时候客户端使用事件监听，如果该临时节点被删除的话，重新进入获取锁的步骤。
+
+释放锁
+
+Zookeeper使用直接关闭临时节点session会话连接，因为临时节点生命周期与session会话绑定在一块，如果session会话连接关闭，该临时节点也会被删除，这时候客户端使用事件监听，如果该临时节点被删除的话，重新进入到获取锁的步骤。
+
+最后我们是具体的实现方法
+
+```
+/**
+ * 分布式锁
+ *
+ */
+public class ZkDistributedLock extends ZkAbstractTemplateLock{
+    @Override
+    public boolean tryLock() {
+        // 判断节点是否存在，如果存在则返回false，否者返回true
+        return false;
+    }
+
+    @Override
+    public void waitZkLock() throws InterruptedException {
+        // 等待锁的时候，需要加监控，查询这个lock是否释放
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        countDownLatch.await();
+
+        // 解除监听
+    }
+```
+
+然后我们通过ZkDistributedLock进行加锁
+
+```
+/**
+ * 订单业务逻辑
+ */
+public class OrderService {
+    private OrderNumberCreateUtil orderNumberCreateUtil = new OrderNumberCreateUtil();
+
+    public void getOrderNumber() {
+        ZkLock zkLock = new ZkDistributedLock();
+        zkLock.zkLock();
+        try {
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            zkLock.zkUnlock();
+        }
+        System.out.println(orderNumberCreateUtil.getOrderNumber());
+    }
+}
+```
+
+然后在使用多个线程进行操作，而且是在线程里面实例化对象，来进行创建，最终保证每个对象再获取订单的时候，都是唯一的
+
+```
+/**
+ * 客户端
+ */
+public class Client {
+    public static void main(String[] args) {
+        for (int i = 0; i < 50; i++) {
+            new Thread(() -> {
+                new OrderService().getOrderNumber();
+                System.out.println(str);
+            }, String.valueOf(i)).start();
+        }
+    }
+}
+```
 
 ## 3.2 客户端命令行操作
 
