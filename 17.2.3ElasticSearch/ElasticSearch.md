@@ -1,4 +1,4 @@
-﻿﻿# Elastic Stack 简介
+# Elastic Stack 简介
 
 如果你没有听说过 Elastic Stack，那你一定听说过 ELK，实际上 ELK 是三款软件的简称，分别是 Elasticsearch、
 Logstash、Kibana 组成，在发展的过程中，又有新成员 Beats 的加入，所以就形成了 Elastic Stack。所以说，ELK 是旧的称呼，Elastic Stack 是新的名字。
@@ -1896,21 +1896,19 @@ Elasticsearch 的选主是 ZenDiscovery 模块负责的，主要包含 Ping（�
 
 #### 路由
 
-首先，来看个问题：
-
 ![image-20200923153556720](media/image-20200923153556720.png)
 
 如图所示：当我们想一个集群保存文档时，文档该存储到哪个节点呢？ 是随机吗？ 是轮询吗？实际上，在 ELasticsearch 中，会采用计算的方式来确定存储到哪个节点，计算公式如下：
 
 ```bash
-shard = hash(routing) % number_1 of_primary_shards
+shard = hash(routing) % number_of_primary_shards
 ```
 
 其中：
 
-- routing 值是一个任意字符串，它默认是\_id 但也可以自定义。
-- 这个 routing 字符串通过哈希函数生成一个数字，然后除以主切片的数量得到一个余数(remainder)，余数
-  的范围永远是 0 到 number_of_primary_shards - 1，这个数字就是特定文档所在的分片
+routing 值默认是文档ID但也可以自定义。
+
+这个 routing 字符串通过哈希函数生成一个数字，然后除以主切片的数量得到一个余数(remainder)，余数的范围永远是 0 到 number_of_primary_shards - 1，这个数字就是特定文档所在的分片。
 
 这就是为什么创建了主分片后，不能修改的原因。
 

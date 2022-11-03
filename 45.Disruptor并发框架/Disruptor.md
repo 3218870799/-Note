@@ -209,31 +209,23 @@ Disruptor的入口类，主要封装了环形队列RingBuffer，消费者集合C
 
 ## Sequencer类
 
-![image-20201225135516072](media/image-20201225135516072.png)
+序列生成器，分别有MultiProducerSequencer (多生产者序列生产器）和SingleProducerSequencer(单生产者序列生产器)两个实现类。在Sequencer中，维护了消费者的Sequence(序列对象）和生产者自己的Sequence(序列对象）;以及维护了生产者与消费者序列冲突时候的等待策略WaitStrategy ;
 
+Sequence，
 
-
-Sequence
-
-![image-20201225135557027](media/image-20201225135557027.png)
-
-
+序列对象，内部维护了一个long型的value，这个序列指向了RingBuffer中 Object数组具体的角标，生产者和消费者各自维护自己的Sequence，但都是指向RingBuffer的Object[]数组;
 
 ## WaitStrategy
 
 决定一个消费者如何等待生产者将Event置入Disruptor，
 
-![image-20201225135738088](media/image-20201225135738088.png)
+等待策略，当没有可消费的事件时，消费者根据特定的策略进行等待，当没有可生产的地方时，生产者根据特定的策略进行等待;
 
 主要策略有
 
 ### BlockingWaitStrategy：
 
 最低效的策略，但是内存小
-
-
-
-
 
 ### SleepWaitStrategy：
 
@@ -253,17 +245,19 @@ Sequence
 
 Event
 
-![image-20201225135757838](media/image-20201225135757838.png)
+事件对象，就是我们Ringbuffer 中存在的数据，在Disruptor 中用Event来定义数据，并不存在Event类，它只是一个定义，是一个概念，表示要传递的数据;
 
 EventProcessor
 
-![image-20201225135827160](media/image-20201225135827160.png)
+事件处理器，单独在一个线程内执行，判断消费者的序列和生产者序列关系，决定是否调用自定义的事件处理器，也就是是否可以进行消费;
 
 EventHandler
 
 事件处理器，
 
-![image-20201225135951494](media/image-20201225135951494.png)
+事件处理器，由用户自定义实现，也就是最终的事件消费者，需要实现EventHandler接口;
+Producer
+事件生产者，我们定义的发送事件的对象;
 
 # 五：生产和消费
 

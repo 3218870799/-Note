@@ -14,12 +14,6 @@ http://openjdk.java.net/projects/jdk9/
 
 https://docs.oracle.com/javase/9/
 
-## 1：下载安装
-
-与以前版本不冲突，安装 jdk 并安装 jre
-
-配置环境变量
-
 ## 1：目录结构的改变
 
 ![](media/ffb2eb22dcae8ef40c6853761a415c89.png)
@@ -37,14 +31,6 @@ https://docs.oracle.com/javase/9/
 减少内存消耗
 
 对外暴露
-
-java9demo 模块
-
-![image-20201201163540677](media/image-20201201163540677.png)
-
-在引入模块
-
-![image-20201201163633858](media/image-20201201163633858.png)
 
 ## 3：REPL 工具：jShell 命令
 
@@ -205,15 +191,17 @@ String \_是不允许的，是一个特殊的关键字
 
 ## 9：String
 
-JDK8 以前 String 以前是 char[]存储的，每个是两个字节
+JDK8 以前 String 以前是 char[]存储的，每个是两个字节。
 
-JDK9 使用 byte[]数组，并使用 encodeFlag 标记编码类型，防止中文等两个字节存储
+JDK9 使用 byte[]数组，并使用 encodeFlag 标记编码类型，防止中文等两个字节存储。
 
-UTF-16 存储都是两个字节
 
-StringBuilder 和 StringBuffer 也是做了同样的改变。
 
-问题：String，StringBuilder 和 StringBuffer？
+
+
+
+
+
 
 ## 10：集合
 

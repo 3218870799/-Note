@@ -891,8 +891,6 @@ Pod资源限制对Pod的调度会有影响
 
 关于节点选择器，其实就是有两个环境，然后环境之间所用的资源配置不同
 
-![image-20201114202643905](media/image-20201114202643905.png)
-
 我们可以通过以下命令，给我们的节点新增标签，然后节点选择器就会进行调度了
 
 ```bash
@@ -1025,13 +1023,7 @@ kubectl get pods -o wide
 kubectl taint node k8snode1 env_role:NoSchedule-
 ```
 
-#### 污点容忍
-
 污点容忍就是某个节点可能被调度，也可能不被调度
-
-## 
-
-
 
 ## Controller
 

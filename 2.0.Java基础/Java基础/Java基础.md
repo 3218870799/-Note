@@ -765,33 +765,7 @@ String 的值是不可变的，每次对 String 的操作都会生成新的 Stri
 - `public StringBuilder append(...)`：添加任意类型数据的字符串形式，并返回当前对象自身。
 - `public String toString()`：将当前 StringBuilder 对象转换为 String 对象。
 
-### 锁消除 lock eliminate
 
-```java
-public void add(String str1,String str2){
-         StringBuffer sb = new StringBuffer();
-         sb.append(str1).append(str2);
-}
-```
-
-我们都知道 StringBuffer 是线程安全的，因为它的关键方法都是被 synchronized 修饰过的，但我们看上面这段代码，我们会发现，sb 这个引用只会在 add 方法中使用，不可能被其它线程引用（因为是局部变量，栈私有），因此 sb 是不可能共享的资源，JVM 会自动消除 StringBuffer 对象内部的锁。
-
-### 锁粗化 lock coarsening
-
-```java
-public String test(String str){
-
-       int i = 0;
-       StringBuffer sb = new StringBuffer():
-       while(i < 100){
-           sb.append(str);
-           i++;
-       }
-       return sb.toString():
-}
-```
-
-JVM 会检测到这样一连串的操作都对同一个对象加锁（while 循环内 100 次执行 append，没有锁粗化的就要进行 100 次加锁/解锁），此时 JVM 就会将加锁的范围粗化到这一连串的操作的外部（比如 while 虚幻体外），使得这一连串操作只需要加一次锁即可。
 
 ### 6：Math 类
 
@@ -1170,8 +1144,6 @@ List 可以精确的控制每个元素的插入位置，或删除某个位置元
 
 ### ArrayList
 
-#### 扩容
-
 **变化**
 
 JDK1.7 ：ArrayList 像饿汉式，直接创建一个初始容量为 10 的数组
@@ -1280,10 +1252,6 @@ ArrayList 有两种方法移除元素，一种传递要删除的元素的索引�
 
 双向链表，允许插入 null，线程不同步，有头尾两个指针
 
-Vector
-
-加：
-
 ## 3.4：Set 接口及其实现类
 
 集合 Set 是 Collection 的子接口，Set 不允许其数据元素重复出现，也就是说在 Set 中每一个数据元素都是唯一的。
@@ -1315,7 +1283,7 @@ Q：无序的，但是在特定条件下，当数组小于 65535 时，其 hash 
 
 ### LinkedHashSet
 
-根据元素的 hashCode 值来决定元素的存储位置， 但它同时使用双向链表维护元素的次序，这使得看起来是以 插入 顺序保存,不允许重复
+根据元素的 hashCode 值来决定元素的存储位置， 但它同时使用双向链表维护元素的次序，这使得看起来是以 插入 顺序保存,不允许重复。
 
 ### TreeSet
 
@@ -1370,67 +1338,6 @@ Stack 类是 Vector 类的子类。它向用户提供了堆栈这种高级的数
 
 Key-value 型，不允许重复，同一对象所对应的类
 
-1：哈希表
-
-![](media/d855c739db8d75ef5103481ff565e275.png)
-
-2：Java7 实现
-
-容量必须是为 2 的 n 次幂，默认 1\<\<4 为 16
-
-创建的时候并没有分配桶，只有将东西 put 进去的时候才分配
-
-Int I 变成 0 到 n-1 的方法：取余，使用 Hash&（length-1）（全 1）
-
-为防止碰撞，再次 hash
-
-超过一定阈值就要开始扩容
-
-对桶里的所有元素进行重新 hash，新桶是旧桶的两倍，
-
-Transfer 函数：把原本的遍历一遍，计算新的然后再计算新的里面
-
-```java
-/**
- * Transfers all entries from current table to newTable.
- */
-void transfer(Entry[] newTable, boolean rehash) {
-    int newCapacity = newTable.length;
-    for (Entry<K,V> e : table) {
-        while(null != e) {
-            Entry<K,V> next = e.next;
-            if (rehash) {
-                e.hash = null == e.key ? 0 : hash(e.key);
-            }
-            int i = indexFor(e.hash, newCapacity);
-            e.next = newTable[i];
-            newTable[i] = e;
-            e = next;
-        }
-    }
-}
-```
-
-Java7 的实现容易会出现死锁，它是线程不安全的
-
-原本顺序是 7-3，transfer 之后顺序变成了 3-7。
-
-1.7 的问题：并发环境中易死锁；可以通过精心够着的恶意请求引发Dos，链表性能退化分析
-
-1.8
-
-数组+链表/红黑树
-
-扩容时插入顺序的改进；
-
-函数方法：foreach。compute系列
-
-Map的新API：merge，replace
-
-不再是链表，用的是红黑树（二叉平衡树），re 的时候保持顺序
-
-Resize 效率很低
-
 **Entry 对象**
 
 `Map`中存放的是两种对象，一种称为**key**(键)，一种称为**value**(值)，它们在在`Map`中是一一对应关系，这一对对象又称做`Map`中的一个`Entry(项)`。`Entry`将键值对的对应关系封装成了对象。即键值对对象，这样我们在遍历`Map`集合时，就可以从每一个键值对（`Entry`）对象中获取对应的键与对应的值。
@@ -1452,7 +1359,9 @@ hashcode：计算键的 hashcode 作为存储键信息的数组下标用于查�
 
 equals：HashMap 使用 equals()判断当前的键是否与表中存在的键相同。
 
-#### 1.7 至 1.8 的变化
+
+
+**1.7的不足及 1.8 的变化**
 
 1：插入时由 1.7 的头插法（最后插入的放到最前面）改成尾插法
 
@@ -1462,9 +1371,11 @@ equals：HashMap 使用 equals()判断当前的键是否与表中存在的键相
 
 2：结构变化
 
-JDK1.7 的，数组 + 链表
+JDK1.7 的，数组 + 链表；当全部key冲突时很容易退化为链表；
 
 JDK1.8 变为：数组 + 链表 + 红黑树
+
+
 
 #### 结构实现
 
@@ -1472,15 +1383,11 @@ HashMap 的底层主要是基于数组，链表和红黑树来实现的，HashMa
 
 影响 HashMap 性能的两个重要参数，“initial capacity”（初始化容量默认为 16）和”load factor“（负载因子 0.75）
 
-容量就是哈希表桶的个数，负载因子就是键值对个数与哈希表长度的一个比值
+容量就是哈希表桶的个数，负载因子就是键值对个数与哈希表长度的一个比值；
 
 HashMap 类中有一个非常重要的字段，就是 Node[] table，即哈希桶数组，明显它是一个 Node 的数组
 
-**当冲突时 HashMap 的做法是用链表和红黑树存储相同 hash 值的 value。当 hash 冲突的个数比较少时，使用链表否则使用红黑树。**
-
-- key 值不可重复，value 值可以重复，
-
-- key,value 都可以是任何引用类型的数据，包括 null
+当冲突时 HashMap 的做法是用链表和红黑树存储相同 hash 值的 value。当 hash 冲突的个数比较少时，使用链表否则使用红黑树。
 
 HashMap 中关于红黑树的三个关键参数：
 
@@ -1490,7 +1397,7 @@ HashMap 中关于红黑树的三个关键参数：
 
 Q：为什么选择红黑树而不是 AVL 树？
 
-A：红黑树并不是严格的平衡树，红黑树适合修改密集的任务，AVL 树适合查找密集的任务
+A：红黑树并不是严格的平衡树，红黑树适合修改密集的任务，AVL 树适合查找密集的任务；红黑树确保没有一条路径会比其他路径的长出两倍；
 
 #### 方法
 
@@ -1547,7 +1454,7 @@ static final int hash(Object key) {   //jdk1.8 & jdk1.7
 
 ![](media/cbd0fb60a87957476f708c7b1ea32132.png)
 
-**Resize**
+**Resize扩容**
 
 方法是使用一个新的数组代替已有的容量小的数组。
 
@@ -1556,6 +1463,8 @@ HashMap 在进行扩容时，使用的 rehash 方式非常巧妙，因为每次�
 例如，原来的容量为 32，那么应该拿 hash 跟 31（0x11111）做与操作；在扩容扩到了 64 的容量之后，应该拿 hash 跟 63（0x111111）做与操作。新容量跟原来相比只是多了一个 bit 位，假设原来的位置在 23，那么当新增的那个 bit 位的计算结果为 0 时，那么该节点还是在 23；相反，计算结果为 1 时，则该节点会被分配到 23+31 的桶上。
 
 总的来说：扩容时总是扩容到原来的两倍，使用位运算，可以很容易的将原本的元素转移到新的数组中去。
+
+
 
 **Q：HashMap 为什么是线程不安全的，怎么解决呢？**
 
@@ -1577,7 +1486,7 @@ HashMap 在进行扩容时，使用的 rehash 方式非常巧妙，因为每次�
 
 ### ConcurrentHashMap
 
-#### 结构
+#### 结构实现
 
 JDK1.7 中 ConcurrentHashMap 是由 Segment 数组结构和 HashEntry 数组结构组成。
 
@@ -1587,9 +1496,13 @@ Segment 的个数是不能扩容的，但是单个 Segment 里面的数组是可
 
 JDK1.8 的实现已经抛弃了 Segment 分段锁机制，利用 CAS+Synchronized 来保证并发更新的安全。
 
+
+
 Q：为什么舍弃 Segment？
 
 A：至于为什么抛弃 Segment 的设计，是因为分段锁的这个段不太好评定，如果我们的 Segment 设置的过大，那么隔离级别也就过高，那么就有很多空间被浪费了，也就是会让某些段里面没有元素，如果太小容易造成冲突
+
+
 
 Q：为什么使用 synchronized 而不是 ReetranLock？
 
@@ -1602,6 +1515,8 @@ A：
   可重入锁毕竟是 API 这个级别的，后续的性能优化空间 很小
 
   Synchronized 则是由 JVM 直接支持，JVM 能够在运行时做出对应的优化措施：锁粗化，锁消除，锁自旋等。这就是使得 Synchronized 能够随着 JDK 版本的升级而无需改动代码的前提下获得性能上的提升。
+
+
 
 数据结构采用：Node 数组+链表+红黑树。
 
@@ -1706,7 +1621,17 @@ hashCode & n-1
 
 线程安全：所有涉及到多线程操作的都加上了 synchronized 关键字来锁住整个 table，HashTable 容器使用 synchronized 来保证线程安全，但在线程竞争激烈的情况下 HashTable 的效率非常低下。因为多个线程访问 HashTable 的同步方法时，可能会进入阻塞或轮询状态。如线程 1 使用 put 进行添加元素，线程 2 不但不能使用 put 方法添加元素，并且也不能使用 get 方法来获取元素，所以竞争越激烈效率越低。
 
-现在很少用了，多被 HahsMap 或 ConcurrentHashMap 代替，不允许插入 null 值
+现在很少用了，多被 HahsMap 或 ConcurrentHashMap 代替，不允许插入 null 值；
+
+
+
+1：HashMap 与 HashTable 的区别？
+
+- HashMap 是线程不安全的，HashTable 是线程安全的，效率低。因此，HashMap 更适合于单线程环境，而 Hashtable 适合于多线程环境。
+- Hashtable 的方法是 Synchronize 的，而 HashMap 不是
+- HashMap 是可以把 null 作为 key 或者 value 的，但是 HashTable 不行
+
+要想既安全又效率高就用 ConcurrentHashMap
 
 ### LinkedHashMap
 
@@ -1734,7 +1659,7 @@ Map m = Collections.synchronizedSortedMap(new TreeMap(…));
 
 TreeMap 是用键来进行升序顺序来排序的。底层也是使用红黑树结构存储数据，通过 Comparable 或 Comparator 来排序。（实现和 TreeSet 基本一致）。
 
-### 对比
+
 
 1：HashMap 与 TreeMap 的区别
 
@@ -1751,14 +1676,6 @@ HashMap：适用于在 Map 中插入、删除和定位元素。
 TreeMap：适用于按自然顺序或自定义顺序遍历键（key)。
 
 HashMap 通常比 TreeMap 快一点（树和哈希表的数据结构使然），建议多使用 HashMap,在需要排序的 Map 时候才用 TreeMap.
-
-2：HashMap 与 HashTable 的区别？
-
-- HashMap 是线程不安全的，HashTable 是线程安全的，效率低。因此，HashMap 更适合于单线程环境，而 Hashtable 适合于多线程环境。
-- Hashtable 的方法是 Synchronize 的，而 HashMap 不是
-- HashMap 是可以把 null 作为 key 或者 value 的，但是 HashTable 不行
-
-要想既安全又效率高就用 ConcurrentHashMap
 
 ### 常用的遍历 Map 的方法
 
@@ -2078,6 +1995,8 @@ Volatile 是 Java 虚拟机提供的`轻量级`的同步机制（三大特性）
 
 如果大量使用 volatile，由于 Volatile 的 MESI 缓存一致性协议，需要不断的从主内存嗅探和 cas 不断循环，无效交互会导致总线带宽达到峰值。**造成总线风暴**。
 
+
+
 Q：**synchronized 和 volatile 的区别是什么？**
 
 - volatile 是变量修饰符；synchronized 是修饰类、方法、代码段。
@@ -2085,6 +2004,8 @@ Q：**synchronized 和 volatile 的区别是什么？**
 - volatile 仅能实现变量的修改可见性，不能保证原子性；而 synchronized 则可以保证变量的修改可见性和原子性。
 
 - volatile 不会造成线程的阻塞；synchronized 可能会造成线程的阻塞。
+
+
 
 **Q：synchronized 和 lock 有什么区别？**
 
@@ -2305,8 +2226,6 @@ ThreadLocalMap 是 ThreadLocal 的内部类，没有实现 Map 接口，用独�
 
 继承 Thread 类实现线程，扩展性不强，因为 Java 类只能继承一个
 
-测试：
-
 ```java
 class MyThread extends Thread{
   public void run(){
@@ -2358,8 +2277,16 @@ class Mythread implements Runnable{
 
 （4）使用线程池（有返回值）
 
+通过线程池创建线程，使用线程池ExecutorService结合Callable future实现有返回结果的多线程；
+
+
+
+
+
 上所有的多线程代码都是通过运行 Thread 的 start()方法来运行的。因此，不管是继承 Thread 类还是实现
-Runnable 接口来实现多线程，最终还是通过 Thread 的对象的 API 来控制线程的
+Runnable 接口来实现多线程，最终还是通过 Thread 的对象的 API 来控制线程的。
+
+
 
 **说明**
 
@@ -2430,45 +2357,59 @@ DiscardOldestPolicy：丢弃阻塞队列中靠最前的任务，并执行当前�
 DiscardPolicy：直接丢弃任务,主要用于无关紧要的任务，博客阅读量
 ```
 
-RejectedExecutionHandler 接口，自定义饱和策略，如记录日志或持久化存储不能处理的任务。
+RejectedExecutionHandler 接口，自定义饱和策略，如记录日志或持久化存储不能处理的任务。等一定时间捞出来重新补偿回去；
 
 ### 2：构造方法
 
 ```java
- public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize,long keepAliveTime,TimeUnit unit,
-            BlockingQueue<Runnable> workQueue);
+public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize,long keepAliveTime,TimeUnit unit,
+                          BlockingQueue<Runnable> workQueue);
 
-    public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize,long keepAliveTime,TimeUnit unit,
-            BlockingQueue<Runnable> workQueue,ThreadFactory threadFactory);
+public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize,long keepAliveTime,TimeUnit unit,
+                          BlockingQueue<Runnable> workQueue,ThreadFactory threadFactory);
 
-    public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize,long keepAliveTime,TimeUnit unit,
-            BlockingQueue<Runnable> workQueue,RejectedExecutionHandler handler);
+public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize,long keepAliveTime,TimeUnit unit,
+                          BlockingQueue<Runnable> workQueue,RejectedExecutionHandler handler);
 
-    public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize,long keepAliveTime,TimeUnit unit,
-        BlockingQueue<Runnable> workQueue,ThreadFactory threadFactory,RejectedExecutionHandler handler);
+public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize,long keepAliveTime,TimeUnit unit,
+                          BlockingQueue<Runnable> workQueue,ThreadFactory threadFactory,RejectedExecutionHandler handler);
 ```
 
 ### 3：其他创建线程池的方法
 
-- Executors.newFixedThreadPool(int nThreads) ：创建一个拥有 i 个线程的线程池
+1：Executors.newFixedThreadPool(int nThreads) ：创建一个拥有 i 个线程的线程池
 
-  - 执行长期的任务，性能好很多
-  - 创建一个定长线程池，可控制线程数最大并发数，超出的线程会在队列中等待。
+- 执行长期的任务，性能好很多
+- 创建一个定长线程池，可控制线程数最大并发数，超出的线程会在队列中等待。
 
-  缺点：由于阻塞队列无限大，可能造成栈溢出，导致程序崩溃。
+缺点：由于阻塞队列无限大，可能造成栈溢出，导致程序崩溃。
 
-- Executors.newSingleThreadExecutor：创建一个只有 1 个线程的 单线程池
-  - 一个任务一个任务执行的场景
-  - 创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序执行
-- Executors.newCacheThreadPool(); 创建一个可扩容的线程池
-  - 执行很多短期异步的小程序或者负载教轻的服务器
-  - 创建一个可缓存线程池，如果线程长度超过处理需要，可灵活回收空闲线程，如无可回收，则新建新线程
-  - 处理大量短时间工作任务的线程池，他会缓存线程并重用，无缓存线程时，就会创建新线程，闲置超过 60 秒则会被移出缓存，其内部使用
-    SynchronousQueue 作为工作队列；
-- Executors.newScheduledThreadPool(int corePoolSize)：线程池支持定时以及周期性执行任务，创建一个 corePoolSize 为传入参数，最大线程数为整形的最大数的线程池
-- newSingleThreadScheduledExecutor()：创建单线程池，返回 ScheduledExecutorService，可以进行定时或周期性的工作调度；new ScheduledThreadPool(int corePoolSize)：创建一个定长的线程池，可以进行定时或周期性的工作调度，区别在于单一工作线程还是多个工作线程
-- new WorkStealingPool(int parallelism)： Java 8 才加入这个创建方法，其内部会构建 ForkJoinPool，利用 Work-Stealing 算法，并行地处理任务，不保证处理顺序；
-- ThreadPoolExecutor()：是最原始的线程池创建，上面 1-3 创建方式都是对 ThreadPoolExecutor 的封装。
+2：Executors.newSingleThreadExecutor：创建一个只有 1 个线程的 单线程池
+
+- 一个任务一个任务执行的场景
+- 创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序执行
+
+3：Executors.newCacheThreadPool(); 创建一个可扩容的线程池
+
+- 执行很多短期异步的小程序或者负载教轻的服务器
+- 创建一个可缓存线程池，如果线程长度超过处理需要，可灵活回收空闲线程，如无可回收，则新建新线程
+- 处理大量短时间工作任务的线程池，他会缓存线程并重用，无缓存线程时，就会创建新线程，闲置超过 60 秒则会被移出缓存，其内部使用SynchronousQueue 作为工作队列；
+
+4：Executors.newScheduledThreadPool(int corePoolSize)：线程池支持定时以及周期性执行任务，创建一个 corePoolSize 为传入参数，最大线程数为整形的最大数的线程池
+
+newSingleThreadScheduledExecutor()：创建单线程池，返回 ScheduledExecutorService，可以进行定时或周期性的工作调度；new ScheduledThreadPool(int corePoolSize)：创建一个定长的线程池，可以进行定时或周期性的工作调度，区别在于单一工作线程还是多个工作线程
+
+5：newWorkStealingPool(int parallelism)： Java 8 才加入这个创建方法，其内部会构建 ForkJoinPool，利用 Work-Stealing 算法，并行地处理任务，不保证处理顺序；
+
+ThreadPoolExecutor()：是最原始的线程池创建，上面 1-3 创建方式都是对 ThreadPoolExecutor 的封装。
+
+
+
+禁止使用Executors：
+
+Executors.newCachedThreadPool和Executors.newScheduledThreadPool两个方法最大线程数为Integer.MAX_VALUE，如果达到上限，没有任务服务器可以继续工作，肯定会抛出OOM异常。Executors.newSingleThreadExecutor和Executors.newFixedThreadPool两个方法的workQueue参数为newLinkedBlockingQueue<>()，容量为Integer.MAX_VALUE，如果瞬间请求非常大，会有OOM风险。
+
+除了newWorkStealingPool之外都有OOM风险；用 ThreadPoolExecutor 排查问题更友好；
 
 ### 4：方法
 
@@ -2843,7 +2784,7 @@ synchronized 会自动释放锁，而 Lock 一定要求程序员手工释放，�
 
 > CAS 算法（比较与交换），会导致 ABA 问题，可以加时间戳
 
-#### 2：自旋锁 VS 适应性自旋锁
+#### 自旋锁 VS 适应性自旋锁
 
 如果同步代码块的内容过于简单，线程挂起切换的时间比线程执行的时间还要长，就得不尝失，如果物理机器有多个处理器，能够让两个或以上的线程同时并行执行，我们就可以让后面那个请求锁的线程不放弃 CPU 的执行时间，看看持有锁的线程是否很快就会释放锁。
 
@@ -2942,7 +2883,7 @@ Monitor 是线程私有的数据结构，每一个线程都有一个可用 monit
 
 一开始无锁，当有一个线程 A 过来的时候，
 
-偏向锁加锁（线程 A）：CAS 设置 markword 成功，markwork 设置为 【tid:A|1 | 01】；
+偏向锁加锁（线程 A）：CAS 设置 对象头的markword 成功，markwork 设置为 【tid:A|1 | 01】；
 
 如果接下来线程 A 再来加锁，
 
@@ -2960,9 +2901,9 @@ B 发现 markword 是 A 的偏向锁，但是由于偏向锁解锁不会修改 m
 
 #### 4：公平锁与非公平锁
 
-公平锁是指多个线程按照申请锁的顺序来获取锁，线程直接进入队列中排队，队列中的第一个线程才能获得锁。
+公平锁：多个线程按照申请锁的顺序来获取锁，线程直接进入队列中排队，队列中的第一个线程才能获得锁。
 
-非公平锁是多个线程加锁时直接尝试获取锁，获取不到才会到等待队列的队尾等待。但如果此时锁刚好可用，那么这个线程可以无需阻塞直接获取到锁，所以非公平锁有可能出现后申请锁的线程先获取锁的场景。有可能造成优先级翻转，或者饥饿的线程（也就是某个线程一直得不到锁）
+非公平锁：多个线程加锁时直接尝试获取锁，获取不到才会到等待队列的队尾等待。但如果此时锁刚好可用，那么这个线程可以无需阻塞直接获取到锁，所以非公平锁有可能出现后申请锁的线程先获取锁的场景。有可能造成优先级翻转，或者饥饿的线程（也就是某个线程一直得不到锁）
 
 并发包中 ReentrantLock 的创建可以指定析构函数的 boolean 类型来得到公平锁或者非公平锁，默认是非公平锁
 
@@ -3097,10 +3038,12 @@ AQS 就是基于 CLH 队列，用 volatile 修饰共享变量 state，线程通�
 - setState()
 - compareAndSetState()
 
+
+
 AQS 定义了两种资源共享方式
 
-- Exclusive：独占，只有一个线程能执行，如 ReentrantLock
-- Share：共享，多个线程可以同时执行，如 Semaphore、CountDownLatch、ReadWriteLock、CycleBarrier
+- Exclusive：独占，只有一个线程能执行，其原理是看哪个线程先把state + 1 ，谁就抢到了锁，如 ReentrantLock，又可分为公平锁和非公平锁；
+- Share：共享，多个线程可以同时执行，其原理是多个线程操作state字段，来一个线程就+1，线程运行结束就减一，一直减到0，就释放锁。如 Semaphore、CountDownLatch、ReadWriteLock、CycleBarrier
 
 不同的自定义同步器争用共享资源的方式也不同
 
@@ -3143,11 +3086,13 @@ CountDownLatch
 
 通过 lockInterruptibly()方法获取某个锁，如果不能获取到，只有进行等待的情况下，是可以响应中断的，而用 synchronized 修饰的话，当一个线程处于等待某个锁的状态，是无法被中断的，只有一只等待下去。
 
-打断之后 node 状态的变化(state 变为 cancelled)
+打断之后 node 状态的变化(state 变为 cancelled
 
-#### 公平与非公平
 
-公平锁FairSync中加锁lock执行AQS方法acquire；其中acquire方法会先去tryAcquire，然后
+
+尾分叉：
+
+新的等待线程会将自己设置到链表尾部，但是如果同一时刻两个节点同时将自己指向链表最后一个节点，就会出现尾分叉现象，一般遍历都是从尾遍历，从头遍历可能导致有一个遍历不到；
 
 
 
@@ -3157,13 +3102,35 @@ CountDownLatch
 
 减小锁的粒度；
 
-锁分离：读写锁分离，
+锁分离：读写锁分离
 
-锁粗化：减少线程切换，资源释放等消耗；
+1：锁消除 lock eliminate
 
-锁消除；
+```java
+public void add(String str1,String str2){
+         StringBuffer sb = new StringBuffer();
+         sb.append(str1).append(str2);
+}
+```
 
+我们都知道 StringBuffer 是线程安全的，因为它的关键方法都是被 synchronized 修饰过的，但我们看上面这段代码，我们会发现，sb 这个引用只会在 add 方法中使用，不可能被其它线程引用（因为是局部变量，栈私有），因此 sb 是不可能共享的资源，JVM 会自动消除 StringBuffer 对象内部的锁。
 
+2：锁粗化 lock coarsening
+
+```java
+public String test(String str){
+
+       int i = 0;
+       StringBuffer sb = new StringBuffer():
+       while(i < 100){
+           sb.append(str);
+           i++;
+       }
+       return sb.toString():
+}
+```
+
+JVM 会检测到这样一连串的操作都对同一个对象加锁（while 循环内 100 次执行 append，没有锁粗化的就要进行 100 次加锁/解锁），此时 JVM 就会将加锁的范围粗化到这一连串的操作的外部（比如 while 虚幻体外），使得这一连串操作只需要加一次锁即可。
 
 ## 9：线程协作
 
@@ -3290,13 +3257,22 @@ ReenTrantLock 的实现是一种自旋锁，通过循环调用 CAS 操作来实�
 
 
 
-### ReetrantReadWriteLock
+### ReadWriteLock
 
 Read 的时候是共享锁，Write 的时候是排它锁（互斥锁），默认使用非公平方式获取锁，可重入锁
 
 锁降级：从写锁变成读锁，支持
 
 锁升级：从读锁变成写锁，不支持，会产生死锁。
+
+ReadLock和WriteLock都是通过调用Sync方法实现的，使用AQS的状态state，读锁用高16位，表示持有读锁的线程数（sharedCount），写锁低16位，表示写锁的重入次数（exclusiveCount）；
+
+状态值为О表示锁空闲,sharedCount不为О表示分配了读锁，exclusiveCount 不为О表示分配了写锁。
+sharedCount和exclusiveCount一般不会同时不为0，只有当线程占用了写锁，该线程可以重入获取读锁，反之不成立。
+
+![image-20221031190020559](media/image-20221031190020559.png)
+
+
 
 ### StampedLock
 
@@ -4590,263 +4566,3 @@ List<T>表示的是 List 集合中的元素都为 T 类型，具体类型在运�
 List<?>是只读类型的，不能进行增加、修改操作，因为编译器不知道List中容纳的是 什么类型的元素，也就无毕校验类型是否安全了，而且List<?>读取出的元素都是 Object 类 型的，需要主动转型，所以它经常用于泛型方法的返回值。注意，List<?>虽然无法增加、修 改元素，但是却可以删除元素，比如执行 remove、clear 等方法，那是因为它的删除动作与泛型类型无关。
 
 List<Object>也可以读写操作，但是它执行写入操作时需要向上转型（Upcast),在读 取数据后需要向下转型（Downcast)
-
-
-
-# Java12
-
-2019 年 3 月 20 日
-
-## 1：Switch 表达式
-
-缺点：
-
-忘了 break 都会执行，
-
-在各个 case 中定义的局部变量名不可重复
-
-新的 switch 表达式
-
-可以返回值
-
-```java
-switch(fruit){
-        //不再写break，直接跳
-        case PEAR->System.out.println("1");
-        //多个一样的可以放在一起
-        case APPLE,GRAPE,MANGO->System.out.println("2");
-        default->new IllegalStateException("No Such Fruit");
-}
-```
-
-## 2：shenandoah GC 低停顿时间的 GC
-
-省得我
-
-与堆大小无关，吞吐量有限的原则
-
-新生代内存空间较小，所以暂停的时间可以接受，但是一旦老年代出现 FullGC，线程暂停的时间就会更久
-
-工作原理：
-
-其内存结构与 G1 非常相似，都是将内存划分为类似棋盘的 region。整体流程与 G1 也是比较相似的，最大的区别在于实现了并发的 疏散(Evacuation) 环节，引入的 BrooksForwarding Pointer 技术使得 GC 在移动对象时，对象引用仍然可以访问。
-
-Shenandoah GC 工作周期如下所示：
-
-![image-20201205193344731](media/image-20201205193344731.png)
-
-上图对应工作周期如下：
-
-1. Init Mark 启动并发标记 阶段
-2. 并发标记遍历堆阶段
-3. 并发标记完成阶段
-4. 并发整理回收无活动区域阶段
-5. 并发 Evacuation 整理内存区域阶段
-6. Init Update Refs 更新引用初始化 阶段
-7. 并发更新引用阶段
-8. Final Update Refs 完成引用更新阶段
-9. 并发回收无引用区域阶段
-
-推荐几个配置或调试 Shenandoah 的 JVM 参数:
-
-```xml
--XX:+AlwaysPreTouch：使用所有可用的内存分页，减少系统运行停顿，为避免运行时性能损失。
--Xmx == -Xmsv：设置初始堆大小与最大值一致，可以减轻伸缩堆大小带来的压力，与 AlwaysPreTouch 参数配
-合使用，在启动时提交所有内存，避免在最终使用中出现系统停顿。
--XX:+ UseTransparentHugePages：能够大大提高大堆的性能，同时建议在 Linux 上使用时将
-/sys/kernel/mm/transparent_hugepage/enabled 和
-/sys/kernel/mm/transparent_hugepage/defragv 设置为：madvise，同时与 AlwaysPreTouch 一起使
-用时，init 和 shutdownv 速度会更快，因为它将使用更大的页面进行预处理。
--XX:+UseNUMA：虽然 Shenandoah 尚未明确支持 NUMA（Non-Uniform Memory Access），但最好启用此功
-能以在多插槽主机上启用 NUMA 交错。与 AlwaysPreTouch 相结合，它提供了比默认配置更好的性能。
--XX:+DisableExplicitGC：忽略代码中的 System.gc() 调用。当用户在代码中调用 System.gc() 时会强制
-Shenandoah 执行 STW Full GC ，应禁用它以防止执行此操作，另外还可以使用 -
-XX:+ExplicitGCInvokesConcurrent，在 调用 System.gc() 时执行 CMS GC 而不是 Full GC，建议在有
-System.gc() 调用的情况下使用。
-不过目前 Shenandoah 垃圾回收器还被标记为实验项目，如果要使用Shenandoah GC需要编译时--with-jvmfeatures
-选项带有shenandoahgc，然后启动时使用参数
--XX:+UnlockExperimentalVMOptions -XX:+UseShenandoahGC
-```
-
-## 3：常量 API
-
-## 4：微基准测试套件
-
-JMH，即 Java Microbenchmark Harness，是专门用于代码微基准测试的工具套件。何谓 Micro Benchmark 呢？简
-单的来说就是基于方法层面的基准测试，精度可以达到微秒级。当你定位到热点方法，希望进一步优化方法性能的时
-候，就可以使用 JMH 对优化的结果进行量化的分析。
-JMH 比较典型的应用场景：
-想准确的知道某个方法需要执行多长时间，以及执行时间和输入之间的相关性；
-对比接口不同实现在给定条件下的吞吐量；
-查看多少百分比的请求在多长时间内完成；
-
-JMH 的使用
-要使用 JMH，首先需要准备好 Maven 环境，JMH 的源代码以及官方提供的 Sample 就是使用 Maven 进行项目管理的，
-github 上也有使用 gradle 的例子可自行搜索参考。使用 mvn 命令行创建一个 JMH 工程：
-如果要在现有 Maven 项目中使用 JMH
-
-```cmd
-mvn archetype:generate \
-        -DinteractiveMode=false \
-        -DarchetypeGroupId=org.openjdk.jmh \
-        -DarchetypeArtifactId=jmh-java-benchmark-archetype \
-        -DgroupId=co.speedar.infra \
-        -DartifactId=jmh-test \
-        -Dversion=1.0
-```
-
-只需要把生成出来的两个依赖以及 shade 插件拷贝到项目的 pom 中即可：
-
-## 5：只保留一个 AArch64 实现
-
-Java 12 中将删除由 Oracle 提供的 arm64 端口相关的所有源码，即删除目录 open/src/hotspot/cpu/arm 中关于
-64-bit 的这套实现，只保留其中有关 32-bit ARM 端口的实现，余下目录的 open/src/hotspot/cpu/aarch64 代码
-部分就成了 AArch64 的默认实现。这将使开发贡献者将他们的精力集中在单个 64 位 ARM 实现上，并消除维护两套实现所需的重复工作。
-
-## 6：默认生成类数据共享(CDS)归档文件
-
-## 7：可中断的 G1 Mixed GC
-
-G1 垃圾收集器设计的主要目标之一是满足用户设置的预期的 JVM 停顿时间
-
-G1 收集器必须完成收集集合的所有区域中的所有活动对象之后才能停止；但是如果收集器选择过大的 GC 回收集，此时的 STW 时间会过长超出目标 pause time。
-
-将 GC 回收集拆分为必需和可选部分时，垃圾收集过程优先处理必需部分。同时，需要为可选 GC 回收集部分维护一些其他数据，这会产生轻微的 CPU 开销，但小于 1 ％的变化，同时在 G1 回收器处理 GC 回收集期间，本机内存使用率也可能会增加，使用上述情况只适用于包含可选 GC 回收部分的 GC 混合回收集合。在 G1 垃圾回收器完成收集需要必需回收的部分之后，如果还有时间的话，便开始收集可选的部分。但是粗粒度的处理，可选部分的处理粒度取决于剩余的时间，一次只能处理可选部分的一个子集区域。在完成可选收集部
-分的收集后，G1 垃圾回收器可以根据剩余时间决定是否停止收集。如果在处理完必需处理的部分后，剩余时间不足，总时间花销接近预期时间，G1 垃圾回收器也可以中止可选部分的回收以达到满足预期停顿时间的目标。
-
-## 8：增强 G1，自动返回未用堆内存给操作系统
-
-# Java13
-
-## 1：switch 表达式增加 yield
-
-用于返回值
-
-```java
-String x = "3";
-int i = switch (x) {
-	case "1" -> 1;
-	case "2" -> 2;
-	default -> {
-		yield 3;
-	}
-};
-System.out.println(i);
-```
-
-## 2：文本块
-
-对于一些 html 文本或则 sql 语句，拼接四问题
-
-```java
-//原来的html拼接
-String html = "<html>\n" +
-                " <body>\n" +
-                " <p>Hello, World</p>\n" +
-                " </body>\n" +
-                "</html>\n";
-//原本的SQL
-String query = "select employee_id,last_name,salary,department_id\n" +
-                "from employees\n" +
-                "where department_id in (40,50,60)\n" +
-                "order by department_id asc";
-//JDK13html拼接
-String html1 = """
-                <html>
-                <body>
-                <p>Hello, world</p>
-                </body>
-                </html>
-			  """;
-//JDK13的SQL拼接
-String newQuery = """
-                select employee_id,last_name,salary,department_id
-                from employees
-                where department_id in (40,50,60)
-                order by department_id asc
-				""";
-```
-
-开始分隔符是由三个双引号字符（"""），后面可以跟零个或多个空格，最终以行终止符结束。文本块内容
-以开始分隔符的行终止符后的第一个字符开始。
-结束分隔符也是由三个双引号字符（"""）表示，文本块内容以结束分隔符的第一个双引号之前的最后一个
-字符结束。
-
-```java
-public void test(){
-    //以开始分隔符的行终止符后的第一个字符开始
-    //以结束分割符的第一个双引号之前的最后一个字符结束
-    String text1 = """
-        abc""";
-    String text2 = "abc";
-    System.out.println(text1==text2);
-    
-    String text3 = """
-        abc
-        """;
-        System.out.println(text1.length());//3
-    System.out.print(text3.length());//4
-    
-}
-```
-
-注意：
-
-编译器在编译时会删除掉这些多余的空格。不过行前有没有空格在于终止符的位置
-
-转义字符
-
-```java
-//错误
-String d = """
-			abc \ def
-			"""; // 含有未转义的反斜线
-```
-
-文本框连接
-
-```java
-String code = """
-        public void print(""" + type + """
-            o) {
-            	System.out.println(Objects.toString(o));
-            }
-		""";
-```
-
-更简洁的替代方法是使用 String :: replace 或 String :: format，比如：
-
-```java
-String code = """
-        public void print($type o) {
-        	System.out.println(Objects.toString(o));
-        }
-		""".replace("$type", type);
-String code = String.format("""
-        public void print(%s o) {
-        	System.out.println(Objects.toString(o));
-        }
-		""", type);
-```
-
-另一个方法是使用 String :: formatted，这是一个新方法，比如：
-
-```java
-String source = """
-        public void print(%s object) {
-        	System.out.println(Objects.toString(object));
-        }
-		""".formatted(type);
-```
-
-## 3：动态 CDS 档案（动态类数据共享归档）
-
-## 4：ZGC:取消使用未使用的内存
-
-## 5：重新实现旧版套接字 API
-
-# 面试题：
-
-1：实现拷贝文件工具类使用字节流还是字符流？
-
-字节流（图片，声音，图像）

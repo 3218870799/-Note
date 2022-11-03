@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿# 第 1 章 Kafka 概述
+# 第 1 章 Kafka 概述
 
 观察者模式
 
@@ -1103,9 +1103,11 @@ partition leader（ISR），controller（先到先得）
 
 不能及时与 leader 同步，暂时踢出 ISR，等其追上 leader 之后再重新加入
 
-20.Kafka 的哪些设计让它有如此高的性能？
 
-分区，顺序写磁盘，0-copy
+
+20：Kafka 的哪些设计让它有如此高的性能？
+
+顺序写磁盘，预读，0-copy
 
 
 
@@ -1115,7 +1117,7 @@ partition leader（ISR），controller（先到先得）
 
 解决方案：
 
-1：.使用todb的插件，查看相关管理功能号，看kafka传输情况，事务号，kafka连接状态等
+1：使用todb的插件，查看相关管理功能号，看kafka传输情况，事务号，kafka连接状态等
 
 2.查看dlogex日志
 

@@ -232,8 +232,6 @@ alter table T1 alter column F1 varchar(100)
 -- 有时候不支持修改长度，可以先建一个新列，然后将旧的数据拷贝到新的列，然后删除旧字段
 ```
 
-### 表结构
-
 采用 alter table 来增加/删除/修改表结构，不影响表中的数据
 
 ```sql
@@ -1962,20 +1960,21 @@ null 代表没有给列添加索引
 
 (1）：using filesort：性能消耗比较大，需要额外一次排序（查询）
 
-排序：先查询，根据年龄排序，先查出年龄，再根据排序
+出现情况：
 
-```sql
-explain select * from test02 where a1 = '' order by a2;
-```
+order by 字段不是索引字段；
 
-复合索引：不能跨列，（最左匹配原则）
+order by 字段是索引字段，但是select 中没有使用覆盖索引，
 
-对(a1,a2,a3)建立复合索引
+order by中同时存在ASC和DESC排序；
 
-```sql
-select * from test02 where a1 = '' order by a2;---此时不会出现using filesort
-select * from test02 where a1 = '' order by a3; -- 会出现，性能不如上一个好
-```
+order by多个字段没有按照最左匹配；
+
+解决：
+
+
+
+
 
 （2）：using temporary ：性能耗损大，用到了临时表，一般出现在 group by 语句中
 
@@ -1987,9 +1986,19 @@ explain select a1 from test02 where a1 in ('1','2','3') group by a2;
 
 解析过程：
 
-from on join where groupby having select distinct order by limit
+from on join where groupby having select distinct order by limit；
 
-（3）：using index ：性能提升，索引覆盖。不读取源文件，只从索引文件中查询。不需要回表查询。只要索引都在索引表中
+出现情况：
+
+as 临时表；
+
+解决：
+
+降低表的大小；
+
+
+
+（3）using index ：性能提升，索引覆盖。不读取源文件，只从索引文件中查询。不需要回表查询。只要索引都在索引表中
 
 ```sql
 select a1 from test where a1 = '1';

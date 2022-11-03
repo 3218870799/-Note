@@ -174,7 +174,7 @@ Zookeeper 使用的基本时间，服务器之间或客户端与服务器之间�
 
 5．clientPort =2181：客户端连接端口监听客户端连接的端口。
 
-# 第 3 章 Zookeeper 实战（开发重点）
+# 第 3 章 应用
 
 ## 实现分布式配置中心
 
@@ -572,7 +572,7 @@ public class DistributeClient {
 
 # 第 4 章 Zookeeper 内部原理
 
-## 4.2 Stat 结构体
+## 2 Stat 结构体
 
 czxid-创建节点的事务 zxid 每次修改 ZooKeeper 状态都会收到一个 zxid 形式的时间戳，也就是 ZooKeeper 事务 ID。事务 ID 是 ZooKeeper 中所有修改总的次序。每个修改都有唯一的 zxid，如果 zxid1 小于 zxid2，那么 zxid1 在 zxid2 之前发生。
 
@@ -587,7 +587,7 @@ czxid-创建节点的事务 zxid 每次修改 ZooKeeper 状态都会收到一个
     id。如果不是临时节点则是 0。
 9.  dataLength- znode 的数据长度 11）numChildren - znode 子节点数量
 
-## 4.3 监听器原理（面试重点）
+## 3：监听器Watch
 
 数据变更通知
 
@@ -660,8 +660,6 @@ Event.EventType.NodeCreated
 Event.EventType.NodeDeleted
 ```
 
-
-
 2.2 查询 Watcher
 
 从 WatchTable 中根据节点路径查找 Watcher
@@ -686,7 +684,7 @@ Event.EventType.NodeDeleted
 
 
 
-## 4.4 选举机制（面试重点）
+## 4 ：选举机制
 
 1.  半数机制：集群中半数以上机器存活，集群可用。所以 Zookeeper 适合安装奇数台服务器。
 2.  Zookeeper 虽然在配置文件中并没有指定 Master 和 Slave。但是，Zookeeper 工作时，是有一个节点为 Leader，其他则为 Follower，Leader 是通过内部的选举机制临时产生的。
@@ -696,8 +694,6 @@ Event.EventType.NodeDeleted
 5-8 所示。
 
 ![](media/1cfe56f1c837c0e0c5155e28f2a2cafb.png)
-
-图 5-8 Zookeeper 的选举机制
 
 1.  服务器 1 启动，发起一次选举。服务器 1 投自己一票。此时服务器 1 票数一票，不够半数以上（3 票），选举无法完成，服务器 1 状态保持为 LOOKING；
 2.  服务器 2 启动，再发起一次选举。服务器 1 和 2 分别投自己一票并交换选票信息：此时服务器 1 发现服务器 2 的 ID 比自己目前投票推举的（服务器 1）大，更改选票为推举服务器 2。此时服务器 1 票数 0 票，服务器 2 票数 2 票，没有半数以上结果，选举无法完成，服务器 1，2 状态保持 LOOKING
