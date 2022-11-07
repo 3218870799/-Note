@@ -9,19 +9,19 @@ Logstash、Kibana 组成，在发展的过程中，又有新成员 Beats 的加�
 
 ![image-20200922092505011](media/image-20200922092505011.png)
 
-### Elasticsearch
+1：Elasticsearch
 
 Elasticsearch 基于 java，是个开源分布式搜索引擎，它的特点有：分布式，零配置，自动发现，索引自动分片，索引副本机制，restful 风格接口，多数据源，自动搜索负载等。
 
-### Logstash
+2：Logstash
 
 Logstash 基于 java，是一个开源的用于收集,分析和存储日志的工具。
 
-### Kibana
+3：Kibana
 
 Kibana 基于 nodejs，也是一个开源和免费的工具，Kibana 可以为 Logstash 和 ElasticSearch 提供的日志分析友好的 Web 界面，可以汇总、分析和搜索重要数据日志。
 
-### Beats
+4：Beats
 
 Beats 是 elastic 公司开源的一款采集系统监控数据的代理 agent，是在被监控服务器上以客户端形式运行的数据收集器的统称，可以直接把数据发送给 Elasticsearch 或者通过 Logstash 发送给 Elasticsearch，然后进行后续的数据分析活动。Beats 由如下组成:
 
@@ -30,7 +30,7 @@ Beats 是 elastic 公司开源的一款采集系统监控数据的代理 agent�
 - Metricbeat：可定期获取外部系统的监控指标信息，其可以监控、收集 Apache、HAProxy、MongoDB
   MySQL、Nginx、PostgreSQL、Redis、System、Zookeeper 等服务；
 
-> Beats 和 Logstash 其实都可以进行数据的采集，但是目前主流的是使用 Beats 进行数据采集，然后使用 Logstash 进行数据的分割处理等，早期没有 Beats 的时候，使用的就是 Logstash 进行数据的采集。
+Beats 和 Logstash 其实都可以进行数据的采集，但是目前主流的是使用 Beats 进行数据采集，然后使用 Logstash 进行数据的分割处理等，早期没有 Beats 的时候，使用的就是 Logstash 进行数据的采集。
 
 ES7 需要 Java11
 
@@ -48,7 +48,7 @@ ElasticSearch 是 Elastic Stack 的核心，同时 Elasticsearch 是一个分布
 
 应用场景：
 
-程序——ES（Lucene/Solr——索引库
+程序——ES（Lucene/Solr）——索引库
 
 程序——Mybatis——数据库
 
@@ -461,8 +461,7 @@ DELETE /haoke
 
 ### 插入数据
 
-> URL 规则：
-> POST /{索引}/{类型}/{id}
+URL 规则：POST /{索引}/{类型}/{id}
 
 ```bash
 POST /haoke/user/1001
@@ -546,7 +545,7 @@ DELETE 1 /haoke/user/1001
 
 ![image-20200922161627716](media/image-20200922161627716.png)
 
-> 删除一个文档也不会立即从磁盘上移除，它只是被标记成已删除。Elasticsearch 将会在你之后添加更多索引的时候才会在后台进行删除内容的清理。【相当于批量操作】
+删除一个文档也不会立即从磁盘上移除，它只是被标记成已删除。Elasticsearch 将会在你之后添加更多索引的时候才会在后台进行删除内容的清理。【相当于批量操作】
 
 ### 搜索数据
 
@@ -736,7 +735,7 @@ POST /haoke/user/_search
 
 索引(index)类似于关系型数据库里的“数据库”——它是我们存储和索引关联数据的地方。
 
-> 提示：事实上，我们的数据被存储和索引在分片(shards)中，索引只是一个把一个或多个分片分组在一起的逻辑空间。然而，这只是一些内部细节——我们的程序完全不用关心分片。对于我们的程序而言，文档存储在索引(index)中。剩下的细节由 Elasticsearch 关心既可。
+提示：事实上，我们的数据被存储和索引在分片(shards)中，索引只是一个把一个或多个分片分组在一起的逻辑空间。然而，这只是一些内部细节——我们的程序完全不用关心分片。对于我们的程序而言，文档存储在索引(index)中。剩下的细节由 Elasticsearch 关心既可。
 
 #### \_type
 
@@ -815,7 +814,7 @@ HEAD 1 /haoke/user/1006
 
 ![image-20200923101433608](media/image-20200923101433608.png)
 
-> 当然，这只表示你在查询的那一刻文档不存在，但并不表示几毫秒后依旧不存在。另一个进程在这期间可能创建新文档。
+当然，这只表示你在查询的那一刻文档不存在，但并不表示几毫秒后依旧不存在。另一个进程在这期间可能创建新文档。
 
 ### 批量操作
 
@@ -847,7 +846,7 @@ POST /haoke/user/_mget
 
 ![image-20200923101721344](media/image-20200923101721344.png)
 
-> 也就是说，一个数据的存在不会影响其它数据的返回
+也就是说，一个数据的存在不会影响其它数据的返回
 
 #### \_bulk 操作
 

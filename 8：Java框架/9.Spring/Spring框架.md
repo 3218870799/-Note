@@ -2,59 +2,44 @@
 
 ## 1.1 简介
 
-Spring 的核心是控制反转（IoC）和面向切面编程（AOP）。
+Spring 的核心是控制反转（IOC）和面向切面编程（AOP）。
 
 Spring 的主要作用就是为代码“解耦"，降低代码间的耦合度。就是让对象和对象（模块和模块）之间关系不是使用代码关联，而是通过配置来说明。即在 Spring 中说明对象（模块）的关系。
 
 Spring 根据代码的功能特点，使用 Ioc 降低业务对象之间耦合度。IoC 使得主业务在相互调用过程中，不用再自己维护关系了，即不用再自己创建要使用的对象了。而是由 Spring 容器统一管理，自动“注入",注入即赋值。 而 AOP 使得系统级服务得到了最大复用，且不用再由程序员手工将系统级服务“混杂"到主业务逻辑中了，而是由 Spring 容器统一完成“织入"。
 
-## 1.2 Spring 优点？
+## 1.2 优点
 
-Spring 是一个框架，是一个半成品的软件。有 20 个模块组成。它是一个容器管理对象，容器是装东西的，Spring 容器不装文本，数字。装的是对象。Spring 是存储对象的容器。
+Spring 是一个框架，是一个半成品的软件。有 20 个模块组成。它是一个容器管理对象；
 
-- （方便解耦，简化开发 （高内聚低耦合）
+- 方便解耦，简化开发 （高内聚低耦合）：Spring 就是一个大工厂（容器），可以将所有对象创建和依赖关系维护，交给 Spring 管理；spring 工厂是用于生成 bean
 
-  - Spring 就是一个大工厂（容器），可以将所有对象创建和依赖关系维护，交给 Spring 管理
+- AOP 编程的支持：Spring 提供面向切面编程，可以方便的实现对程序进行权限拦截、运行监控等功能
 
-  - spring 工厂是用于生成 bean
+- 声明式事务的支持：只需要通过配置就可以完成对事务的管理，而无需手动编程
 
-- AOP 编程的支持
+- 方便程序的测试：Spring 对 Junit4 支持，可以通过注解方便的测试 Spring 程序
 
-  - Spring 提供面向切面编程，可以方便的实现对程序进行权限拦截、运行监控等功能
+- 方便集成各种优秀框架：Spring 不排斥各种优秀的开源框架，其内部提供了对各种优秀框架（如：Struts、Hibernate、MyBatis、Quartz 等）的直接支持
 
-- 声明式事务的支持
+- 降低 JavaEE API 的使用难度：Spring对 JavaEE 开发中非常难用的一些 API（JDBC、JavaMail、远程调用等），都提供了封装，使这些 API 应用难度大大降低
 
-  - 只需要通过配置就可以完成对事务的管理，而无需手动编程
-
-- 方便程序的测试
-
-  - Spring 对 Junit4 支持，可以通过注解方便的测试 Spring 程序
-
-- 方便集成各种优秀框架
-
-  - Spring 不排斥各种优秀的开源框架，其内部提供了对各种优秀框架（如：Struts、Hibernate、MyBatis、Quartz 等）的直接支持
-
-- 降低 JavaEE API 的使用难度
-
-  - Spring
-    对 JavaEE 开发中非常难用的一些 API（JDBC、JavaMail、远程调用等），都提供了封装，使这些 API 应用难度大大降低
 
 Spring **体系结构**
 
 ![](media/87d9fbefc903d2889466a35363150c0b.jpg)
 
-## 1.3：核心容器
+## 1.3 核心容器
 
 **beans、core、context、expression**
 
-Spring 由 20 多个模块组成，它们可以分为数据访问/集成（DataAccess/Integration）、Web、面向切面编程（AOP, Aspects）、提供
-JVM 的代理（Instrumentation）、消息发送（Messaging）、核心容器（CoreContainer）和测试（Test）。
+Spring 由 20 多个模块组成，它们可以分为数据访问/集成（DataAccess/Integration）、Web、面向切面编程（AOP, Aspects）、提供 JVM 的代理（Instrumentation）、消息发送（Messaging）、核心容器（CoreContainer）和测试（Test）。
 
 ## 1.4：事件
 
 Spring Event是Spring的事件通知机制，可以将相互耦合的代码解耦，其实是一个监听者模式的具体实现
 
-监听者模式包含了监听者Listener，时间Event，事件发布这EventPulish，过程就是EventPulish发布一个事件，被监听者捕获到，然后执行事件相应的方法；
+监听者模式包含了监听者Listener，事件Event，事件发布者EventPulish，过程就是EventPulish发布一个事件，被监听者捕获到，然后执行事件相应的方法；
 
 Spring 提供了以下 5 种标准的事件：
 
@@ -69,8 +54,7 @@ Spring 提供了以下 5 种标准的事件：
 
 （5）请求处理事件（RequestHandledEvent）：在 Web 应用中，当一个 http 请求（request）结束触发该事件。
 
-如果一个 bean 实现了 ApplicationListener 接口，当一个 ApplicationEvent
-被发布以后，bean 会自动被通知。
+如果一个 bean 实现了 ApplicationListener 接口，当一个 ApplicationEvent被发布以后，bean 会自动被通知。
 
 例子：
 
@@ -127,18 +111,21 @@ spring 框架的原理其实主要是 dom4j+反射+xml.原理就是将 xml 用 d
 
 # 第 2 章 IOC 控制反转
 
-**对象控制权的转移**IoC 是一个概念，是一种思想，其实现方式多种多样。当前比较流行的实现方式是依赖注入。好处在于一方面可以将资源集中管理，实现资源的可配置和易管理。第二，降低了资源双方的依赖程度，就是是耦合度。默认是使用单例模式。
+**对象控制权的转移**IOC 是一个概念，是一种思想，其实现方式多种多样。当前比较流行的实现方式是依赖注入。好处在于一方面可以将资源集中管理，实现资源的可配置和易管理。第二，降低了资源双方的依赖程度，就是是耦合度。默认是使用单例模式。
 
 依赖：
 
 classA 类中含有 classB 的实例，在 classA 中调用 classB 的方法完成功能，即 classA 对 classB 有依赖。BeanDefinition 对象负责记录和管理各个业务对象自建的依赖关系：容器中的每一个 bean 都会有一个对应的 BeanDefinition 实例，该实例负责保存 bean 对象的所有必要信息，包括 bean 对象的 class 类型、是否是抽象类、构造方法和参数、其它属性等等。
 
-Ioc 的实现：
+容器：存储，三级缓存，一般从一级缓存singletonObject存放完成的bean对象；
 
-依赖注入 DI
-是指程序运行过程中，若需要调用另一个对象协助时，无须在代码中创建被调用者，而是依赖于外部容器，由外部容器创建后传递给程序。
+IOC的实现：
 
-## 2.2 Spring 的第一个程序
+依赖注入 DI，是指程序运行过程中，若需要调用另一个对象协助时，无须在代码中创建被调用者，而是依赖于外部容器，由外部容器创建后传递给程序。
+
+
+
+## 1：使用
 
 举例：01-primay
 
@@ -166,50 +153,34 @@ Ioc 的实现：
 </build>
 ```
 
-> **核心开发包说明：**
+**核心开发包说明：**
 
-- spring-core-3.2.2.RELEASE.jar
+- spring-core-3.2.2.RELEASE.jar：包含 Spring 框架基本的核心工具类，Spring 其它组件要都要使用到这个包里的类,是其它组件的基本核心。
 
-  - 包含 Spring 框架基本的核心工具类，Spring 其它组件要都要使用到这个包里的类,是其它组件的基本核心。
+- spring-beans-3.2.2.RELEASE.jar：所有应用都要用到的，它包含访问配置文件、创建和管理 bean；以及进行 Inversion of Control(IoC) / Dependency Injection(DI)操作相关的所有类
 
-- spring-beans-3.2.2.RELEASE.jar
+- spring-context-3.2.2.RELEASE.jar：Spring 提供在基础 IoC 功能上的扩展服务，此外还提供许多企业级服务的支持；如邮件服务、任务调度、JNDI 定位、EJB 集成、远程访问、缓存以及各种视图层框架的封装等。
 
-  - 所有应用都要用到的，它包含访问配置文件、创建和管理 bean
+- spring-expression-3.2.2.RELEASE.jar：Spring 表达式语言
 
-  - 以及进行 Inversion of Control(IoC) / Dependency
-    Injection(DI)操作相关的所有类
+- com.springsource.org.apache.commons.logging-1.1.1.jar：第三方的主要用于处理日志
 
-- spring-context-3.2.2.RELEASE.jar
-
-  - Spring 提供在基础 IoC 功能上的扩展服务，此外还提供许多企业级服务的支持,
-
-  - 如邮件服务、任务调度、JNDI 定位、EJB 集成、远程访问、缓存以及各种视图层框架的封装等。
-
-- spring-expression-3.2.2.RELEASE.jar
-
-  - Spring 表达式语言
-
-- com.springsource.org.apache.commons.logging-1.1.1.jar
-
-  - 第三方的主要用于处理日志
-
-    2.2.3 定义接口与实体类
+  2.2.3 定义接口与实体类
 
 ```java
-**public interface** SomeService { **void** doSome();
+public interface SomeService { void doSome();
 
   }
 
-**public class** SomeServiceImpl **implements** SomeService {
-    **public**SomeServiceImpl() {
-        **super**();
-		System.**out**.println("SomeServiceImpl无参数构造方法");
+public class SomeServiceImpl implements SomeService {
+    publicSomeServiceImpl() {
+        super();
+		System.out.println("SomeServiceImpl无参数构造方法");
 	}
 
 @Override
-
-**public void** doSome() {
-		System.**out**.println("====业务方法doSome()===");
+public void doSome() {
+		System.out.println("====业务方法doSome()===");
   }
 }
 ```
@@ -234,7 +205,7 @@ class：指定该 Bean 所属的类，注意这里只能是类，不能是接口
 @Test
 public void test01(){
     //指定spring配置文件的位置和名称
-    String resource="applicationContext.xml";/创建spring容器对象
+    String resource="applicationContext.xml";//创建spring容器对象
     ApplicationContext ac = new ClassPathXm1ApplicationContext(resource);//从spring容器中获取对象,使用id
     SomeService service = (SomeService)ac.getBean("someService");//执行对象的业务方法
     service.doSome();
@@ -252,7 +223,7 @@ MyTest 测试类中：调用 getBean(“myDate"); 获取日期类对象。
 
 2.2.7 容器接口和实现类
 
-ApplicationContext **接口（容器）**
+ApplicationContext 接口（容器）
 
 ApplicationContext 用于加载 Spring 的配置文件，在程序中充当“容器"的角色。其实现类有两个。
 
@@ -292,19 +263,19 @@ C**、** 使用 spring 容器创建的 java 对象
 
 ![](media/9324f0294fe12578500c994e1f2359fb.jpg)
 
-## 3：Bean
+## 2：Bean
 
-### 2.3.1：实例化方式
+### 实例化方式
 
 三种 bean 实例化的方式：默认构造，静态工厂，实例工厂
 
 Bean的配置方式：通过全类名（反射），通过工厂方法）静态工厂方法&实例工厂方法）FactoryBean
 
-#### 1：默认构造：
+#### 默认构造：
 
 \<bean id="" class=""\> 必须提供默认构造
 
-#### 2：静态工厂
+#### 静态工厂
 
 **BeanFactory 和 ApplicationContext 有什么区别？**
 
@@ -337,7 +308,6 @@ public class MyBeanFactory {
 		return new UserServiceImpl();
 	}
 }
-
 ```
 
 Spring 配置
@@ -351,7 +321,7 @@ Spring 配置
 
 ```
 
-#### 3：实例工厂
+#### 实例工厂
 
 - 实例工厂：必须先有工厂实例对象，通过实例对象创建对象。提供所有的方法都是“非静态"的。
 
@@ -388,7 +358,7 @@ public class MyBeanFactory {
 	<bean id="userServiceId" factory-bean="myBeanFactoryId" factory-method="createService"></bean>
 ```
 
-### 2.3.2 Bean 种类
+### Bean 种类
 
 - 普通 bean：之前操作的都是普通 bean。\<bean id="" class="A"\>，spring 直接创建 A 实例，并返回
 - FactoryBean：是一个特殊的 bean，具有工厂生成对象能力，只能生成特定的对象。bean 必须使用 FactoryBean 接口，此接口提供方法 getObject() 用于获得特定 bean。
@@ -405,7 +375,7 @@ BeanFactory：工厂，用于生成任意 bean。是 ApplicationContext 顶级�
 
 FactoryBean：特殊 bean，用于生成另一个特定的 bean。例如：ProxyFactoryBean，此工厂 bean 用于生产代理。\<bean id="" class="....ProxyFactoryBean"\>获得代理对象实例。AOP 使用
 
-### 2.3.3：作用域
+### 作用域
 
 用于确定 spring 创建 bean 实例个数
 
@@ -438,7 +408,22 @@ prototype
 
 ThreadLocal 和线程同步机制都是为了解决多线程中相同变量的访问冲突问题。同步机制采用了“时间换空间"的方式，仅提供一份变量，不同的线程在访问前需要获取锁，没获得锁的线程则需要排队。而 ThreadLocal 采用了“空间换时间"的方式。
 
-### 4 生命周期
+### 生命周期
+
+1、容器的创建过程(beanFactory,DefaultListableBeanFactory) ,向bean工厂中设置一些参数(BeanPostProcessor,Aware接口的子类)等等属性
+2、加载解析bean对象，准备要创建的bean对象的定义对象beanDefinition,(xml或者注解的解析过程)
+3、beanFactoryPostProcessor的处理，此处是扩展点PlaceHolderConfigurSupport,ConfigurationClassPostProcessor4、BeanPostProcessor的注册功能，方便后续对bean对象完成具体的扩展功能
+5、通过反射的方式讲BeanDefinition对象实例化成具体的bean对象，
+6、 bean对象的初始化过程（填充属性，调用aware子类的方法，调用BeanPostProcessor前置处理方法，调用init-mehtod方法，调BeanPostProcessor的后置处理方法)
+7、生成完整的bean对象，通过getBean方法可以直接获取
+
+8、销毁过程
+
+
+
+
+
+
 
 ![image-20200614155732584](media/image-20200614155732584.png)
 
@@ -488,7 +473,7 @@ Spring 容器启动扫描，把 BeanName 变成 BeanDefinition 存到 BeanDefini
 
 最后，如果这个 Bean 的 Spring 配置中配置了 destroy-method 属性，会自动调用其配置的销毁方法。
 
-### 2.3.5：循环依赖
+### 循环依赖
 
 1：什么是循环依赖？
 
@@ -583,7 +568,7 @@ A 实例化，在工厂池中添加 factoty(a) ，调用 a 的提前引用方法
 
 此方式是通过实例化和初始化的方式，使用构造器必须使用构造方法，就必须将实例化与初始化搞到一起，
 
-## 2.3：Spring 的类加载机制
+## 3：Spring 的类加载机制
 
 OverridingClassLoader 继承自 DecoratingClassLoader ，DecoratingClassLoader 又继承自 ClassLoader
 
@@ -613,13 +598,11 @@ OverridingClassLoader 是 Spring 自定义的类加载器，默认会先自己�
 
 使用 BeanDefinitionDelegate 代理类解析 Bean 元素并且依次进行实例化，实例化完毕之后将 Bean 信息注册（put）到 BeanDefinitionMap 中以便于下次使用。
 
-## 2.3 基于 XML 的 DI
+## 4 ：基于 XML 的 DI
 
-property 注入属性，还有构造方法注入属性，还有 map，list 等数据结构注入的方式又是什么？P 命名空间注入
+property 注入属性，还有构造方法注入属性，还有 map，list 等数据结构注入的方式又是什么？P 命名空间注入不再写 `<bean>` 标签，使用注解方式
 
-不再写 `<bean>` 标签，使用注解方式
-
-### 2.3.1 注入分类
+### 注入分类
 
 bean 实例在调用无参构造器创建对象后，就要对 bean 对象的属性进行初始化。初始化是由容器自动完成的，称为注入。
 
@@ -739,7 +722,7 @@ C、特殊类型
 <!--如果是一个外部类，使用p:gender-ref = ""-->
 ```
 
-### 2.3.2 引用类型属性自动注入
+### 引用类型属性自动注入
 
 对于引用类型属性的注入，也可不在配置文件中显示的注入。可以通过为\<bean/\>标签设置 autowire 属性值，为引用类型属性进行隐式自动注入（默认是不自动注入引用类型属性）。根据自动注入判断标准的不同，可以分为两种：
 
@@ -779,7 +762,7 @@ byType： 根据类型自动注入
 
 最好是将@Resource放在setter方法上，因为这样更符合面向对象的思想，通过set、get去操作属性，而不是直接去操作属性。
 
-### 2.3.3 为应用指定多个 Spring 配置文件
+### 为应用指定多个 Spring 配置文件
 
 在实际应用里，随着应用规模的增加，系统中 Bean 数量也大量增加，导致配置文件变得非常庞大、臃肿。为了避免这种情况的产生，提高配置文件的可读性与可维护性，可以将 Spring 配置文件分解成多个配置文件。包含关系的配置文件：
 

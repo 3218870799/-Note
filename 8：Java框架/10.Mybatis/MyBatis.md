@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿# 第 1 章 框架概述
+# 第 1 章 框架概述
 
 ##  JDBC 编程
 
@@ -52,7 +52,7 @@ public void findStudent() {
 }
 ```
 
-### 缺陷
+缺陷
 
 1.  代码比较多，开发效率低
 
@@ -75,11 +75,23 @@ MyBatis 可以完成：
 3.  从 xml 中获取 sql，并执行 sql 语句，把 ResultSet 结果转换 java 对象
 4.  关闭资源：ResultSet.close() , Statement.close() , Conenection.close()
 
+
+
+优点：
+
+1：消除JDBC的冗余代码；
+
+
+
+
+
 缺点：
 
 1、SQL 语句的编写工作量较大，尤其当字段多、关联表多时，对开发人员编写 SQL 语句的功底有一定要求。
 
 2、SQL 语句依赖于数据库，导致数据库移植性差，不能随意更换数据库
+
+
 
 对Hibernate 对比：
 
@@ -593,7 +605,7 @@ mapper 文件：
 接口方法：
 
 ```java
-List<Student> selectByNameAndAge(String name,**int** age);
+List<Student> selectByNameAndAge(String name,int age);
 ```
 
 mapper 文件
@@ -704,7 +716,8 @@ List<Student> selectLikeFirst(String name);
 mapper 文件：
 
 ```xml
-<select id="selectLikeFirst" resultType="com.xqc.domain.Student">     select id,name,email,age from student     where name like #{studentName}
+<select id="selectLikeFirst" resultType="com.xqc.domain.Student">    
+    select id,name,email,age from student where name like #{studentName}
 </select>
 ```
 

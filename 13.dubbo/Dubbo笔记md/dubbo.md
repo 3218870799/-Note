@@ -169,9 +169,7 @@ Apache Dubbo (incubating) \|ˈdʌbəʊ\| 是一款高性能、轻量级的开源
 
 官网：<http://dubbo.apache.org/>
 
-对比 SpringCloud
 
-![image-20210302212548717](media/image-20210302212548717.png)
 
 ### 2.2）、基本概念
 
