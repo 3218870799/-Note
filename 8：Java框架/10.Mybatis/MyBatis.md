@@ -105,184 +105,9 @@ MyBatis 可以完成：
 
 # 第 2 章 快速入门
 
-## 1：入门案例
+## 1：入门
 
-搭建 MyBatis 开发环境，实现第一个案例
-
-下载 mybatis
-
-https://github.com/mybatis/mybatis-3/releases
-
-（1） 创建 mysql 数据库和表
-
-（2） 创建 maven 工程
-
-创建 maven 工程，信息如下：模板：
-
-（3） 删除默认创建的 App 类文件
-
-（4）添加 Maven 依赖
-
-```xml
-<dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <scope>test</scope>
-</dependency>
-<dependency>
-      <groupId>org.mybatis</groupId>
-      <artifactId>mybatis</artifactId>
-      <version>3.5.1</version>
-</dependency>
-<dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-    <version>5.1.9</version>
-    </dependency>
-</dependencies>
-
-```
-
-（5） 加入 maven 插件
-
-```xml
- <build>
-    <resources>
-      <resource>
-        <directory>src/main/java</directory><!--所在的目录-->
-        <includes><!--包括目录下的.properties,.xml 文件都会扫描到-->
-          <include>**/*.properties</include>
-          <include>**/*.xml</include>
-        </includes>
-        <filtering>false</filtering>
-      </resource>
-   </resources>
-    <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
-    </plugins>
-</build>
-
-```
-
-（6） 编写Student 实体
-
-创建包 com.xqc.domain, 包中创建 Student 类
-
-```java
-package com.xqc.domain;
-/**
-*	<p>Description: 实体类 </p>
-*	<p>Company: http://www.xqc.com
- */
- public class Student {
-    //属性名和列名一样
-     private Integer id;
-     private String name;
-     private String email;
-     private Integer age;
-    // set ,get , toString
-}
-```
-
-（7） 编写Dao 接口StudentDao
-
-```java
-package com.xqc.dao;
-import com.xqc.domain.Student;
-import java.util.List;
-/**
- * <p>Description: Dao接口 </p>
- * <p>Company: http://www.xqc.com
- */
-public interface StudentDao {
-    /*查询所有数据*/
-	List<Student> selectStudents();
-}
-
-```
-
-（8） 编写 Dao 接口 Mapper 映射文件StudentDao.xml
-
-要求：
-
-1.  在 dao 包中创建文件 StudentDao.xml
-2.  要 StudentDao.xml 文件名称和接口 StudentDao 一样，区分大小写的一样。
-
-```xml
- <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<!--
-     namespace：必须有值，自定义的唯一字符串
-		推荐使用：dao接口的全限定名称
--->
-<mapper namespace="com.xqc.dao.StudentDao">
-    <!--
-       <select>: 查询数据， 标签中必须是select语句
-			id:  sql语句的自定义名称，推荐使用dao接口中方法名称，
-			使用名称表示要执行的sql语句
-			resultType: 查询语句的返回结果数据类型，使用全限定类名
-    -->
-    <select id="selectStudents" resultType="com.xqc.domain.Student">
-        <!--要执行的sql语句-->
-        select id,name,email,age from student
-    </select>
-</mapper>
-
-```
-
-（9） 创建 MyBatis主配置文件
-
-项目 src/main 下创建 resources 目录，设置 resources 目录为 resources root
-创建主配置文件：名称为 mybatis.xml
-
-说明：主配置文件名称是自定义的，内容如下：
-
-```xml
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE configuration
-        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"         "http://mybatis.org/dtd/mybatis-3-config.dtd">
-    <!--配置mybatis环境-->
-    <environments default="mysql">
-        <!--id:数据源的名称-->
-        <environment id="mysql">
-            <!--配置事务类型：使用JDBC事务（使用Connection的提交和回滚）-->
-            <transactionManager type="JDBC"/>
-            <!--数据源dataSource：创建数据库Connection对象
-				type: POOLED 使用数据库的连接池
-            -->
-            <dataSource type="POOLED">
-                <!--连接数据库的四个要素-->
-                <property name="driver" value="com.mysql.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql://localhost:3306/ssm"/>
-                <property name="username" value="root"/>
-                <property name="password" value="123456"/>
-            </dataSource>
-        </environment>
-    </environments>
-    <mappers>
-        <!--告诉mybatis要执行的sql语句的位置-->
-        <mapper resource="com/xqc/dao/StudentDao.xml"/>
-</mappers>
-<configuration>
-
-```
-
-支持中文的 url：**jdbc:mysql://localhost:3306/ssm?useUnicode=true&characterEncoding=utf-8**
-
-（10） 创建测试类 MyBatisTest
-
-src/test/java/com/xqc/ 创建 MyBatisTest.java 文件
+建测试类 MyBatisTest
 
 ```java
 @Test
@@ -304,206 +129,32 @@ public void testStart() throws IOException{
 
 ```
 
-List\<Student\> studentList = session.selectList("com.xqc.dao.StudentDao.selectStudents");
+其中代码：
+
+```java
+List<Student> studentList = session.selectList("com.xqc.dao.StudentDao.selectStudents");
+```
+
 近似等价的 jdbc 代码
 
+```java
 Connection conn = 获取连接对象
-
 String sql=” select id,name,email,age from student”
-
 PreparedStatement ps = conn.prepareStatement(sql);
-
 ResultSet rs = ps.executeQuery();
-
-（11） 配置日志功能
-
-mybatis.xml 文件加入日志配置，可以在控制台输出执行的 sql 语句和参数
-
-```xml
-<settings>
-    <setting name="logImpl" value="STDOUT_LOGGING" />
-</settings>
 ```
 
-## 2 ：基本的 CURD
+## 2：Mapper文件
 
-查询一个 selectOne
+### NameSpace
 
-insert ,update ,delete
+命名空间，
 
-###  insert
+### 参数
 
-（1） StudentDao 接口中增加方法
-
-```java
-int insertStudent(Student student);
-```
-
-（2） StudentDao.xml 加入 sql 语句
-
-```xml
-<insert id="insertStudent"> insert into student(id,name,email,age)
-    values(#{id},#{name},#{email},#{age})
-</insert>
-```
-
-（3） 增加测试方法
-
-```java
-@Test
-public void testInsert() throws IOException {
-    //1.mybatis主配置文件
-    String config = "mybatis-config.xml";
-    //2.读取配置文件
-    InputStream in = Resources.getResourceAsStream(config);
-    //3.创建SqlSessionFactory对象
-    SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(in);
-    //4.获取SqlSession
-    SqlSession session = factory.openSession();
-    //5.创建保存数据的对象
-    Student student = new Student();
-    student.setId(1005);
-    student.setName("张丽");
-    student.setEmail("zhangli@163.com");
-    student.setAge(20);
-    //6.执行插入insert
-    int rows =  session.insert("com.xqc.dao.StudentDao.insertStudent",student);
-    //7.提交事务
-    System.out.println("增加记录的行数:"+rows);
-    //8.关闭SqlSession
-    session.close();
-}
-```
-
-### update
-
-（1） StudentDao 接口中增加方法
-
-```java
-int updateStudent(Student student);
-```
-
-（2） StudentDao.xml 增加 sql 语句
-
-```xml
-<update id="updateStudent"> update student set age = #{age} where id=#{id}
-</update>
-```
-
-（3） 增加测试方法
-
-（4）问：Mybatis 如果 Update 一个没有的数据项会怎么办？？
-
-实验证明：不会怎么样，也不会报错，也不会增加数据
-
-### delete
-
-（1） StudentDao 接口中增加方法
-
-```java
-int deleteStudent(int id);
-```
-
-（2） StudentDao.xml 增加 sql 语句
-
-```xml
-<delete id="deleteStudent"> delete from student where id=#{studentId}
-</delete>
-```
-
-## 4：代理CURD
-
-（**1**） 去掉 **Dao** 接口实现类
-
-只需调用 SqlSession 的 getMapper()方法，即可获取指定接口的实现类对象。该方法的参数为指定 Dao 接口类的 class 值。
-
-```java
-SqlSession session = factory.openSession();
-StudentDao dao = session.getMapper(StudentDao.class);
-```
-
-使用工具类:
-
-```java
-StudentDao studentDao = MyBatisUtil.getSqlSession().getMapper(StudentDao.class);
-```
-
-（**3**） 使用 **Dao** 代理对象方法执行 **sql** 语句
-
-select 方法:
-
-```java
-@Test
-public void testSelect() throws IOException{
-    final List<Student> studentList = studentDao.selectStudents();
-    studentList.foreach(stu->System.out.println(stu));
-}
-```
-
-update 方法
-
-```java
-@Test
-public void testUpdate() throws IOException{
-    Student student = new Student();
-    student.setId(10086);
-    student.setAge(28);
-    int nums = studentDao.updateStudent(student);
-    System.out.println(nums);
-}
-```
-
-delete 方法
-
-```java
-StudentDao.delectStudent(1006);
-```
-
-### 原理
-
-动态代理
-
-MapperProxy 类定义
-
-```java
-public class MapperProxy<T> implements InvocationHandler，Serializable {
-    @Override
-    public Object invoke(Object proxy，Method method，0bject[] args)
-        try {
-            if (object.class.equals(method.getDeclaringClass())) {
-                return method.invoke(this,args) ;
-             }else if (isDefaultMethod ( method)) {
-                return invokeDefaultMethod (proxy,method，args);}
-         }catch (Throwable t) {
-                throw ExceptionUtil.unwrapThrowable(t);
-         }final MapperMethod mapperMethod = cachedMapperMethod(method) ;
-    return mapperMethod.execute(sqlsession,args);
-}
-public Object execute( SqlSession sqlSession，0bject[] args){
-    Object result;
-    switch ( command.getType()) {
-        case INSERT: {
-    		Object param = method.convertArgsTosqlCommandParam(args);
-    		result - rowCountResult(sqlsession.insert(command.getName()， param);
-            break;
-        }
-        case UPDATE: {
-            Object param = method.convertArgsToSqlCommandParam(args);
-            result = rowCountResult(sqlsession.update(command.getName(), param);
-            break;
-                                    }
-
-```
-
-## 5： 深入理解参数
-
-### parameterType
+1：parameterType
 
 parameterType: 接口中方法参数的类型，类型的完全限定名或别名。这个属性是可选的，因为 MyBatis 可以推断出具体传入语句的参数，默认值为未设置（unset）。
-
-接口中方法的参数从 java 代码传入到 mapper 文件的 sql 语句。
-
-\<select\>,\<insert\>,\<update\>,\<delete\>都可以使用 parameterType 指定类型。
 
 例如：
 
@@ -512,11 +163,11 @@ parameterType: 接口中方法参数的类型，类型的完全限定名或别�
 <delect id="delectById" parameterType="java.lang.Integer"></delect>
 ```
 
-### 传递参数
+2：传递参数
 
 从 java 代码中把参数传递到 mapper.xml 文件。
 
-1：一个简单参数
+一个简单参数
 
 Dao 接口中方法的参数只有一个简单类型（java 基本类型和 String），占位符 **\#{**任意字符 **}**，和方法的参数名无关。
 
@@ -530,7 +181,7 @@ mapper 文件：
 
 \#{studentId} , studentId 是自定义的变量名称，和方法参数名无关。
 
-2：多个参数-使用@Param
+多个参数-使用@Param
 
 当 Dao 接口方法多个参数，需要通过名称使用参数。在方法形参前面加入@Param(“自定义参数名”)，
 
@@ -550,7 +201,7 @@ mapper 文件：
 </select>
 ```
 
-3：多个参数-使用对象
+多个参数-使用对象
 
 使用 java 对象传递参数， java 的属性值就是 sql 需要的参数值。每一个属性就是一个参数。
 
@@ -596,7 +247,7 @@ mapper 文件：
 </select>
 ```
 
-4：多个参数-按位置
+多个参数-按位置
 
 参数位置从 0 开始， 引用参数语法 **\#{ arg** 位置 **}** ， 第一个参数是\#{arg0}，第二个是\#{arg1}
 
@@ -643,9 +294,11 @@ mapper 文件：
 </select>
 ```
 
-### #和\$
 
-1：传入的值
+
+3：#和\$
+
+1）传入的值
 
 \#将传入的数据都当成一个字符串，会对自动传入的数据加一个双引号。
 
@@ -657,7 +310,7 @@ $将传入的数据直接显示生成在 sql 中。
 
 \#方式可以很大程度防止 sql 注入
 
-2：防止注入攻击
+2）防止注入攻击
 
 $这样的参数会直接参与 sql 编译,从而不能避免注入攻击
 
@@ -665,27 +318,27 @@ $这样的参数会直接参与 sql 编译,从而不能避免注入攻击
 
 \#{…}代替 sql 语句的“?”。这样做更安全，更迅速，通常也是首选做法
 
-## 6：封装结果
+### 封装结果
 
 Mybatis的结果封装分为两种，一种是有ResultMap映射表，一种是有ResultMap映射表，明确定义了结果集列名与对象属性名的配对关系，另外一种是对象类型，没有明确定义结果集列名与对象属性名的配对关系。
 
 原理是使用ObjectFacoty创建一个Teacher对象直接set
 
-### resultType
+1：resultType
 
 resultType: 执行 sql 得到 ResultSet 转换的类型，使用类型的完全限定名或别名。注意如果返回的是集合，那应该设置为集合包含的类型，而不是集合本身。resultType 和 resultMap，不能同时使用。
 
-### resultMap
+2：resultMap
 
 resultMap 可以自定义 sql 的结果和 java 对象属性的映射关系。更灵活的把列值赋值给指定属性。常用在列名和 java 对象属性名不一样的情况。
 
-### 实体类属性名和列名不同
+3：实体类属性名和列名不同
 
 （1） 使用列别名和\<resultType\>
 
 （2） 使用\<resultMap\>
 
-### 配置别名
+4：配置别名
 
 ```xml
 <!-- 别名定义 -->  
@@ -741,14 +394,11 @@ mapper 文件：
 
 # 第 3 章 动态 SQL
 
-动态 SQL，通过 MyBatis 提供的各种标签对条件作出判断以实现动态拼接 SQL 语句。这里的条件判断使用的表达式为 OGNL 表达式。常用的动态 SQL
-标签有\<if\>、\<where\>、\<choose/\>、\<foreach\>等。
+动态 SQL，通过 MyBatis 提供的各种标签对条件作出判断以实现动态拼接 SQL 语句。这里的条件判断使用的表达式为 OGNL 表达式。常用的动态 SQL标签有\<if\>、\<where\>、\<choose/\>、\<foreach\>等。
 
 MyBatis 的动态 SQL 语句，与 JSTL 中的语句非常相似。
 
 动态 SQL，主要用于解决查询条件不确定的情况：在程序运行期间，根据用户提交的查询条件进行查询。提交的查询条件不同，执行的 SQL 语句不同。若将每种可能的情况均逐一列出，对所有条件进行排列组合，将会出现大量的 SQL 语句。此时，可使用动态 SQL 来解决这样的问题
-
-## 环境准备
 
 在 mapper 的动态 SQL 中若出现大于号（\>）、小于号（\<）、大于等于号（\>=），小于等于号（\<=）等符号，最好将其转换为实体符号。否则，XML
 可能会出现解析出错问题。
@@ -763,180 +413,39 @@ MyBatis 的动态 SQL 语句，与 JSTL 中的语句非常相似。
 | \>= | 大于等于 | \&gt;= |
 | \<= | 小于等于 | \&lt;= |
 
-## 2 \<if\>
+```txt
+1:<if>
 
-对于该标签的执行，当 test 的值为 true 时，会将其包含的 SQL 片断拼接到其所在的 SQL 语句中。
 
-语法：\<if test=”条件”\> sql 语句的部分 \</if\>
 
-接口方法：
+2:<where>
+<if>标签的中存在一个比较麻烦的地方：需要在 where 后手工添加 1=1 的子句。因为，若 where 后的所有<if/>条件均为 false，而 where 后若又没有 1=1子句，则 SQL 中就会只剩下一个空的 where，SQL 出错。所以，在 where 后，需要添加永为真子句 1=1，以防止这种情况的发生。但当数据量很大时，会严重影响查询效率。
 
-List\<Student\> selectStudentIf (Student student);
-
-mapper 文件：
-
-```xml
-<select id="selectStudentIf" resultType="com.node.domain.Student">
-	select id,name,email,age from student where 1=1
-    <if test="name!=null and name!=''">
-        and name=#{name}
-    </if>
-    <if test="age>0">
-    	and age &gt;#{age}
-    </if>
-</select>
-```
-
-测试:
-
-```java
-List<Student> studentList = studentDao.selectStudentIf(param);
-studentList.forEach( stu -> System.out.println(stu));
-```
-
-Mybatis 映射几种：
-
-1：没有传该数据项就不插入
-
-2：如果没有传该对象就插入一个默认值
-
-3：查询条件不为空就添加该查询条件
-
-## 3 \<where\>
-
-\<if/\>标签的中存在一个比较麻烦的地方：需要在 where 后手工添加 1=1 的子句。因为，若 where 后的所有\<if/\>条件均为 false，而 where 后若又没有 1=1
-子句，则 SQL 中就会只剩下一个空的 where，SQL 出错。所以，在 where 后，需要添加永为真子句 1=1，以防止这种情况的发生。但当数据量很大时，会严重影响查询效率。
-
-使用\<where/\>标签，在有查询条件时，可以自动添加上 where 子句；没有查询条件时，不会添加 where 子句。需要注意的是，第一个\<if/\>标签中的 SQL 片断，可以不包含 and。不过，写上 and 也不错，系统会将多出的 and 去掉。但其它\<if/\>中 SQL 片断的 and，必须要求写上。否则 SQL 语句将拼接出错 。
-
-接口方法：
-
-List\<Student\> selectStudentWhere (Student student);
-
-mapper 文件：
-
-```xml
-<select id="selectStudentWhere" resultType="com.xqc.domain.Student">
-	select id,name,email,age from student
-    <where>
-        <if test="name != null and name !='' "> and name = #{name} </if>
-        <if test="age > 0 "> and age &gt; #{age} </if>
-    </where>
-</select>
-```
-
-## 4 \<foreach\>
-
-\<foreach/\>标签用于实现对于数组与集合的遍历。对其使用，需要注意：
-
+3:<foreach>
+<foreach>标签用于实现对于数组与集合的遍历。对其使用，需要注意：
 collection 表示要遍历的集合类型, list ，array 等。
-
 open、close、separator 为对遍历内容的 SQL 拼接。
+例如：
+<if test="list !=null and list.size > 0 ">
+    where id in
+    <foreach collection="list" open="(" close=")"  item="stuid" separator=",">
+    	#{stuid}
+    </foreach>
+</if>
 
-（1） 遍历 List\<简单类型\>
+4：
+<sql>标签用于定义 SQL 片断，以便其它 SQL 标签复用。而其它标签使用该 SQL 片断，需要使用<include>子标签
 
-表达式中的 List 使用 list 表示，其大小使用 list.size 表示。
-
-需求：查询学生 id 是 1002,1005,1006
-
-接口方法：
-
-```java
-List<Student> selectStudentForList(List<Integer> idList);
-```
-
-
-
-mapper 文件：
-
-```xml
-<select id="selectStudentForList" resultType="com.xqc.domain.Student">
-	select id,name,email,age from student
-		<if test="list !=null and list.size > 0 ">
-			where id in
-            <foreach collection="list" open="(" close=")"  item="stuid" separator=",">
-                #{stuid}
-            </foreach>
-    	</if>
-</select>
-
-```
-
-（**2**） 遍历 List\<对象类型\>
-
-接口方法：
-
-```java
-List<Student> selectStudentForList2(List<Student> stuList);
-```
-
-
-
-mapper 文件：
-
-```xml
-<select id="selectStudentForList2" resultType="com.xqc.domain.Student">
-    select id,name,email,age from student
-     	<if test="list !=null and list.size > 0 ">
-     	where id in
-            <foreach collection="list" open="(" close=")"  item="stuobject" separator=",">
-                #{stuobject.id}
-            </foreach>
-        </if>
-</select>
-
-```
-
-## 5 \<sql/\>与\<include/\>
-
-\<sql/\>标签用于定义 SQL 片断，以便其它 SQL 标签复用。而其它标签使用该 SQL 片断，需要使用\<include/\>子标签。
-
-## 6 \<choose/\>，\<When\>
-
+5：
 choose 标签是按顺序判断其内部 when 标签中的 test 条件出否成立，如果有一个成立，则 choose 结束。当 choose 中所有 when 的条件都不满则时，则执行 otherwise 中的 sql
 
-## 7\<trim\>
-
+6 <trim>
 一般用于去除 sql 语句中多余的 and 关键字，逗号，或者给 sql 语句前拼接“where“、“set“以及“values(“等前缀，或者添加“)“等后缀，可用于选择性插入、更新、删除或者条件查询等操作
+```
 
-| **属性**        | **描述**                                                                                                                                                  |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| prefix          | 给 sql 语句拼接的前缀                                                                                                                                     |
-| suffix          | 给 sql 语句拼接的后缀                                                                                                                                     |
-| prefixOverrides | 去除 sql 语句前面的关键字或者字符，该关键字或者字符由 prefixOverrides 属性指定，假设该属性指定为"AND"，当 sql 语句的开头为"AND"，trim 标签将会去除该"AND" |
-| suffixOverrides | 去除 sql 语句后面的关键字或者字符，该关键字或者字符由 suffixOverrides 属性指定                                                                            |
+# 第 4 章 配置文件
 
-如果都没匹配上：SELECT \* FROM BLOG WHERE
-
-如果仅有第二个匹配上：SELECT \* FROM BLOG WHERE AND title like ‘someTitle’
-
-你也可以使用 where 标签去完成该问题
-
-## 8\<![CDATA[ ]]\>
-
-在 CDATA 内部的所有内容都会被解析器忽略。
-
-## 9：Begin And
-
-# 第 5 章 配置文件
-
-https://mybatis.org/mybatis-3/zh/configuration.html
-
-- configuration（配置）
-  - [properties（属性）](https://mybatis.org/mybatis-3/zh/configuration.html#properties)
-  - [settings（设置）](https://mybatis.org/mybatis-3/zh/configuration.html#settings)
-  - [typeAliases（类型别名）](https://mybatis.org/mybatis-3/zh/configuration.html#typeAliases)
-  - [typeHandlers（类型处理器）](https://mybatis.org/mybatis-3/zh/configuration.html#typeHandlers)
-  - [objectFactory（对象工厂）](https://mybatis.org/mybatis-3/zh/configuration.html#objectFactory)
-  - [plugins（插件）](https://mybatis.org/mybatis-3/zh/configuration.html#plugins)
-  - environments（环境配置）
-    - environment（环境变量）
-      - transactionManager（事务管理器）
-      - dataSource（数据源）
-  - [databaseIdProvider（数据库厂商标识）](https://mybatis.org/mybatis-3/zh/configuration.html#databaseIdProvider)
-  - [mappers（映射器）](https://mybatis.org/mybatis-3/zh/configuration.html#mappers)
-
-顺序
+官方文档：https://mybatis.org/mybatis-3/zh/configuration.html
 
 书写顺序必须遵循
 
@@ -944,15 +453,79 @@ https://mybatis.org/mybatis-3/zh/configuration.html
 properties;setting;typeAliases;typeHandlers;
 ```
 
-## 5.1 主配置文件
+## 2：environments
 
-主配置文件特点：
+配置Mybatis多套运行环境，将SQL映射到多个不同的数据库上，必须指定其中一个为默认环境；
 
-1：xml 文件，需要在头部使用约束文件
 
-2：根元素，\<configuration\>
 
-3.主要包含内容：
+environment ：一套运行环境，ID保持唯一；
+
+
+
+transactionManager：事务管理器，Mybatis中有两种事务管理器：JDBC和managed
+
+JDBC配置就是直接使用了JDBC的提交和回滚设置，它依赖于从数据源得到的连接来管理事务作用域。
+
+MANAGED-这个配置几乎没做什么。它从来不提交或回滚一个连接，而是让容器来管理事务的整个生命周期(比如JEE应用服务器的上下文)。默认情况下它会关闭连接，然而一些容器并不希望这样，因此需要将closeConnection 属性设置为 false来阻止它默认的关闭行为。
+
+
+
+dataSource 连接池
+
+Mybatis 中访问数据库，可以连接池技术，但它采用的是自己的连接池技术。在 Mybatis 的 mybatis.xml 配置文件中，通过\<dataSource type=”pooled”\>来实现 Mybatis 中连接池的配置。
+
+dataSource 类型：Mybatis 将数据源分成三类
+
+UNPOOLED 不使用连接池的数据源，每次请求都打开和关闭连接，虽然慢，但是要求不高；
+
+JNDI 使用 JNDI 实现的数据源
+
+POOLED 使用连接池的数据源
+
+其中 UNPOOLED ,POOLED 数据源实现了 javax.sq.DataSource 接口， JNDI 和前面两个实现方式不同，
+
+dataSource 配置
+
+```xml
+<dataSource type="POOLED">
+	<property name="driver" value="com.mysql.jdbc.Driver"/>
+    <property name="url"  value="jdbc:mysql://localhost:3306/ssm?charset=utf-8"/>
+    <property name="username" value="root"/>
+    <property name="password" value="123456"/>
+</dataSource>
+```
+
+MyBatis 在初始化时，根据\<dataSource\>的 type 属性来创建相应类型的的数据源 DataSource，即： type=”POOLED”：MyBatis 会创建 PooledDataSource 实例 type=”UNPOOLED” ： MyBatis 会创建 UnpooledDataSource 实例 type=”JNDI”：MyBatis 会从 JNDI 服务上查找 DataSource 实例，然后返回使用
+
+
+
+## 3：properties属性
+
+数据库等属性都是通过外部配置可替换的，既可以在Java属性文件中的，也可以通过properties的元素的来传递的；
+
+在核心文件中引入
+
+```xml
+<!--导入properties文件-->
+<properties resource="db.properties"/>
+```
+
+## 4：typeAliases（类型别名）
+
+Mybatis 支持默认别名，我们也可以采用自定义别名方式来开发，主要使用在\<select resultType=”别名”\> mybatis.xml 主配置文件定义别名
+
+也可以指定一个包名，MyBatis 会在包名下面搜索需要的 Java Bean；
+
+```xml
+<typeAliases>
+    <package name="com.java.pojo"/>
+</typeAliases>
+```
+
+Java类型内建的响应的类型别名，基本类型前加下划线，对象类型小写；
+
+## 5：settings设置
 
 ```xml
 <!-- settings是 MyBatis 中全局的调整设置，它们会改变 MyBatis 的运行时行为,应谨慎设置 -->
@@ -994,34 +567,41 @@ properties;setting;typeAliases;typeHandlers;
 
 ```
 
-## 5.2 dataSource 连接池
+懒加载
 
-Mybatis 中访问数据库，可以连接池技术，但它采用的是自己的连接池技术。在 Mybatis 的 mybatis.xml 配置文件中，通过\<dataSource type=”pooled”\>来实现 Mybatis 中连接池的配置。
 
-dataSource 类型：Mybatis 将数据源分成三类
 
-UNPOOLED 不使用连接池的数据源
 
-POOLED 使用连接池的数据源
 
-JNDI 使用 JNDI 实现的数据源
+日志实现
 
-其中 UNPOOLED ,POOLED 数据源实现了 javax.sq.DataSource 接口， JNDI 和前面两个实现方式不同，
+缓存开启关闭
 
-dataSource 配置
+## 6：其他配置
+
+ mappers（映射器）
+
+（1）使用相对于类路径的资源,从 classpath 路径查找文件
 
 ```xml
-<dataSource type="POOLED">
-	<property name="driver" value="com.mysql.jdbc.Driver"/>
-    <property name="url"  value="jdbc:mysql://localhost:3306/ssm?charset=utf-8"/>
-    <property name="username" value="root"/>
-    <property name="password" value="123456"/>
-</dataSource>
+<mapper resource="com/xqc/dao/StudentDao.xml" /\>
 ```
 
-MyBatis 在初始化时，根据\<dataSource\>的 type 属性来创建相应类型的的数据源 DataSource，即： type=”POOLED”：MyBatis 会创建 PooledDataSource 实例 type=”UNPOOLED” ： MyBatis 会创建 UnpooledDataSource 实例 type=”JNDI”：MyBatis 会从 JNDI 服务上查找 DataSource 实例，然后返回使用
+（2）指定全限定或者指定包下的所有 Dao 接口
 
-## 5.3 事务
+```xml
+<mappers>
+    《！-- <mapper class="com.xqc.dao.StudentDao"></mapper>-->
+    <package name="com.xqc.dap"/>
+    
+</mappers>
+```
+
+注意：此种方法要求 Dao 接口名称和 mapper 映射文件名称相同，且在同一个目录中。
+
+
+
+## 3 事务
 
 （1） 默认需要手动提交事务
 
@@ -1049,7 +629,7 @@ SqlSession openSession(boolean autoCommit);
 
 有参数为 true，使用自动提交，可以修改 MyBatisUtil 的 getSqlSession()方法。session = _factory_.openSession(**true**);再执行 insert 操作，无需执行 session.commit(),事务是自动提交的
 
-## 5.4 使用数据库属性配置文件
+## 4 使用数据库属性配置文件
 
 为 了方便对数据库连接的管理，DB 连接四要素数据一般都是存放在一个专门的属性文件中的。MyBatis 主配置文件需要从这个属性文件中读取这些数据。
 
@@ -1070,19 +650,9 @@ jdbc.password=123456
 
 通过
 
-5.5 typeAliases（类型别名）
+5.5 
 
-Mybatis 支持默认别名，我们也可以采用自定义别名方式来开发，主要使用在\<select resultType=”别名”\> mybatis.xml 主配置文件定义别名
-
-## 5.6 mappers（映射器）
-
-（1） \<mapper resource=" " /\>使用相对于类路径的资源,从 classpath 路径查找文件
-
-例如：\<mapper resource="com/xqc/dao/StudentDao.xml" /\>
-
-（2） \<package name=""/\>指定包下的所有 Dao 接口
-
-如：\<package name="com.xqc.dao"/\> 注意：此种方法要求 Dao 接口名称和 mapper 映射文件名称相同，且在同一个目录中。
+## 6
 
 
 
@@ -1090,31 +660,21 @@ Mybatis 支持默认别名，我们也可以采用自定义别名方式来开发
 
 # 第六章：原理
 
-## Mapper和映射文件绑定
+## 实现逻辑
 
-以编程式为例，需要进行如下
-
-```java
-SqlSession session = sqlSessionFactory.openSession();
-        UserMapper userMapper = session.getMapper(UserMapper.class);
-        List<LwUser> userList = userMapper.listUserByUserName("孤狼1号");
-```
-
-1：获取Mapper接口
-
-在调用getMapper之后，回去Configuration对象中获取Mapper对象。通过Configuration对象中的MapperRegistry对象属性，继续调用getMapper方法，根据type类型，获取到当前类型对应的代理工厂类，然后通过代理工厂类生成对应Mapper的代理类，而MapperProxy可以看到实现了InvocationHandler，使用的就是JDK动态代理。
-
-2：Mapper接口与映射文件的关联
-
-Mapper接口及其映射文件是在加载mybatis-config配置文件的时候存储进去的
-
-## SQL执行流程
+生命周期：
 
 ![image-20210905175526025](media/image-20210905175526025.png)
 
-生命周期
+开始时，Resource获取加载全局配置文件，实例化sqlSessionFactoryBuild构造器，加载mybatis.xml配制文件，会生成一个 Configuration 全局配置对象
 
-开始时，Resource获取加载全局配置文件，实例化sqlSessionFactoryBuild构造器，加载mybatis.xml配制文件，产生SqlSessionFactory，创建一个执行器Executor，通过工厂产生SqlSession，然后通过SqlSession访问mapper文件，生成SQL
+根据 Configuration 创建一个 SqlSessionFactory 对象，SqlSessionFactory 创建一个执行器Executor，通过工厂产生SqlSession
+
+通过 SqlSession 可以获取到 Mapper 接口对应的动态代理对象，去执行数据库的相关操作
+
+动态代理对象执行数据库的操作，由 SqlSession 执行相应的方法，在他的内部调用 Executor 执行器去执行数据库的相关操作
+
+在 Executor 执行器中，会进行相应的处理，将数据库执行结果返回；
 
 SqlSessionFactoryBuild：
 
@@ -1159,6 +719,34 @@ mybatis 框架主要是围绕着 SqlSessionFactory 进行的，创建过程大�
 SqlSession 接口对象用于执行持久化操作。一个 SqlSession 对应着一次数据库会话，一次会话以 SqlSession 对象的创建开始，以 SqlSession 对象的关闭结束。
 
 SqlSession 的实例不能被共享，SqlSession 接口对象是线程不安全的，所以每次数据库会话结束前，需要马上调用其 close()方法，将其关闭。再次需要会话，再次创建。 SqlSession 在方法内部创建，.使用完 SqlSeesion 之后关闭 Session 很重要,应该确保使用 finally 块来关闭它.
+
+
+
+## Mapper和映射文件绑定
+
+以编程式为例，需要进行如下
+
+```java
+SqlSession session = sqlSessionFactory.openSession();
+        UserMapper userMapper = session.getMapper(UserMapper.class);
+        List<LwUser> userList = userMapper.listUserByUserName("孤狼1号");
+```
+
+1：获取Mapper接口
+
+在调用getMapper之后，回去Configuration对象中获取Mapper对象。通过Configuration对象中的MapperRegistry对象属性，继续调用getMapper方法，根据type类型，获取到当前类型对应的代理工厂类，然后通过代理工厂类生成对应Mapper的代理类，而MapperProxy可以看到实现了InvocationHandler，使用的就是JDK动态代理。
+
+2：Mapper接口与映射文件的关联
+
+Mapper接口及其映射文件是在加载mybatis-config配置文件的时候存储进去的
+
+
+
+在 MyBatis 的初始化过程中，每个一个 XML 映射文件中的<select />、<insert />、<update />、<delete />标签，会被解析成一个 MappedStatement 对象，对应的 id 就是 XML 映射文件配置的 namespace+'.'+statementId，这个 id 跟 Mapper 接口中的方法进行关联
+
+每个 Mapper 接口都会创建一个动态代理对象（JDK 动态代理），代理类会拦截接口的方法，找到对应的 MappedStatement 对象，然后执行数据库相关操作
+
+![img](https://img-blog.csdnimg.cn/img_convert/f2445bdc2d43560854de7273ed159f6b.png)
 
 
 
@@ -1363,7 +951,7 @@ OfType：指定关联查询的结果集中的对象类型即 List 中的对象�
 
 查询账户(Account)信息并且关联查询用户(User)信息。如果先查询账户(Account)信息即可满足要求，当我们需要查询用户(User)信息时再查询用户(User)信息。把对用户(User)信息的按需去查询就是延迟加载。
 
-mybatis 第三天实现多表操作时，我们使用了 resultMap 来实现一对一，一对多，多对多关系的操作。主要是通过 association、collection 实现一对一及一对多映射。association、collection 具备延迟加载功能。
+实现多表操作时，我们使用了 resultMap 来实现一对一，一对多，多对多关系的操作。主要是通过 association、collection 实现一对一及一对多映射。association、collection 具备延迟加载功能。
 
 ### 1.1 使用 assocation 实现延迟加载
 
@@ -1432,7 +1020,7 @@ Mybatis 中缓存分为一级缓存，二级缓存。
 
 ![](media/5109d80f05a963e35e69214a91c8be8a.png)
 
-一级缓存: 基于 PerpetualCache 的 HashMap 本地缓存，其存储作用域为 Session，当 Sessionflush 或 close 之后，该 Session 中的所有 Cache 就将清空。
+一级缓存: 基于 PerpetualCache 的 HashMap 本地缓存，其存储作用域为 SqlSession，当 Sessionflush 或 close 之后，该 Session 中的所有 Cache 就将清空。
 
 二级缓存与一级缓存其机制相同，默认也是采用 PerpetualCache，HashMap 存储，不同在于其存储作用域为 Mapper(Namespace)，
 
@@ -1442,7 +1030,7 @@ Mybatis 中缓存分为一级缓存，二级缓存。
 
 **但是二级缓存会带来问题：**
 
-因为二级缓存时保存在 Mapper 对象中的，如果一个 user 的操作对应了两个 mapper，Amapper.xml 修改后 Bmapper.xml 是无法感知到的。
+因为二级缓存是保存在 Mapper 对象中的，如果一个 user 的操作对应了两个 mapper，Amapper.xml 修改后 Bmapper.xml 是无法感知到的。
 
 例如：
 
@@ -1468,92 +1056,7 @@ MapperA 再次执行上述 sql 语句查询这 6 个字段〈前提是没有执�
 </select>
 ```
 
-### 证明一级缓存的存在
-
-一级缓存是 SqlSession 级别的缓存，只要 SqlSession 没有 flush 或 close，它就存在。
-
-编写用户持久层**Dao**接口
-
-```java
-public interface IUserDao {
-/**
-* 根据id查询
-* @param userId
-* @return
-*/
-User findById(Integer userId);
-}
-```
-
-编写用户持久层映射文件
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.xqc.dao.IUserDao">
-<!-- 根据id查询 -->
-<select id="findById" resultType="UsEr" parameterType="int" useCache="true">
-select * from user where id = #{uid}
-</select>
-</mapper>
-
-```
-
-编写测试方法
-
-```java
-/**
-*
-* <p>Title: MybastisCRUDTest</p>
-* <p>Description: 一对多的操作</p>
-* <p>Company: http://www.xqc.com/ </p>
-*/
-public class UserTest {
-    private InputStream in ;
-    private SqlSessionFactory factory;
-    private SqlSession session;
-    private IUserDao userDao;
-    @Test
-    public void testFindById() {
-        //6.执行操作
-        User user = userDao.findById(41);
-        System.out.println("第一次查询的用户："+user);
-        User user2 = userDao.findById(41);
-        System.out.println("第二次查询用户："+user2);
-        System.out.println(user == user2);
-    }
-
-    @Before//在测试方法执行之前执行
-    public void init()throws Exception {
-        //1.读取配置文件
-        in = Resources.getResourceAsStream("SqlMapConfig.xml");
-        //2.创建构建者对象
-        SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
-        //3.创建SqlSession工厂对象
-        factory = builder.build(in);
-        //4.创建SqlSession对象
-        session = factory.openSession();
-        //5.创建Dao的代理对象
-        userDao = session.getMapper(IUserDao.class);
-    }
-
-    @After//在测试方法执行完成之后执行
-    public void destroy() throws Exception{
-        //7.释放资源
-        session.close();
-        in.close();
-    }
-}
-
-```
-
-测试结果如下：
-
-我们可以发现，虽然在上面的代码中我们查询了两次，但最后只执行了一次数据库操作，这就是 Mybatis 提供给我们的一级缓存在起作用了。因为一级缓存的存在，导致第二次查询 id 为 41 的记录时，并没有发出 sql 语句从数据库中查询数据，而是从一级缓存中查询。
-
-### 1.2 一级缓存的分析
+1：一级缓存的分析
 
 一级缓存是 SqlSession 范围的缓存，当调用 SqlSession 的修改，添加，删除，commit()，close()方法时，就会清空一级缓存。
 
@@ -1571,16 +1074,19 @@ MyBatis 的一级缓存是默认开启的，不需要任何的配置。
 
 当执行 sqlSession.close()后，再次获取 sqlSession 并查询 id=41 的 User 对象时，又重新执行了 sql 语句，从数据库进行了查询操作。
 
-### 1.4：总结
 
-MyBatis 的一级缓存是默认开启的，不需要任何的配置。
 
-一级缓存的生命周期有多长？
+一级缓存的什么时候才会失效？
 
-1. MyBatis 在开启一个数据库会话时，会 创建一个新的 SqlSession 对象，SqlSession 对象中会有一个新的 Executor 对象，Executor 对象中持有一个新的 PerpetualCache 对象；当会话结束时，SqlSession 对象及其内部的 Executor 对象还有 PerpetualCache 对象也一并释放掉。
-2. 如果 SqlSession 调用了 close()方法，会释放掉一级缓存 PerpetualCache 对象，一级缓存将不可用；
-3. 如果 SqlSession 调用了 clearCache()，会清空 PerpetualCache 对象中的数据，但是该对象仍可使用；
-4. SqlSession 中执行了任何一个 update 操作(update()、delete()、insert()) ，都会清空 PerpetualCache 对象的数据，但是该对象可以继续使用；
+答：MyBatis 在开启一个数据库会话时，会 创建一个新的 SqlSession 对象，SqlSession 对象中会有一个新的 Executor 对象，Executor 对象中持有一个新的 PerpetualCache 对象；当会话结束时，SqlSession 对象及其内部的 Executor 对象还有 PerpetualCache 对象也一并释放掉。
+
+如果 SqlSession 调用了 close()方法，会释放掉一级缓存 PerpetualCache 对象，一级缓存将不可用；
+
+如果 SqlSession 调用了 clearCache()，会清空 PerpetualCache 对象中的数据，但是该对象仍可使用；
+
+SqlSession 中执行了任何一个 update 操作(update()、delete()、insert()) ，都会清空 PerpetualCache 对象的数据，但是该对象可以继续使用；
+
+
 
 一级缓存的不足：
 
@@ -1590,11 +1096,22 @@ MyBatis 的一级缓存是默认开启的，不需要任何的配置。
 
 - statement 级别的缓存，避坑： 为了避免这个问题，可以将一级缓存的级别设为 statement 级别的，这样每次查询结束都会清掉一级缓存。
 
-## 2 Mybatis 二级缓存
+
+
+在 MyBatis 开启一个 SqlSession 会话时，都会创建一个 Executor 执行器对象
+
+一级缓存在 Executor 执行器（SimpleExecutor）的Cache 对象中，默认就是一个 HashMap 存储缓存数据，执行数据库查询操作前，如果在一级缓存中有对应的缓存数据，则直接返回；
+
+
+
+
+
+
+## 2：二级缓存
 
 二级缓存是 mapper 映射级别的缓存，多个 SqlSession 去操作同一个 Mapper 映射的 sql 语句，多个 SqlSession 可以共用二级缓存，二级缓存是跨 SqlSession 的。二级缓存是用来解决以及缓存不能跨会话共享问题的
 
-### 2.1 二级缓存结构图
+### 结构图
 
 ![](media/2c94c90b327a40bba713e49ee038bc2d.png)
 
@@ -1606,7 +1123,7 @@ sqlSession1 去查询用户信息，查询到用户信息会将查询数据存�
 
 sqlSession2 去查询与 sqlSession1 相同的用户信息，首先会去缓存中找是否存在数据，如果存在直接从缓存中取出数据。
 
-### 2.2 二级缓存的开启与关闭
+###  开启与关闭
 
 第一步：在**SqlMapConfig.xml**文件开启二级缓存
 
@@ -1676,7 +1193,7 @@ select * from user where id = #{uid}
 
 注意：针对每次查询都需要最新的数据 sql，要设置成 useCache=false，禁用二级缓存。
 
-### 2.3 二级缓存测试
+### 测试
 
 ```java
 public class SecondLevelCacheTest {
@@ -1719,7 +1236,7 @@ System.out.println(user1 == user2);
 
 经过上面的测试，我们发现执行了两次查询，并且在执行第一次查询后，我们关闭了一级缓存，再去执行第二次查询时，我们发现并没有对数据库发出 sql 语句，所以此时的数据就只能是来自于我们所说的二级缓存。
 
-### 2.4：总结
+### 总结
 
 当我们在使用二级缓存时，所缓存的类一定要实现 java.io.Serializable 接口，这种就可以使用序列化方式来保存对象。
 
@@ -1728,12 +1245,17 @@ public class User implements Serializable {
 }
 ```
 
-如果你的 MyBatis 使用了二级缓存，并且你的 Mapper 和 select 语句也配置使用了二级缓存，那么在执行 select 查询的时候，MyBatis 会先从二级缓存中取输入，其次才是一级缓存，即 MyBatis 查询数据的顺序是：二级缓存 —> 一级缓存 —> 数据库。
+如果你的 MyBatis 使用了二级缓存，并且你的 Mapper 和 select 语句也配置使用了二级缓存，那么在执行 select 查询的时候，MyBatis 会先从二级缓存中取输入，其次才是一级缓存，即 MyBatis 查询数据的顺序是：
+
+二级缓存 —> 一级缓存 —> 数据库
+
+
 
 在什么情况下才有必要去开启二级缓存？
 
-1. 因为所有的增删改都会刷新二级缓存，导致二级缓存失效，所以适合在查询为主的应用中使用，比如历史交易、历史订单的查询。否则缓存就失去了意义。
-2. 如果多个 namespace 中有针对于同一个表的操作，比如 Blog 表，如果在一个 namespace 中刷新了缓存，另一个 namespace 中没有刷新，就会出现读到脏数据的情况。所以，推荐在一个 Mapper 里面只操作单表的情况使用。
+因为所有的增删改都会刷新二级缓存，导致二级缓存失效，所以适合在查询为主的应用中使用，比如历史交易、历史订单的查询。否则缓存就失去了意义。
+
+如果多个 namespace 中有针对于同一个表的操作，比如 Blog 表，如果在一个 namespace 中刷新了缓存，另一个 namespace 中没有刷新，就会出现读到脏数据的情况。所以，推荐在一个 Mapper 里面只操作单表的情况使用。
 
 如果要让多个 namespace 共享一个二级缓存，应该怎么做？跨 namespace 的缓存共享的问题，可以使用<cache-ref>来解决：
 
@@ -1749,12 +1271,26 @@ cache-ref 代表引用别的命名空间的 Cache 配置，两个命名空间的
 
 除了 MyBatis 自带的二级缓存之外，我们也可以通过实现 Cache 接口来自定义二级缓存。
 
-## 禁用缓存，清理缓存
+### 禁用缓存，清理缓存
 
 ```txt
 <select>标签后添加useCache=”false“即可关闭缓存；
 在select标签中添加：flushCache="true",实现缓存清理。
 ```
+
+## 3：自定义缓存
+
+以ehcache为例，在mapper文件中配置
+
+```xml
+<cache type="org.mybatis.ehcache.EhcacheCache"></cache>
+```
+
+添加ehcache.xml配置文件
+
+
+
+
 
 # 第 6 章：注解开发
 

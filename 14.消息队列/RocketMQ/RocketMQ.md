@@ -705,3 +705,17 @@ Broker：
 
 2：Consumer消费者：
 
+
+
+
+
+
+
+工作流程：
+
+先启动NameServer，它就会去启动一个监听器，不断等待另外三者的连接，Borker启动后，就会跟每一个NameServer保持一个长连接，创建Topic，指定存储在哪一个Broker之上，生产者启动后，跟NameServer建立连接，涉及到一些连接策略；消费者跟NameServer建立连接，获取到当前订阅的Topic位于哪一个Broker节点上，然后跟具体的Broker建立连接通道，进行消息的消费；
+
+
+
+事务消息
+
