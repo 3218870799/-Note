@@ -8,7 +8,9 @@ Spring 的主要作用就是为代码“解耦"，降低代码间的耦合度。
 
 Spring 根据代码的功能特点，使用 Ioc 降低业务对象之间耦合度。IoC 使得主业务在相互调用过程中，不用再自己维护关系了，即不用再自己创建要使用的对象了。而是由 Spring 容器统一管理，自动“注入",注入即赋值。 而 AOP 使得系统级服务得到了最大复用，且不用再由程序员手工将系统级服务“混杂"到主业务逻辑中了，而是由 Spring 容器统一完成“织入"。
 
-## 1.2 优点
+
+
+优点
 
 Spring 是一个框架，是一个半成品的软件。有 20 个模块组成。它是一个容器管理对象；
 
@@ -24,16 +26,31 @@ Spring 是一个框架，是一个半成品的软件。有 20 个模块组成。
 
 - 降低 JavaEE API 的使用难度：Spring对 JavaEE 开发中非常难用的一些 API（JDBC、JavaMail、远程调用等），都提供了封装，使这些 API 应用难度大大降低
 
+## 1.2 组成
+
+Spring 由 20 多个模块组成，它们可以分为数据访问/集成（DataAccess/Integration）、Web、面向切面编程（AOP, Aspects）、提供 JVM 的代理（Instrumentation）、消息发送（Messaging）、核心容器（CoreContainer）和测试（Test）。
 
 Spring **体系结构**
 
 ![](media/87d9fbefc903d2889466a35363150c0b.jpg)
 
-## 1.3 核心容器
+1：核心容器
 
-**beans、core、context、expression**
+**beans、core、context、expression**；提供Spring的基本功能，主要组件是BeanFactory，它是工厂模式的实现。`BeanFactory` 使用控制反转（IOC） 模式将应用程序的配置和依赖性规范与实际的应用程序代码分开
 
-Spring 由 20 多个模块组成，它们可以分为数据访问/集成（DataAccess/Integration）、Web、面向切面编程（AOP, Aspects）、提供 JVM 的代理（Instrumentation）、消息发送（Messaging）、核心容器（CoreContainer）和测试（Test）。
+2：Spring上下文：是一个配置文件，向Spring框架提供上下文信息；
+
+3：Spring AOP：
+
+4：Spring DAO
+
+5：Spring ORM
+
+6：Spring Web
+
+7：Spring MVC：
+
+
 
 ## 1.4：事件
 
@@ -111,7 +128,9 @@ spring 框架的原理其实主要是 dom4j+反射+xml.原理就是将 xml 用 d
 
 # 第 2 章 IOC 控制反转
 
-**对象控制权的转移**IOC 是一个概念，是一种思想，其实现方式多种多样。当前比较流行的实现方式是依赖注入。好处在于一方面可以将资源集中管理，实现资源的可配置和易管理。第二，降低了资源双方的依赖程度，就是是耦合度。默认是使用单例模式。
+**对象控制权的转移**IOC 是一个概念，是一种思想，其实现方式多种多样。当前比较流行的实现方式是依赖注入DI。好处在于一方面可以将资源集中管理，实现资源的可配置和易管理。第二，降低了资源双方的依赖程度，就是是耦合度。默认是使用单例模式。
+
+即：Spring容器在初始化时限读取配置文件，根据配置文件的元数据创建和组织对象存入容器中，程序使用时再从IOC容器中取出，
 
 依赖：
 
