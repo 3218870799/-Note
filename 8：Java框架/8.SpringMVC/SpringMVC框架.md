@@ -1,8 +1,8 @@
 # 第 1 章 ：基本概念
 
-## 1.1 关于三层架构和 MVC
+## 三层架构和 MVC
 
-**1.1.1** 三层架构
+1 ：三层架构
 
 我们的开发架构一般都是基于两种形式，一种是 C/S 架构，也就是客户端/服务器，另一种是 B/S 架构，也就是浏览器服务器。在 JavaEE 开发中，几乎全都是基于 B/S 架构的开发。那么在 B/S 架构中，系统标准的三层架构包括：表现层、业务层、持久层。三层架构在我们的实际开发中使用的非常多，所以我们课程中的案例也都是基于三层架构设计的。
 
@@ -28,7 +28,7 @@
 
 也就是我们是常说的 dao 层。负责数据持久化，包括数据层即数据库和数据访问层，数据库是对数据进行持久化的载体，数据访问层是业务层和持久层交互的接口，业务层需要通过数据访问层将数据持久化到数据库中。通俗的讲，持久层就是和数据库交互，对数据库表进行曾删改查的。
 
-**1.1.2 MVC**模型
+2：MVC模型
 
 MVC 全名是 Model View Controller，是模型(model)－视图(view)－控制器(controller)的缩写，是一种用于设计创建 Web 应用程序表现层的模式。MVC 中每个部分各司其职：
 
@@ -60,9 +60,7 @@ MVC 全名是 Model View Controller，是模型(model)－视图(view)－控制�
 
 如果校验成功，也是控制器负责把数据填充到模型，并且调用业务层实现完整的业务需求。
 
-## 1.2 SpringMVC 概述
-
-**1.2.1 SpringMVC**是什么
+## SpringMVC 概述
 
 SpringMVC 是一种基于 Java 的实现 MVC 设计模型的请求驱动类型的轻量级 Web 框架，属于 Spring FrameWork 的后续产品，已经融合在 Spring Web Flow 里面。Spring 框架提供了构建 Web 应用程序的全功能 MVC 模块。使用 Spring 可插入的 MVC 架构，从而在使用 Spring 进行 WEB 开发时，可以选择使用 Spring 的 Spring MVC 框架或集成其他 MVC 开发框架，如 Struts1(现在一般不用)，Struts2 等。
 
@@ -70,9 +68,9 @@ SpringMVC 已经成为目前最主流的 MVC 框架之一，并且随着 Spring3
 
 它通过一套注解，让一个简单的 Java 类成为处理请求的控制器，而无须实现任何接口。同时它还支持 RESTful 编程风格的请求。
 
-**1.2.2 SpringMVC 在三层架构的位置**
 
-**1.2.3 SpringMVC 的优势**
+
+优势：
 
 1、清晰的角色划分：
 
@@ -112,7 +110,9 @@ SpringMVC 已经成为目前最主流的 MVC 框架之一，并且随着 Spring3
 
 ………………还有比如 RESTful 风格的支持、简单的文件上传、约定大于配置的契约式编程支持、基于注解的零配置支持等等。
 
-**1.2.4 SpringMVC**和**Struts2**的优略分析
+
+
+SpringMVC和Struts2的优略分析
 
 共同点：
 
@@ -130,15 +130,9 @@ Struts2 的 OGNL 表达式使页面的开发效率相比 Spring MVC 更高些，
 
 # 第 2 章 ：入门
 
-## 2.1 入门案例
+## 入门案例
 
-2.1.1 前期准备
-
-下载开发包： https://spring.io/projects
-
-其实 spring mvc 的 jar 包就在之前我们的 spring 框架开发包中。
-
-创建一个**javaweb**工程
+1 前期准备
 
 创建一个**jsp**用于发送请求
 
@@ -149,11 +143,7 @@ jsp 中的内容：
 <a href=_"hello">SpringMVC 入门案例</a>
 ```
 
-2.1.2 拷贝 jar 包
-
-spring mvc 的 jar 包就在 除了上面两个 jar 包之外，还需要拷贝 spring 的注解 ioc 所需 jar 包（包括一个 aop 的 jar 包
-
-2.1.3 配置核心控制器-一个 Servlet
+ 配置核心控制器-一个 Servlet
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -183,7 +173,7 @@ spring mvc 的 jar 包就在 除了上面两个 jar 包之外，还需要拷贝 
 </web-app>
 ```
 
-2.1.4 创建 spring mvc 的配置文件
+创建 spring mvc 的配置文件
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -200,14 +190,16 @@ spring mvc 的 jar 包就在 除了上面两个 jar 包之外，还需要拷贝 
         <context:component-scan base-package="com.xqc"></context:component-scan>
         <!-- 配置视图解析器 -->
         <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!--前缀-->
         <property name="prefix" value="/WEB-INF/pages/"></property>
+        <!--后缀-->
         <property name="suffix" value=".jsp"></property>
         </bean>
 </beans>
 
 ```
 
-2.1.5 编写控制器并使用注解配置
+编写控制器并使用注解配置
 
 ```java
 @Controller("helloController")
@@ -221,11 +213,13 @@ public class HelloController {
 
 ```
 
-2.1.6 测试
 
-## 2.2：执行过程及原理分析
+
+## 执行过程及原理分析
 
 理论处理流程：
+
+![image-20221116192012913](media/image-20221116192012913.png)
 
 ![img](https://img2020.cnblogs.com/i-beta/1174906/202003/1174906-20200314214103736-715650237.png)
 
@@ -269,7 +263,7 @@ public class HelloController {
 
 ## 组件
 
-1：DispatcherServlet：前端控制器
+1：DispatcherServlet：前端核心控制器
 
 用户请求到达前端控制器，它就相当于 mvc 模式中的 c，dispatcherServlet 是整个流程控制的中心，由它调用其它组件处理用户的请求，dispatcherServlet 的存在降低了组件之间的耦合性。
 
@@ -350,34 +344,7 @@ SpringMVC 框架提供了很多的 View 视图类型的支持，包括：jstlVie
 
 我们只需要编写处理具体业务的控制器以及视图。
 
-# 第 3 章 请求参数的绑定
-
-## 3.1 绑定说明
-
-### 绑定的机制
-
-我们都知道，表单中请求参数都是基于 key=value 的。
-
-SpringMVC 绑定请求参数的过程是通过把表单提交请求参数，作为控制器中方法参数进行绑定的。
-
-例如：
-
-```html
-<a href=*"account/findAccount?accountId=10"*\>查询账户\</a\>
-```
-
-中请求参数是：
-
-**accountId=10**
-
-```java
-@RequestMapping("/findAccount")
-public String findAccount(Integer accountId) {
-	System.**out**.println("查询了账户。。。。"+accountId);
-	return "success";
-
-}
-```
+# 第 3 章 请求参数
 
 ### 接受前端参数的几种方式：
 
@@ -424,8 +391,6 @@ public String addUserByPathVariable(@PathVariable String name, @PathVariable Str
 
 JSON 方式提交
 
-![image-20210302210444543](media/image-20210302210444543.png)
-
 ```java
 @RequestMapping(value = "/addByObjectJSON", produces = {"application/json;charset=UTF-8"})
 @ResponseBody
@@ -462,11 +427,114 @@ public String addUserByObjectJSON(@RequestBody User user){
 
 
 
+# 第 4 章 响应数据和结果视图
+
+## 返回值
+
+1 字符串
+
+controller 方法返回字符串可以指定逻辑视图名，通过视图解析器解析为物理视图地址。
+
+//指定逻辑视图名，经过视图解析器解析为 jsp 物理路径：/WEB-INF/pages/success.jsp
+
+```java
+@RequestMapping("/testReturnString")
+public String testReturnString() {
+    System.out.println("AccountController 的 testReturnString
+    方法执行了。。。。");
+    return "success";
+}
+```
+
+2 void
+
+在 controller 方法形参上可以定义 request 和 response，使用 request 或 response 指定响应结果：
+
+1、使用request转向页面，如下：
+
+request.getRequestDispatcher("/WEB-INF/pages/success.jsp").forward(request,
+response);
+
+2、也可以通过response页面重定向：
+
+response.sendRedirect("testRetrunString")
+
+3、也可以通过response指定响应结果，例如响应 json 数据：
+
+response.setCharacterEncoding("utf-8");
+
+response.setContentType("application/json;charset=utf-8");
+
+response.getWriter().write("json 串");
+
+3 ModelAndView
+
+ModelAndView 是 SpringMVC 为我们提供的一个对象，该对象也可以用作控制器方法的返回值。
+
+该对象中有两个方法：
+
+```java
+@RequestMapping("/testReturnModelAndView")
+public ModelAndView testReturnModelAndView() {
+    ModelAndView mv = new ModelAndView();
+    mv.addObject("username", "张三");
+    mv.setViewName("success");
+    return mv;
+}
+```
+
+注意：
+
+我们在页面上上获取使用的是 requestScope.username 取的，所以返回 ModelAndView 类型时，浏览器跳转只能是请求转发。
+
+## 转发和重定向
+
+### forward 转发
+
+controller 方法在提供了 String 类型的返回值之后，默认就是请求转发。我们也可以写成：
+
+```java
+@RequestMapping("/testForward")
+public String testForward() {
+    System.out.println("AccountController 的 testForward 方法执行了。。。。");
+    return "forward:/WEB-INF/pages/success.jsp";
+}
+```
+
+需要注意的是，如果用了**formward**：则路径必须写成实际视图 url，不能写逻辑视图。
+
+它相当于“request.getRequestDispatcher("**url**").forward(request,response)”。使用请求转发，既可以转发到 jsp，也可以转发到其他的控制器方法。
+
+### Redirect 重定向
+
+contrller 方法提供了一个 String 类型返回值之后，它需要在返回值里使用:redirect:
+
+```java
+@RequestMapping("/testRedirect")
+public String testRedirect() {
+    System.out.println("AccountController 的 testRedirect 方法执行了。。。。");
+    return "redirect:testReturnModelAndView";
+}
+```
 
 
 
+它相当于“response.sendRedirect(url)”。需要注意的是，如果是重定向到 jsp 页面，则 jsp 页面不能写在 WEB-INF 目录中，否则无法找到。
 
+## ResponseBody 响应 json 数据
 
+该注解用于将 Controller 的方法返回的对象，通过 HttpMessageConverter 接口转换为指定格式的数据如：json,xml 等，通过 Response 响应给客户端
+
+```java
+@Controller("jsonController")
+public class JsonController {
+    @RequestMapping("/testResponseJson")
+    public @ResponseBody Account testResponseJson(@RequestBody Account account) {
+        System.out.println("异步请求："+account);
+        return account;
+    }
+}
+```
 
 # 第 4 章 注解
 
@@ -515,11 +583,28 @@ SpringMVC.xml添加扫描注解
 
 ## 常用注解：
 
-## @RequestMapping
+1：@RequestMapping
 
 用于建立请求 URL 和处理请求方法之间的对应关系。
 
-### 说明
+放在类上，请求 URL 的第一级访问目录。此处不写的话，就相当于应用的根目录。写的话需要以/开头。它出现的目的是为了使我们的 URL 可以按照模块化管理:
+
+```txt
+账户模块：
+/account/add
+/account/update
+/account/delete
+```
+
+放到方法上，请求 URL 的第二级访问目录。
+
+属性：
+
+value：用于指定请求的 URL。它和 path 属性的作用是一样的。
+
+method：用于指定请求的方式。
+
+params：用于指定限制请求参数的条件。它支持简单的表达式。要求请求参数的 key 和 value 必须和配置的一模一样。
 
 源码：
 
@@ -530,127 +615,21 @@ SpringMVC.xml添加扫描注解
 @Mapping
 public @interface RequestMapping {
 }
-
 ```
 
-出现位置：
 
-类上：
 
-请求 URL 的第一级访问目录。此处不写的话，就相当于应用的根目录。写的话需要以/开头。
+2：@RequestBody
 
-它出现的目的是为了使我们的 URL 可以按照模块化管理:
-
-例如：
-
-账户模块：
-
-/account/add
-
-/account/update
-
-/account/delete
-
-...
-
-订单模块：
-
-/order/add
-
-/order/update
-
-/order/delete
-
-红色的部分就是把 RequsetMappding 写在类上，使我们的 URL 更加精细。
-
-方法上：
-
-请求 URL 的第二级访问目录。
-
-属性：
-
-value：用于指定请求的 URL。它和 path 属性的作用是一样的。
-
-method：用于指定请求的方式。
-
-params：用于指定限制请求参数的条件。它支持简单的表达式。要求请求参数的 key 和 value 必须和配置的一模一样。
-
-例如：
-
-params = {"accountName"}，表示请求参数必须有 accountName
-
-params = {"moeny!100"}，表示请求参数中 money 不能是 100。
-
-headers：用于指定限制请求消息头的条件。
-
-注意：
-
-以上四个属性只要出现 2 个或以上时，他们的关系是与的关系。
-
-### 示例
-
-**2.4.2.1** 出现位置的示例：
-
-控制器代码**:**
-
-```java
-@Controller("accountController")
-@RequestMapping("/account")
-public class AccountController {
-@RequestMapping("/findAccount")
-public String findAccount() {
-System.out.println("查询了账户。。。。");
-return "success";
-}
-}
-```
-
-**jsp**中的代码：
-
-```jsp
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-pageEncoding="UTF-8"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>requestmapping的使用</title>
-</head>
-<body>
-<!-- 第一种访问方式 -->
-<a href="${pageContext.request.contextPath}/account/findAccount">
-查询账户
-</a>
-<br/>
-<!-- 第二种访问方式 -->
-<a href="account/findAccount">查询账户</a>
-</body>
-</html>
-
-```
-
-注意：
-
-当我们使用此种方式配置时，在**jsp**中第二种写法时，不要在访问**URL**前面加**/**，否则无法找到资源。
-
-## @RequestBody
-
-接受客户端传入的 JSON 数据
-
-### 4.2.1 说明
-
-用于获取请求体内容。直接使用得到是 key=value&key=value...结构的数据。
-
-get 请求方式不适用。
+接受客户端传入的 JSON 数据，用于获取请求体内容。直接使用得到是 key=value&key=value...结构的数据。get 请求方式不适用。
 
 属性：
 
 required：是否必须有请求体。默认值是:true。当取值为 true 时,get 请求方式会报错。如果取值为 false，get 请求得到是 null。
 
-### 4.2.2 示例
+例：
 
-**post**请求**jsp**代码：
+post请求jsp代码：
 
 ```jsp
 <!-- request body注解 -->
@@ -662,7 +641,7 @@ required：是否必须有请求体。默认值是:true。当取值为 true 时,
 </form>
 ```
 
-**get**请求**jsp**代码：
+**get请求**jsp**代码：
 
 ```jsp
 <a href="springmvc/useRequestBody?body=test">requestBody注解get请求</a>
@@ -671,11 +650,6 @@ required：是否必须有请求体。默认值是:true。当取值为 true 时,
 Controller 代码：
 
 ```java
-/**
-* RequestBody注解
-* @param user
-* @return
-*/
 @RequestMapping("/useRequestBody")
 public String useRequestBody(@RequestBody(required=false) String body){
 	System.out.println(body);
@@ -684,37 +658,19 @@ public String useRequestBody(@RequestBody(required=false) String body){
 
 ```
 
-## @ResponseBody
+3：@ResponseBody
 
 返回客户端 JSON 数据
 
-## @Param
+4：@Param
 
 表单参数和方法形参不一样时使用
 
-## 4.1 RequestParam
 
-### 4.1.1 说明
 
-作用：
+5：@PathVaribale
 
-把请求中指定名称的参数给控制器中的形参赋值。
-
-属性：
-
-value：请求参数中的名称。
-
-required：请求参数中是否必须提供此参数。默认值：true。表示必须提供，如果不提供将报错。
-
-## @PathVaribale
-
-RESTful 风格时使用
-
-### 4.3.1 说明
-
-作用：
-
-用于绑定 url 中的占位符。例如：请求 url 中/delete/**{id}**，这个**{id}**就是 url 占位符。
+RESTful 风格时使用，用于绑定 url 中的占位符。例如：请求 url 中/delete/**{id}**，这个**{id}**就是 url 占位符。
 
 url 支持占位符是 spring3.0 之后加入的。是 springmvc 支持 rest 风格 URL 的一个重要标志。
 
@@ -724,23 +680,9 @@ value：用于指定 url 中占位符名称。
 
 required：是否必须提供占位符。
 
-### 4.3.2 示例
 
-**jsp**代码：
-
-```jsp
-<!-- PathVariable注解 -->
-<a href="springmvc/usePathVariable/100">pathVariable注解</a>
-```
-
-控制器代码：
 
 ```java
-/**
-* PathVariable注解
-* @param user
-* @return
-*/
 @RequestMapping("/usePathVariable/{id}")
 public String usePathVariable(@PathVariable("id") Integer id){
 	System.out.println(id);
@@ -749,302 +691,9 @@ public String usePathVariable(@PathVariable("id") Integer id){
 
 ```
 
-### 4.3.4 基于 HiddentHttpMethodFilter 的示例
+### HiddentHttpMethodFilter 
 
-作用：
-
-由于浏览器 form 表单只支持 GET 与 POST 请求，而 DELETE、PUT 等 method
-并不支持，Spring3.0 添加了一个过滤器，可以将浏览器请求改为指定的请求方式，发送给我们的控制器方法，使得支持
-GET、POST、PUT 与 DELETE 请求。
-
-使用方法：
-
-第一步：在 web.xml 中配置该过滤器。
-
-第二步：请求方式必须使用 post 请求。
-
-第三步：按照要求提供\_method 请求参数，该参数的取值就是我们需要的请求方式。
-
-源码分析：
-
-jsp 中示例代码：
-
-```jsp
-<!-- 保存 -->
-<form action="springmvc/testRestPOST" method="post">
-用户名称：<input type="text" name="username"><br/>
-<!-- <input type="hidden" name="_method" value="POST"> -->
-<input type="submit" value="保存">
-</form>
-<hr/>
-<!-- 更新 -->
-<form action="springmvc/testRestPUT/1" method="post">
-用户名称：<input type="text" name="username"><br/>
-<input type="hidden" name="_method" value="PUT">
-<input type="submit" value="更新">
-</form>
-<hr/>
-<!-- 删除 -->
-<form action="springmvc/testRestDELETE/1" method="post">
-<input type="hidden" name="_method" value="DELETE">
-<input type="submit" value="删除">
-</form>
-<hr/>
-<!-- 查询一个 -->
-<form action="springmvc/testRestGET/1" method="post">
-<input type="hidden" name="_method" value="GET">
-<input type="submit" value="查询">
-</form>
-```
-
-控制器中示例代码：
-
-```java
-/**
-* post请求：保存
-* @param username
-* @return
-*/
-@RequestMapping(value="/testRestPOST",method=RequestMethod.POST)
-public String testRestfulURLPOST(User user){
-System.out.println("rest post"+user);
-return "success";
-}
-/**
-* put请求：更新
-* @param username
-* @return
-*/
-@RequestMapping(value="/testRestPUT/{id}",method=RequestMethod.PUT)
-public String testRestfulURLPUT(@PathVariable("id")Integer id,User user){
-System.out.println("rest put "+id+","+user);
-return "success";
-}
-/**
-* post请求：删除
-* @param username
-* @return
-*/
-@RequestMapping(value="/testRestDELETE/{id}",method=RequestMethod.DELETE)
-public String testRestfulURLDELETE(@PathVariable("id")Integer id){
-System.out.println("rest delete "+id);
-return "success";
-}
-/**
-* post请求：查询
-* @param username
-* @return
-*/
-@RequestMapping(value="/testRestGET/{id}",method=RequestMethod.GET)
-public String testRestfulURLGET(@PathVariable("id")Integer id){
-System.out.println("rest get "+id);
-return "success";
-}
-
-```
-
-## 4.4 RequestHeader
-
-### 4.4.1 说明
-
-作用：
-
-用于获取请求消息头。
-
-属性：
-
-value：提供消息头名称
-
-required：是否必须有此消息头
-
-注：
-
-在实际开发中一般不怎么用。
-
-## 4.5 CookieValue
-
-### 4.5.1 说明
-
-作用：
-
-用于把指定 cookie 名称的值传入控制器方法参数。
-
-属性：
-
-value：指定 cookie 的名称。
-
-required：是否必须有此 cookie。
-
-## 4.6 ModelAttribute
-
-### 4.6.1 说明
-
-作用：
-
-该注解是 SpringMVC4.3 版本以后新加入的。它可以用于修饰方法和参数。
-
-出现在方法上，表示当前方法会在控制器的方法执行之前，先执行。它可以修饰没有返回值的方法，也可以修饰有具体返回值的方法。
-
-出现在参数上，获取指定的数据给参数赋值。
-
-属性：
-
-value：用于获取数据的 key。key 可以是 POJO 的属性名称，也可以是 map 结构的 key。
-
-应用场景：
-
-当表单提交数据不是完整的实体类数据时，保证没有提交数据的字段使用数据库对象原来的数据。
-
-例如：
-
-我们在编辑一个用户时，用户有一个创建信息字段，该字段的值是不允许被修改的。在提交表单数据是肯定没有此字段的内容，一旦更新会把该字段内容置为 null，此时就可以使用此注解解决问题。
-
-## 4.7 SessionAttribute
-
-### 4.7.1 说明
-
-作用：
-
-用于多次执行控制器方法间的参数共享。
-
-属性：
-
-value：用于指定存入的属性名称
-
-type：用于指定存入的数据类型。
-
-# 第 5 章 响应数据和结果视图
-
-## 1.1 返回值分类
-
-### 1.1.1 字符串
-
-controller 方法返回字符串可以指定逻辑视图名，通过视图解析器解析为物理视图地址。
-
-//指定逻辑视图名，经过视图解析器解析为 jsp 物理路径：/WEB-INF/pages/success.jsp
-
-```java
-@RequestMapping("/testReturnString")
-
-public String testReturnString() {
-    System.**out**.println("AccountController 的 testReturnString
-    方法执行了。。。。");
-    **return** "success";
-}
-```
-
-### 1.1.2 void
-
-在 controller 方法形参上可以定义 request 和 response，使用 request 或 response 指定响应结果：
-
-**1**、使用**request**转向页面，如下：
-
-request.getRequestDispatcher("/WEB-INF/pages/success.jsp").forward(request,
-response);
-
-**2**、也可以通过**response**页面重定向：
-
-response.sendRedirect("testRetrunString")
-
-**3**、也可以通过**response**指定响应结果，例如响应 json 数据：
-
-response.setCharacterEncoding("utf-8");
-
-response.setContentType("application/json;charset=utf-8");
-
-response.getWriter().write("json 串");
-
-### 1.1.3 ModelAndView
-
-ModelAndView 是 SpringMVC 为我们提供的一个对象，该对象也可以用作控制器方法的返回值。
-
-该对象中有两个方法：
-
-示例代码：
-
-```java
-@RequestMapping("/testReturnModelAndView")
-**public** ModelAndView testReturnModelAndView() {
-
-    ModelAndView mv = **new** ModelAndView();
-
-    mv.addObject("username", "张三");
-
-    mv.setViewName("success");
-
-    return mv;
-
-}
-```
-
-注意：
-
-我们在页面上上获取使用的是 requestScope.username 取的，所以返回 ModelAndView 类型时，浏览器跳转只能是请求转发。
-
-## 1.2 转发和重定向
-
-### 1.2.1 forward 转发
-
-controller 方法在提供了 String 类型的返回值之后，默认就是请求转发。我们也可以写成：
-
-```java
-@RequestMapping("/testForward")
-
-**public** String testForward() {
-
-System.**out**.println("AccountController 的 testForward 方法执行了。。。。");
-
-**return** "forward:/WEB-INF/pages/success.jsp";
-
-}
-```
-
-需要注意的是，如果用了**formward**：则路径必须写成实际视图 url，不能写逻辑视图。
-
-它相当于“request.getRequestDispatcher("**url**").forward(request,response)”。使用请求转发，既可以转发到 jsp，也可以转发到其他的控制器方法。
-
-### 1.2.2 Redirect 重定向
-
-contrller 方法提供了一个 String 类型返回值之后，它需要在返回值里使用:**redirect:**
-
-```java
-@RequestMapping("/testRedirect")
-
-**public** String testRedirect() {
-
-System.**out**.println("AccountController 的 testRedirect 方法执行了。。。。");
-
-**return** "redirect:testReturnModelAndView";
-
-}
-```
-
-
-
-它相当于“response.sendRedirect(url)”。需要注意的是，如果是重定向到 jsp 页面，则 jsp 页面不能写在 WEB-INF 目录中，否则无法找到。
-
-## 1.3 ResponseBody 响应 json 数据
-
-### 1.3.1 说明
-
-作用：
-
-该注解用于将 Controller 的方法返回的对象，通过 HttpMessageConverter 接口转换为指定格式的数据如：json,xml 等，通过 Response 响应给客户端
-
-```java
-@Controller("jsonController")
-public class** JsonController {
-    @RequestMapping("/testResponseJson")
-    public** @ResponseBody Account testResponseJson(\@RequestBody Account
-    account) {
-        System.**out**.println("异步请求："+account);
-
-        **return** account;
-    }
-}
-```
-
-
+作用：由于浏览器 form 表单只支持 GET 与 POST 请求，而 DELETE、PUT 等 method并不支持，Spring3.0 添加了一个过滤器，可以将浏览器请求改为指定的请求方式，发送给我们的控制器方法，使得支持 GET、POST、PUT 与 DELETE 请求。
 
 # 第 6 章：文件上传下载
 
@@ -1080,39 +729,37 @@ MultiparResolver的实现类有两个：
 ```java
 @Controller("fileUploadController2")
 public class FileUploadController2 {
-public static final String FILESERVERURL = "http://localhost:9090/day06_spring_image/uploads/";
-/**
-* 文件上传，保存文件到不同服务器
-*/
-@RequestMapping("/fileUpload2")
-public String testResponseJson(String picname,MultipartFile uploadFile) throws
-Exception{
-//定义文件名
-String fileName = "";
-//1.获取原始文件名
-String uploadFileName = uploadFile.getOriginalFilename();
-//2.截取文件扩展名
-String extendName = uploadFileName.substring(uploadFileName.lastIndexOf(".")+1, uploadFileName.length());
-//3.把文件加上随机数，防止文件重复
-String uuid = UUID.randomUUID().toString().replace("-", "").toUpperCase();
-//4.判断是否输入了文件名
-if(!StringUtils.isEmpty(picname)) {
-fileName = uuid+"_"+picname+"."+extendName;
-}else {
-fileName = uuid+"_"+uploadFileName;
+    public static final String FILESERVERURL = "http://localhost:9090/day06_spring_image/uploads/";
+    /**
+    * 文件上传，保存文件到不同服务器
+    */
+    @RequestMapping("/fileUpload2")
+    public String testResponseJson(String picname,MultipartFile uploadFile) throws Exception{
+        //定义文件名
+        String fileName = "";
+        //1.获取原始文件名
+        String uploadFileName = uploadFile.getOriginalFilename();
+        //2.截取文件扩展名
+        String extendName = uploadFileName.substring(uploadFileName.lastIndexOf(".")+1, uploadFileName.length());
+        //3.把文件加上随机数，防止文件重复
+        String uuid = UUID.randomUUID().toString().replace("-", "").toUpperCase();
+        //4.判断是否输入了文件名
+        if(!StringUtils.isEmpty(picname)) {
+        	fileName = uuid+"_"+picname+"."+extendName;
+        }else {
+        	fileName = uuid+"_"+uploadFileName;
+        }
+        System.out.println(fileName);
+        //5.创建sun公司提供的jersey包中的Client对象
+        Client client = Client.create();
+        //6.指定上传文件的地址，该地址是web路径
+        WebResource resource = client.resource(FILESERVERURL+fileName);
+        //7.实现上传
+        String result = resource.put(String.class,uploadFile.getBytes());
+        System.out.println(result);
+        return "success";
+    }
 }
-System.out.println(fileName);
-//5.创建sun公司提供的jersey包中的Client对象
-Client client = Client.create();
-//6.指定上传文件的地址，该地址是web路径
-WebResource resource = client.resource(FILESERVERURL+fileName);
-//7.实现上传
-String result = resource.put(String.class,uploadFile.getBytes());
-System.out.println(result);
-return "success";
-}
-}
-
 ```
 
 3: 编写 jsp 页面
@@ -1137,12 +784,6 @@ class=_"org.springframework.web.multipart.commons.CommonsMultipartResolver">
     </property>
 </bean>
 ```
-
-
-
-
-
-
 
 # 第 7 章 异常处理
 
@@ -1233,8 +874,12 @@ Spring MVC 的处理器拦截器类似于 Servlet 开发中的过滤器 Filter�
 **拦截器与过滤器的区别：**
 
 - 过滤器是 servlet 规范中的一部分，任何 java web 工程都可以使用。拦截器是 SpringMVC 框架自己的，只有使用了 SpringMVC 框架的工程才能用。
+
 - 过滤器在 url-pattern 中配置了 `/*` 之后，可以对所有要访问的资源拦截。拦截器它是只会拦截访问的控制器方法，如果访问的是 jsp，html,css,image 或者 js 是不会进行拦截的。
-- 自定义拦截器， 要求必须实现：**HandlerInterceptor**接口。
+
+  
+
+自定义拦截器， 要求必须实现：**HandlerInterceptor**接口。
 
 应用场景：日志记录，监控，权限检查，
 
