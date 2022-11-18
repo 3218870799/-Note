@@ -1,38 +1,25 @@
 # 第一章：概述
 
-1：版本迭代
-
-SpringCloud 最早是从 2014 年推出的，在推出的前期更新迭代速度非常快，频繁发布新版本，目前更趋于稳定，变化稍慢一些；
-
-SpringCloud 的版本并不是传统的使用数字的方式标识，而是使用诸如：Angel、Brixton、Camden......等伦敦的地名来命名版本，
-
-版本的先后顺序使用字母表 A-Z 的先后来标识，
-
-| Hoxton    | 2.2.x                                             |
-| --------- | ------------------------------------------------- |
-| Greenwish | 2.1.x                                             |
-| Finchley  | 兼容 Spring Boot 2.0.x， 不兼容 Spring Boot 1.5.x |
-| Edgware   | 兼容 Spring Boot 1.5.x， 不兼容 Spring Boot 2.0.x |
-| Dalston   | 兼容 Spring Boot 1.5.x， 不兼容 Spring Boot 2.0.x |
-| Camden    | 兼容 Spring Boot 1.4.x， 也兼容 Spring Boot 1.5.x |
-| Brixton   | 兼容 Spring Boot 1.3.x， 也兼容 Spring Boot 1.4.x |
-| Angel     | 兼容 Spring Boot 1.2.x                            |
-
 Spring Cloud 并没有重复制造轮子，它只是将各家公司开发的比较成熟、经得起实际考验的服务框架组合起来，通过 Spring Boot 风格进行再封装屏蔽掉了复杂的配置和实现原理，最终给开发者留出了一套简单易懂、易部署和易维护的分布式系统开发工具包。这其中有非常著名的 Netflix 公司的开源产品；
 
-2：SpringCloud 和 Dubbo 的区别？
+
+
+SpringCloud 和 Dubbo 的区别？
 
 dubbo 是二进制传输，占用带宽会少一点。SpringCloud 是 http 传输，带宽会多一点，同时使用 http 协议一般会使用 JSON 报文，消耗会更大。
 
 Spring Cloud 抛弃了 Dubbo 的 RPC 通信，采用的是基于 HTTP 的 REST 方式。
 
-|      | Dubbo | SpringCloud |
-| ---- | ----- | ----------- |
-|      |       |             |
-|      |       |             |
-|      |       |             |
-
-![](media/8fd569cc4f2ec9ee695d52d1df0b71ec.png)
+|              | Dubbo         | SpringCloud |
+| ------------ | ------------- | ----------- |
+| 服务注册中心 | Zookeeper     | Eureka      |
+| 服务调用方式 | RPC           | RestAPI     |
+| 服务监控     | Dubbo-monitor | Admin       |
+| 断路器       |               | Hystrix     |
+| 服务网关     |               | Zuul        |
+| 分布式配置   |               | Config      |
+| 服务跟踪     |               | Sleuth      |
+| 消息总线     |               | Bus         |
 
 服务间的通信：
 
@@ -68,7 +55,7 @@ SpringCloud：使用Restful，http的方式，短连接的方式
 
 选择 Maven 自己的 3.5 以上的
 
-约定>配置》编码
+约定>配置>编码
 
 字符编码
 
