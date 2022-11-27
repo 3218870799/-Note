@@ -1,33 +1,8 @@
-﻿# 第 1 章 RabbitMQ 概述
+# 第 1 章 RabbitMQ 概述
 
-## 1.1 什么是消息队列
-
-消息（Message）是指在应用间传送的数据。消息可以非常简单，比如只包含文本字符串，也可以更复杂，可能包含嵌入对象。
-
-消息队列（Message Queue）是一种应用间的通信方式，消息发送后可以立即返回，由消息系统来确保消息的可靠传递。消息发布者只管把消息发布到 MQ 中而不用管谁来取，消息使用者只管从 MQ 中取消息而不管是谁发布的。这样发布者和使用者都不用知道对方的存在。
-
-## 1.2 为什么要使用消息队列
-
-- 服务间异步通信
-- 顺序消费
-- 定时任务
-- 请求削峰
-- 解耦
-- 限流：省钱
-
-## 1.3 RabbitMQ 特点
-
-优点：
-
-虽然是 erlang 语言，但是有活跃的开源社区，有稳定的支持。
-
-**大型公司**，基础架构研发实力较强，用 RocketMQ 是很好的选择。
-
-**大数据领域**的实时计算、日志采集等场景，用 Kafka 是业内标准的，绝对没问题，社区活跃度很高，绝对不会黄，何况几乎是全世界这个领域的事实性规范。
+## RabbitMQ 特点
 
 RabbitMQ 是一个由 Erlang 语言开发的 AMQP 的开源实现。
-
-AMQP ：Advanced Message Queue，高级消息队列协议。它是应用层协议的一个开放标准，为面向消息的中间件设计，基于此协议的客户端与消息中间件可传递消息，并不受产品、开发语言等条件的限制。
 
 RabbitMQ 最初起源于金融系统，用于在分布式系统中存储转发消息，在易用性、扩展性、高可用性等方面表现不俗。具体特点包括：
 
@@ -83,8 +58,6 @@ RabbitMQ 提供了一个易用的用户界面，使得用户可以监控和管�
 
 将 Erlang 加入到环境变量中
 
-![image-20210124221645827](media/image-20210124221645827.png)
-
 将其添加到 PATH 中
 
 ```
@@ -93,13 +66,9 @@ RabbitMQ 提供了一个易用的用户界面，使得用户可以监控和管�
 
 将 RabbitMQ 加入到环境变量中
 
-![image-20210124221615028](media/image-20210124221615028.png)
-
 重启计算机
 
 运行 RabbitMQ Service - start
-
-![image-20210124222239787](media/image-20210124222239787.png)
 
 切换到安装目录的 sbin 目录，启动图形化界面：
 
@@ -120,15 +89,13 @@ Erlang 官方下载地址：https://www.erlang.org/downloads
 
 RabbitMQ 官方下载地址：https://www.rabbitmq.com/download.html
 
-## 2.1 安装前的准备
-
-### 2.1.1 依赖包安装
+依赖包安装
 
 安装 RabbitMQ 之前必须要先安装所需要的依赖包可以使用下面的一次性安装命令
 
 yum install gcc glibc-devel make ncurses-devel openssl-devel xmlto -y
 
-### 2.1.2 安装 Erlang
+安装 Erlang
 
 1、 将 Erlang 源代码包 otp_src_19.3.tar.gz 上传到 Linux 的/home 目录下
 
@@ -168,7 +135,7 @@ export ERL_HOME PATH
 
 source /etc/profile
 
-## 2.2 安装 RabbitMQ
+安装 RabbitMQ
 
 1、 将 RabbitMQ 安装包 rabbitmq-server-3.7.2-1.el7.noarch.rpm 上传到/home 目录
 
@@ -176,8 +143,9 @@ source /etc/profile
 
 rpm -ivh --nodeps rabbitmq-server-3.7.2-1.el7.noarch.rpm
 
-## 2.3 RabbitMQ 常用命令
+## 3：常用命令
 
+```shell
 ### 2.3.1 启动和关闭
 
 1、启动 RabbitMQ
@@ -213,8 +181,21 @@ rabbitmq-plugins enable rabbitmq_management
 3、使用浏览器访问管控台 http://RabbitMQ 服务器 IP:15672
 
 http://192.168.71.128:15672
+```
 
-### 2.3.3 用户管理
+## 4：用户权限管理
+
+1：角色分类
+
+```txt
+none:不能访问management plugin
+management ： 查看自己相关节点信息
+policymarker：
+monitoring：管理员，只能看不能操作
+administrator：所有信息，能操作
+```
+
+2：用户管理
 
 RabbitMQ 安装成功后使用默认用户名 guest 登录
 
@@ -224,129 +205,83 @@ RabbitMQ 安装成功后使用默认用户名 guest 登录
 
 注意：这里 guest 只允许本机登录访问需要创建用户并授权远程访问命令如下
 
-1、 添加用户：rabbitmqctl add_user {username} {password}
+ 添加用户：
 
+```shell
+rabbitmqctl add_user {username} {password}
 rabbitmqctl add_user root root
+```
 
-2、 删除用户：rabbitmqctl delete_user {username}
+ 删除用户：
 
-3、 修改密码：rabbitmqctl change_password {username} {newpassword}
+```shell
+rabbitmqctl delete_user {username}
+```
 
+ 修改密码：
+
+```shell
+rabbitmqctl change_password {username} {newpassword}
 rabbitmqctl change_password root 123456
+```
 
-4、 设置用户角色：rabbitmqctl set_user_tags {username} {tag}
+ 设置用户角色：
 
+```shell
+## tag 参数表示用户角色取值为：management，monitoring _，policymaker,administrator
+rabbitmqctl set_user_tags {username} {tag}
 rabbitmqctl set_user_tags root administrator
+```
 
-tag 参数表示用户角色取值为：management *，*monitoring _，\*\*policymaker_ administrator
 
-各角色详解：
 
-management
+3：权限管理
 
-用户可以通过 AMQP 做的任何事外加：
+ 授权命令：
 
-列出自己可以通过 AMQP 登入的 virtual hosts
-
-查看自己的 virtual hosts 中的 queues, exchanges 和 bindings
-
-查看和关闭自己的 channels 和 connections
-
-查看有关自己的 virtual hosts 的“全局”的统计信息，包含其他用户在这些 virtual hosts 中的活动。
-
-policymaker
-
-management 可以做的任何事外加：
-
-查看、创建和删除自己的 virtual hosts 所属的 policies 和 parameters
-
-monitoring
-
-management 可以做的任何事外加：
-
-列出所有 virtual hosts，包括他们不能登录的 virtual hosts
-
-查看其他用户的 connections 和 channels
-
-查看节点级别的数据如 clustering 和 memory 使用情况
-
-查看真正的关于所有 virtual hosts 的全局的统计信息
-
-administrator
-
-policymaker 和 monitoring 可以做的任何事外加:
-
-创建和删除 virtual hosts
-
-查看、创建和删除 users
-
-查看创建和删除 permissions
-
-关闭其他用户的 connections
-
-### 2.3.4 权限管理
-
-1、 授权命令：rabbitmqctl set_permissions [-p vhostpath] {user} {conf} {write} {read}
+```shell
+rabbitmqctl set_permissions [-p vhostpath] {user} {conf} {write} {read}
 
 -p vhostpath ：用于指定一个资源的命名空间，例如 –p / 表示根路径命名空间
-
 user：用于指定要为哪个用户授权填写用户名
-
 conf:一个正则表达式 match 哪些配置资源能够被该用户配置。
 write:一个正则表达式 match 哪些配置资源能够被该用户读。
 read:一个正则表达式 match 哪些配置资源能够被该用户访问。
+```
 
-例如：
+查看用户权限
 
-rabbitmqctl set*permissions -p / root '.*' '.\_' '.\*'
-
-用于设置 root 用户拥有对所有资源的 读写配置权限
-
-2、查看用户权限 rabbitmqctl list_permissions [vhostpath]
-
-例如
-
-查看根径经下的所有用户权限
-
+```shell
 rabbitmqctl list_permissions
+```
 
-查看指定命名空间下的所有用户权限
+查看指定用户下的权限
 
-rabbitmqctl list_permissions /abc
-
-3、查看指定用户下的权限 rabbitmqctl list_user_permissions {username}
-
-例如
-
-查看 root 用户下的权限
-
+```shell
 rabbitmqctl list_user_permissions root
+```
 
-4、清除用户权限 rabbitmqctl clear_permissions {username}
+清除用户权限
 
-例如：
-
-清除 root 用户的权限
-
+```shell
 rabbitmqctl clear_permissions root
+```
 
-### 2.3.5 vhost 管理
+
+
+5：vhost 管理
 
 vhost 是 RabbitMQ 中的一个命名空间，可以限制消息的存放位置利用这个命名空间可以进行权限的控制有点类似 Windows 中的文件夹一样，在不同的文件夹中存放不同的文件。
 
-1、添加 vhost: rabbitmqctl add vhost {name}
+添加 vhost: 
 
-例如
+rabbitmqctl add vhost xqc
 
-rabbitmqctl add vhost bjpowernode
+删除 vhost：
 
-2、删除 vhost：rabbitmqctl delete vhost {name}
+rabbitmqctl delete vhost xqc
 
-例如
-
-rabbitmqctl delete vhost bjpowernode
-
-# 第 3 章 RabbitMQ 消息发送和接收
+# 第 3 章 消息发送和接收
 
 ## 3.1 机制
 
@@ -468,6 +403,7 @@ if(ack){
 ### 5：分发
 
 若该队列至少有一个消费者订阅，消息将以循环（round-robin）的方式发送给消费者。每条消息只会分发给一个订阅的消费者（前提是消费者能够正常处理消息并进行确认）。
+
 通过路由可实现多消费的功能
 
 ## 3.2：工作模式
@@ -475,6 +411,8 @@ if(ack){
 1：simple 模式
 
 缺点：
+
+![image-20201112222239406](media/image-20201112222239406.png)
 
 消息可能没有被消费者正确处理,已经从队列中消失了,造成消息的丢失，这里可以设置成手动的 ack,但如果设置成手动 ack，处理完后要及时发送 ack 消息给队列，否则会造成内存溢出。
 
@@ -489,6 +427,14 @@ if(ack){
 缺点：
 
 高并发情况下,默认会产生某一个消息被多个消费者共同使用,可以设置一个开关(syncronize) 保证一条消息只能被一个消费者使用
+
+
+
+资源竞争的模式有两种：1轮询模式，2公平竞争(多劳多得)
+
+
+
+
 
 3：Fanout,广播模式下
 
@@ -510,6 +456,8 @@ error 通知;
 
 EXCEPTION;错误通知的功能;传统意义的错误通知;客户通知;利用 key 路由,可以将程序中的错误封装成消息传入到消息队列中,开发者可以自定义消费者,实时接收错误;
 
+
+
 5：topic 主题模式
 
 ![img](media/aHR0cHM6Ly91c2VyLWdvbGQtY2RuLnhpdHUuaW8vMjAxOS84LzI4LzE2Y2Q3ODQ2ZjYxNjk2NjE.png)
@@ -517,21 +465,6 @@ EXCEPTION;错误通知的功能;传统意义的错误通知;客户通知;利用 
 \*代表多个单词，#代表一个单词
 
 路由功能添加模式匹配
-
-## 3.2 AMQP 中的消息路由
-
-AMQP 中消息的路由过程和 Java 开发者熟悉的 JMS 存在一些差别，AMQP 中增加了 Exchange 和 Binding 的角色。生产者把消息发布到 Exchange 上，消息最终到达队列并被消费者接收，而 Binding 决定交换器的消息应该发送到那个队列
-
-![image-20201112222318522](Media/image-20201112222318522.png)
-
-路由：
-
-消息提供方->路由->一至多个队列
-消息发布到交换器时，消息将拥有一个路由键（routing key），在消息创建时设定。
-通过队列路由键，可以把队列绑定到交换器上。
-消息到达交换器后，RabbitMQ 会将消息的路由键与队列的路由键进行匹配（针对不同的交换器有不同的路由规则）；
-
-常见交换器如下：
 
 ## 3.3 Exchange 类型
 
@@ -555,25 +488,25 @@ topic 交换器通过模式匹配分配消息的路由键属性，将路由键�
 
 ![image-20201112222424881](Media/image-20201112222424881.png)
 
+
+
+
+
+消息基于信道进行传输，
+
+由于 TCP 连接的创建和销毁开销较大，且并发数受系统资源限制，会造成性能瓶颈。
+
+信道是建立在真实的 TCP 连接内的虚拟连接，且每条 TCP 连接上的信道数量没有限制。
+
+AMQP 协议中的核心思想就是生产者和消费者的解耦，生产者从不直接将消息发送给队列。生产者通常不知道是否一个消息会被发送到队列中，只是将消息发送到一个交换机。先由 Exchange 来接收，然后 Exchange 按照特定的策略转发到 Queue 进行存储。Exchange 就类似于一个交换机，将各个消息分发到相应的队列中。
+
+在实际应用中我们只需要定义好 Exchange 的路由策略，而生产者则不需要关心消息会发送到哪个 Queue 或被哪些 Consumer 消费。在这种模式下生产者只面向 Exchange 发布消息，消费者只面向 Queue 消费消息，Exchange 定义了消息路由到 Queue 的规则，将各个层面的消息传递隔离开，使每一层只需要关心自己面向的下一层，降低了整体的耦合度。
+
 ## 3.4 Java 发送和接收 Queue 的消息
 
-### 3.4.1 创建 Maven 工程 01-rabbitmq-send-java
+1：以simple模式为例：
 
-添加 Maven 依赖
-
-```xml
-<dependencies>
-    <dependency>
-        <groupId>com.rabbitmq</groupId>
-        <artifactId>amqp-client</artifactId>
-        <version>5.1.1</version>
-    </dependency>
-</dependencies>
-```
-
-### 3.4.2 编写消息发送类
-
-在 01-rabbitmq-send-java 项目中创建，com.bjpowernode.rabbitmq.queue.Send 类
+发送：
 
 ```java
 public class Send{
@@ -585,12 +518,16 @@ public class Send{
             factory.setUsername("root");//设置访问用户名
             factory.setPassword("root");//设置访问密码
             Connection connection=null;//定义链接对象
+            
             Channel channel=null;//定义通道对象
             connection=factory.newConnection();//实例化链接对象
             channel=connection.createChannel();//实例化通道对象
             String message ="Hello World!3";
+            
             //创建队列 ，名字为myQueue
+            //队列名称，是否持久化，是否独占独立，是否自动删除，携带附属参数
             channel.queueDeclare("myQueue", true, false, false, null);
+            
             //发送消息到指定队列
             channel.basicPublish("","myQueue",null,message.getBytes("UTF-8"));
             System.out.println("消息发送成功: "+message);
@@ -600,26 +537,7 @@ public class Send{
 }
 ```
 
-以运行 Send 类观看管控台的变化
-
-### 3.4.3 创建 Maven 工程 01-rabbitmq-receive-java
-
-添加 Maven 依赖
-
-```xml
-<dependencies>
-   <dependency>
-       <groupId>com.rabbitmq</groupId>
-       <artifactId>amqp-client</artifactId>
-       <version>5.1.1</version>
-   </dependency>
-</dependencies>
-
-```
-
-### 3.4.4 编写消息接收类
-
-在 01-rabbitmq-receive-java 项目中创建，com.bjpowernode.rabbitmq.queue.Receive 类
+接收类
 
 ```java
 public class Receive {
@@ -637,6 +555,7 @@ public class Receive {
            //消费消息
            boolean autoAck = true;
            String consumerTag = "";
+           
            //接收消息
            //参数1 队列名称
            //参数2 是否自动确认消息 true表示自动确认 false表示手动确认
@@ -660,37 +579,9 @@ public class Receive {
 
 ```
 
-注意：
+2 Exchange 的 direct 消息绑定
 
-1、Queue 的消息只能被同一个消费者消费，如果没有消费监听队列那么消息会存放到队列中持久化保存，直到有消费者来消费这个消息，如果以有消费者监听队列则立即消费发送到队列中的消息
-
-2、Queue 的消息可以保证每个消息都一定能被消费
-
-## 3.5 绑定 Exchange
-
-常用的交换器有三种：
-
-fanout：如果交换器收到消息，将会广播到所有绑定的队列上
-
-direct：如果路由键完全匹配，消息就被投递到相应的队列
-
-topic：可以使来自不同源头的消息能够到达同一个队列。 使用 topic 交换器时，可以使用通配符
-
-消息基于信道进行传输，
-
-由于 TCP 连接的创建和销毁开销较大，且并发数受系统资源限制，会造成性能瓶颈。
-
-信道是建立在真实的 TCP 连接内的虚拟连接，且每条 TCP 连接上的信道数量没有限制。
-
-AMQP 协议中的核心思想就是生产者和消费者的解耦，生产者从不直接将消息发送给队列。生产者通常不知道是否一个消息会被发送到队列中，只是将消息发送到一个交换机。先由 Exchange 来接收，然后 Exchange 按照特定的策略转发到 Queue 进行存储。Exchange 就类似于一个交换机，将各个消息分发到相应的队列中。
-
-在实际应用中我们只需要定义好 Exchange 的路由策略，而生产者则不需要关心消息会发送到哪个 Queue 或被哪些 Consumer 消费。在这种模式下生产者只面向 Exchange 发布消息，消费者只面向 Queue 消费消息，Exchange 定义了消息路由到 Queue 的规则，将各个层面的消息传递隔离开，使每一层只需要关心自己面向的下一层，降低了整体的耦合度。
-
-### 3.5.1 Exchange 的 direct 消息绑定
-
-#### 3.5.1.1 编写 direct 消息发送类
-
-在 01-rabbitmq-send-java 项目中创建，com.bjpowernode.rabbitmq.direct.Send 类
+发送
 
 ```java
 public class Send {
@@ -728,9 +619,7 @@ channel.queueDeclare("myQueueDirect", true, false, false, null);
 
 注意：使用 direct 消息模式时必须要指定 RoutingKey（路由键），将指定的消息绑定到指定的路由键上
 
-#### 3.5.1.2 编写 direct 消息接收类
-
-在 01-rabbitmq-Receive-java 项目中创建，com.bjpowernode.rabbitmq.direct.Receive 类
+接受：
 
 ```java
 public static void main(String[] args) throws IOException, TimeoutException {
@@ -777,11 +666,11 @@ channel.queueDeclare("myQueueDirect", true, false, false, null);
 
 2、接收消息时队列名也必须要发送消息时的完全一致
 
-### 3.5.2 Exchange 的 fanout 消息绑定
 
-#### 3.5.2.1 编写 fanout 消息发送类
 
-在 01-rabbitmq-send-java 项目中创建，com.bjpowernode.rabbitmq.fanout.Send 类
+3 ：Exchange 的 fanout 消息绑定
+
+发送类
 
 ```java
 public static void main(String[] args) throws IOException, TimeoutException {
@@ -826,9 +715,7 @@ public static void main(String[] args) throws IOException, TimeoutException {
 
 fanout 模式的消息需要将一个消息同时绑定到多个队列中因此这里不能创建并指定某个队列
 
-#### 3.5.2.2 编写 fanout 消息接收类
-
-在 01-rabbitmq-receive-java 项目中创建，com.bjpowernode.rabbitmq.fanout.Receive 类
+接收类
 
 ```java
 public static void main(String[] args) throws IOException, TimeoutException {
@@ -877,11 +764,11 @@ public static void main(String[] args) throws IOException, TimeoutException {
 
 2、这种模式中可以同时启动多个接收者只要都绑定到同一个 Exchang 即可让所有接收者同时接收同一个消息是一种广播的消息机制
 
-### 3.5.3 Exchange 的 topic 消息绑定
 
-#### 3.5.3.1 编写 topic 消息发送类
 
-在 01-rabbitmq-send-java 项目中创建，com.bjpowernode.rabbitmq.topic.Send 类
+5：  topic 消息绑定
+
+发送：
 
 ```java
 public static void main(String[] args) throws IOException, TimeoutException {
@@ -919,9 +806,7 @@ public static void main(String[] args) throws IOException, TimeoutException {
 
 1、在 topic 模式中必须要指定 Routingkey，并且可以同时指定多层的 RoutingKey，每个层次之间使用 点分隔即可 例如 test.myRoutingKey
 
-#### 3.5.3.2 编写 topic 的消息接收类
-
-在 01-rabbitmq-receive-java 项目中创建，com.bjpowernode.rabbitmq.topic.Receive 类
+接收类
 
 ```java
 public static void main(String[] args) throws IOException, TimeoutException {
@@ -968,7 +853,9 @@ public static void main(String[] args) throws IOException, TimeoutException {
 
 1、Topic 模式的消息接收时必须要指定 RoutingKey 并且可以使用# 和 *来做统配符号，#表示通配任意一个单词 *表示通配任意多个单词，例如消费者的 RoutingKey 为 test.#或#.myRoutingKey 都可以获取 RoutingKey 为 test.myRoutingKey 发送者发送的消息
 
-### 3.5.4 事务消息
+
+
+## 3.5 事务消息
 
 事务消息与数据库的事务类似，只是 MQ 中的消息是要保证消息是否会全部发送成功，防止丢失消息的一种策略。
 
@@ -977,17 +864,21 @@ RabbitMQ 有两种方式来解决这个问题：
 1. 通过 AMQP 提供的事务机制实现；
 2. 使用发送者确认模式实现；
 
-#### 3.5.4.1 事务使用
+
+
+1 事务使用
 
 事务的实现主要是对信道（Channel）的设置，主要的方法有三个：
 
-1. channel.txSelect()声明启动事务模式；
-2. channel.txCommint()提交事务；
-3. channel.txRollback()回滚事务；
+channel.txSelect()声明启动事务模式；
 
-#### 3.5.4.2 编写消息发送类
+channel.txCommint()提交事务；
 
-在 01-rabbitmq-send-java 项目中创建，com.bjpowernode.rabbitmq.transaction.Send 类
+channel.txRollback()回滚事务；
+
+
+
+ 发送类
 
 ```java
 public class Send{
@@ -1027,9 +918,7 @@ channel.txSelect();
 
 ```
 
-#### 3.6.1.4 编写消息接收类
-
-在 01-rabbitmq-receive-java 项目中创建，com.bjpowernode.rabbitmq.transaction.Receive 类
+接收类
 
 ```java
 public class Receive{
@@ -1076,7 +965,9 @@ channel.close();
 
 ```
 
-### 3.5.5 消息的发送者确认模式
+## 3.6 确认机制实现
+
+1：发送者的确认机制
 
 Confirm 发送方确认模式使用和事务类似，也是通过设置 Channel 进行发送方确认的，最终达到确保所有的消息全部发送成功
 
@@ -1201,7 +1092,9 @@ public class Send {
 
 ```
 
-### 3.5.6 消息的消费者确认模式
+
+
+2 ：消费者确认模式
 
 为了保证消息从队列可靠地到达消费者，RabbitMQ 提供消息确认机制(message acknowledgment)。消费者在声明队列时，可以指定 noAck 参数，当 noAck=false 时，RabbitMQ 会等待消费者显式发回 ack 信号后才从内存(和磁盘，如果是持久化消息的话)中移去消息。否则，RabbitMQ 会在队列中消息被消费后立即删除它。
 
@@ -1217,13 +1110,7 @@ basicReject()：是接收端告诉服务器这个消息我拒绝接收,不处理
 
 basicNack()：可以一次拒绝 N 条消息，客户端可以设置 basicNack 方法的 multiple 参数为 true。
 
-在 01-rabbitmq-send-java 项目中创建，com.bjpowernode.rabbitmq.ack.Send 类
 
-public class Send { public static void main(String[] args) throws IOException, TimeoutException { //创建链接工厂对象 ConnectionFactory factory=new ConnectionFactory(); factory.setHost("192.168.222.128");//设置 RabbitMQ 的主机 IP factory.setPort(5672);//设置 RabbitMQ 的端口号 factory.setUsername("root");//设置访问用户名 factory.setPassword("root");//设置访问密码 Connection connection=null;//定义链接对象 Channel channel=null;//定义通道对象 connection=factory.newConnection();//实例化链接对象 channel=connection.createChannel();//实例化通道对象 String message ="Hello World!3111222"; String exchangeName="myExchange"; channel.queueDeclare("myQueueDirect", true, false, false, null); //指定 Exchange 的类型 //参数 1 为 交换机名称 //参数 2 为交换机类型取值为 direct、queue、topic、headers //参数 3 为是否为持久化消息 true 表示持久化消息 false 表示非持久化 channel.exchangeDeclare(exchangeName, "direct", true); //发送消息到 RabbitMQ //参数 1 我们自定义的交换机名称 //参数 2 自定义的 RoutingKey 值 //参数 3 设置消息的属性，可以通过消息属性设置消息是否是持久化的 //参数 4 具体要发送的消息信息 channel.basicPublish(exchangeName,"myRoutingKeyDirect",null,message.getBytes("UTF-8")); System.out.println("消息发送成功: "+message); // channel.close(); // connection.close(); } }
-
-在 01-rabbitmq-receive-java 项目中创建，com.bjpowernode.rabbitmq.ack.Receive 类
-
-public class Receive { public static void main(String[] args) throws IOException, TimeoutException { ConnectionFactory factory = new ConnectionFactory(); factory.setUsername("root"); factory.setPassword("root"); factory.setHost("192.168.222.128"); //建立到代理服务器到连接 Connection conn = factory.newConnection(); //获得信道 final Channel channel = conn.createChannel(); //声明交换器 String exchangeName = "myExchange"; String queueName = "myQueueDirect"; channel.queueDeclare(queueName, true, false, false, null); channel.exchangeDeclare(exchangeName, "direct", true); //声明队列 String routingKey = "myRoutingKeyDirect"; //绑定队列，通过键 hola 将队列和交换器绑定起来 channel.queueBind(queueName, exchangeName, routingKey); //消费消息 boolean autoAck = false; String consumerTag = ""; //接收消息 //参数 1 队列名称 //参数 2 是否自动确认消息 true 表示自动确认 false 表示手动确认 //参数 3 为消息标签 用来区分不同的消费者这列暂时为"" // 参数 4 消费者回调方法用于编写处理消息的具体代码（例如打印或将消息写入数据库） System.out.println(queueName); //开启事务 channel.txSelect(); channel.basicConsume(queueName, autoAck, consumerTag, new DefaultConsumer(channel) { @Override public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException { //获取消息数据 String bodyStr = new String(body, "UTF-8"); System.out.println(bodyStr); //获取当前消息的序列号 long deliveryTag = envelope.getDeliveryTag(); //确认消息 //参数 1 用于确定确认那条消息 //参数 2 false 表示确认这条消息， true 表示确认小于这个值的所有消息 channel.basicAck(deliveryTag, false); } }); //开始提交事务 channel.txCommit() //回滚事务 // channel.txRollback(); // channel.close(); // conn.close(); } }
 
 注意：
 
@@ -1231,15 +1118,7 @@ public class Receive { public static void main(String[] args) throws IOException
 
 # 第 4 章 SpringBoot 集成 RabbitMQ
 
-## 4.1 创建消息生产者工程
-
-创建模块 02-rabbitmq-springboot-send
-
-![image-20201214175500578](media/image-20201214175500578.png)
-
-![image-20201214175511553](media/image-20201214175511553.png)
-
-配置模块 02-rabbitmq-springboot-send 的 application.properties 文件添加对 RabbitMQ 的集成
+配置模块send 的 application.properties 文件添加对 RabbitMQ 的集成
 
 ```yml
 #配置RabbitMQ链接信息
@@ -1282,15 +1161,7 @@ public class Application{
 }
 ```
 
-## 4.2 创建消息接收者工程
-
-创建模块 02-rabbitmq-springboot-receive
-
-![image-20201214213244839](media/image-20201214213244839.png)
-
-![image-20201214213257519](media/image-20201214213257519.png)
-
-配置模块 02-rabbitmq-springboot-receive 的 application.properties 文件添加对 RabbitMQ 的集成
+配置模块 receive 的 application.properties 文件添加对 RabbitMQ 的集成
 
 ```yml
 #配置RabbitMQ链接信息
@@ -1308,7 +1179,7 @@ spring.rabbitmq.password=root
 
 ### 4.3.1 消息发送
 
-在 02-rabbitmq-springboot-send 模块中创建类，com.bjpowernode.direct.Send
+com.xqc.direct.Send
 
 ```java
 @Service
@@ -1326,7 +1197,7 @@ public class Send {
 }
 ```
 
-创建 Amqp 配置类 com.bjpowernode.rabbitmq.config.AmqpConfig
+创建 Amqp 配置类 com.xqc.rabbitmq.config.AmqpConfig
 
 ```java
 @Configuration
@@ -1355,7 +1226,7 @@ public class Application {
 
 ### 4.3.2 消息接收
 
-在 02-rabbitmq-springboot-receive 模块中创建类，com.bjpowernode.direct.Receive
+在 02-rabbitmq-springboot-receive 模块中创建类，com.xqc.direct.Receive
 
 ```java
 @Service
@@ -1368,7 +1239,7 @@ public class Receive {
 }
 ```
 
-创建 Amqp 配置类 com.bjpowernode.rabbitmq.config.AmqpConfig
+创建 Amqp 配置类 com.xqc.rabbitmq.config.AmqpConfig
 
 ```java
 @Configuration
@@ -1417,7 +1288,7 @@ public class Application {
 
 ### 4.4.1 消息发送
 
-在 02-rabbitmq-springboot-send 模块中创建类，com.bjpowernode.fanout.Send
+在 02-rabbitmq-springboot-send 模块中创建类，com.xqc.fanout.Send
 
 ```java
 @Service
@@ -1435,7 +1306,7 @@ public class Send {
 }
 ```
 
-修改 Amqp 配置类 com.bjpowernode.rabbitmq.config.AmqpConfig，增加以下内容
+修改 Amqp 配置类 com.xqc.rabbitmq.config.AmqpConfig，增加以下内容
 
 ```java
 //创建交换机
@@ -1461,7 +1332,7 @@ public class Application {
 
 ### 4.4.2 消息接收
 
-在 02-rabbitmq-springboot-receive 模块中创建类，com.bjpowernode.fanout.Receove
+在 02-rabbitmq-springboot-receive 模块中创建类，com.xqc.fanout.Receove
 
 ```java
 @Service
@@ -1473,7 +1344,7 @@ public class Receive {
 }
 ```
 
-修改 Amqp 配置类 com.bjpowernode.rabbitmq.config.AmqpConfig，增加以下内容
+修改 Amqp 配置类 com.xqc.rabbitmq.config.AmqpConfig，增加以下内容
 
 ```java
 //创建一个名字为 fanoutQueue的队列
@@ -1511,7 +1382,7 @@ public class Application {
 
 ### 4.5.1 消息发送
 
-在 02-rabbitmq-springboot-send 模块中创建类，com.bjpowernode.topic.Send
+在 02-rabbitmq-springboot-send 模块中创建类，com.xqc.topic.Send
 
 ```java
 @Service
@@ -1529,7 +1400,7 @@ public void topicSend(){
 }
 ```
 
-修改 Amqp 配置类 com.bjpowernode.rabbitmq.config.AmqpConfig，增加以下内容
+修改 Amqp 配置类 com.xqc.rabbitmq.config.AmqpConfig，增加以下内容
 
 ```java
 //创建交换机
@@ -1557,7 +1428,7 @@ public class Receive {
 
 ### 4.5.2 消息接收
 
-在 02-rabbitmq-springboot-receive 模块中创建类，com.bjpowernode.topic.Receove
+在 02-rabbitmq-springboot-receive 模块中创建类，com.xqc.topic.Receove
 
 ```java
 @Service
@@ -1574,7 +1445,7 @@ public class Receive {
 
 ```
 
-修改 Amqp 配置类 com.bjpowernode.rabbitmq.config.AmqpConfig，增加以下内容
+修改 Amqp 配置类 com.xqc.rabbitmq.config.AmqpConfig，增加以下内容
 
 ```java
 //创建交换机，
@@ -1773,17 +1644,27 @@ rabbitmqctl stop_app rabbitmqctl reset rabbitmqctl start_app
 
 ### 5.1.3 使用 SpringBoot 连接 RabbitMQ 集群
 
-**5.1.3.1** **配置\*\***RabbitMQ\***\*的账号**
+5.1.3.1 配置RabbitMQ的账号
 
 分别为 2 台 Linux 中的 RabbitMQ 添加账号并进行授权
 
+```shell
 rabbitmqctl add*user root root rabbitmqctl set_user_tags root administrator rabbitmqctl set_permissions -p / root '.*' '.\_' '.\*'
+```
 
-**5.1.3.2 SpringBoot\*\***配置\*\*
+5.1.3.2 SpringBoot配置
 
 修改 SpringBoot 的 application.properties 文件进行集群的继承
 
-#spring.rabbitmq.port=5672 #配置 RabbitMQ 的集群访问地址 spring.rabbitmq.addresses=192.168.222.129:5672,192.168.222.130:5672 #配置 RabbitMQ 服务器的访问账号 spring.rabbitmq.username=root #配置 RabbitMQ 服务器的访问密码 spring.rabbitmq.password=root
+```yml
+#spring.rabbitmq.port=5672 
+#配置 RabbitMQ 的集群访问地址
+spring.rabbitmq.addresses=192.168.222.129:5672,192.168.222.130:5672
+#配置 RabbitMQ 服务器的访问账号 
+spring.rabbitmq.username=root 
+#配置 RabbitMQ 服务器的访问密码 
+spring.rabbitmq.password=root
+```
 
 ## 高可用保证
 
@@ -1791,17 +1672,7 @@ rabbitmqctl add*user root root rabbitmqctl set_user_tags root administrator rabb
 
 # 第 6 章：MQ 中常见问题
 
-## 路由
-
-生成者生产消息后消息带有 routing Key，通过 routing Key 消费者队列被绑定到交换器上，消息到达交换器根据交换器规则匹配，常见交换器如下：
-
-**fanout**：如果交换器收到消息，将会广播到所有绑定的队列上
-
-**direct**：如果路由键完全匹配，消息就被投递到相应的队列
-
-**topic**：可以使来自不同源头的消息能够到达同一个队列。使用 topic 交换器时，可以使用通配
-
-## 6.1：顺序问题
+## 顺序问题
 
 消息有序指的是可以按照消息的发送顺序来消费
 
@@ -1875,7 +1746,7 @@ consumer.registerMessageListener(new MessageListenerOrderly(){
 
 （2）：单线程消费保证消息的顺序性；对消息进行编号，消费者处理消息是根据编号处理消息；
 
-## 6.2：重复消费
+## 重复消费
 
 可能会出现重复的消息？
 
@@ -1901,7 +1772,7 @@ consumer.registerMessageListener(new MessageListenerOrderly(){
 
 
 
-## 3：数据一致性问题
+## 数据一致性问题
 
 一个完整的业务流程，下单成功，送100个积分，下单写库成功，积分写库不成功，导致数据不一致。
 
@@ -1912,6 +1783,49 @@ consumer.registerMessageListener(new MessageListenerOrderly(){
 小业务同步重试，处理失败l立刻重试3-5次，如果还是失败，则写入到记录表，但如果消息量比较大，不建议使用这种方式，容易由于网络异常，造成消息积压。
 
 而消息量比较大的业务场景，建议采用异步重试，在消费者处理失败之后，立刻写入`重试表`，有个`job`专门定时重试。
+
+## 延时队列
+
+详细：https://www.cnblogs.com/mfrank/p/11260355.html
+
+10 分钟不支付完成就进行回滚。
+
+介绍一下 RabbitMQ 中的一个高级特性——`TTL（Time To Live）` ，`TTL`是 RabbitMQ 中一个消息或者队列的属性，表明`一条消息或者该队列中的所有消息的最大存活时间`，单位是毫秒。换句话说，如果一条消息设置了 TTL 属性或者进入了设置 TTL 属性的队列，那么这条消息如果在 TTL 设置的时间内没有被消费，则会成为“死信”。如果同时配置了队列的 TTL 和消息的 TTL，那么较小的那个值将会被使用。
+
+第一种是在创建队列的时候设置队列的 `x-message-tt` 属性
+
+```java
+Map<String, Object> args = new HashMap<String, Object>();
+args.put("x-message-ttl", 6000);
+channel.queueDeclare(queueName, durable, exclusive, autoDelete, args);
+```
+
+这样所有被投递到该队列的消息都最多不会存活超过 6s
+
+第二种是针对每条消息设置 TTL
+
+```java
+AMQP.BasicProperties.Builder builder = new AMQP.BasicProperties.Builder();
+builder.expiration("6000");
+AMQP.BasicProperties properties = builder.build();
+channel.basicPublish(exchangeName, routingKey, mandatory, properties, "msg body".getBytes());
+```
+
+但这两种方式是有区别的，如果设置了队列的 TTL 属性，那么一旦消息过期，就会被队列丢弃，而第二种方式，消息即使过期，也不一定会被马上丢弃，因为消息是否过期是在即将投递到消费者之前判定的，如果当前队列有严重的消息积压情况，则已过期的消息也许还能存活较长时间。
+
+**使用 TTL 和死信队列实现延时队列功能：**
+
+TTL 则刚好能让消息在延迟多久之后成为死信，另一方面，成为死信的消息都会被投递到死信队列里，这样只需要消费者一直消费死信队列里的消息就万事大吉了，因为里面的消息都是希望被立即处理的消息。
+
+生产者生产一条延时消息，根据需要延时时间的不同，利用不同的 routingkey 将消息路由到不同的延时队列，每个队列都设置了不同的 TTL 属性，并绑定在同一个死信交换机中，消息过期后，根据 routingkey 的不同，又会被路由到不同的死信队列中，消费者只需要监听对应的死信队列进行处理即可。
+
+如果这样使用的话，岂不是每增加一个新的时间需求，就要新增一个队列，这样只能将 TTL 设置在消息属性里了。增加一个延时队列，用于接收设置为任意延时时长的消息，增加一个相应的死信队列和 routingkey：
+
+但是，在最开始的时候，就介绍过，如果使用在消息属性上设置 TTL 的方式，消息可能并不会按时“死亡“，因为 RabbitMQ 只会检查第一个消息是否过期，如果过期则丢到死信队列，索引如果第一个消息的延时时长很长，而第二个消息的延时时长很短，则第二个消息并不会优先得到执行。
+
+**利用 RabbitMQ 插件实现延时队列：**
+
+安装一个插件即可：https://www.rabbitmq.com/community-plugins.html ，下载 rabbitmq_delayed_message_exchange 插件，然后解压放置到 RabbitMQ 的插件目录。
 
 ## 死信队列
 
@@ -1962,48 +1876,7 @@ DLX 也是一个正常的交换机，。当这个队列中存在死信时，Rabb
 - 死信交换机将消息投入到响应的死信队列
 - 死信队列的消费者消费死信消息。
 
-## 延时队列
 
-详细：https://www.cnblogs.com/mfrank/p/11260355.html
-
-10 分钟不支付完成就进行回滚。
-
-介绍一下 RabbitMQ 中的一个高级特性——`TTL（Time To Live）` ，`TTL`是 RabbitMQ 中一个消息或者队列的属性，表明`一条消息或者该队列中的所有消息的最大存活时间`，单位是毫秒。换句话说，如果一条消息设置了 TTL 属性或者进入了设置 TTL 属性的队列，那么这条消息如果在 TTL 设置的时间内没有被消费，则会成为“死信”。如果同时配置了队列的 TTL 和消息的 TTL，那么较小的那个值将会被使用。
-
-第一种是在创建队列的时候设置队列的 `x-message-tt` 属性
-
-```java
-Map<String, Object> args = new HashMap<String, Object>();
-args.put("x-message-ttl", 6000);
-channel.queueDeclare(queueName, durable, exclusive, autoDelete, args);
-```
-
-这样所有被投递到该队列的消息都最多不会存活超过 6s
-
-第二种是针对每条消息设置 TTL
-
-```java
-AMQP.BasicProperties.Builder builder = new AMQP.BasicProperties.Builder();
-builder.expiration("6000");
-AMQP.BasicProperties properties = builder.build();
-channel.basicPublish(exchangeName, routingKey, mandatory, properties, "msg body".getBytes());
-```
-
-但这两种方式是有区别的，如果设置了队列的 TTL 属性，那么一旦消息过期，就会被队列丢弃，而第二种方式，消息即使过期，也不一定会被马上丢弃，因为消息是否过期是在即将投递到消费者之前判定的，如果当前队列有严重的消息积压情况，则已过期的消息也许还能存活较长时间。
-
-**使用 TTL 和死信队列实现延时队列功能：**
-
-TTL 则刚好能让消息在延迟多久之后成为死信，另一方面，成为死信的消息都会被投递到死信队列里，这样只需要消费者一直消费死信队列里的消息就万事大吉了，因为里面的消息都是希望被立即处理的消息。
-
-生产者生产一条延时消息，根据需要延时时间的不同，利用不同的 routingkey 将消息路由到不同的延时队列，每个队列都设置了不同的 TTL 属性，并绑定在同一个死信交换机中，消息过期后，根据 routingkey 的不同，又会被路由到不同的死信队列中，消费者只需要监听对应的死信队列进行处理即可。
-
-如果这样使用的话，岂不是每增加一个新的时间需求，就要新增一个队列，这样只能将 TTL 设置在消息属性里了。增加一个延时队列，用于接收设置为任意延时时长的消息，增加一个相应的死信队列和 routingkey：
-
-但是，在最开始的时候，就介绍过，如果使用在消息属性上设置 TTL 的方式，消息可能并不会按时“死亡“，因为 RabbitMQ 只会检查第一个消息是否过期，如果过期则丢到死信队列，索引如果第一个消息的延时时长很长，而第二个消息的延时时长很短，则第二个消息并不会优先得到执行。
-
-**利用 RabbitMQ 插件实现延时队列：**
-
-安装一个插件即可：https://www.rabbitmq.com/community-plugins.html ，下载 rabbitmq_delayed_message_exchange 插件，然后解压放置到 RabbitMQ 的插件目录。
 
 ## 消息数据丢失
 
@@ -2032,8 +1905,6 @@ RabbitMQ 丢失数据：开启持久化（持久化标识 durable 设置为 true
 消息积压处理办法：临时紧急扩容：
 
 先修复 consumer 的问题，确保其恢复消费速度，然后将现有 cnosumer 都停掉。新建一个 topic，partition 是原来的 10 倍，临时建立好原先 10 倍的 queue 数量。然后写一个临时的分发数据的 consumer 程序，这个程序部署上去消费积压的数据，消费之后不做耗时的处理，直接均匀轮询写入临时建立好的 10 倍数量的 queue。接着临时征用 10 倍的机器来部署 consumer，每一批 consumer 消费一个临时 queue 的数据。这种做法相当于是临时将 queue 资源和 consumer 资源扩大 10 倍，以正常的 10 倍速度来消费数据。等快速消费完积压数据之后，得恢复原先部署的架构，重新用原先的 consumer 机器来消费消息。
-
-![image-20210323105241957](media/image-20210323105241957.png)
 
 ## 2：如果超过了设置的过期时间 TTL，数据丢失了怎么办？
 

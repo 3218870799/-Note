@@ -32,7 +32,11 @@ c.线程数，即为并发请求数量，可修改
 
 d.ramp-UI时间，即为几秒内开启全部线程，可修改
 
-3.选择线程组，右键-->添加-->取样器-->HTTP请求
+3.选择线程组，
+
+右键——添加——配置原件——HTTP请求默认值：这里配置后其他请求就不用再配置了； 
+
+右键-->添加-->取样器-->HTTP请求
 
 ![image-20210713165237744](media/image-20210713165237744.png)
 
@@ -47,6 +51,35 @@ Web服务器信息，网络协议、域名或IP、端口号，可自行修改
 4.选择线程组，右键-->添加-->配置元件-->HTTP信息头管理器
 
 ![image-20210713165217734](media/image-20210713165217734.png)
+
+
+
+自定义变量模拟多用户
+
+CVS Data Set Config：
+
+
+
+JMeter命令行使用：
+
+在windows上录好jmx；
+
+```shell
+sh jmeter.sh -n -t XXX.jmt -l result.jtl
+```
+
+把result.jtl 导入到jmeter
+
+
+
+redis压测工具：redis-benchmark
+
+```shell
+## 模拟100个并发100000 个请求
+redis-benchmark -h 127.0.0.1 -p 6379 -c 100 -n 10000
+
+redis-benchmark -t set,lpush -q -n 10
+```
 
 
 
@@ -96,15 +129,7 @@ rate: 1
 
 
 
-自定义变量模拟多用户
 
-
-
-JMeter命令行使用
-
-
-
-redis压测工具：redis-benchmark
 
 ## 脚本工具
 
