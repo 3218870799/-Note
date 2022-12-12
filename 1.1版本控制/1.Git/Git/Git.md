@@ -1,4 +1,10 @@
-# 一： 版本控制工具应该具备的功能
+# 一： 版本控制
+
+## 版本控制
+
+工程设计领域中使用版本控制管理工程蓝图的设计过程。在 IT 开发过程中也可以使用版本控制思想管理代码的版本迭代。
+
+功能：
 
 - 协同修改
 
@@ -29,13 +35,7 @@
 
   - 允许开发团队在工作过程中多条生产线同时推进任务，进一步提高效率。
 
-# 二： 版本控制简介
-
-## 2.1 版本控制
-
-工程设计领域中使用版本控制管理工程蓝图的设计过程。在 IT 开发过程中也可以使用版本控制思想管理代码的版本迭代。
-
-## 2.2 版本控制工具
+##  版本控制工具
 
 版本控制工具集中式版本控制工具：CVS、**SVN**、VSS……
 
@@ -45,17 +45,9 @@
 
 ![](media/2ec04fe48f2c5902c34baeda67618cb6.jpg)
 
-# 三：Git 简介
+# 二：Git 简介
 
-## 3.1Git 简史
-
-![](media/54fac158442b44e3b78de0081e2d2f11.png)
-
-## 3.2Git 官网和 Logo
-
-官网地址：https://git-scm.com/
-
-## 3.3Git 的优势
+Git 的优势
 
 - 大部分操作在本地完成，不需要联网
 
@@ -67,23 +59,11 @@
 
 - 与 Linux 命令全面兼容
 
-## 3.4Git 安装
+## 安装
 
-![](media/97b8c3fab4fa3b10cf0f274ba1754c0e.jpg)
+## Git 结构
 
-![](media/b960743284db633d85cc4b90e4cdfa6f.jpg)
-
-![](media/95f5f78213990abff0b09449e31ed729.jpg)
-
-![](media/ad49e4b0b539b2dae36071ef9d3ef2e7.jpg)
-
-![](media/3951ba70f0d67a53ac7b6a724b837440.jpg)
-
-## 3.5Git 结构
-
-![](media/ea7d69e15bc86ef52fe36bbad6b1d8df.png)
-
-## 3.6Git 和代码托管中心
+Git 和代码托管中心
 
 代码托管中心的任务：维护远程库
 
@@ -97,72 +77,51 @@
 
   - 码云
 
-## 3.7 本地库和远程库
+## 本地库和远程库
 
-### 3.7.1 团队内部协作
+###  团队内部协作
 
-![](media/c49fa766caedfb7c5e86ca1fd7919c89.png)
+###  跨团队协作
 
-### 3.7.2 跨团队协作
+# 三: Git 命令行操作
 
-![](media/1f64470a06c4a3b17a1b9f6654bd944b.png)
+## 设置签名
 
-# 四: Git 命令行操作
+形式
 
-## 4.1 本地库初始化
+用户名：tom
 
-- 命令：git add
+Email 地址：
 
-- 效果
+作用：区分不同开发人员的身份
 
-  ![](media/4e3165338d91c4b2f0be26e2a415f80a.jpg)
+级别：
 
-- 注意：.git
-  目录中存放的是本地库相关的子目录和文件，不要删除，也不要胡乱修改。
+项目级别/仓库级别：仅在当前本地库范围内有效，信息保存位置：./.git/config 文件
 
-## 4.2 设置签名
+```bash
+git config user.name tom_pro
 
-- 形式
+git config user.email XXX@qq.com
+```
 
-  用户名：tom
+系统用户级别：登录当前操作系统的用户范围，信息保存位置：\~/.gitconfig 文件
 
-  Email 地址：goodMorning\@atguigu.com
+```bash
+- git config --global user.name tom_glb
 
-- 作用：区分不同开发人员的身份
+- git config --global XXX@qq.com
+```
 
-- 辨析：这里设置的签名和登录远程库(代码托管中心)的账号、密码没有任何关系。
+级别优先级
 
-- 命令
+- 就近原则：项目级别优先于系统用户级别，二者都有时采用项目级别的签名
 
-  - 项目级别/仓库级别：仅在当前本地库范围内有效
+- 如果只有系统用户级别的签名，就以系统用户级别的签名为准
 
-    - git **config** user.name tom_pro
+- 二者都没有不允许
 
-    - git **config** user.email goodMorning_pro\@atguigu.com
-
-    - 信息保存位置：./.git/config 文件
-
-      ![](media/4e6c5bc9d9bd0821ca726985afe192a1.jpg)
-
-  - 系统用户级别：登录当前操作系统的用户范围
-
-    - git config **--global** user.name tom_glb
-
-    - git config **--global** goodMorning_pro\@atguigu.com
-
-    - 信息保存位置：\~/.gitconfig 文件
-
-      ![](media/6c229418c4f491c7ba13823543b9ebc8.jpg)
-
-  - 级别优先级
-
-    - 就近原则：项目级别优先于系统用户级别，二者都有时采用项目级别的签名
-
-    - 如果只有系统用户级别的签名，就以系统用户级别的签名为准
-
-    - 二者都没有不允许
-
-## 4.3 基本操作
+## 基本操作
 
 ### 查看
 
@@ -192,23 +151,21 @@ q 退出
 
 git log --pretty=oneline
 
-![](media/7eceb0d37a6e0c96dd14b5821489e039.jpg)
+
 
 git log --oneline
 
-![](media/1dba0b9ba6946f842e8e906b293e4971.jpg)
+
 
 git reflog
 
-![](media/fda56192a405866a3b5cbe641f417330.jpg)
+
 
 HEAD\@{移动到当前版本需要多少步}
 
-### 4.3.5 前进后退
+### 前进后退
 
 - 本质
-
-  ![](media/f6a565ab239d36a6f17e3967b444f009.png)
 
 - 基于索 引值操作[推荐]
 
@@ -227,20 +184,20 @@ HEAD\@{移动到当前版本需要多少步}
   - git reset --hard HEAD\~n
 
   - 注：表示后退 n 步
+  
+    
 
-### 4.3.6 reset 命令的三个参数对比
+4.3.6 reset 命令的三个参数对比
 
 - \--soft 参数
 
   - 仅仅在本地库移动 HEAD 指针
 
-    ![](media/132df47f6c74b0afd34b82fa6b7280d4.png)
+    
 
 - \--mixed 参数
 
   - 在本地库移动 HEAD 指针  重置暂存区
-
-    ![](media/fb9f6fc18e3d20334018170f6953606b.png)
 
 - \--hard 参数
 
@@ -250,7 +207,7 @@ HEAD\@{移动到当前版本需要多少步}
 
   - 重置工作区
 
-### **4.3.7** 删除文件并找回
+**4.3.7** 删除文件并找回
 
 - 前提：删除前，文件存在时的状态提交到了本地库。
 
@@ -260,7 +217,7 @@ HEAD\@{移动到当前版本需要多少步}
 
     - 删除操作尚未提交到本地库：指针位置使用 HEAD
 
-### **4.3.8** 比较文件差异
+**4.3.8** 比较文件差异
 
 - git diff [文件名]
 
@@ -272,21 +229,21 @@ HEAD\@{移动到当前版本需要多少步}
 
 - 不带文件名比较多个文件
 
-## 4.4 分支管理
+## 分支管理
 
-### **4.4.1** 什么是分支？
 
-> 在版本控制过程中，使用多条线同时推进多个任务。
+
+在版本控制过程中，使用多条线同时推进多个任务。
 
 ![](media/19521be94e20684d6d08a5c94a3f6e97.png)
 
-### **4.4.2** 分支的好处？
 
-- 同时并行推进多个功能开发，提高开发效率
 
-- 各个分支在开发过程中，如果某一个分支开发失败，不会对其他分支有任何影响。失败的分支删除重新开始即可。
+同时并行推进多个功能开发，提高开发效率
 
-### 4.4.3 分支操作
+各个分支在开发过程中，如果某一个分支开发失败，不会对其他分支有任何影响。失败的分支删除重新开始即可。
+
+### 分支操作
 
 - 创建分支
 
@@ -311,8 +268,6 @@ HEAD\@{移动到当前版本需要多少步}
 - 解决冲突
 
   - 冲突的表现
-
-    ![](media/f9957d731cf3e2357c55db8e8ba8d76c.png)
 
     - 冲突的解决
 
@@ -390,14 +345,11 @@ git push --force --all
 ```shell
  # 强制
  -f 或则 --force
-
 ```
 
-# 五：Git 基本原理
+# 四：基本原理
 
-## 5.1 哈希
-
-![](media/350068a52e3f2ae0e4cacdbf664f8df8.png)
+## 哈希
 
 哈希是一个系列的加密算法，各个不同的哈希算法虽然加密强度不同，但是有以下几个共同点：
 
@@ -413,11 +365,9 @@ Git 底层采用的是 SHA-1 算法。
 
 哈希算法可以被用来验证文件。原理如下图所示：
 
-![](media/a63c98b124dad701fcf4253984344565.png)
-
 Git 就是靠这种机制来从根本上保证数据完整性的。
 
-## 5.2Git 保存版本的机制
+## 保存版本的机制
 
 ### **5.2.1** 集中式版本控制工具的文件管理机制
 
@@ -427,9 +377,7 @@ Git 就是靠这种机制来从根本上保证数据完整性的。
 
 ### 5.2.2 Git 的文件管理机制
 
-Git 把数据看作是小型文件系统的一组快照。每次提交更新时 Git 都会对当前的全部文件制作一个快照并保存这个快照的索引。为了高效，如果文件没有修改，
-Git 不再重新存储该文件，而是只保留一个链接指向之前存储的文件。所以 Git
-的工作方式可以称之为快照流。
+Git 把数据看作是小型文件系统的一组快照。每次提交更新时 Git 都会对当前的全部文件制作一个快照并保存这个快照的索引。为了高效，如果文件没有修改，Git 不再重新存储该文件，而是只保留一个链接指向之前存储的文件。所以 Git的工作方式可以称之为快照流。
 
 ![](media/35dd2fd0764def1a724c0d8c76f9f351.jpg)
 
@@ -441,39 +389,25 @@ Git 不再重新存储该文件，而是只保留一个链接指向之前存储�
 
 - 提交对象及其父对象形成的链条
 
-![](media/4a1a4e7bd509bddb5d54600a7af9e5d5.jpg)
 
-## 5.3Git 分支管理机制
-
-### 5.3.1 分支的创建
-
-![](media/e127818be6f250d01cdd7619998a3717.jpg)
-
-### 5.3.2 分支的切换
-
-![](media/c584e9d67d7498a6f43a84a374b02ace.jpg)
-
-![](media/1c4e36134e9855f83ea05a48d9524cf9.jpg)
 
 # 六：GitHub
 
 ## 6.2 创建远程库
 
-![](media/7fbfe2c491edefa355ea41fd10894202.jpg)
 
-![](media/677c23a660878d7b0294eb65641455a4.jpg)
 
 ## 6.3 创建远程库地址别名
 
 git remote -v 查看当前所有远程地址别名 git remote add [别名] [远程地址]
 
-![](media/aac3745d4b6ea3e954b277f2db3e4492.jpg)
+
 
 ## 6.4 推送
 
 git push [别名] [分支名]
 
-![](media/6dc755589193831e029f8a45370a05cf.jpg)
+
 
 ## 6.5 克隆
 
@@ -481,7 +415,7 @@ git push [别名] [分支名]
 
   - git origin [远程地址]
 
-    ![](media/f21a3e2824070b64039d6f6140b91a54.jpg)
+    
 
 - 效果
 
@@ -493,15 +427,13 @@ git push [别名] [分支名]
 
 ## 6.6 团队成员邀请
 
-![](media/983d33889aff9f288c2c38addb1cee77.png)
 
-![](media/0d81e599d41e4ad3fc070b084da76eae.jpg)
 
-![](media/b5669df6f421d777f0f07e89e0cf6e21.png)
+
 
 “岳不群”其他方式把邀请链接发送给“令狐冲”，“令狐冲”登录自己的 GitHub 账号，访问邀请链接。
 
-![](media/53a313785821e046178ef7cd142cffe9.jpg)
+
 
 ## 6.7 拉取
 
@@ -535,31 +467,29 @@ git push [别名] [分支名]
 
 - Fork
 
-![](media/adc1eed51bd36a841424b703236204ed.png)
 
-![](media/ed775d2abeb78a05ac6f9e0c27869661.png)
 
 - 本地修改，然后推送到远程
 
 - Pull Request
 
-![](media/cbdfbf8cc195156a25453d22de11ea03.jpg)
 
-![](media/ba88eeeef4068e22cb0fc24fa3ea1fc7.png)
+
+
 
 - 对话
 
-![](media/4de48172551642ca229a4925ae80bcab.jpg)
 
-![](media/45d43d496828c4e5cdb861e04a396674.jpg)
+
+
 
 - 审核代码
 
-![](media/1c9f5b1fe3fa11d2c2b797f591aea0a8.jpg)
+
 
 - 合并代码
 
-  ![](media/ea04b07f03bfbfb3c38cd9ee127e8a57.png)
+  
 
 - 将远程库修改拉取到本地
 
@@ -601,68 +531,6 @@ git push [别名] [分支名]
   git remote add origin_ssh git\@github.com:atguigu2018ybuq/huashan.git
 
 - 推送文件进行测试
-
-# 七：Eclipse 操作
-
-## 7.1 工程初始化为本地库
-
-- 工程 → 右键 →Team→Share Project→Git
-
-  ![](media/6c524a9f1582bd92288c6d98aa715b1d.png)
-
-- Create Repository
-
-  ![](media/522a67e5610fd8fc253e344d2dead439.png)
-
-- Finish
-
-## 7.2Eclipse 中忽略文件
-
-- 概念：Eclipse 特定文件
-
-  这些都是 Eclipse
-  为了管理我们创建的工程而维护的文件，和开发的代码没有直接关系。最好不要在 Git
-  中进行追踪，也就是把它们忽略。
-
-  .classpath 文件
-
-  .project 文件
-
-  .settings 目录下所有文件
-
-- 为什么要忽略 Eclipse 特定文件呢？
-
-  同一个团队中很难保证大家使用相同的 IDE 工具，而 IDE 工具不同时，相关工程特定文件就有可能不同。如果这些文件加入版本控制，那么开发时很可能需要为了这些文件解决冲突。
-
-![](media/eb863231dc92ee99fabc78bbdc0df61d.png)
-
-- GitHub 官网样例文件
-
-  https://github.com/github/gitignore
-
-  https://github.com/github/gitignore/blob/master/Java.gitignore
-
-- 编辑本地忽略配置文件，文件名任意
-
-- 在\~/.gitconfig 文件中引入上述文件
-
-  [core] excludesfile = C:/Users/Lenovo/Java.gitignore
-
-[注意：这里路径中一定要使用“**/**”，不能使用“**\\**”]
-
-## 7.3 推送到远程库
-
-![](media/bd944b0cbf4222f2744ba2cd9a2a8e6e.jpg)
-
-![](media/c5f1ca856a1506960a46e396c96b6d7b.jpg)
-
-![](media/65ccf8889b6b2b84884e5f718d26c1fd.jpg)
-
-![](media/547539688719987d61fb596b49784a79.jpg)
-
-## 7.6 解决冲突
-
-冲突文件 → 右键 →Team→Merge Tool 修改完成后正常执行 add/commit 操作即可
 
 # 八：Git 工作流
 
@@ -734,7 +602,7 @@ https://github.com/pcottle/learnGitBranching
 
 
 
-## 九： Gitlab 服务器搭建过程
+# 九： Gitlab 服务器搭建过程
 
 ### **9.1**官网地址
 
@@ -769,8 +637,6 @@ https://github.com/pcottle/learnGitBranching
 2：提交到本地库
 
 提交——添加注解
-
-![](media/62ea2218faa90a35b9dc8981349e30fb.png)
 
 3：推送到远程库
 
@@ -820,3 +686,7 @@ git push
 
 https://www.jianshu.com/p/a9caf4b3100e
 ```
+
+大文件切割小文件
+
+https://www.cnblogs.com/yblackd/p/12185010.html
