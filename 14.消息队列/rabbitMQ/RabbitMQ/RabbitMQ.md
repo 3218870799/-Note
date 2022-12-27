@@ -1512,149 +1512,7 @@ public class Application {
 
 但是这个模式还存在问题：就是不是分布式的，如果这个 queue 的数据量很大，大到这个机器上的容量无法容纳的时候，就可以考虑使用 Kafka 实现高可用了。
 
-## 5.1 镜像模式集群实现
 
-### 5.1.1 环境准备
-
-1、 安装 2 两台 Linux 操作系统并修改 hostname 分别为 A 和 B
-
-执行 vi /etc/hosts 文件内容如下
-
-127.0.0.1 A localhost localhost.localdomain localhost4 localhost4.localdomain4 ::1 A localhost localhost.localdomain localhost6 localhost6.localdomain6 192.168.222.129 A 192.168.222.130 B
-
-注意：2 台 Linux 服务器需要完成同样的操作
-
-关闭防火墙确保 2 台机器相互 ping 同可以执行 ping A 和 ping B 命令进行测试
-
-### 5.1.2 安装 RabbitMQ
-
-在 2 台 Linux 服务中分别安装 RabbitMQ
-
-5.1.2.1 依赖包安装
-
-安装 RabbitMQ 之前必须要先安装所需要的依赖包可以使用下面的一次性安装命令
-
-yum install gcc glibc-devel make ncurses-devel openssl-devel xmlto -y
-
-5.1.2.2 安装 Erlang
-
-2、 将 Erlang 源代码包 otp_src_19.3.tar.gz 上传到 Linux 的/home 目录下
-
-2、解压 erlang 源码包
-
-tar -zxvf otp_src_19.3.tar.gz
-
-3、手动创建 erlang 的安装目录
-
-mkdir /usr/local/erlang
-
-4、进入 erlang 的解压目录
-
-cd otp_src_19.3
-
-5、配置 erlang 的安装信息
-
-./configure --prefix=/usr/local/erlang --without-javac
-
-6、编译并安装
-
-make && make install
-
-7、配置环境变量
-
-vim /etc/profile
-
-8、将这些配置填写到 profile 文件的最后
-
-ERL_HOME=/usr/local/erlang
-
-PATH=$ERL_HOME/bin:$PATH
-
-export ERL_HOME PATH
-
-9、启动环境变量配置文件
-
-source /etc/profile
-
-5.1.2.3 安装 RabbitMQ
-
-1、将 RabbitMQ 安装包 rabbitmq-server-3.7.2-1.el7.noarch.rpm 上传到/home 目录
-
-2、安装 RabbitMQ
-
-rpm -ivh --nodeps rabbitmq-server-3.7.2-1.el7.noarch.rpm
-
-3、安装管控台插件
-
-rabbitmq-plugins enable rabbitmq_management
-
-注意：需要分别在 2 台 Linux 服务器中安装 RabbitMQ
-
-5.1.2.4 配置 Cookie 文件
-
-Erlang Cookie 是保证不同节点可以互相通信的秘钥,要保证集群中的不同节点互相通信必须共享相同的 Erlang Cookie,具体存放在/var/lib/rabbitmq/.erlang.cookie
-
-例如
-
-[root@A ~]# cat /var/lib/rabbitmq/.erlang.cookie MZFQSBXIIJJMUZRTJFWQ [root@A ~]# ~
-
-必须要保证 2 台 Linux 的 Cookie 文件内容完全相同，可以选择使用 vim 进行编辑
-
-也可以使用 scp 命令完成文件跨机器拷贝例如
-
-[root@A ~]# scp /var/lib/rabbitmq/.erlang.cookie 192.168.222.130:/var/lib/rabbitmq
-
-注意：由于这个文件的权限是只读因此无论是使用 vim 还是 scp 来实现 Cookie 文件的同步都会失败，因此必须要修改这个文件的权限,
-
-例如 chmod 777 /var/lib/rabbitmq/.erlang.cookie
-
-当 Cookie 文件同步完成以后再修改权限回只读
-
-例如 chmod 400 /var/lib/rabbitmq/.erlang.cookie
-
-5.1.2.5 组建集群
-
-分别启动 2 台 Linux 机器中的 RabbitMQ 服务器
-
-rabbitmqctl stop rabbitmq-server -detached
-
-注意：rabbitmq-server –detached 表示在后台运行
-
-将某个 RabbitMQ 加入到某个服务器节点
-
-rabbitmqctl stop_app rabbitmqctl join_cluster rabbit@A rabbitmqctl start_app
-
-注意:
-
-rabbitmqctl join_cluster rabbit@A 命令中的 A 为某个机器的 hostname，在 hostname 为 B 的机器中执行这些命令
-
-查看集群状态确认节点成功添加
-
-[root@B ~]# rabbitmqctl cluster_status Cluster status of node rabbit@B ... [{nodes,[{disc,[rabbit@A,rabbit@B]}]}, {running_nodes,[rabbit@A,rabbit@B]}, {cluster_name,<<"rabbit@A">>}, {partitions,[]}, {alarms,[{rabbit@A,[]},{rabbit@B,[]}]}] [root@B ~]#
-
-注意：
-
-当查看节点状态时发现 2 台机器的节点同时显示机表示集群搭建完成
-
-其他命令
-
-如果要将某个节点从集群中移除,使其变回独立节点,可以使用以下命令:
-
-rabbitmqctl stop_app rabbitmqctl reset rabbitmqctl start_app
-
-### 5.1.3 使用 SpringBoot 连接 RabbitMQ 集群
-
-5.1.3.1 配置RabbitMQ的账号
-
-分别为 2 台 Linux 中的 RabbitMQ 添加账号并进行授权
-
-```shell
-rabbitmqctl add*user root root rabbitmqctl set_user_tags root administrator rabbitmqctl set_permissions -p / root '.*' '.\_' '.\*'
-```
-
-5.1.3.2 SpringBoot配置
-
-修改 SpringBoot 的 application.properties 文件进行集群的继承
 
 ```yml
 #spring.rabbitmq.port=5672 
@@ -1665,8 +1523,6 @@ spring.rabbitmq.username=root
 #配置 RabbitMQ 服务器的访问密码 
 spring.rabbitmq.password=root
 ```
-
-## 高可用保证
 
 主从（ 非分布式）的高可用，其实很简单 rabbitmq 有很好的管理控制台，就是在后台新增一个策略，这个策略是镜像集群模式的策略，指定的时候可以要求数据同步到所有节点的，也可以要求就同步到指定数量的节点，然后你再次创建 queue 的时候，应用这个策略，就会自动将数据同步到其他的节点上去了。
 
@@ -1892,31 +1748,27 @@ RabbitMQ 丢失数据：开启持久化（持久化标识 durable 设置为 true
 
 消息补偿机制需要建立在业务数据库和 MQ 数据库的基础之上 , 当我们发送消息时 , 需要同时将消息数据保存在数据库中, 两者的状态必须记录。 然后通过业务数据库和 MQ 数据库的对比检查消费是否成功，不成功，进行消息补偿措施，重新发送消息处理
 
-# 第六章：项目中的应用
+
+
+## 消息积压
 
 ![image-20201218112212648](media/image-20201218112212648.png)
-
-## 1：如何解决消息队列的延时以及过期失效问题？有几百万消息持续积压几小时，怎么解决？
 
 原因：消费者网络故障一直没消费，或者消费者消费了没有`ACK` 确认，
 
 解决：
 
-消息积压处理办法：临时紧急扩容：
+方案一：临时紧急扩容：
 
 先修复 consumer 的问题，确保其恢复消费速度，然后将现有 cnosumer 都停掉。新建一个 topic，partition 是原来的 10 倍，临时建立好原先 10 倍的 queue 数量。然后写一个临时的分发数据的 consumer 程序，这个程序部署上去消费积压的数据，消费之后不做耗时的处理，直接均匀轮询写入临时建立好的 10 倍数量的 queue。接着临时征用 10 倍的机器来部署 consumer，每一批 consumer 消费一个临时 queue 的数据。这种做法相当于是临时将 queue 资源和 consumer 资源扩大 10 倍，以正常的 10 倍速度来消费数据。等快速消费完积压数据之后，得恢复原先部署的架构，重新用原先的 consumer 机器来消费消息。
 
-## 2：如果超过了设置的过期时间 TTL，数据丢失了怎么办？
+方案二：批量重导
 
-为保证消息不积压，有的会设置一个过期时间，并建立一个死信队列，过期后转存到死信队列，然后可以再分发到 MQ 中，也可以消费者消费。
+就是大量积压的时候，我们当时就直接丢弃数据了，然后等过了高峰期以后，比如大家一起喝咖啡熬夜到晚上 12 点以后，用户都睡觉了。这个时候我们就开始写程序，将丢失的那批数据，写个临时程序，一点一点的查出来，然后重新灌入 mq 里面去，把白天丢的数据给他补回来。但是这样是有要求的，第一时效性没有要求，第二没有什么顺序要求；
 
-大量的数据会直接搞丢。我们可以采取一个方案，就是批量重导，这个我们之前线上也有类似的场景干过。就是大量积压的时候，我们当时就直接丢弃数据了，然后等过了高峰期以后，比如大家一起喝咖啡熬夜到晚上 12 点以后，用户都睡觉了。这个时候我们就开始写程序，将丢失的那批数据，写个临时程序，一点一点的查出来，然后重新灌入 mq 里面去，把白天丢的数据给他补回来。
 
-## 3：消息队列满了以后怎么处理？
 
-走第一个方案，如果来不及走第二个方案。
-
-4：高可用
+## 高可用
 
 首先这个 mq 得支持可伸缩性吧，就是需要的时候快速扩容，就可以增加吞吐量和容量，那怎么搞？设计个分布式的系统呗，参照一下 kafka 的设计理念，broker -> topic -> partition，每个 partition 放一个机器，就存一部分数据。如果现在资源不够了，简单啊，给 topic 增加 partition，然后做数据迁移，增加机器，不就可以存放更多数据，提供更高的吞吐量了？
 
@@ -1926,7 +1778,7 @@ RabbitMQ 丢失数据：开启持久化（持久化标识 durable 设置为 true
 
 能不能支持数据 0 丢失啊？可以的，参考我们之前说的那个 kafka 数据零丢失方案。
 
-## 4：最大连接数
+## 最大连接数
 
 默认情况下，rabbitmq 文件句柄数设置是 1024。连接数最多为 829，连接数的具体计算方式为：
 

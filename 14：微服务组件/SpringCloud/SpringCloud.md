@@ -594,7 +594,7 @@ localhost/consumer/payment/get/31
     	</set>
     </option>
 
-## 5：重构,
+## 5：重构
 
 新建一个模块,将重复代码抽取到一个公共模块中
 
@@ -636,10 +636,6 @@ localhost/consumer/payment/get/31
 
 ## 1：Eureka
 
-当服务很多时,单靠代码手动管理是很麻烦的,需要一个公共组件,统一管理多服务,包括服务是否正常运行,等
-
-Eureka 用于**==服务注册==**,目前官网**已经停止更新**
-
 **服务治理**
 
 管理服务与服务之间的依赖关系，可以实现服务调用，负载均衡，容错等，实现服务发现与注册
@@ -656,7 +652,7 @@ EurekaServer 提供服务注册服务：EurekaServer 中服务注册表中将会
 
 EurekaClient 通过注册中心进行访问：Java 客户端，具备一个内置的，使用轮询负载算法的负载均衡器。在启动后，将会向 EurekaServer 发送心跳（默认周期为 30 秒）。如果 EurekaServer 在多个心跳周期内没有接收到某个节点的心跳。将会从服务注册表中把这个服务节点移除（默认 90 秒）
 
-### 原理：
+
 
 **客户端启动时如何注册到服务端？**
 
@@ -682,13 +678,13 @@ Eureka 客户端在启动时，首先会创建一个心跳的定时任务，定�
 - 如果未开启自我保护机制，那么将判断最后一分钟收到的心跳数与一分钟收到心跳数临界值（计算方法参考 5.1 节）比较，如果前者大于后者，且后者大于 0 的话，则启用服务剔除机制；
 - 一旦服务剔除机制开启，则 Eureka 服务端并不会直接剔除所有已过期的服务，而是通过随机数的方式进行剔除，避免自我保护开启之前将所有的服务（包括正常的服务）给剔除。
 
-### 1.1：**单机版 eureka:**
+### 单机
 
-**1,1.1：创建项目 cloud_eureka_server_7001**
+1：服务端
 
-**1.1.2,引入 pom 依赖**
+创建Eureka服务端项目eureka_server_7001
 
-eurka 最新的依赖变了，服务端引用下边的
+引入 pom 依赖，eurka 最新的依赖变了，服务端引用下边的
 
 ```xml
 <!--老版本-->
@@ -704,7 +700,7 @@ eurka 最新的依赖变了，服务端引用下边的
 </dependency>
 ```
 
-1.1.3,配置文件
+配置文件
 
 ```yml
 server:
@@ -715,7 +711,7 @@ eureka:
     hostname: eureka7001.com #eureka服务端的实例名称
   client:
     register-with-eureka: false #false表示不向注册中心注册自己。
-    fetch-registry: false #false表示自己端就是注册中心，我的职责就是维护服务实例，并不需要去检索服务
+    fetch-registry: false #false表示自己就是注册中心，我的职责就是维护服务实例，并不需要去检索服务
     service-url:
       #集群指向其它eureka
       #defaultZone: http://eureka7002.com:7002/eureka/
@@ -727,7 +723,7 @@ eureka:
   #eviction-interval-timer-in-ms: 2000
 ```
 
-1.1.4,主启动类
+主启动类
 
 ```java
 @SpringBootApplication
@@ -740,23 +736,19 @@ public class EurekaMain7001
 }
 ```
 
-**1.1.5,此时就可以启动当前项目了**
+此时就可以启动当前项目了
 
-1.1.6：测试
+测试 打开：localhost:7001
 
-打开：localhost:7001
+2：客户端
 
-### **1.2：其他服务注册到 eureka**
-
-比如此时 pay 模块加入 eureka
-
-1.主启动类上,加注解,表示当前是 eureka 客户端
+主启动类上加注解,表示当前是 eureka 客户端
 
 ```java
 @EnableDiscoveryClient
 ```
 
-2,修改 pom,引入
+修改 pom引入客户端依赖
 
 ```xml
 <!--eureka-client,引入client的依赖-->
@@ -766,7 +758,7 @@ public class EurekaMain7001
 </dependency>
 ```
 
-3,修改配置文件
+修改配置文件
 
 ```yml
 eureka:
@@ -776,7 +768,7 @@ eureka:
     #是否从EurekaServer抓取已有的注册信息，默认为true。单节点无所谓，集群必须设置为true才能配合ribbon使用负载均衡
     fetchRegistry: true
     service-url:
-      #单机版
+      # 单机版
       defaultZone: http://localhost:7001/eureka
       # 集群版
       #defaultZone: http://eureka7001.com:7001/eureka,http://eureka7002.com:7002/eureka
@@ -790,125 +782,25 @@ eureka:
     #lease-expiration-duration-in-seconds: 2
 ```
 
-4,pay 模块重启,就可以注册到 eureka 中了
-
-```java
-@SpringBootApplication
-@EnableEurekaClient
-public class PaymentMain8001{
-    public static void main(String[] args){
-        SpringApplication.run()
-    }
-}
-```
-
-### 1.3：集群版 eureka
+### 集群
 
 1：集群原理
 
 ![](.\media\Eureka的11.png)
 
-```java
-1,就是pay模块启动时,注册自己,并且自身信息也放入eureka
-2.order模块,首先也注册自己,放入信息,当要调用pay时,先从eureka拿到pay的调用地址
-3.通过HttpClient调用
-	并且还会缓存一份到本地,每30秒更新一次
-```
+2：服务端
 
-问：微服务 RPC 远程调用最核心的是什么？
-
-高可用：要是注册中心坏了，就直接崩溃，可以搭建 Eureka 注册中心集群。
-
-集群构建原理:
-
-互相注册
-
-2：构建新 erueka 项目
-
-名字:cloud_eureka_server_7002
-
-1,pom 文件:
-
-粘贴 7001 的即可
-
-2,配置文件:
-
-在写配置文件前,修改一下主机的 C:\Windows\System32\drivers\etchosts 文件
-
-首先修改之前的 7001 的 eureka 项目,因为多个 eureka 需要互相注册
+改配置即可
 
 ```yml
-server:
-	port: 7001	# 注意,这里是7001
-eureka:
-	instance:
-		hostname: eureka7001.com # eureka服务端的实例名称
-	client:
-		register-with-eureka: false #false表示不向注册中心注册自己。
-	fetch-registry: false #false表示自己端就是注册中心，我的职贵就是维护服务实例，并不需要去检索服务
-	service-url:
-		defaultZone: http://eureka7002.com: 7002/eureka/ # 注意.这里指定的是7002的地址
-
+    service-url:
+      # 单机版
+      # defaultZone: http://localhost:7001/eureka
+      # 集群版
+      defaultZone: http://eureka7001.com:7001/eureka,http://eureka7002.com:7002/eureka
 ```
 
-然后修改 7002
-
-7002 也是一样的,只不过端口和地址改一下
-
-3,主启动类:
-
-复制 7001 的即可
-
-4,然后启动 7001,7002 即可_
-
-### 1.4：将 pay,order 模块注册到 eureka 集群中:
-
-1,只需要修改配置文件即可
-
-```yml
-eureka:
-    client:
-    #表示是否将自己注册进EurekaServer默认为true 
-    register-with-eureka: true
-    #是否从EurekaServer抓取已有的注册信息，默认为true。单节点无所谓，集群必须没置为true才能配合ribbon使用负载均衡
-    fetchRegistry: true
-    	service-ur1:
-    	#tdefaultZone: http://localhost:7001/eureka改这一条即可,添加多个eureka地址
-    	defaultZone: http://eureka7001.com:7001/eureka,http:/ /eureka7002.com:7002/eureka #集群版
-
-```
-
-2,两个模块都修改上面的都一样即可
-
-然后启动两个模块
-
-要先启动 7001,7002,然后是 pay 模块 8001,然后是 order(80)
-
-### 1.5：将 pay 模块也配置为集群模式:
-
-0,创建新模块,8002
-
-名称: cloud_pay_8002
-
-1,pom 文件,复制 8001 的
-
-2,pom 文件复制 8001 的
-
-3,配置文件复制 8001 的
-
-端口修改一下,改为 8002
-
-服务名称不用改,用一样的
-
-4.主启动类,复制 8001 的
-
-5,mapper,service,controller 都复制一份
-
-然后就启动服务即可
-
-此时访问 order 模块,发现并没有负载均衡到两个 pay,模块中,而是只访问 8001
-
-虽然我们是使用 RestTemplate 访问的微服务,但是也可以负载均衡的
+3：客户端
 
 ```java
 //改成微服务名称，这样每次访问，都去Eureka中拿地址，就会轮询拿，就达到负载均衡的效果了
@@ -924,7 +816,7 @@ public CommonResult<Payment> create(Payment payment){
 }
 ```
 
-注意这样还不可以,需要让 RestTemplate 开启负载均衡注解,还可以指定负载均衡算法,默认轮询
+需要让 RestTemplate 开启负载均衡注解,还可以指定负载均衡算法,默认轮询
 
 ```java
 @Configuration
@@ -939,35 +831,9 @@ public class ApplicationContextConfig
 }
 ```
 
-### 1.6：修改服务主机名和 ip 在 eureka 的 web 上显示
+### 服务发现
 
-比如修改 pay 模块
-
-1,修改配置文件:
-
-添加实例
-
-```yml
-eureka:
-	client:
-		# 标识是否将自己注册进EurekaServer默认为true
-		register-with-eureka：true
-		# 是否从EurekaServer抓住已有的注册信息，默认为true,单节点无所谓
-		fetchRegister:true
-		service-url:
-			# 单机版
-			# defaultZone:http://localhost:7001/eureka
-			# 集群版
-			defaultZone:http://eureka7001:7001/eureka,http://eurake7002:7002/eureka
-		instance:
-			instance-id:payment8001
-			prefer-ip-address:true
-		
-```
-
-### 1.7：服务发现 Discovery
-
-对于注册进 Eureka 里面的微服务，可以铜鼓服务发现来了获得该服务的信息。
+对于注册进 Eureka 里面的微服务，可以服务发现来了获得该服务的信息。
 
 以 pay 模块为例
 
@@ -1008,8 +874,6 @@ public Object discovery()
 
 **2,在主启动类上添加一个注解**
 
-
-
 ```java
 @SpringBootApplication
 @EnableEurekaClient
@@ -1021,8 +885,6 @@ public classPayMentMain8001{
 **然后重启 8001.访问/payment/discover**y
 
 ### 自我保护
-
-什么是自我保护模式？
 
 默认情况下，如果 EurekaServer 在一定时间内没有收到某个微服务实例的心跳，EurekaServer 将会注销该实例（默认 90 秒）。但是当网络分区故障发生（延时，卡顿，拥挤）时，微服务与 EurekaServer 之间无法正常通信，以上行为可能变得危险了——因为微服务本身其实是健康的，此时不应该注销这个微服务，Eureka 通过自我保护来解决这个问题——当 EurekaServer 节点在短时间内丢失过多客户端时（可能发生了网络分区故障）那么这个节点就会进入自我保护模式。
 
@@ -1278,31 +1140,20 @@ OpenFeign：OpenFeign 是 SpringCloud 在 Feign 的基础上支持了 SpringMVC 
 
 之前的服务间调用,我们使用的是 ribbon+RestTemplate，现在改为使用 Feign
 
-1,新建一个 order 项目,用于 feign 测试
-
-名字 cloud_order_feign-80
-
-pom 文件
-
-```xml
-<!--openfeign-->
-<dependency>
-    <groupId>org.springframework.cloud</groupId>
-    <artifactId>spring-cloud-starter-openfeign</artifactId>
-</dependency>
-```
+1：创建服务提供者
 
 配置文件
 
 ```yml
 server:
-	port: 80
-eureka:
-	client:
-		register-with-eureka: false
-		service-url:
-			defaultzone: http://eureka7001.com:7001/eureka/,http://eureka7002.com:7002/eureka/
+  port: 9005
+spring:
+  application:
+    ## 指定服务名称，在nacos中的名字
+    name: openFeign-provider
 ```
+
+2：创建服务消费者
 
 主启动类
 
@@ -1316,7 +1167,7 @@ public class OrderFeignMain80 {
 }
 ```
 
-5,fegin 需要调用的其他的服务的接口
+需要调用的其他的服务的接口
 
 ```java
 @Component
@@ -1331,7 +1182,7 @@ public interface PaymentFeignService {
 }
 ```
 
-6,controller
+controller
 
 ```java
 @RestController
@@ -1353,14 +1204,6 @@ public class OrderFeignController {
     }
 }
 ```
-
-7 测试:
-
-启动两个 erueka(7001,7002)
-
-启动两个 pay(8001,8002)
-
-启动当前的 order 模块
 
 请求传参：
 
@@ -1443,7 +1286,7 @@ feign.httpclient.enabled=true
 fegin.okhttp.enabled=true
 ```
 
-#### OpenFeign 超时机制
+#### 超时机制
 
 ==OpenFeign 默认等待时间是 1 秒,超过 1 秒,直接报错==
 
@@ -1486,7 +1329,7 @@ public interface ServiceCClient {
 }
 ```
 
-#### OpenFeign 日志
+#### 日志
 
 Feign 提供日志打印功能，我们可以通过配置来调整日志级别，从而了解 Fegin 中 Http 请求的细节。对 feign 接口的调用情况进行监控和输出。后可以使用链路追踪进行监控
 
@@ -1608,7 +1451,7 @@ Hystrix提供了四种防雪崩的方式：服务降级；服务熔断，服务�
 
 **比如并发达到 1000,我们就拒绝其他用户访问,在有用户访问,就访问降级方法**
 
-1,修改 Payservice 接口,添加服务熔断相关的方法:
+添加服务熔断相关的方法:
 
 涉及到断路器的三个重要参数:快照时间窗、请求总数阀值、错误百分比阀值。
 
@@ -1622,7 +1465,7 @@ Hystrix提供了四种防雪崩的方式：服务降级；服务熔断，服务�
 IdUtil 是 Hutool 包下的类,这个 Hutool 就是整合了所有的常用方法,比如 UUID,反射,IO 流等工具方法什么的都整合了
 
 ```java
-断路器的打开和关闭,是按照一下5步决定的
+断路器的打开和关闭,是按照以下5步决定的
   	1,并发此时是否达到我们指定的阈值
   	2,错误百分比,比如我们配置了60%,那么如果并发请求中,10次有6次是失败的,就开启断路器
   	3,上面的条件符合,断路器改变状态为open(开启)
@@ -1631,25 +1474,13 @@ IdUtil 是 Hutool 包下的类,这个 Hutool 就是整合了所有的常用方�
   		如果请求成功了,证明服务已经恢复,断路器状态变为close关闭状态
 ```
 
-2,修改 controller
+多次访问,并且错误率超过 60%:此时服务熔断,此时即使访问正确的也会报错:
 
-添加一个测试方法
-
-3,测试:
-
-启动 pay,order 模块
-
-==多次访问,并且错误率超过 60%:==
-
-此时服务熔断,此时即使访问正确的也会报错:
-
-**但是,当过了几秒后,又恢复了**
-
-因为在 10 秒窗口期内,它自己会尝试接收部分请求,发现服务可以正常调用,慢慢的当错误率低于 60%,取消熔断
+但是,当过了几秒后,又恢复了，因为在 10 秒窗口期内,它自己会尝试接收部分请求,发现服务可以正常调用,慢慢的当错误率低于 60%,取消熔断
 
 ### Hystrix 所有可配置的属性:
 
-**全部在这个方法中记录,以成员变量的形式记录,**
+全部在这个方法中记录,以成员变量的形式记录,
 
 以后需要什么属性,查看这个类即可 `HystrixCommandProperties.java`
 
@@ -1661,7 +1492,7 @@ IdUtil 是 Hutool 包下的类,这个 Hutool 就是整合了所有的常用方�
 - 熔断半开：部分请求根据规则调用当前服务，如果请求成功且符合规则则认为当前服务恢复正常，关闭熔断。
 - 熔断关闭：正常调用
 
-**==当断路器开启后:==**
+**当断路器开启后:**
 
 1：再有请求调用的时候，将不会调用主逻辑，而是直接调用降级 fallback，通过断路器，实现了自动地发现错误并将降级逻辑切换为主逻辑，减少响应延迟的效果。
 
@@ -1673,7 +1504,7 @@ IdUtil 是 Hutool 包下的类,这个 Hutool 就是整合了所有的常用方�
 
 如果请求仍然有问题，断路器就继续打开，重新计算休眠空窗期
 
-**==其他参数:==**
+**其他参数:**
 
 **熔断整体流程:**
 
