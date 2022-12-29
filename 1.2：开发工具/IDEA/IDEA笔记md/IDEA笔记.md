@@ -1,18 +1,20 @@
-﻿﻿﻿﻿﻿﻿﻿# 一、IntelliJIDEA
+# 一、IntelliJIDEA
 
-## 主要优势：(相较于 Eclipse 而言)
+主要优势：
 
-1.  强大的整合能力。比如：Git、Maven、Spring 等
+强大的整合能力。比如：Git、Maven、Spring 等
 
-2.  提示功能的快速、便捷
+提示功能的快速、便捷
 
-3.  提示功能的范围广
+提示功能的范围广
 
-1.  好用的快捷键和代码模板 private static final psf
+好用的快捷键和代码模板 private static final psf
 
-2.  精准搜索
+精准搜索
 
-## 下载地址：
+
+
+下载地址：
 
 https://www.jetbrains.com/idea/download/
 
@@ -28,7 +30,7 @@ IDEA 分为两个版本：旗舰版**(Ultimate)**和社区版**(Community)**。
 
 <https://www.jetbrains.com/idea/features/editions_comparison_matrix.html>
 
-## 使用文档：
+使用文档：
 
 [https://www.jetbrains.com/help/idea/meet](https://www.jetbrains.com/help/idea/meet-intellij-idea.html)[-](https://www.jetbrains.com/help/idea/meet-intellij-idea.html)[intellij](https://www.jetbrains.com/help/idea/meet-intellij-idea.html)[-](https://www.jetbrains.com/help/idea/meet-intellij-idea.html)[idea.html](https://www.jetbrains.com/help/idea/meet-intellij-idea.html)
 
@@ -108,17 +110,19 @@ config 目录是 IntelliJ IDEA 个性化化配置目录，或者说是整个 IDE
 
 system 目录是 IntelliJ IDEA 系统文件目录，是 IntelliJ IDEA 与开发项目一个桥梁目录，里面主要有：缓存、索引、容器文件输出等等，虽然不是最重要目录，但也是最不可或缺的目录之一。
 
-# 四、创建项目
+# 三、创建项目
 
-## 1.创建 Java 工程
+## 创建 Java 工程
 
-- Create New Project:创建一个新的工程
+Create New Project:创建一个新的工程
 
-- Import Project:导入一个现有的工程
+Import Project:导入一个现有的工程
 
-- Open:打开一个已有工程。比如：可以打开 Eclipse 项目。
+Open:打开一个已有工程。比如：可以打开 Eclipse 项目。
 
-- Check out from Version Control:可以通过服务器上的项目地址 check out Github 上面项目或其他 Git 托管服务器上的项目
+Check out from Version Control:可以通过服务器上的项目地址 check out Github 上面项目或其他 Git 托管服务器上的项目
+
+
 
 这里选择 Create New Project，需要明确一下概念：
 
@@ -126,16 +130,13 @@ IntelliJ IDEA 没有类似 Eclipse 的工作空间的概念（Workspaces），�
 
 选择指定目录下的 JDK 作为 Project SDK。
 
-如果要创建 Web 工程，则需要勾选上面的 Web Application。如果不需要创建 Web
-工程的话，则不需要勾选。这里先不勾选，只是创建简单的 Java 工程。
+如果要创建 Web 工程，则需要勾选上面的 Web Application。如果不需要创建 Web工程的话，则不需要勾选。这里先不勾选，只是创建简单的 Java 工程。
 
 其中，选择 New：选择 jdk 的安装路径所在位置：
 
-点击 OK 以后，选择 Next:
+点击 OK 以后，选择 Next
 
-点击 OK 即可。
-
-## 2.创建模块(Module)
+## 创建模块(Module)
 
 在 Eclipse 中我们有 Workspace（工作空间）和 Project（工程）的概念，在 IDEA 中只有 Project（工程）和 Module（模块）的概念。
 
@@ -154,7 +155,7 @@ IntelliJ IDEA 没有类似 Eclipse 的工作空间的概念（Workspaces），�
 之后，我们可以在 Module 的 src 里写代码，此时 Project 工程下的 src
 就没什么用了。可以删掉。
 
-## 3.查看项目配置
+## 查看项目配置
 
 File——Project Structure
 
@@ -162,13 +163,7 @@ File——Project Structure
 
 ![](media/a7575dfc0cad7376f39cec8c7289b5cf.jpg)
 
-## 4：对项目的相关操作
-
-4.1：切换 JDK 版本
-
-File——>Project Structure——> SDK
-
-# 五、常用配置
+# 四、常用配置
 
 IntelliJ IDEA 有很多人性化的设置我们必须单独拿出来讲解，也因为这些个性化的设置让那些 IntelliJIDEA 死忠粉更加死心塌地使用它和分享它。
 
@@ -260,9 +255,9 @@ IDEA 插件官方下载地址：https://plugins.jetbrains.com/idea
 
 ### 1.2：错误提示不及时
 
-1.开启了节省电源的问题
-file》power save mode 点一下把前边的勾去掉 2.有缓存问题
-file》invalidateCaches/Restart
+1.开启了节省电源的问题file》power save mode 点一下把前边的勾去掉 
+
+2.有缓存问题file》invalidateCaches/Restart
 
 ![img](media/20200521192235430.png)
 
@@ -270,24 +265,13 @@ file》invalidateCaches/Restart
 
 ![](media/dc176e0959b35493c3bad5ce19b53c40.jpg)
 
-- IntelliJ IDEA
-  的代码提示和补充功能有一个特性：区分大小写。如上图标注所示，默认就是 First
-  letter 区分大小写的。
 
-- 区分大小写的情况是这样的：比如我们在 Java 代码文件中输入 stringBuffer，
-  IntelliJ IDEA 默认是不会帮我们提示或是代码补充的，但是如果我们输入
-
-  StringBuffer 就可以进行代码提示和补充。
-
-- 如果想不区分大小写的话，改为 None 选项即可。
 
 ### 设置取消单行显示 tabs 的操作
 
 ![](media/e3cc725254134b9f1dfd5e27eac546a9.jpg)
 
-如上图标注所示，在打开很多文件的时候，IntelliJ IDEA 默认是把所有打开的文件名 Tab
-单行显示的。但是我个人现在的习惯是使用多行，多行效率比单行高，因为单行会隐藏超过界面部分
-Tab，这样找文件不方便。
+如上图标注所示，在打开很多文件的时候，IntelliJ IDEA 默认是把所有打开的文件名 Tab单行显示的。但是我个人现在的习惯是使用多行，多行效率比单行高，因为单行会隐藏超过界面部分Tab，这样找文件不方便。
 
 2.7：修改文件后出现星号
 
@@ -353,7 +337,7 @@ https://www.cnblogs.com/votory/p/12283176.html
 
 (Editor – Live Templates 和 Editor – General – Postfix Completion)
 
-## 1.Live Templates(实时代码模板)功能介绍
+## Live Templates功能介绍
 
 它的原理就是配置一些常用代码字母缩写，在输入简写时可以出现你预定义的固定模式的代码，使得开发效率大大提高，同时也可以增加个性化。最简单的例子
 
@@ -371,38 +355,15 @@ https://www.cnblogs.com/votory/p/12283176.html
 
 ![](media/86e1e9094afaa376b7b9622e967427f9.jpg)
 
-二者的区别：Live Templates 可以自定义，而 Postfix Completion
-不可以。同时，有些操作二者都提供了模板，Postfix Templates 较 Live Templates 能快
-0.01 秒
+二者的区别：Live Templates 可以自定义，而 Postfix Completion不可以。同时，有些操作二者都提供了模板，Postfix Templates 较 Live Templates 能快0.01 秒
 
-举例：
+## 修改现有模板:Live Templates
 
-psvm : 可生成 **main** 方法
-
-sout : System.out.println()快捷输出
-
-fori :可生成 **for** 循环
-
-list.for :可生成集合 **list** 的 **for** 循环
-
-ifn**：可生成 **if(xxx = null)
-
-prsf**：可生成 **private static final
-
-## 3.修改现有模板:Live Templates
-
-如果对于现有的模板，感觉不习惯、不适应的，可以修改：修改 **1**：通过调用 psvm
-调用 main 方法不习惯，可以改为跟 Eclipse 一样，使用 main 调取。
+如果对于现有的模板，感觉不习惯、不适应的，可以修改：修改 **1**：通过调用 psvm调用 main 方法不习惯，可以改为跟 Eclipse 一样，使用 main 调取。
 
 ![](media/52507e26e2c4a6fad0d6fe47c2bb99bd.jpg)
 
-> 修改 **2**：
-
-![](media/1136ae0c5320984e914f11a19740ee14.jpg)
-
-类似的还可以修改 psfs。
-
-4.自定义模板
+自定义模板
 
 IDEA 提供了很多现成的 Templates。但你也可以根据自己的需要创建新的 Template。
 
@@ -438,10 +399,6 @@ IDEA 提供了很多现成的 Templates。但你也可以根据自己的需要�
 1：连接mysql
 
 ![](media/1807655d3d66a7e0ecaaf96820ee3503.jpg)
-
-![](media/999140e818cb8602fde7f6263efc9fb4.jpg)
-
-![](media/b5c3430088694a06e91a1643ee1ec101.jpg)
 
 表面上很多人认为配置 Database 就是为了有一个 GUI 管理数据库功能，但是这并不是 IntelliJ IDEA 的 Database 最重要特性。数据库的 GUI 工具有很多， IntelliJ IDEA 的 Database 也没有太明显的优势。IntelliJ IDEA 的 Database 最大特性就是对于 Java Web
 项目来讲，常使用的 ORM 框架，如 Hibernate、Mybatis 有很好的支持，比如配置好了 Database 之后，IntelliJ IDEA 会自动识别 domain 对象与数据表的关系，也可以通过 Database 的数据表直接生成 domain 对象等等。
@@ -500,8 +457,7 @@ IntelliJ IDEA 对版本控制的支持是以插件化的方式来实现的。旗
 
 2.1. 提前安装好 **Git** 的客户端
 
-Git 的 msysGit
-官网下载：[https://git](https://git-scm.com/)[-](https://git-scm.com/)[scm.com/](https://git-scm.com/)
+Git 的 msysGit官网下载：[https://git](https://git-scm.com/)[-](https://git-scm.com/)[scm.com/](https://git-scm.com/)
 
 Git 客户端 TortoiseGit 官网下载：http://download.tortoisegit.org/tgit/
 
@@ -535,8 +491,6 @@ Git 客户端 TortoiseGit 官网下载：http://download.tortoisegit.org/tgit/
 
 ![](media/b040a9eedefdd1e632666dbd6a0a9931.jpg)
 
-![](media/5cc71f9439c548479c243867fd301e6f.jpg)
-
 此时会在 GitHub 上创建一个新的仓库，而非更新已经存在的仓库。
 
 2.10.Git 的常用操作
@@ -547,7 +501,7 @@ pull：更新到本地
 
 2.11.没有使用 **Git** 时本地历史记录的查看
 
-![](media/2457c2573813f4209e2b4c86f1bed5cd.jpg)
+
 
 ![](media/28c42639ba654bdbf49075e87ddefbcb.jpg)
 
@@ -555,7 +509,7 @@ pull：更新到本地
 
 # 十一、断点调试
 
-### 1. Debug 的设置
+## Debug 的设置
 
 ![](media/f6c7b0a87bf0099d6696130ced18542f.jpg)
 
@@ -605,28 +559,21 @@ Alt + F8 ：debugger 时选中查看值
 
 ![image-20220113215918214](media/image-20220113215918214.png)
 
+
+
+## 远程调试
+
+项目启动时添加参数
+
+IDEA设置
+
+![image-20221228112734854](media/image-20221228112734854.png)
+
+
+
 # 十二、配置 Maven
 
-## 1. Maven 的介绍
-
-> Make -\> Ant -\> Maven -\> Gradle
-
-Maven 是 Apache提供的一款自动化构建工具，用于自动化构建和依赖管理。开发团队基本不用花多少时间就能自动完成工程的基础构建配置，因为Maven 使用了一个标准的目录结构和一个默认的构建生命周期。在如下环节中，Maven使得开发者工作变得更简单。
-
-构建环节：
-
-![](media/f664e7f6a616259a5dd4552620261e23.jpg)
-
-|    | 清理：表示在编译代码前将之前生成的内容删除                 |
-| --- | ---------------------------------------------------------- |
-|    | 编译：将源代码编译为字节码                                 |
-|    | 测试：运行单元测试用例程序                                 |
-|    | 报告：测试程序的结果                                       |
-|    | 打包：将 java 项目打成 jar 包；将 Web 项目打成 war 包      |
-|    | 安装：将 jar 或 war 生成到 Maven 仓库中                    |
-|    | 部署：将 jar 或 war 从 Maven 仓库中部署到 Web 服务器上运行 |
-
-## 2. Maven 的配置
+## Maven 的配置
 
 maven 的下载 – 解压 – 环境变量的配置这里就赘述了，需要的参考Maven篇文章。下面直接整合 Maven。选择自己 Maven 的目录，和 settings文件，然后配置自己的仓库 reposiroty。
 
@@ -654,10 +601,6 @@ maven 的下载 – 解压 – 环境变量的配置这里就赘述了，需要�
 
   目真的导入太慢了我们再增大此参数。
 
-# 十三：必备插件
-
-参考插件篇：
-
 # 十四：其他设置
 
 ## 1.生成 javadoc
@@ -681,73 +624,11 @@ IntelliJ IDEA 首次加载项目的时候，都会创建索引，而创建索引
 IntelliJ IDEA 的缓存和索引主要是用来加快文件查询，从而加快各种查找、代码提示等操作的速度，所以 IntelliJ IDEA 的索引的重要性再强调一次也不为过。但是，IntelliJ IDEA 的索引和缓存并不是一直会良好地支持 IntelliJ IDEA 的，某些特殊条件下，IntelliJIDEA 的缓存和索引文件也是会损坏的，比如：断电、蓝屏引起的强制关机，当你重新打开 IntelliJ IDEA，很可能 IntelliJ IDEA 会报各种莫名其妙错误，甚至项目打不开，IntelliJ IDEA 主题还原成默认状态。即使没有断电、蓝屏，也会有莫名奇怪的问题的时候，也很有可能是 IntelliJ IDEA
 缓存和索引出现了问题，这种情况还不少。遇到此类问题也不用过多担心。我们可以清理缓存和索引。如下：
 
-![](media/49fbf43bd6510502d011694778480ddf.jpg)
-
 一般建议点击 Invalidate and Restart，这样会比较干净。
 
 上图警告：清除索引和缓存会使得 IntelliJ IDEA 的 Local History 丢失。所以如果你项目没有加入到版本控制，而你又需要你项目文件的历史更改记录，那你最好备份下你的 LocalHistory 目 录 。 目 录 地 址 在 ： C:\\Users\\ 当 前 登 录 的 系 统 用户 名\.IntelliJIdea14\\system\\LocalHistory 建议使用硬盘的全文搜索，这样效率更高。
 
 通过上面方式清除缓存、索引本质也就是去删除 C 盘下的 system 目录下的对应的文件而已，所以如果你不用上述方法也可以删除整个 system。当 IntelliJ IDEA 再次启动项目的时候会重新创建新的 system 目录以及对应项目缓存和索引。
-
-## **3.**取消更新
-
-![](media/bddbb38649992e8b388080515526a887.jpg)
-
-取消勾选：即可取消更新
-
-## 7：IDEA 类和方法注释模板设置
-
-https://blog.csdn.net/xiaoliulang0324/article/details/79030752
-
-1：类的注释
-
-File-->settings-->Editor-->File and Code Templates-->Files
-
-我们选择 Class 文件（当然你要设置接口的还也可以选择 Interface 文件）
-
-${NAME}：设置类名，与下面的${NAME}一样才能获取到创建的类名
-
-TODO：代办事项的标记，一般生成类或方法都需要添加描述
-
-${USER}、${DATE}、${TIME}：设置创建类的用户、创建的日期和时间，这些事IDEA内置的方法，还有一些其他的方法在绿色框标注的位置，比如你想添加项目名则可以使用${PROJECT_NAME}
-
-![image-20201214201133675](media/image-20201214201133675.png)
-
-2：设置方法注释模板
-
-File-->Settings-->Editor-->Live Templates
-
-点击右侧新建组，命名为 userDefine
-
-![image-20201214201707264](media/image-20201214201707264.png)
-
-然后新建 Live Template
-
-命名为\*
-
-添加描述 add comments for methods
-
-修改生成注释的快捷键为 Enter
-
-设置模板
-
-```xml
-*
-* Author xqc
-* Date $time$ $date$
-* Param $param$
-* Throws
-* Return $return$
-**/
-```
-
-设置模板应用场景
-
-点击模板页面最下方的警告，来设置将模板应用于那些场景，一般选择 EveryWhere-->Java 即可
-
-## 8：修改内存大小
-
-idea安装目录/bin/idea.exe.vmoptions和idea64.exe.vmoptions
 
 ## Cloud Toolkit
 

@@ -41,6 +41,14 @@ File——Setting——Build，Execution，Deployment ——Complier——右侧
 
 ![image-20201029161430028](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/image-20201029161430028.png)
 
+
+
+如果不行，可能是代理问题，可以搜索下载 ReverseProxy_windows_amd64.exe 然后把https://jrebel.qekang.com/ 换成[http://127.0.0.1:8888]()
+
+
+
+
+
 ## MybatisCodeHelper
 
 1：下载与安装
