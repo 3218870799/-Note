@@ -6,11 +6,7 @@
 
 :a:本项目是个人学习的笔记，包含一些工具的安装与使用，基础的知识点的整理，以及工作学习中的经验。
 
-:b:一些知识梳理我会放在各个文件夹中，是学习某项技术时**必须掌握的原理以及使用技巧。**
-
-对于一些综合技术的探索，或者对某一功能的开发遇到的问题探索，个人经验的总结，我会放在**《我的博客》**文件中。
-
-:cupid:如果也能各位有些许参考作用，我将十分荣幸！
+:b:一些知识梳理我会放在各个文件夹中，是学习某项技术时**必须掌握的原理以及使用技巧。**对于一些综合技术的探索，或者对某一功能的开发遇到的问题探索，个人经验的总结，我会放在**《我的博客》**文件中。
 
 :heavy_check_mark:随着自己知识体系的完善，项目结构也出出现一些变化，也埋了一些坑，如果能过帮忙一起填坑，我也不胜感激！
 
@@ -49,26 +45,6 @@ https://zhuanlan.zhihu.com/p/269215045
 四：为本项目提出问题
 
 请在此处提出问题即可。
-
-## 变更说明
-
-由于目前内容越来越多，一篇的篇幅过长，担心读者对于内容的查看没有过多时间，但是分篇破坏其完整性，故更改目录结构进行中……
-
-如果导致目录过长，望请谅解！
-
-广度方面的了解很重要，比如选择消息队列一样，几种消息队列你都要熟悉，然后选择其中一种在自己的项目中进行使用，如果自己都不了解，人云亦云的选择了某种消息队列，到时候无法满足自己的项目需求。这是很不合理的。
-
-深度更加重要，需要对自己常用的比如JVM，数据库等必须深入了解其底层原理以及实现。
-
-只有广度没有深度你啥也做不了，只有深度没有广度，你只能当一颗螺丝钉。
-
-你不管到任何一个项目组，担任任何角色，你都必须担任起整个项目的所有问题和责任！！
-
----
-
-GitBook地址：https://3218870799.github.io/-Note/
-
-目录结构以及GitBook的更新可能会比较慢，想看最新的，请直接查看此项目文件夹
 
 # :books:目录
 
@@ -167,15 +143,15 @@ GitBook地址：https://3218870799.github.io/-Note/
 
 ## :baby_bottle:版本控制工具
 
-Git
+[Git](1.1版本控制\1.Git\Gitt\Git.md)
 
-SVN
+[SVN](1.1版本控制\2：SVN\SVN.md)
 
 ## :baby_chick:开发工具
 
 选一即可，本人是从 Eclipse 换到 IDEA 的，故 Eclipse 笔记也很久没更新了。
 
-IDEA
+[IDEA](1.2：开发工具\IDEA)
 
 Eclipse
 
@@ -201,8 +177,6 @@ Eclipse
 - [Java12](https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md#java12)
 - [Java13](https://github.com/3218870799/-Note/blob/main/2.0.Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80/Java%E5%9F%BA%E7%A1%80.md#java13)
 
-
-
 [Java Web](2.2JavaWeb/JavaWeb.md)
 
 - [Java日志](2.2.1.Java日志/Java日志.md)
@@ -224,9 +198,9 @@ Eclipse
 
 ## :selfie:服务器
 
-Tomact
+[Tomact](2.3：服务器\Tomcat)
 
-Nginx
+[Nginx](2.3：服务器\Nginx)
 
 ## :beer: JVM
 
@@ -251,10 +225,6 @@ Nginx
   * [Postgre](6.1关系型数据库/postgre/postgre.md)
   *  [My SQL](6.1关系型数据库/MySQL/MySQL.md)
 
-
-
-
-
 分库分表
 
 * [Mycat](6.2分库分表/MyCat/Mycat.md)
@@ -273,8 +243,6 @@ Redis
 Ehcahce
 
 Mongdb
-
-
 
 时序数据库
 
@@ -321,32 +289,46 @@ SpringSession
 - [Arthas](16.linux/Arthas/Arthas.md)
 - [Linux](16.linux/linux/linux.md)
 
-## :palm_tree:项目开发中你一定用过的组件
+## :palm_tree:项目开发组件
+
+### 文件处理
 
 * [Easy Excel](17：项目开发中你一定用到过的组件/EasyExcel.md)
 * [Freemarker](17：项目开发中你一定用到过的组件/freemarker.md)
 * [Itextpdf](17：项目开发中你一定用到过的组件/itextpdf.md)
-* [JustAuth第三方登录](17：项目开发中你一定用到过的组件/JustAuth第三方登录.md)
+* 
 * [Metadata Extractor](17：项目开发中你一定用到过的组件/metadata-extractor.md)
 * [使用POI打印报表](17：项目开发中你一定用到过的组件/使用POI打印报表.md)
 
-### 检索
+### 全文检索
 
-1：Lucene 全文检索
+Lucene 全文检索
 
-2：solr 全文检索服务器
+solr 全文检索服务器
 
-3：ElasticSearch
+ElasticSearch
 
-### 安全验证
+### 认证授权
 
-1：shiro 安全验证
+[JustAuth第三方登录](17：项目开发中你一定用到过的组件/JustAuth第三方登录.md)
 
-2：SpringSecurity
+shiro 安全验证
 
-### 业务流程管理
+SpringSecurity
 
- Activiti
+单点登录
+
+### 流程引擎
+
+[JBPM]()
+
+[Activiti]()
+
+[Flowable]()
+
+[Camunda]()
+
+
 
 ### 自动代码生成
 
@@ -354,15 +336,9 @@ SpringSession
 
 Quartz
 
-### 单点登录
+### 网络
 
-### 模板引擎 freemarker
-
-### 定时任务
-
-## :shaved_ice:Netty
-
-异步事件驱动的网络应用程序框架
+Netty异步事件驱动的网络应用程序框架
 
 ## :mailbox:接口
 
