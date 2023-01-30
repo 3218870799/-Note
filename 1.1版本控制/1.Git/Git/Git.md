@@ -87,17 +87,9 @@ Git 和代码托管中心
 
 ## 设置签名
 
-形式
-
-用户名：tom
-
-Email 地址：
-
 作用：区分不同开发人员的身份
 
-级别：
-
-项目级别/仓库级别：仅在当前本地库范围内有效，信息保存位置：./.git/config 文件
+级别：项目级别/仓库级别：仅在当前本地库范围内有效，信息保存位置：./.git/config 文件
 
 ```bash
 git config user.name tom_pro
@@ -165,39 +157,32 @@ HEAD\@{移动到当前版本需要多少步}
 
 ### 前进后退
 
-- 本质
-
 - 基于索 引值操作[推荐]
 
-  - git reset --hard [局部索引值]
-
-  - git reset --hard a6ace91
+```shell
+git reset --hard [局部索引值]
+git reset --hard a6ace91
+```
 
 - 使用\^符号：只能后退
 
-  - git reset --hard HEAD\^
-
-  - 注：一个\^表示后退一步，n 个表示后退 n 步
+```shell
+# 注：一个^表示后退一步，n 个表示后退 n 步
+git reset --hard HEAD^
+```
 
 - 使用\~符号：只能后退
 
-  - git reset --hard HEAD\~n
+```shell
+git reset --hard HEAD\~n
+# 注：表示后退 n 步
+```
 
-  - 注：表示后退 n 步
-  
-    
+  reset 命令的三个参数对比
 
-4.3.6 reset 命令的三个参数对比
+- \--soft 参数：仅仅在本地库移动 HEAD 指针
 
-- \--soft 参数
-
-  - 仅仅在本地库移动 HEAD 指针
-
-    
-
-- \--mixed 参数
-
-  - 在本地库移动 HEAD 指针  重置暂存区
+- \--mixed 参数：在本地库移动 HEAD 指针重置暂存区
 
 - \--hard 参数
 
@@ -389,149 +374,6 @@ Git 把数据看作是小型文件系统的一组快照。每次提交更新时 
 
 - 提交对象及其父对象形成的链条
 
-
-
-# 六：GitHub
-
-## 6.2 创建远程库
-
-
-
-## 6.3 创建远程库地址别名
-
-git remote -v 查看当前所有远程地址别名 git remote add [别名] [远程地址]
-
-
-
-## 6.4 推送
-
-git push [别名] [分支名]
-
-
-
-## 6.5 克隆
-
-- 命令
-
-  - git origin [远程地址]
-
-    
-
-- 效果
-
-  - 完整的把远程库下载到本地
-
-  - 创建 origin 远程地址别名
-
-  - 初始化本地库
-
-## 6.6 团队成员邀请
-
-
-
-
-
-“岳不群”其他方式把邀请链接发送给“令狐冲”，“令狐冲”登录自己的 GitHub 账号，访问邀请链接。
-
-
-
-## 6.7 拉取
-
-- pull=fetch+merge
-
-- git fetch [远程库地址别名] [远程分支名]
-
-- git merge [远程库地址别名/远程分支名]
-
-- git pull [远程库地址别名] [远程分支名]
-
-## 6.8 解决冲突
-
-- 要点
-
-  - 如果不是基于 GitHub 远程库的最新版所做的修改，不能推送，必须先拉取。
-
-  - 拉取下来后如果进入冲突状态，则按照“分支冲突解决”操作解决即可。
-
-- 类比
-
-  - 债权人：老王
-
-  - 债务人：小刘
-
-  - 老王说：10 天后归还。小刘接受，双方达成一致。
-
-  - 老王媳妇说：5 天后归还。小刘不能接受。老王媳妇需要找老王确认后再执行。
-
-## 6.9 跨团队协作
-
-- Fork
-
-
-
-- 本地修改，然后推送到远程
-
-- Pull Request
-
-
-
-
-
-- 对话
-
-
-
-
-
-- 审核代码
-
-
-
-- 合并代码
-
-  
-
-- 将远程库修改拉取到本地
-
-## 6.10SSH 登录
-
-- 进入当前用户的家目录
-
-  \$ cd \~
-
-- 删除.ssh 目录
-
-  \$ rm -rvf .ssh
-
-- 运行命令生成.ssh 密钥目录
-
-  \$ ssh-keygen -t rsa -C atguigu2018ybuq\@aliyun.com
-
-  [注意：这里**-C** 这个参数是大写的 **C**]
-
-- 进入.ssh 目录查看文件列表
-
-  \$ cd .ssh
-
-  \$ ls -lF
-
-- 查看 id_rsa.pub 文件内容
-
-  \$ cat id_rsa.pub
-
-- 复制 id_rsa.pub 文件内容，登录 GitHub，点击用户头像 →Settings→SSH and GPG
-  keys
-
-- New SSH Key
-
-- 输入复制的密钥信息
-
-- 回到 Git bash 创建远程地址别名
-
-  git remote add origin_ssh git\@github.com:atguigu2018ybuq/huashan.git
-
-- 推送文件进行测试
-
 # 八：Git 工作流
 
 ## 8.1 概念
@@ -616,11 +458,11 @@ https://github.com/pcottle/learnGitBranching
 
 <https://tortoisegit.org/download/>
 
-**1.先下载 git，按照相应的系统，**[https://git-scm.com/downloads](https://links.jianshu.com/go?to=https%3A%2F%2Fgit-scm.com%2Fdownloads)**，然后，一直 next 即可完成安装**
+1.先下载 git，按照相应的系统，[https://git-scm.com/downloads](https://links.jianshu.com/go?to=https%3A%2F%2Fgit-scm.com%2Fdownloads)，然后，一直 next 即可完成安装
 
-**2.安装 git 小乌龟，**[https://tortoisegit.org/download/](https://links.jianshu.com/go?to=https%3A%2F%2Ftortoisegit.org%2Fdownload%2F)**，同样的，一直 next 即可完成安装，但是，需要注意的是必须先安装 git，在安装 git 小乌龟**
+2.安装 git 小乌龟，[https://tortoisegit.org/download/](https://links.jianshu.com/go?to=https%3A%2F%2Ftortoisegit.org%2Fdownload%2F)，同样的，一直 next 即可完成安装，但是，需要注意的是必须先安装 git，在安装 git 小乌龟
 
-**3.安装语言包，同样是**[https://tortoisegit.org/download/](https://links.jianshu.com/go?to=https%3A%2F%2Ftortoisegit.org%2Fdownload%2F)**，然后一直 next 即可，要先装完小乌龟在安装语言包。**
+3.安装语言包，同样是[https://tortoisegit.org/download/](https://links.jianshu.com/go?to=https%3A%2F%2Ftortoisegit.org%2Fdownload%2F)，然后一直 next 即可，要先装完小乌龟在安装语言包。
 
 4.右键 →tortogit→setting，把 language 项改为中文，点击确定就可以了
 
