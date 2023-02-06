@@ -1377,11 +1377,11 @@ Spring 事务的本质其实就是数据库对事务的支持，没有数据库�
 <!--事务管理器-->
 <bean id="tranctionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="cxDataSource"/>
-    </bean>
+</bean>
 <!--事务管理模板-->
 <bean id="tranctionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
         <property name="tranctionManager" ref="tranctionManager"/>
-    </bean>
+</bean>
 ```
 
 不同的底层框架使用不同的事务管理器；事务管理器需要注入自己的数据源cxDataSource；
@@ -1412,6 +1412,8 @@ userService.checkUsername(a);
 
 实际开发中不会使用编程式事务，太麻烦！如果使用注解方式进行配置，只是将xml文件写成程序的Bean而已；
 
+
+
 ② 声明式事务管理建立在 AOP 之上的。其本质是对方法前后进行拦截，然后在目标方法开始之前创建或者加入一个事务，在执行完目标方法之后根据执行情况提交或者回滚事务。声明式事务最大的优点就是不需要通过编程的方式管理事务，这样就不需要在业务逻辑代码中掺杂事务管理的代码，只需在配置文件中做相关的事务规则声明(或通过基于@Transactional 注解的方式)，便可以将事务规则应用到业务逻辑中。
 
 声明式事务管理也有两种常用的方式，一种是基于 tx 和 aop 名字空间的 xml 配置文件，另一种就是基于@Transactional 注解。显然基于注解的方式更简单易用，更清爽。
@@ -1432,8 +1434,8 @@ userService.checkUsername(a);
 ```xml
 <!--事务管理器-->
 <bean id="tranctionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="cxDataSource"/>
-    </bean>
+    <property name="dataSource" ref="cxDataSource"/>
+</bean>
 ```
 
 2：添加事务定义的配置和AOP的配置，以AspectJ申明的事务；

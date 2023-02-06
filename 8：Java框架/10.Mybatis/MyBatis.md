@@ -443,6 +443,17 @@ choose 标签是按顺序判断其内部 when 标签中的 test 条件出否成�
 一般用于去除 sql 语句中多余的 and 关键字，逗号，或者给 sql 语句前拼接“where“、“set“以及“values(“等前缀，或者添加“)“等后缀，可用于选择性插入、更新、删除或者条件查询等操作
 ```
 
+常用
+
+```xml
+
+
+```
+
+
+
+
+
 # 第 4 章 配置文件
 
 官方文档：https://mybatis.org/mybatis-3/zh/configuration.html

@@ -932,43 +932,37 @@ SELECT * FROM fund_nav where fund_name REGEXP 'mar';
 
 ## 1、存储引擎的使用
 
-- 数据库中的各表均被（在创建表时）指定的存储引擎来处理。
+数据库中的各表在创建表时指定的存储引擎来处理。
 
-- 服务器可用的引擎依赖于以下因素：
+服务器可用的引擎依赖于以下因素：
 
-  - MySQL 的版本
+- MySQL 的版本
 
-  - 服务器在开发时如何被配置
+- 服务器在开发时如何被配置
 
-  - 启动选项
+- 启动选项
 
-- 为了解当前服务器中有哪些存储引擎可用，可使用 SHOW ENGINES 语句：
+为了解当前服务器中有哪些存储引擎可用，可使用 SHOW ENGINES 语句：
 
-  mysql\> SHOW ENGINES\\G
+```shell
+SHOW ENGINES \G
+```
 
-  ![](media/caea2762ce36b7c9539bfe13a63918f6.png)
+在创建表时，可使用 ENGINE 选项为 CREATE TABLE 语句显式指定存储引擎。现有表的存储引擎可使用 ALTER TABLE 语句来改变：
 
-- 在创建表时，可使用 ENGINE 选项为 CREATE TABLE 语句显式指定存储引擎。
+```sql
+-- 创建时指定
+CREATE TABLE TABLENAME (NO INT) ENGINE = MyISAM;
+-- 修改
+ALTER TABLE TABLENAME ENGINE = INNODB;
+-- 查询某表的存储引擎
+SHOW CREATE TABLE emp \G;
+SHOW TABLE STATUS LIKE 'emp' \G
+```
 
-  CREATE TABLE TABLENAME (NO INT) ENGINE = MyISAM;
+## 2、常用的存储引擎
 
-- 如果在创建表时没有显式指定存储引擎，则该表使用当前默认的存储引擎
-
-- 默认的存储引擎可在 my.ini 配置文件中使用 default-storage-engine 选项指定。
-
-- 现有表的存储引擎可使用 ALTER TABLE 语句来改变：ALTER TABLE TABLENAME ENGINE =
-  INNODB;
-
-- 为确定某表所使用的存储引擎，可以使用 SHOW CREATE TABLE 或 SHOW TABLE
-  STATUS 语句：
-
-  mysql\> SHOW CREATE TABLE emp\\G
-
-  mysql\> SHOW TABLE STATUS LIKE 'emp' \\G
-
-## 14.2、常用的存储引擎
-
-#### 14.2.1、MyISAM 存储引擎
+#### MyISAM
 
 MyISAM 提供了大量的特性，包括全文索引、压缩、空间函数(GIS)等，但 MyISAM**不支持事务和行级锁**(**myisam 改表时会将整个表全锁住)，**有一个毫无疑问的缺陷就是崩溃后无法安全恢复。
 
@@ -990,7 +984,7 @@ MyISAM 提供了大量的特性，包括全文索引、压缩、空间函数(GIS
 
   - 可被转换为压缩、只读表来节省空间
 
-#### 14.2.2、InnoDB 存储引擎
+#### InnoDB
 
 - InnoDB 存储引擎是 MySQL 的缺省引擎。
 
@@ -1009,7 +1003,7 @@ MyISAM 提供了大量的特性，包括全文索引、压缩、空间函数(GIS
 - 支持外键及引用的完整性，包括级联删除和更新
   - 默认隔离级别为可重复读
 
-#### 14.2.3、MEMORY 存储引擎
+#### MEMORY
 
 - 使用 MEMORY 存储引擎的表，其数据存储在内存中，且行的长度固定，这两个特点使得 MEMORY 存储引擎非常快。
 
@@ -1262,7 +1256,7 @@ InnoDB 实现了四个隔离级别，用以控制事务所做的修改，并将�
 - 可重复读（REPEATABLE READ）
 
 确保如果在一个事务中执行两次相同的 SELECT 语句，都能得到相同的结果，不管其他事务是否提交这些修改。
-（银行总账）**该隔离级别为 InnoDB 的缺省设置。**
+（银行总账）**该隔离级别为 InnoDB 的缺省设置。**  （mysql默认）
 
 原理：写数据的时候加上排他锁， 直到事务结束， 读数据的时候加共享锁， 也是直到事务结束。(共享锁规则 2)
 
@@ -1284,9 +1278,12 @@ B 不以执行 DML,DQL 语句
 
 **设置服务器缺省隔离级别**
 
-通过修改配置文件设置
+通过修改配置文件 my.ini 使用 transaction-isolation 选项来设置服务器的缺省事务隔离级别。
 
-- 可以在 my.ini 文件中使用 transaction-isolation 选项来设置服务器的缺省事务隔离级别。
+```txt
+[mysqld]
+transaction-isolation = READ-COMMITTED
+```
 
 - 该选项值可以是：
 
@@ -1298,74 +1295,33 @@ B 不以执行 DML,DQL 语句
 
   - SERIALIZABLE
 
-- 例如：
-
-[mysqld]
-
-transaction-isolation = READ-COMMITTED
-
 通过命令动态设置隔离级别
 
-- 隔离级别也可以在运行的服务器中动态设置，应使用 SET TRANSACTION ISOLATION
-  LEVEL 语句。
-
-- 其语法模式为：
-
-SET [GLOBAL \| SESSION] TRANSACTION ISOLATION LEVEL \<isolation-level\>
-
-其中的\<isolation-level\>可以是：
-
-- READ UNCOMMITTED
-
-  - READ COMMITTED
-
-  - REPEATABLE READ
-
-  - SERIALIZABLE
-
-- 例如： SET TRANSACTION ISOLATION LEVEL **REPEATABLE READ**;
+```shell
+SET [GLOBAL | SESSION] TRANSACTION ISOLATION LEVEL <isolation-level>
+```
 
 **隔离级别的作用范围**
 
-- 事务隔离级别的作用范围分为两种：
+- 全局级：对所有的会话有效
 
-  - 全局级：对所有的会话有效
+- 会话级：只对当前的会话有效
 
-  - 会话级：只对当前的会话有效
+```shell
+## 设置会话级隔离级别
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-- 例如，设置会话级隔离级别为 READ COMMITTED ：
-
-mysql\> SET TRANSACTION ISOLATION LEVEL READ COMMITTED；
-
-或：
-
-mysql\> SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED；
-
-- 设置全局级隔离级别为 READ COMMITTED ：
-
-mysql\> SET GLOBAL TRANSACTION ISOLATION LEVEL READ COMMITTED；
+## 设置全局级隔离级别
+SET GLOBAL TRANSACTION ISOLATION LEVEL READ COMMITTED;
+set global tx_isolation = 'READ-COMMITTED';
+```
 
 **查看隔离级别**
 
-- 服务器变量 tx_isolation（包括会话级和全局级两个变量）中保存着当前的会话隔离级别。
-
-- 为了查看当前隔离级别，可访问 tx_isolation 变量：
-
-  1.查看当前会话隔离级别
-
-  select @@tx_isolation;
-
-  2.查看系统当前隔离级别
-
-  select @@global.tx_isolation;
-
-  3.设置当前会话隔离级别
-
-  set session transaction isolatin level repeatable read;
-
-  4.设置系统当前隔离级别
-
-  set global transaction isolation level repeatable read;
+```sql
+select @@tx_isolation;
+```
 
 对比 Oracle 查询隔离级别：
 
@@ -1386,48 +1342,6 @@ ELSE 'SERIALIZABLE' END AS isolation_level
 FROM v$transaction t
 JOIN v$session s ON t.addr = s.taddr AND s.sid = sys_context('USERENV', 'SID');
 ```
-
-#### 4、并发事务与隔离级别示例
-
-read uncommitted(未提交读) --脏读(Drity Read)：
-
-| 会话一                                                       | 会话二                  |
-| ------------------------------------------------------------ | ----------------------- |
-| mysql\> prompt s1\>                                          | mysql\> use bjpowernode |
-| s1\>use bjpowernode                                          | mysql\> prompt s2\>     |
-| s1\>create table tx ( id int(11), num int (10) );            |                         |
-| s1\>set global transaction isolation level read uncommitted; |                         |
-| s1\>start transaction;                                       |                         |
-|                                                              | s2\>start transaction;  |
-| s1\>insert into tx values (1,10);                            |                         |
-|                                                              | s2\>select \* from tx;  |
-| s1\>rollback;                                                |                         |
-|                                                              | s2\>select \* from tx;  |
-
-read committed(已提交读)
-
-| 会话一                                                      | 会话二                 |
-| ----------------------------------------------------------- | ---------------------- |
-| s1\> set global transaction isolation level read committed; |                        |
-| s1\>start transaction;                                      |                        |
-|                                                             | s2\>start transaction; |
-| s1\>insert into tx values (1,10);                           |                        |
-| s1\>select \* from tx;                                      |                        |
-|                                                             | s2\>select \* from tx; |
-| s1\>commit;                                                 |                        |
-|                                                             | s2\>select \* from tx; |
-
-repeatable read(可重复读)
-
-| 会话一                                                       | 会话二                 |
-| ------------------------------------------------------------ | ---------------------- |
-| s1\> set global transaction isolation level repeatable read; |                        |
-| s1\>start transaction;                                       | s2\>start transaction; |
-| s1\>select \* from tx;                                       |                        |
-| s1\>insert into tx values (1,10);                            |                        |
-|                                                              | s2\>select \* from tx; |
-| s1\>commit;                                                  |                        |
-|                                                              | s2\>select \* from tx; |
 
 ### 五：底层实现
 

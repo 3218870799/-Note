@@ -31,7 +31,7 @@ priavte :本类可见
 
 **在非本包子类，通过父类的对象实例只能访问父类的 public 成员,不能访问 protected 成员。**
 
-### 1.1：常用关键字
+### 常用关键字
 
 类与接口的声明：class（类）,extends（继承）,implements（实现）,interface
 
@@ -679,17 +679,21 @@ public int size()
 
 ### 4：String 类
 
+
+
 **1：String 类为什么是不可变的 final 类型？**
 
-- 为了实现字符串池(只有当字符是不可变的，字符串池才有可能实现）
+为了实现字符串池(只有当字符是不可变的，字符串池才有可能实现）
 
 如果字符串可变的话，**当两个引用指向指向同一个字符串时，对其中一个做修改就会影响另外一个。**
 
-- 为了线程安全(字符串自己便是线程安全的)
+为了线程安全(字符串自己便是线程安全的)
 
-- 为了保证 String 的 HashCode 永远保持一致，每次使用时不用重复计算
+为了保证 String 的 HashCode 永远保持一致，每次使用时不用重复计算
 
 (Map 的 key 一般 String 用的最多原因就是这个)，故不能被继承
+
+
 
 **2：String s=new String("abc") 创建了几个对象?**
 
@@ -698,6 +702,8 @@ public int size()
 new String（） 创建一个引用对象。
 
 String s , 这个语句声明一个类 String 的引用变量 s
+
+
 
 3：判断
 
@@ -720,11 +726,11 @@ s5 == s9//true
 
 方法：
 
-1：contains 和 indexOf 的区别？
+contains 和 indexOf 的区别？
 
 contains 是找指定字符串是否包含一个子串
 
-2：join 方法，拼接
+join 方法，拼接
 
 ```java
 string [] tmpStr={abc,def,ghi};
@@ -733,7 +739,13 @@ string jn = string.Join(“-“, tmpStr);
 
 ```
 
-### 5：StringBuilder 与 StringBuffer
+
+
+4：StringBuffer与StringBuilder
+
+由于String是不可变的，当变化时会效率低下且浪费内存空间，这两个实现都可以多次被修改
+
+区别：
 
 线程安全：
 
@@ -743,9 +755,9 @@ StringBuild 线程不安全，StringBuffer 线程安全
 
 StringBuilder > StringBuffer > String
 
-存储空间：
+实现：
 
-String 的值是不可变的，每次对 String 的操作都会生成新的 String 对象，效率低耗费大量内存空间，从而引起 GC。StringBuffer 和 StringBuilder 都是可变。
+底层实现相同，都是使用char数组，只不过StringBuffer加了锁；
 
 使用场景：
 
@@ -754,18 +766,6 @@ String 的值是不可变的，每次对 String 的操作都会生成新的 Stri
 2.单线程操作字符串缓冲区 下操作大量数据 = StringBuilder
 
 3.多线程操作字符串缓冲区 下操作大量数据 = StringBuffer
-
-构造
-
-- `public StringBuilder()`：构造一个空的 StringBuilder 容器。
-- `public StringBuilder(String str)`：构造一个 StringBuilder 容器，并将字符串添加进去。
-
-方法
-
-- `public StringBuilder append(...)`：添加任意类型数据的字符串形式，并返回当前对象自身。
-- `public String toString()`：将当前 StringBuilder 对象转换为 String 对象。
-
-
 
 ### 6：Math 类
 
@@ -1387,7 +1387,7 @@ HashMap 的底层主要是基于数组，链表和红黑树来实现的，HashMa
 
 HashMap 类中有一个非常重要的字段，就是 Node[] table，即哈希桶数组，明显它是一个 Node 的数组
 
-当冲突时 HashMap 的做法是用链表和红黑树存储相同 hash 值的 value。当 hash 冲突的个数比较少时，使用链表否则使用红黑树。
+当冲突时 HashMap 的做法是用链表和红黑树存储相同 hash 值的 value。当 hash 冲突的个数比较少时，使用链表否则使用红黑树。 
 
 HashMap 中关于红黑树的三个关键参数：
 
@@ -1490,9 +1490,11 @@ HashMap 在进行扩容时，使用的 rehash 方式非常巧妙，因为每次�
 
 JDK1.7 中 ConcurrentHashMap 是由 Segment 数组结构和 HashEntry 数组结构组成。
 
-Segment 是一种可重入锁 ReentrantLock，在 ConcurrentHashMap 里扮演锁的角色，HashEntry 则用于存储键值对数据。
+Segment 是一种可重入锁 ReentrantLock，在 ConcurrentHashMap 里扮演锁的角色，HashEntry 则用于存储键值对数据。操作时给Segment加锁，相比于HashTable降低了锁的粒度；
 
 Segment 的个数是不能扩容的，但是单个 Segment 里面的数组是可以扩容的。
+
+![image-20230206200006414](media/image-20230206200006414.png)
 
 JDK1.8 的实现已经抛弃了 Segment 分段锁机制，利用 CAS+Synchronized 来保证并发更新的安全。
 
@@ -1679,16 +1681,11 @@ HashMap 通常比 TreeMap 快一点（树和哈希表的数据结构使然），
 
 ### 常用的遍历 Map 的方法
 
-1. Map<String, String> map = **new** HashMap<String, String>();
-2. map.put("1", "value1");
-3. map.put("2", "value2");
-4. map.put("3", "value3");
-
 //第一种：普遍使用，由于二次取值,效率会比第二种和第三种慢一倍
 
 ```java
 System.out.println("通过Map.keySet遍历key和value：");
- **for** (String key : map.keySet()) {
+ for (String key : map.keySet()) {
  		System.out.println("key= "+ key + " and value= " + map.get(key));
  }
 ```
@@ -1698,7 +1695,7 @@ System.out.println("通过Map.keySet遍历key和value：");
 ```java
  System.out.println("通过Map.entrySet使用iterator遍历key和value：");
  Iterator<Map.Entry<String, String>> it = map.entrySet().iterator();
- **while** (it.hasNext()) {
+ while (it.hasNext()) {
  		Map.Entry<String, String> entry = it.next();
  		System.out.println("key= " + entry.getKey() + " and value= " + entry.getValue());
  }
@@ -1717,7 +1714,7 @@ System.out.println("通过Map.keySet遍历key和value：");
 
 ```java
 System.out.println("通过Map.values()遍历所有的value，但不能遍历key");
- **for** (String v : map.values()) {
+ for (String v : map.values()) {
  		System.out.println("value= " + v);
  }
 ```
@@ -2106,119 +2103,7 @@ public static class DemoThread extends Thread{
 }
 ```
 
-## 4：ThreadLocal
 
-为每一个线程创建一个副本，实现线程上下文的变量传递。
-
-线程变量
-
-ThreadLocal 提供了线程内存储变量的能力，这些变量不同之处在于每一个线程读取的变量是对应的互相独立的。通过 get 和 set 方法就可以得到当前线程对应的值。ThreadLocal 实例通常来说都是 private static 类型的，用于关联线程和线程上下文。
-
-好处：
-
-- 传递数据：保存每个线程绑定的数据，在需要的地方可以直接获取，避免参数直接传递带来的代码耦合问题
-- 线程隔离：各线程之间的数据相互隔离却又具备并发性，避免同步方式带来的性能损失
-
-使用举例：
-
-```java
-public class MyDemo01 {
-    // 变量
-    private String content;
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public static void main(String[] args) {
-        MyDemo01 myDemo01 = new MyDemo01();
-        ThreadLocal<String> threadLocal = new ThreadLocal<>();
-        for (int i = 0; i < 5; i++) {
-            new Thread(() -> {
-                threadLocal.set(Thread.currentThread().getName() + "的数据");
-                System.out.println("-----------------------------------------");
-                System.out.println(Thread.currentThread().getName() + "\t  " + threadLocal.get());
-            }, String.valueOf(i)).start();
-        }
-    }
-}
-```
-
-输出
-
-```
-4	  4的数据
------------------------------------------
-3	  3的数据
------------------------------------------
-2	  2的数据
------------------------------------------
-1	  1的数据
-0	  0的数据
-```
-
-ThreadLocal 与 Synchronized 的区别：
-
-虽然 ThreadLocal 模式与 Synchronized 关键字都用于处理多线程并发访问变量的问题，不过两者处理问题的角度和思路不同。
-
-|        | Synchronized                                                             | ThreadLocal                                                                                  |
-| ------ | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
-| 原理   | 同步机制采用 以空间换时间 的方式，只提供了一份变量，让不同的线程排队访问 | ThreadLocal 采用以空间换时间的概念，为每个线程都提供一份变量副本，从而实现同时访问而互不干扰 |
-| 侧重点 | 多个线程之间访问资源的同步                                               | 多线程中让每个线程之间的数据相互隔离                                                         |
-
-总结：在刚刚的案例中，虽然使用 ThreadLocal 和 Synchronized 都能解决问题，但是使用 ThreadLocal 更为合适，因为这样可以使程序拥有更高的并发性。
-
-在 JDK8 中 ThreadLocal 的设计是：每个 Thread 维护一个 ThreadLocalMap，这个 Map 的 key 是 ThreadLocal 实例本身，value 才是真正要存储的值 object。具体的过程是这样的：
-
-- 每个 Thread 线程内部都有一个 Map（ThreadLocalMap）
-- Map 里面存储 ThreadLocal 对象（key）和线程的变量副本（value）
-- Thread 内部的 Map 是由 ThreadLocal 维护的，由 ThreadLocal 负责向 map 获取和设置线程的变量值。
-- 对于不同的线程，每次获取副本值时，别的线程并不能获取到当前线程的副本值，形成了副本的隔离，互不干扰。
-
-![image-20210118133335687](media/image-20210118133335687.png)
-
-面这张图详细的揭示了 ThreadLocal 和 Thread 以及 ThreadLocalMap 三者的关系。
-
-1、Thread 中有一个 map，就是 ThreadLocalMap
-
-2、ThreadLocalMap 的 key 是 ThreadLocal，值是我们自己设定的。
-
-3、ThreadLocal 是一个**弱引用**，当为 null 时，会被当成垃圾回收
-
-为什么 key 设置成弱引用？
-
-当线程结束时，将线程设为 null，如果 key 也设置成强引用指向 ThreadLocal，那么在线程结束时 ThreadLocal 不能被回收，，容易发生内存泄漏。
-
-4、重点来了，突然我们 ThreadLocal 是 null 了，也就是要被垃圾回收器回收了，但是此时我们的 ThreadLocalMap 生命周期和 Thread 的一样，它不会回收，这时候就出现了一个现象。那就是 ThreadLocalMap 的 key 没了，但是 value 还在，这就造成了内存泄漏。
-
-**解决办法：使用完 ThreadLocal 后，执行 remove 操作，避免出现内存溢出情况。**
-
-线程池禁用 ThreadLocal，如果没有 remove 掉，则容易造成垃圾。
-
-### 核心源码
-
-除了构造方法之外，ThreadLocal 对外暴露的方法有以下 4 个
-
-| 方法声明                   | 描述                         |
-| -------------------------- | ---------------------------- |
-| protected T initialValue() | 返回当前线程局部变量的初始值 |
-| public void set(T value)   | 返回当前线程绑定的局部变量   |
-| public T get()             | 获取当前线程绑定的局部变量   |
-| public void remove()       | 移除当前线程绑定的局部变量   |
-
-以下是这 4 个方法的详细源码分析
-
-了解到 ThreadLocal 的操作实际上是围绕 ThreadLocalMap 展开的。ThreadLocalMap 的源码相对比较复杂，我们从以下三个方面进行讨论。
-
-1：基本结构
-
-ThreadLocalMap 是 ThreadLocal 的内部类，没有实现 Map 接口，用独立的方式实现了 Map 的功能，其内部的 Entry 也是独立实现。
-
-存储结果 Entry
 
 ## 5：线程实现方式
 
@@ -2588,6 +2473,18 @@ Q：线程池是通过队列的 take 方法来阻塞核心线程 Worker 的 run 
 
 ## 7：线程间通信
 
+```txt
+1:volatile 和 synchronized 关键字
+2:等待/通知机制
+3:管道输入/输出流
+4:使用Thread.join()
+5:使用ThreadLocal 
+```
+
+
+
+
+
 - 锁机制：包括互斥锁，条件变量，读写锁
   - 互斥锁提供了以排他方式防止数据结构被并发修改的问题
   - 读写锁运行多线程同时读共享数据，而对写操作是互斥的
@@ -2696,7 +2593,152 @@ public class MultiThreadShareData {
  }
 ```
 
-本地线程：ThreadLocal
+### join()
+
+在线程中调用另一个线程的 join() 方法，会将当前线程挂起，而不是忙等待，直到目标线程结束。最后能够保证 a 线程的输出先于 b 线程的输出。
+
+### wait() notify() notifyAll()
+
+调用 wait() 使得线程等待某个条件满足，线程在等待时会被挂起，当其他线程的运行使得这个条件满足时，其它线程会调用 notify() 或者 notifyAll() 来唤醒挂起的线程。
+
+它们都属于 Object 的一部分，而不属于 Thread。
+
+只能用在同步方法或者同步控制块中使用，否则会在运行时抛出 IllegalMonitorStateException。这是因为设计者为了避免使用出现 lost wake up 问题而搞出来的。 （初始的时候 count 等于 0，这个时候消费者检查 count 的值，发现 count 小于等于 0 的条件成立；就在这个时候，发生了上下文切换，生产者进来了，噼噼啪啪一顿操作，把两个步骤都执行完了，也就是发出了通知，准备唤醒一个线程。这个时候消费者刚决定睡觉，还没睡呢，所以这个通知就会被丢掉。紧接着，消费者就睡过去了……没有来唤醒的了，造成死锁）
+
+使用 wait() 挂起期间，线程会释放锁。这是因为，如果没有释放锁，那么其它线程就无法进入对象的同步方法或者同步控制块中，那么就无法执行 notify() 或者 notifyAll() 来唤醒挂起的线程，造成死锁。
+
+**wait() 和 sleep() 的区别**
+
+- wait() 是 Object 的方法，而 sleep() 是 Thread 的静态方法；
+- wait() 会释放锁，sleep() 不会。
+
+### await() signal() signalAll()
+
+java.util.concurrent 类库中提供了 Condition 类来实现线程之间的协调，可以在 Condition 上调用 await() 方法使线程等待，其它线程调用 signal() 或 signalAll() 方法唤醒等待的线程。
+
+相比于 wait() 这种等待方式，await() 可以指定等待的条件，因此更加灵活。
+
+
+
+
+
+### ThreadLocal
+
+为每一个线程创建一个副本，实现线程上下文的变量传递。
+
+线程变量
+
+ThreadLocal 提供了线程内存储变量的能力，这些变量不同之处在于每一个线程读取的变量是对应的互相独立的。通过 get 和 set 方法就可以得到当前线程对应的值。ThreadLocal 实例通常来说都是 private static 类型的，用于关联线程和线程上下文。
+
+好处：
+
+- 传递数据：保存每个线程绑定的数据，在需要的地方可以直接获取，避免参数直接传递带来的代码耦合问题
+- 线程隔离：各线程之间的数据相互隔离却又具备并发性，避免同步方式带来的性能损失
+
+使用举例：
+
+```java
+public class MyDemo01 {
+    // 变量
+    private String content;
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public static void main(String[] args) {
+        MyDemo01 myDemo01 = new MyDemo01();
+        ThreadLocal<String> threadLocal = new ThreadLocal<>();
+        for (int i = 0; i < 5; i++) {
+            new Thread(() -> {
+                threadLocal.set(Thread.currentThread().getName() + "的数据");
+                System.out.println("-----------------------------------------");
+                System.out.println(Thread.currentThread().getName() + "\t  " + threadLocal.get());
+            }, String.valueOf(i)).start();
+        }
+    }
+}
+```
+
+输出
+
+```
+4	  4的数据
+-----------------------------------------
+3	  3的数据
+-----------------------------------------
+2	  2的数据
+-----------------------------------------
+1	  1的数据
+0	  0的数据
+```
+
+ThreadLocal 与 Synchronized 的区别：
+
+虽然 ThreadLocal 模式与 Synchronized 关键字都用于处理多线程并发访问变量的问题，不过两者处理问题的角度和思路不同。
+
+|        | Synchronized                                                 | ThreadLocal                                                  |
+| ------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 原理   | 同步机制采用 以空间换时间 的方式，只提供了一份变量，让不同的线程排队访问 | ThreadLocal 采用以空间换时间的概念，为每个线程都提供一份变量副本，从而实现同时访问而互不干扰 |
+| 侧重点 | 多个线程之间访问资源的同步                                   | 多线程中让每个线程之间的数据相互隔离                         |
+
+总结：在刚刚的案例中，虽然使用 ThreadLocal 和 Synchronized 都能解决问题，但是使用 ThreadLocal 更为合适，因为这样可以使程序拥有更高的并发性。
+
+
+
+在 JDK8 中 ThreadLocal 的设计是：每个 Thread 维护一个 ThreadLocalMap，这个 Map 的 key 是 ThreadLocal 实例本身，value 才是真正要存储的值 object。具体的过程是这样的：
+
+- 每个 Thread 线程内部都有一个 Map（ThreadLocalMap）
+- Map 里面存储 ThreadLocal 对象（key）和线程的变量副本（value）
+- Thread 内部的 Map 是由 ThreadLocal 维护的，由 ThreadLocal 负责向 map 获取和设置线程的变量值。
+- 对于不同的线程，每次获取副本值时，别的线程并不能获取到当前线程的副本值，形成了副本的隔离，互不干扰。
+
+![image-20210118133335687](media/image-20210118133335687.png)
+
+面这张图详细的揭示了 ThreadLocal 和 Thread 以及 ThreadLocalMap 三者的关系。
+
+1、Thread 中有一个 map，就是 ThreadLocalMap
+
+2、ThreadLocalMap 的 key 是 ThreadLocal，值是我们自己设定的。
+
+3、ThreadLocal 是一个**弱引用**，当为 null 时，会被当成垃圾回收
+
+为什么 key 设置成弱引用？
+
+当线程结束时，将线程设为 null，如果 key 也设置成强引用指向 ThreadLocal，那么在线程结束时 ThreadLocal 不能被回收，，容易发生内存泄漏。
+
+4、重点来了，突然我们 ThreadLocal 是 null 了，也就是要被垃圾回收器回收了，但是此时我们的 ThreadLocalMap 生命周期和 Thread 的一样，它不会回收，这时候就出现了一个现象。那就是 ThreadLocalMap 的 key 没了，但是 value 还在，这就造成了内存泄漏。
+
+**解决办法：使用完 ThreadLocal 后，执行 remove 操作，避免出现内存溢出情况。**
+
+线程池禁用 ThreadLocal，如果没有 remove 掉，则容易造成垃圾。
+
+#### 核心源码
+
+除了构造方法之外，ThreadLocal 对外暴露的方法有以下 4 个
+
+| 方法声明                   | 描述                         |
+| -------------------------- | ---------------------------- |
+| protected T initialValue() | 返回当前线程局部变量的初始值 |
+| public void set(T value)   | 返回当前线程绑定的局部变量   |
+| public T get()             | 获取当前线程绑定的局部变量   |
+| public void remove()       | 移除当前线程绑定的局部变量   |
+
+以下是这 4 个方法的详细源码分析
+
+了解到 ThreadLocal 的操作实际上是围绕 ThreadLocalMap 展开的。ThreadLocalMap 的源码相对比较复杂，我们从以下三个方面进行讨论。
+
+1：基本结构
+
+ThreadLocalMap 是 ThreadLocal 的内部类，没有实现 Map 接口，用独立的方式实现了 Map 的功能，其内部的 Entry 也是独立实现。
+
+存储结果 Entry
+
+
 
 ## 8：线程安全
 
@@ -3131,41 +3173,6 @@ public String test(String str){
 ```
 
 JVM 会检测到这样一连串的操作都对同一个对象加锁（while 循环内 100 次执行 append，没有锁粗化的就要进行 100 次加锁/解锁），此时 JVM 就会将加锁的范围粗化到这一连串的操作的外部（比如 while 虚幻体外），使得这一连串操作只需要加一次锁即可。
-
-## 9：线程协作
-
-当多个线程可以一起工作去解决某个问题时，如果某些部分必须在其它部分之前完成，那么就需要对线程进行协调。
-
-### join()
-
-在线程中调用另一个线程的 join() 方法，会将当前线程挂起，而不是忙等待，直到目标线程结束。最后能够保证 a 线程的输出先于 b 线程的输出。
-
-### wait() notify() notifyAll()
-
-调用 wait() 使得线程等待某个条件满足，线程在等待时会被挂起，当其他线程的运行使得这个条件满足时，其它线程会调用 notify() 或者 notifyAll() 来唤醒挂起的线程。
-
-它们都属于 Object 的一部分，而不属于 Thread。
-
-只能用在同步方法或者同步控制块中使用，否则会在运行时抛出 IllegalMonitorStateException。这是因为设计者为了避免使用出现 lost wake up 问题而搞出来的。 （初始的时候 count 等于 0，这个时候消费者检查 count 的值，发现 count 小于等于 0 的条件成立；就在这个时候，发生了上下文切换，生产者进来了，噼噼啪啪一顿操作，把两个步骤都执行完了，也就是发出了通知，准备唤醒一个线程。这个时候消费者刚决定睡觉，还没睡呢，所以这个通知就会被丢掉。紧接着，消费者就睡过去了……没有来唤醒的了，造成死锁）
-
-使用 wait() 挂起期间，线程会释放锁。这是因为，如果没有释放锁，那么其它线程就无法进入对象的同步方法或者同步控制块中，那么就无法执行 notify() 或者 notifyAll() 来唤醒挂起的线程，造成死锁。
-
-**wait() 和 sleep() 的区别**
-
-- wait() 是 Object 的方法，而 sleep() 是 Thread 的静态方法；
-- wait() 会释放锁，sleep() 不会。
-
-### await() signal() signalAll()
-
-java.util.concurrent 类库中提供了 Condition 类来实现线程之间的协调，可以在 Condition 上调用 await() 方法使线程等待，其它线程调用 signal() 或 signalAll() 方法唤醒等待的线程。
-
-相比于 wait() 这种等待方式，await() 可以指定等待的条件，因此更加灵活。
-
-
-
-
-
-
 
 ## 10：concurrent 并发包
 
