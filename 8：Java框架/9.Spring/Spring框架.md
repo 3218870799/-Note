@@ -82,7 +82,7 @@ IOC的实现：
 
 
 
-## 1：使用
+## 一、使用
 
 引入 maven 依赖 pom.xml
 
@@ -216,7 +216,15 @@ C**、** 使用 spring 容器创建的 java 对象
 
 ![](media/9324f0294fe12578500c994e1f2359fb.jpg)
 
-## 2：Bean
+## 二：Bean
+
+### 容器
+
+1：BeanFactory 接口，典型功能getbean()，它是spring的核心容器，bean的控制反转，依赖注入，生命周期都由它的实现类实现；
+
+2：ApplicationContext 接口，是 BeanFactory 的子接口。它扩展了 BeanFactory 接口的功能，如：国际化，通配符方式获取一组 Resource 资源，整合 Environment 环境（能通过它获取各种来源的配置信息），事件发布与监听，实现组件之间的解耦
+
+
 
 ### 实例化方式
 
@@ -351,19 +359,6 @@ prototype，每执行一次 getBean 将获得一个实例。它在容器创建�
 ThreadLocal 和线程同步机制都是为了解决多线程中相同变量的访问冲突问题。同步机制采用了“时间换空间"的方式，仅提供一份变量，不同的线程在访问前需要获取锁，没获得锁的线程则需要排队。而 ThreadLocal 采用了“空间换时间"的方式。
 
 ### 生命周期
-
-1、容器的创建过程(beanFactory,DefaultListableBeanFactory) ,向bean工厂中设置一些参数(BeanPostProcessor,Aware接口的子类)等等属性
-2、加载解析bean对象，准备要创建的bean对象的定义对象beanDefinition,(xml或者注解的解析过程)
-3、beanFactoryPostProcessor的处理，此处是扩展点PlaceHolderConfigurSupport,ConfigurationClassPostProcessor4、BeanPostProcessor的注册功能，方便后续对bean对象完成具体的扩展功能
-5、通过反射的方式讲BeanDefinition对象实例化成具体的bean对象，
-6、 bean对象的初始化过程（填充属性，调用aware子类的方法，调用BeanPostProcessor前置处理方法，调用init-mehtod方法，调BeanPostProcessor的后置处理方法)
-7、生成完整的bean对象，通过getBean方法可以直接获取
-
-8、销毁过程
-
-
-
-
 
 
 
@@ -999,7 +994,7 @@ CGLIB 是针对类实现代理，主要是对指定的类生成一个子类，�
 
 使用 CGLib 实现动态代理，CGLib 底层采用 ASM 字节码生成框架，使用字节码技术生成代理类，在 jdk6 之前比使用 Java 反射效率要高。但是后来JDK的效率优化的比CGLib更快了。唯一需要注意的是，CGLib 不能对声明为 final 的方法进行代理，因为 CGLib 原理是动态生成被代理类的子类
 
-## AspectJ 对 AOP 的实现
+## AspectJ
 
 对于 AOP 这种编程思想，很多框架都进行了实现。Spring 就是其中之一，可以完成面向切面编程。然而，AspectJ 也实现了 AOP 的功能，且其实现方式更为简捷，使用更为方便，而且还支持注解式开发。所以，Spring 又将 AspectJ 的对于 AOP 的实现也引入到了自己的框架中。在 Spring 中使用 AOP 开发时，一般使用 AspectJ 的实现方式。
 
@@ -1009,29 +1004,25 @@ AspectJ 是一个优秀面向切面的框架，它扩展了 Java 语言，提供
 
 ### 2：通知类型
 
-1：AspectJ 中常用的通知有五种类型：
+AspectJ 中常用的通知有五种类型：
 
+```txt
 1）before:前置通知(应用：各种校验)
-
 在方法执行前执行，如果通知抛出异常，阻止方法运行
 
 2）afterReturning:后置通知(应用：常规数据处理)
-
 方法正常返回后执行，如果方法中抛出异常，通知无法执行
-
 必须在方法执行后才执行，所以可以获得方法的返回值。
 
 3）around:环绕通知(应用：十分强大，可以做任何事情)
-
 方法执行前后分别执行，可以阻止方法的执行
-
 必须手动执行目标方法
 
 4）afterThrowing:抛出异常通知(应用：包装异常信息)
-
 方法抛出异常后执行，如果方法没有抛出异常，无法执行
 
 5）after:最终通知(应用：清理现场)
+```
 
 方法执行完毕后执行，无论方法中是否出现异常
 
@@ -1534,7 +1525,7 @@ spring 事务的传播行为说的是，当多个事务同时存在的时候，s
 所谓事务传播行为是指，处于不同事务中的方法在相互调用时，执行期间事务的维护情况。如，A 事务中的方法 doSome()调用 B 事务中的方法 doOther()，在调用执行期间事务的维护情况，就称为事务传播行为。事务传播行为是加在方法上的。
 
 ```txt
-propagation_required
+propagation_required：默认.
 propagation_supports
 propagation_requires_new
 propagation_mandatory
@@ -1759,7 +1750,7 @@ public void savefunc2(){
 
 
 
-# 第6章 Spring 与 Web
+# 第6章 Web
 
 在 Web 项目中使用 Spring 框架，首先要解决在 web 层（这里指 Servlet）中获取到 Spring 容器的问题。只要在 web 层获取到了 Spring 容器，便可从容器中获取到 Service 对象。
 

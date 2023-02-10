@@ -607,7 +607,7 @@ JVM 就是按照上面的顺序一步一步的将字节码文件加载到内存�
 
 #### 类加载的过程
 
-`java`编译器将 `.java` 文件编译成扩展名为 `.class` 的文件。.class 文件中保存着 java 转换后，虚拟机将要执行的指令。当需要某个类的时候，java 虚拟机会加载 .class 文件，并创建对应的 class 对象，将 class 文件加载到虚拟机的内存，这个过程被称为类的加载。
+Java文件到最终运行必须经过编译和类加载，编译是指将`.java` 文件编译成`.class` 文件，而类加载就是将 ` .class ` 文件 加载到虚拟机的内存中去；装载完成后就可以得到一个 class对象，通过new来实例化对象；
 
 ![image-20201229165142316](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/image-20201229165142316.png)
 
@@ -616,9 +616,11 @@ JVM 就是按照上面的顺序一步一步的将字节码文件加载到内存�
 类加载过程的一个阶段，ClassLoader 通过一个类的完全限定名查找此类字节码文件，并利用字节码文件，将这些数据转换成方法区中的运行时数据（静态变量、静态代码块、常量池等），在堆中生成一个 Class 类对象代表这个类（反射原理），作为方法区类数据的访问入口。
 
 在加载阶段，虚拟机主要完成三件事情：
+```txt
 ① 通过一个类的全限定名（比如 com.danny.framework.t）来获取定义该类的二进制流；
 ② 将这个字节流所代表的静态存储结构转化为方法区的运行时存储结构；
 ③ 在内存中生成一个代表这个类的 java.lang.Class 对象，作为程序访问方法区中这个类的外部接口。
+```
 
 （2）验证
 
@@ -692,9 +694,9 @@ JVM 就是按照上面的顺序一步一步的将字节码文件加载到内存�
 
 类加载器分为如下几种：启动类加载器（Bootstrap ClassLoader）、扩展类加载器（Extension ClassLoader）、应用程序类加载器（Application ClassLoader）和自定义类加载器（User ClassLoader），其中启动类加载器属于 JVM 的一部分，其他类加载器都用 java 实现，并且最终都继承自 java.lang.ClassLoader。
 
-① 启动类加载器（Bootstrap ClassLoader）是由 C/C++编译而来的，看不到源码，所以在 java.lang.ClassLoader 源码中看到的 Bootstrap ClassLoader 的定义是 native 的“private native Class findBootstrapClass(String name);”。启动类加载器主要负责加载 JAVA_HOMElib 目录或者被-Xbootclasspath 参数指定目录中的部分类，具体加载哪些类可以通过“System.getProperty(“sun.boot.class.path”)”来查看。
+① 启动类加载器（Bootstrap ClassLoader）是由 C/C++编译而来的。启动类加载器主要负责加载 JAVA_HOME的 lib 目录或者被-Xbootclasspath 参数指定目录中的部分类，如rt.jar 和resource.jar
 
-② 扩展类加载器（Extension ClassLoader）由 sun.misc.Launcher.ExtClassLoader 实现，负责加载 JAVA_HOMElibext 目录或者被 java.ext.dirs 系统变量指定的路径中的所有类库，可以用通过“System.getProperty(“java.ext.dirs”)”来查看具体都加载哪些类。
+② 扩展类加载器（Extension ClassLoader）由 sun.misc.Launcher.ExtClassLoader 实现，负责加载 JAVA_HOME的lib/ext 目录或者被 java.ext.dirs 系统变量指定的路径中的所有类库，可以用通过`System.getProperty(“java.ext.dirs”)`来查看具体都加载哪些类。
 
 ③ 应用程序类加载器（Application ClassLoader）由 sun.misc.Launcher.AppClassLoader 实现，负责加载用户类路径（我们通常指定的 classpath）上的类，如果程序中没有自定义类加载器，应用程序类加载器就是程序默认的类加载器。
 
