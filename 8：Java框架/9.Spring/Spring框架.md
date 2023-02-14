@@ -40,7 +40,7 @@ Spring **体系结构**
 
 2：Spring上下文：是一个配置文件，向Spring框架提供上下文信息；
 
-3：Spring AOP：
+3：Spring AOP：面向切面变成模块，整合CGLib和JDKProxy
 
 4：Spring DAO
 
@@ -224,7 +224,7 @@ C**、** 使用 spring 容器创建的 java 对象
 
 2：ApplicationContext 接口，是 BeanFactory 的子接口。它扩展了 BeanFactory 接口的功能，如：国际化，通配符方式获取一组 Resource 资源，整合 Environment 环境（能通过它获取各种来源的配置信息），事件发布与监听，实现组件之间的解耦
 
-
+容器的底层其实是一个Map集合，Spring容器加载到Bean类时 , 会把这个类的描述信息, 以包名加类名的方式存到beanDefinitionMap 中,Map<String,BeanDefinition>
 
 ### 实例化方式
 
@@ -545,7 +545,7 @@ bean 实例在调用无参构造器创建对象后，就要对 bean 对象的属
 
 set 注入也叫设值注入是指，通过 setter 方法传入被调用者的实例。这种注入方式简单、直观，因而在 Spring 的依赖注入中大量使用。
 
-**A**、 简单类型
+A、 简单类型
 
 ```xml
 <bean id="myStudent" class="com. xqc.ba01.Student">
