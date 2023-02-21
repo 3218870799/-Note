@@ -955,7 +955,7 @@ CAP：[一致性](https://baike.baidu.com/item/一致性/9840083)（Consistency�
 
 ## Ribbon 负载均衡
 
-主要提供客户端的软件负载均衡和服务调用。Ribbon 客户端组件提供一系列完善的配置项如连接超时，重试等。简单的说，就是在配置文件中列出 Load Balencer 后面所有的机器，Ribbon 会自动的帮助你基于某种规则（如简单轮询，随机连接等）去连接这些机器。我们很容易使用 Ribbon 实现自定义的负载均衡算法。
+主要提供客户端的软件负载均衡和服务调用。Ribbon 客户端组件提供一系列完善的配置项如连接超时，重试等。简单的说，就是在配置文件中列出 Load Balancer 后面所有的机器，Ribbon 会自动的帮助你基于某种规则（如简单轮询，随机连接等）去连接这些机器。我们很容易使用 Ribbon 实现自定义的负载均衡算法。
 
 **Ribbon 目前也进入维护,基本上不准备更新了**
 
@@ -967,7 +967,7 @@ CAP：[一致性](https://baike.baidu.com/item/一致性/9840083)（Consistency�
 
 集中式 LB，即在服务的消费方和提供方之间使用独立的 LB 设施（可以是硬件 F5 软件 nginx 等
 
-### 1：对比
+### 对比
 
 Ribbon 本地负载均衡客户端 VS Nginx 服务端负载均衡：
 
@@ -989,11 +989,15 @@ Ribbon 在工作时分成两步：
 
 其中 Ribbon 提供了多种策略：轮询，随机，和响应时间加权。
 
-### 2：原理
+### 原理
 
-其实底层就相当于一个拦截器，解析请求域名，然后到注册中心拿到域名对应的机器列表放到本机，然后实现负载均衡；源码中实现LoadBalanceInterceptor
+（1）通过拦截器对被注解@LoadBalanced修饰的RestTemplate进行拦截。
 
-ILoadBalance 负载均衡器：ribbon 是一个为客户端提供负载均衡功能的服务，它内部提供了一个叫做 ILoadBalance 的接口代表负载均衡器的操作，比如有添加服务器操作、选择服务器操作、获取所有的服务器列表、获取可用的服务器列表等等。
+（2）将RestTemplate中调用的服务名，解析成具体的IP地址，由于一个服务名会对应多个地址，那么在选择具体服务地址的时候，需要做负载均衡。
+
+（3）确定目标服务的IP和PORT后，通过Httpclient进行http的调用。
+
+ILoadBalance 负载均衡器：ribbon 内部提供了一个叫做 ILoadBalance 的接口代表负载均衡器的操作，有添加服务器操作、选择服务器操作、获取所有的服务器列表、获取可用的服务器列表等等。
 
 流程：
 
@@ -1001,7 +1005,11 @@ LoadBalancerClient（RibbonLoadBalancerClient 是实现类）在初始化的时�
 
 IRule 接口代表负载均衡策略，choose 方法时具体的选择服务器方法，其中 RandomRule 表示随机策略、RoundRobinRule 表示轮询策略、WeightedResponseTimeRule 表示加权策略、BestAvailableRule 表示请求数最少策略等等。
 
-#### 负载策略
+ribbon默认是懒加载的，只有第一次调用的时候才会生成ribbon对应的组件，这就会导致首次调用的时间会很长，可以更改配置
+
+
+
+#### 负载策略策略
 
 随机策略：
 
@@ -1033,9 +1041,9 @@ for (Server server: serverList) { // 遍历每个服务器
 
 HashCode
 
-### 3：使用 Ribbon:
+### 使用
 
-1,默认我们使用 eureka 的新版本时,它默认集成了 ribbon
+1：默认我们使用 eureka 的新版本时,它默认集成了 ribbon
 
 ```xml
 <dependency>
@@ -1044,11 +1052,7 @@ HashCode
 </dependency>
 ```
 
-**==这个 starter 中集成了 ribbon 了==**
-
-2,我们也可以手动引入 ribbon
-
-**放到 order 模块中,因为只有 order 访问 pay 时需要负载均衡**
+我们也可以手动引入 ribbon，放入到消费者模块中，只有消费者请求生产者才会用到负载均衡；
 
 ```xml
 <dependency>
@@ -1057,7 +1061,7 @@ HashCode
 </dependency>
 ```
 
-3,RestTemplate 类:
+2：RestTemplate 类:
 
 ```java
 // 返回对象为响应体中数据转化成的对象，基本上可以理解为Json
@@ -1098,9 +1102,17 @@ RestTemplate的:
 
 rest 接口第几次请求数%服务器集群总数量 = 实际调用服务器位置下标，每次服务重启后 rest 接口计数从 1 开始
 
-![](.\media\Ribbon的21.png)
-
 2：自定义负载均衡算法:
+
+#### 不同服务不同配置
+
+比如调用客户服务用轮询负载均衡算法，调用订单服务用最小权重算法等；
+
+给不同服务创建不同的spring上下文配置信息；
+
+
+
+### 优先级
 
 
 
@@ -1136,7 +1148,7 @@ OpenFeign：OpenFeign 是 SpringCloud 在 Feign 的基础上支持了 SpringMVC 
 
 @EnableFeignClients 标注用于修饰 Spring Boot 应用的入口类，以通知 Spring Boot 启动应用时，扫描应用中声明的 Feign 客户端可访问的 Web 服务。
 
-### 3：使用 OpenFeign
+### 使用
 
 之前的服务间调用,我们使用的是 ribbon+RestTemplate，现在改为使用 Feign
 
@@ -1211,7 +1223,11 @@ public class OrderFeignController {
 
 2：POST 方式：
 
-### 4：性能优化
+#### 认证传递
+
+实现RequestInterceptor接口，将需要的认证信息传递到header中进行传递；
+
+### 性能优化
 
 #### gzip 压缩
 
@@ -1418,6 +1434,8 @@ service-provider
 FeignClientFactoryBean implement FactoryBean
 
 Target：
+
+
 
 # 第六章：服务降级
 
@@ -1648,6 +1666,18 @@ Hystrix通过滑动窗口来对数据进行“平滑”统计，默认情况下�
 4：Zuul
 
 5：Gateway
+
+## Zuul
+
+zuul有四种过滤器类型，分别是：
+
+Pre:过滤器在请求被路由之前调用。我们可利用这种过滤器实现身份验证、在集群中选择请求的微服务记录调试信息等;
+
+Routing:过滤器将请求路由到微服务。这种过滤器用于构建发送给微服务的请求，并使用ApacheHttpClient或Netfilx feign请求微服;
+
+Pokt:过滤器在路由到微服务以后执行。这种过滤器可用来为响应添加标准的HTTP Header、收集统计信息和指标、将响应从微服务发送给客户端;
+
+Error:在其他阶段发生错误时执行该过滤器。除了默认的过滤器类型微服务;
 
 ## GateWay
 
