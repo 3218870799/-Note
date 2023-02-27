@@ -309,6 +309,20 @@ select、poll、epoll 区别总结：
 
 ![img](https://nyimapicture.oss-cn-beijing.aliyuncs.com/img/20210418160106.png)
 
+### epoll
+
+epoll_create ：创建一个epoll
+
+epoll_wait：用户通过它进行轮询调用，同时监听套接字，将IO事件返回给用户
+
+触发模式：边缘触发和水平触发，JDK默认水平触发
+
+水平触发：未完成下次继续通知
+
+边缘触发： 通知一次，下次用户去监听事件
+
+
+
 # 第四章：Netty概述
 
 原生NIO的问题
