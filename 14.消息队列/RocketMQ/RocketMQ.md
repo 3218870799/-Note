@@ -521,6 +521,22 @@ public class ScheduledMessageProducer {
 private String messageDelayLevel = "1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h";
 ```
 
+## 消息重试
+
+顺序消息：
+
+对于顺序消息，当消费者消费消息失败后，消息队列 RocketMQ 会自动不断进行消息重试（每次间隔时间为 1 秒），这时，应用会出现消息消费被阻塞的情况。因此，在使用顺序消息时，务必保证应用能够及时监控并处理消费失败的情况，避免阻塞现象的发生。
+
+无序消息：
+
+对于无序消息（普通、定时、延时、事务消息），当消费者消费消息失败时，您可以通过设置返回状态达到消息重试的结果。
+
+无序消息的重试只针对集群消费方式生效；广播方式不提供失败重试特性，即消费失败后，失败消息不再重试，继续消费新的消息。
+
+
+
+
+
 ## 过滤消息
 
 在大多数情况下，TAG是一个简单而有用的设计，其可以来选择您想要的消息。例如：
@@ -616,6 +632,14 @@ consumer.start();
 
 
 
+事务回查机制：
+
+Broker主动向生产者发送去检查当前的事务是否已经OK了，然后可以交给下个服务处理；
+
+
+
+
+
 1：创建事务性生产者
 
 使用 `TransactionMQProducer`类创建生产者，并指定唯一的 `ProducerGroup`，就可以设置自定义线程池来处理这些检查请求。执行本地事务后、需要根据执行结果对消息队列进行回复。回传的事务状态在请参考前一节。
@@ -677,13 +701,39 @@ public class TransactionListenerImpl implements TransactionListener {
 }
 ```
 
+## 死信
+
+当一条消息初次消费失败，消息队列 RocketMQ 会自动进行消息重试；达到最大重试次数后，若消费依然失败，则表明消费者在正常情况下无法正确地消费该消息，此时，消息队列 RocketMQ 不会立刻将消息丢弃，而是将其发送到该消费者对应的特殊队列中。
+
+死信消息有效期与正常消息相同，均为 3 天，3 天后会被自动删除。
+
+死信队列：
+
+- 一个死信队列对应一个 Group ID， 而不是对应单个消费者实例。
+- 如果一个 Group ID 未产生死信消息，消息队列 RocketMQ 不会为其创建相应的死信队列。
+- 一个死信队列包含了对应 Group ID 产生的所有死信消息，不论该消息属于哪个 Topic。
+
+## 幂等
+
+因为 Message ID 有可能出现冲突（重复）的情况，所以真正安全的幂等处理，不建议以 Message ID 作为处理依据。 最好的方式是以业务唯一标识作为幂等处理的关键依据，而业务的唯一标识可以通过消息 Key 进行设置：
+
+
+
 # 四：组件
+
+![image-20230228183130313](media/image-20230228183130313.png)
+
+
 
 Topic主题：
 
 一个Topic的Queue中的消息只能被一个消费者组里的消费者消费；
 
-Broker：
+## Broker
+
+主从复制：
+
+
 
 
 
@@ -693,11 +743,38 @@ Broker：
 
 维护Borker的服务地址，即各个Topic下的各个Queue所在的地址；支持Broker的动态注册与发现；给Producer、Consumer提供各个Topic的Broker列表。其实早期就是Zookeeper，作用相当于Zookeeper；
 
-### 路由注册
+### 路由管理
 
+NameServer的主要作用是为消息的生产者和消息消费者提供关于主题Topic的路由信息，那么NameServer需要存储路由的基础信息，还要管理Broker节点，包括路由注册、路由删除等。
 
+**topicQueueTable：**Topic消息队列路由信息，消息发送时根据路由表进行负载均衡
 
+**brokerAddrTable：**Broker基础信息，包括brokerName、所属集群名称、主备Broker地址
 
+**clusterAddrTable：**Broker集群信息，存储集群中所有Broker名称
+
+**brokerLiveTable：**Broker状态信息，NameServer每次收到心跳包是会替换该信息
+
+**filterServerTable：**Broker上的FilterServer列表，用于类模式消息过滤。
+
+1：路由注册
+
+发送心跳包：路由注册是通过Broker与NameServer的心跳功能实现的。Broker启动时向集群中所有的NameServer发送心跳信息，每隔30s向集群中所有NameServer发送心跳包，NameServer收到心跳包时会更新brokerLiveTable缓存中BrokerLiveInfo的lastUpdataTimeStamp信息，然后NameServer每隔10s扫描brokerLiveTable，如果连续120S没有收到心跳包，NameServer将移除Broker的路由信息同时关闭Socket连接。
+
+处理心跳包
+
+2：路由删除
+
+如果`Broker`宕机，`NameServer`无法收到心跳包，`NameServer`会每隔10s扫描`brokerLiveTable`状态表，如果`BrokerLive`的**lastUpdateTimestamp**的时间戳距当前时间超过120s，则认为`Broker`失效，移除该`Broker`，关闭与`Broker`连接，同时更新`topicQueueTable`、`brokerAddrTable`、`brokerLiveTable`、`filterServerTable`。
+
+有两个触发点来删除路由信息
+
+* NameServer定期扫描brokerLiveTable检测上次心跳包与当前系统的时间差，如果时间超过120s，则需要移除broker。
+* Broker在正常关闭的情况下，会执行unregisterBroker指令
+
+3：路由发现
+
+RocketMQ路由发现是非实时的，当Topic路由出现变化后，NameServer不会主动推送给客户端，而是由客户端定时拉取主题最新的路由。
 
 ## 系统架构
 
@@ -719,3 +796,27 @@ Broker：
 
 事务消息
 
+
+
+# 五：存储
+
+RocketMQ的消息是存储到磁盘上的，这样既能保证断电后恢复， 又可以让存储的消息量超出内存的限制。RocketMQ为了提高性能，会尽可能地保证磁盘的顺序写。消息在通过Producer写入RocketMQ的时 候，有两种写磁盘方式，分布式同步刷盘和异步刷盘。
+
+1）同步刷盘
+
+在返回写成功状态时，消息已经被写入磁盘。具体流程是，消息写入内存的PAGECACHE后，立刻通知刷盘线程刷盘， 然后等待刷盘完成，刷盘线程执行完成后唤醒等待的线程，返回消息写 成功的状态。
+
+2）异步刷盘
+
+在返回写成功状态时，消息可能只是被写入了内存的PAGECACHE，写操作的返回快，吞吐量大；当内存里的消息量积累到一定程度时，统一触发写磁盘动作，快速写入。
+
+生产中我们一般采用broker Master与Slave之间进行同步，Master与磁盘间进行异步；
+
+
+
+- commitLog：消息存储目录
+- config：运行期间一些配置信息
+- consumerqueue：消息消费队列存储目录
+- index：消息索引文件存储目录
+- abort：如果存在改文件寿命Broker非正常关闭
+- checkpoint：文件检查点，存储CommitLog文件最后一次刷盘时间戳、consumerquueue最后一次刷盘时间，index索引文件最后一次刷盘时间戳。

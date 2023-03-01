@@ -236,6 +236,14 @@ zookeeper 是一个分布式的协调组件，早期版本的 kafka 用 zk 做 m
 
 但是 broker 依然依赖于 ZK，zookeeper 在 kafka 中还用来选举 controller 和 检测 broker 是否存活等等。负责协调管理并保存 Kafka 集群的所有元数据信息，比如集群都有哪些 Broker 在运行、创建了哪些 Topic，每个 Topic 都有多少分区以及这些分区的 Leader 副本都在哪些机器上等信息。
 
+2.8版本以后，Kafka可以不依赖于Zookeeper，使用KRaft生成集群ID，
+
+
+
+
+
+
+
 ## Kafka集群
 
 ### Controller
@@ -367,6 +375,39 @@ Kafka 使用消息日志（Log）来保存数据，一个日志就是磁盘上�
 Kafka 的 producer 生产数据，要写入到 log 文件中，写的过程是一直追加到文件末端，为顺序写。官网有数据表明，同样的磁盘，顺序写能到 600M/s，而随机写只有 100K/s。这与磁盘的机械机构有关，顺序写之所以快，是因为其省去了大量磁头寻址的时间。
 
 2：零复制技术
+
+写磁盘减少满的CPU复制，直接传文件描述符，磁盘直接赋值；
+
+### 配置
+
+config目录下，主要是server.properties
+
+```properties
+# 唯一表示
+broker.id
+# 监听列表
+listeners
+# zookeeper路径
+Zookeeper.connect
+# 消息保存路径
+logs.dir
+# 是否允许自动创建主题,生产者写消息，消费者读消息，主题不存在是否自动创建
+auto.create.topics.enable=true
+
+## 主题相关
+# 主题分区数
+num.partitions=
+# 日志保存日期
+log.retention.hours=168
+# topic每个分区的最大文件，-1表示不限制
+log.retention.bytes
+
+##最大消息设置
+message.max.bytes
+
+```
+
+
 
 
 
@@ -634,7 +675,9 @@ bin/kafka-console-producer.sh \\  --broker-list hadoop102:9092 --topic first
 
 ## 6 Kafka 事务
 
-事务可以保证 Kafka 在 Exactly Once 语义的基础上，生产和消费可以跨分区和会话，要么全部成功，要么全部失败。
+生产和消费可以跨分区和会话，要么全部成功，要么全部失败。
+
+幂等性不能跨多个分区运行，事务可以保证多个分区操作的原子性。
 
 ### Producer 事务
 
@@ -645,7 +688,7 @@ bin/kafka-console-producer.sh \\  --broker-list hadoop102:9092 --topic first
 能够保证将消息原子性地写入到多个分区中。这批消息要么全部写入成功，要么全部失败。能够保证跨分区、跨会话间的幂等性。
 
 ```
-producer.initTransactions();
+producer.initTransa ctions();
 try {
             producer.beginTransaction();
             producer.send(record1);

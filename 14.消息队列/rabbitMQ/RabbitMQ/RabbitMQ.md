@@ -281,7 +281,7 @@ rabbitmqctl add vhost xqc
 
 rabbitmqctl delete vhost xqc
 
-# 第 3 章 消息发送和接收
+# 第 3 章 基本原理
 
 ## 3.1 机制
 
@@ -400,6 +400,14 @@ if(ack){
 
 不应该对所有的 message 都使用持久化机制：性能下降，
 
+
+
+对于交换机，队列关系的持久化：
+
+如果开启持久化，性能下降至1/4左右，不开启机器重启关系丢失；
+
+
+
 ### 5：分发
 
 若该队列至少有一个消费者订阅，消息将以循环（round-robin）的方式发送给消费者。每条消息只会分发给一个订阅的消费者（前提是消费者能够正常处理消息并进行确认）。
@@ -468,7 +476,9 @@ EXCEPTION;错误通知的功能;传统意义的错误通知;客户通知;利用 
 
 ## 3.3 Exchange 类型
 
-Exchange 分发消息时根据类型的不同分发策略有区别，目前共四种类型：direct、fanout、topic、headers 。headers 匹配 AMQP 消息的 header 而不是路由键，此外 headers 交换器和 direct 交换器完全一致，但性能差很多，目前几乎用不到了，所以直接看另外三种类型
+Exchange 分发消息时根据类型的不同分发策略有区别，目前共四种类型：direct、fanout、topic、headers 。
+
+headers 匹配 AMQP 消息的 header 而不是路由键，此外 headers 交换器和 direct 交换器完全一致，但性能差很多，目前几乎用不到了，所以直接看另外三种类型
 
 1、direct
 

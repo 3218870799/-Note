@@ -986,21 +986,13 @@ select age from t where id = 1; age =28
 
 
 
-## seata 安装
+## 安装使用
 
-服务端：
+### 服务端
 
+（1)：下载安装 seata 的安装包
 
-
-客户端：
-
-加上 ` @GlobalTransactional ` 注解。
-
-
-
-（1)：**下载安装 seata 的安装包**
-
-（2）：**修改 file.conf**，配置数据库
+（2）：修改 file.conf，配置数据库
 
 ```conf
 service {
@@ -1059,6 +1051,12 @@ registry{
 
 在启动 seata-server(运行安装目录下的,seata-server.bat)
 
+
+
+### 客户端
+
+加上 ` @GlobalTransactional ` 注解。
+
 **业务说明**：
 
 我们创建三个服务，一个订单服务，一个库存服务，一个账户服务
@@ -1089,522 +1087,503 @@ seata_account：建 t_account 表
 
 3：创建回滚日志表,方便查看
 
-**注意==每个库都要执行一次==这个 sql,生成回滚日志表**
-
-==每个业务都创建一个微服务,也就是要有三个微服务,订单,库存,账号==
-
-==订单==,seta-order-2001
-
-1.  pom
-
-2.  配置文件
-
-    ```yaml
-    server:
-      port: 2001
-
-    spring:
-      application:
-        name: seata-order-service
-      cloud:
-        alibaba:
-          seata:
-            # 自定义事务组名称需要与seata-server中的对应,我们之前在seata的配置文件中配置的名字
-            tx-service-group: fsp_tx_group
-        nacos:
-          discovery:
-            server-addr: 127.0.0.1:8848
-      datasource:
-        # 当前数据源操作类型
-        type: com.alibaba.druid.pool.DruidDataSource
-        # mysql驱动类
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://localhost:3306/seata_order?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8
-        username: root
-        password: root
-    feign:
-      hystrix:
-        enabled: false
-    logging:
-      level:
-        io:
-          seata: info
-
-    mybatis:
-      mapperLocations: classpath*:mapper/*.xml
-    ```
-
-    还要额外创建其他配置文件,创建一个 file.conf:
-
-    ```.conf
-    transport {
-     # tcp udt unix-domain-socket
-     type = "TCP"
-     #NIO NATIVE
-     server = "NIO"
-     #enable heartbeat
-     heartbeat = true
-     #thread factory for netty
-     thread-factory {
-       boss-thread-prefix = "NettyBoss"
-       worker-thread-prefix = "NettyServerNIOWorker"
-       server-executor-thread-prefix = "NettyServerBizHandler"
-       share-boss-worker = false
-       client-selector-thread-prefix = "NettyClientSelector"
-       client-selector-thread-size = 1
-       client-worker-thread-prefix = "NettyClientWorkerThread"
-       # netty boss thread size,will not be used for UDT
-       boss-thread-size = 1
-       #auto default pin or 8
-       worker-thread-size = 8
-     }
-     shutdown {
-       # when destroy server, wait seconds
-       wait = 3
-     }
-     serialization = "seata"
-     compressor = "none"
-    }
-    service {
-     #vgroup->rgroup
-     # 事务组名称
-     vgroup_mapping.fsp_tx_group = "default"
-     #only support single node
-     default.grouplist = "127.0.0.1:8091"
-     #degrade current not support
-     enableDegrade = false
-     #disable
-     disable = false
-     #unit ms,s,m,h,d represents milliseconds, seconds, minutes, hours, days, default permanent
-     max.commit.retry.timeout = "-1"
-     max.rollback.retry.timeout = "-1"
-    }
-
-    client {
-     async.commit.buffer.limit = 10000
-     lock {
-       retry.internal = 10
-       retry.times = 30
-     }
-     report.retry.count = 5
-     tm.commit.retry.count = 1
-     tm.rollback.retry.count = 1
-    }
-
-    ## transaction log store
-    store {
-     ## store mode: file、db
-     #mode = "file"
-     mode = "db"
-
-     ## file store
-     file {
-       dir = "sessionStore"
-
-       # branch session size , if exceeded first try compress lockkey, still exceeded throws exceptions
-       max-branch-session-size = 16384
-       # globe session size , if exceeded throws exceptions
-       max-global-session-size = 512
-       # file buffer size , if exceeded allocate new buffer
-       file-write-buffer-cache-size = 16384
-       # when recover batch read size
-       session.reload.read_size = 100
-       # async, sync
-       flush-disk-mode = async
-     }
-
-     ## database store
-     db {
-       ## the implement of javax.sql.DataSource, such as DruidDataSource(druid)/BasicDataSource(dbcp) etc.
-       datasource = "dbcp"
-       ## mysql/oracle/h2/oceanbase etc.
-       db-type = "mysql"
-       driver-class-name = "com.mysql.jdbc.Driver"
-       url = "jdbc:mysql://127.0.0.1:3306/seata"
-       user = "root"
-       password = "root"
-       min-conn = 1
-       max-conn = 3
-       global.table = "global_table"
-       branch.table = "branch_table"
-       lock-table = "lock_table"
-       query-limit = 100
-     }
-    }
-    lock {
-     ## the lock store mode: local、remote
-     mode = "remote"
-
-     local {
-       ## store locks in user's database
-     }
-
-     remote {
-       ## store locks in the seata's server
-     }
-    }
-    recovery {
-     #schedule committing retry period in milliseconds
-     committing-retry-period = 1000
-     #schedule asyn committing retry period in milliseconds
-     asyn-committing-retry-period = 1000
-     #schedule rollbacking retry period in milliseconds
-     rollbacking-retry-period = 1000
-     #schedule timeout retry period in milliseconds
-     timeout-retry-period = 1000
-    }
-
-    transaction {
-     undo.data.validation = true
-     undo.log.serialization = "jackson"
-     undo.log.save.days = 7
-     #schedule delete expired undo_log in milliseconds
-     undo.log.delete.period = 86400000
-     undo.log.table = "undo_log"
-    }
-
-    ## metrics settings
-    metrics {
-     enabled = false
-     registry-type = "compact"
-     # multi exporters use comma divided
-     exporter-list = "prometheus"
-     exporter-prometheus-port = 9898
-    }
-
-    support {
-     ## spring
-     spring {
-       # auto proxy the DataSource bean
-       datasource.autoproxy = false
-     }
-    }
-
-    ```
-
-    创建 registry.conf:
-
-    ```conf
-    registry {
-      # file 、nacos 、eureka、redis、zk、consul、etcd3、sofa
-      type = "nacos"
-
-      nacos {
-        #serverAddr = "localhost"
-        serverAddr = "localhost:8848"
-        namespace = ""
-        cluster = "default"
-      }
-      eureka {
-        serviceUrl = "http://localhost:8761/eureka"
-        application = "default"
-        weight = "1"
-      }
-      redis {
-        serverAddr = "localhost:6379"
-        db = "0"
-      }
-      zk {
-        cluster = "default"
-        serverAddr = "127.0.0.1:2181"
-        session.timeout = 6000
-        connect.timeout = 2000
-      }
-      consul {
-        cluster = "default"
-        serverAddr = "127.0.0.1:8500"
-      }
-      etcd3 {
-        cluster = "default"
-        serverAddr = "http://localhost:2379"
-      }
-      sofa {
-        serverAddr = "127.0.0.1:9603"
-        application = "default"
-        region = "DEFAULT_ZONE"
-        datacenter = "DefaultDataCenter"
-        cluster = "default"
-        group = "SEATA_GROUP"
-        addressWaitTime = "3000"
-      }
-      file {
-        name = "file.conf"
-      }
-    }
-
-    config {
-      # file、nacos 、apollo、zk、consul、etcd3
-      type = "file"
-
-      nacos {
-        serverAddr = "localhost"
-        namespace = ""
-      }
-      consul {
-        serverAddr = "127.0.0.1:8500"
-      }
-      apollo {
-        app.id = "seata-server"
-        apollo.meta = "http://192.168.1.204:8801"
-      }
-      zk {
-        serverAddr = "127.0.0.1:2181"
-        session.timeout = 6000
-        connect.timeout = 2000
-      }
-      etcd3 {
-        serverAddr = "http://localhost:2379"
-      }
-      file {
-        name = "file.conf"
-      }
-    }
-
-    ```
-
-    ==实际上,就是要将 seata 中的我们之前修改的两个配置文件复制到这个项目下==
-
-3.  **主启动类**
-
-    ```java
-    @SpringBootApplication(exclude = DataSourceAutoConfiguration.class) //取消数据源的自动创建
-    @EnableDiscoveryClient
-    @EnableFeignClients
-    public class SeataOrderMain2001 {
-
-        public static void main(String[] args) {
-            SpringApplication.run(SeataOrderMain2001.class,args);
-        }
-    }
-    ```
-
-4.  **service 层**
-
-    ```xml
-    public interface OrderService {
-
-        /**
-         * 创建订单
-         * @param order
-         */
-        void create(Order order);
-    }
-    ```
-
-    ```xml
-    @FeignClient(value = "seata-storage-service")
-    public interface StorageService {
-
-        /**
-         * 减库存
-         * @param productId
-         * @param count
-         * @return
-         */
-        @PostMapping(value = "/storage/decrease")
-        CommonResult decrease(@RequestParam("productId") Long productId, @RequestParam("count") Integer count);
-    }
-    ```
-
-    ```xml
-    @FeignClient(value = "seata-account-service")
-    public interface AccountService {
-
-        /**
-         * 减余额
-         * @param userId
-         * @param money
-         * @return
-         */
-        @PostMapping(value = "/account/decrease")
-        CommonResult decrease(@RequestParam("userId") Long userId, @RequestParam("money") BigDecimal money);
-    }
-    ```
-
-    ````
-    ```xml
-    @Service
-    @Slf4j
-    public class OrderServiceImpl implements OrderService {
-
-        @Resource
-        private OrderDao orderDao;
-        @Resource
-        private AccountService accountService;
-        @Resource
-        private StorageService storageService;
-
-        /**
-         * 创建订单->调用库存服务扣减库存->调用账户服务扣减账户余额->修改订单状态
-         * 简单说:
-         * 下订单->减库存->减余额->改状态
-         * GlobalTransactional seata开启分布式事务,异常时回滚,name保证唯一即可
-         * @param order 订单对象
-         */
-        @Override
-        ///@GlobalTransactional(name = "fsp-create-order", rollbackFor = Exception.class)
-        public void create(Order order) {
-            // 1 新建订单
-            log.info("----->开始新建订单");
-            orderDao.create(order);
-
-            // 2 扣减库存
-            log.info("----->订单微服务开始调用库存,做扣减Count");
-            storageService.decrease(order.getProductId(), order.getCount());
-            log.info("----->订单微服务开始调用库存,做扣减End");
-
-            // 3 扣减账户
-            log.info("----->订单微服务开始调用账户,做扣减Money");
-            accountService.decrease(order.getUserId(), order.getMoney());
-            log.info("----->订单微服务开始调用账户,做扣减End");
-
-            // 4 修改订单状态,从0到1,1代表已完成
-            log.info("----->修改订单状态开始");
-            orderDao.update(order.getUserId(), 0);
-
-            log.info("----->下订单结束了,O(∩_∩)O哈哈~");
-        }
-    }
-    ````
-
-5.  **dao 层,也就是接口**
-
-    ```java
-    @Mapper
-    public interface OrderDao {
-        /**
-         * 1 新建订单
-         * @param order
-         * @return
-         */
-        int create(Order order);
-
-        /**
-         * 2 修改订单状态,从0改为1
-         * @param userId
-         * @param status
-         * @return
-         */
-        int update(@Param("userId") Long userId, @Param("status") Integer status);
-    }
-    ```
-
-    ==在 resource 下创建 mapper 文件夹,编写 mapper.xml==
-
-    ```xml
-    <?xml version="1.0" encoding="UTF-8" ?>
-    <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-            "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-    <mapper namespace="com.eiletxie.springcloud.alibaba.dao.OrderDao">
-
-        <resultMap id="BaseResultMap" type="com.eiletxie.springcloud.alibaba.domain.Order">
-            <id column="id" property="id" jdbcType="BIGINT"></id>
-            <result column="user_id" property="userId" jdbcType="BIGINT"></result>
-            <result column="product_id" property="productId" jdbcType="BIGINT"></result>
-            <result column="count" property="count" jdbcType="INTEGER"></result>
-            <result column="money" property="money" jdbcType="DECIMAL"></result>
-            <result column="status" property="status" jdbcType="INTEGER"></result>
-        </resultMap>
-
-        <insert id="create" parameterType="com.eiletxie.springcloud.alibaba.domain.Order" useGeneratedKeys="true"
-                keyProperty="id">
-            insert into t_order(user_id,product_id,count,money,status) values (#{userId},#{productId},#{count},#{money},0);
-        </insert>
-
-        <update id="update">
-            update t_order set status =1 where user_id =#{userId} and status=#{status};
-       </update>
-    </mapper>
-
-    ```
-
-6.  **controller 层**
-
-    ```java
-    @RestController
-    public class OrderController {
-        @Resource
-        private OrderService orderService;
-    ```
-
-        /**
-         * 创建订单
-         *
-         * @param order
-         * @return
-         */
-        @GetMapping("/order/create")
-        public CommonResult create(Order order) {
-            orderService.create(order);
-            return new CommonResult(200, "订单创建成功");
-        }
-
-    }
-
-7.  **entity 类(也叫 domain 类)**
-
-    ```java
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public class CommonResult<T> {
-        private Integer code;
-        private String message;
-        private T data;
-
-        public CommonResult(Integer code, String message) {
-            this(code, message, null);
-        }
-    }
-
-    ```
-
-8.  config 配置类
-
-    ```java
-    @Configuration
-    @MapperScan({"com.eiletxie.springcloud.alibaba.dao"})		指定我们的接口的位置
-    public class MyBatisConfig {
-    ```
-
-    ```java
-    /**
-    ```
-
-- @Author EiletXie
-
-  - @Since 2020/3/18 21:51
-
-- 使用 Seata 对数据源进行代理
-  \*/
-  @Configuration
-  public class DataSourceProxyConfig {
-  @Value("${mybatis.mapperLocations}")
-  private String mapperLocations;
-  @Bean
-  @ConfigurationProperties(prefix = "spring.datasource")
-  public DataSource druidDataSource() {
-  return new DruidDataSource();
+**注意每个库都要执行一次这个 sql,生成回滚日志表**
+
+每个业务都创建一个微服务,也就是要有三个微服务,订单,库存,账号
+
+**订单服务**
+
+配置文件
+
+```yaml
+server:
+  port: 2001
+
+spring:
+  application:
+    name: seata-order-service
+  cloud:
+    alibaba:
+      seata:
+        # 自定义事务组名称需要与seata-server中的对应,我们之前在seata的配置文件中配置的名字
+        tx-service-group: fsp_tx_group
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+  datasource:
+    # 当前数据源操作类型
+    type: com.alibaba.druid.pool.DruidDataSource
+    # mysql驱动类
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/seata_order?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8
+    username: root
+    password: root
+feign:
+  hystrix:
+    enabled: false
+logging:
+  level:
+    io:
+      seata: info
+
+mybatis:
+  mapperLocations: classpath*:mapper/*.xml
+```
+
+还要额外创建其他配置文件,创建一个 file.conf:
+
+```.conf
+transport {
+ # tcp udt unix-domain-socket
+ type = "TCP"
+ #NIO NATIVE
+ server = "NIO"
+ #enable heartbeat
+ heartbeat = true
+ #thread factory for netty
+ thread-factory {
+   boss-thread-prefix = "NettyBoss"
+   worker-thread-prefix = "NettyServerNIOWorker"
+   server-executor-thread-prefix = "NettyServerBizHandler"
+   share-boss-worker = false
+   client-selector-thread-prefix = "NettyClientSelector"
+   client-selector-thread-size = 1
+   client-worker-thread-prefix = "NettyClientWorkerThread"
+   # netty boss thread size,will not be used for UDT
+   boss-thread-size = 1
+   #auto default pin or 8
+   worker-thread-size = 8
+ }
+ shutdown {
+   # when destroy server, wait seconds
+   wait = 3
+ }
+ serialization = "seata"
+ compressor = "none"
+}
+service {
+ #vgroup->rgroup
+ # 事务组名称
+ vgroup_mapping.fsp_tx_group = "default"
+ #only support single node
+ default.grouplist = "127.0.0.1:8091"
+ #degrade current not support
+ enableDegrade = false
+ #disable
+ disable = false
+ #unit ms,s,m,h,d represents milliseconds, seconds, minutes, hours, days, default permanent
+ max.commit.retry.timeout = "-1"
+ max.rollback.retry.timeout = "-1"
+}
+
+client {
+ async.commit.buffer.limit = 10000
+ lock {
+   retry.internal = 10
+   retry.times = 30
+ }
+ report.retry.count = 5
+ tm.commit.retry.count = 1
+ tm.rollback.retry.count = 1
+}
+
+## transaction log store
+store {
+ ## store mode: file、db
+ #mode = "file"
+ mode = "db"
+
+ ## file store
+ file {
+   dir = "sessionStore"
+
+   # branch session size , if exceeded first try compress lockkey, still exceeded throws exceptions
+   max-branch-session-size = 16384
+   # globe session size , if exceeded throws exceptions
+   max-global-session-size = 512
+   # file buffer size , if exceeded allocate new buffer
+   file-write-buffer-cache-size = 16384
+   # when recover batch read size
+   session.reload.read_size = 100
+   # async, sync
+   flush-disk-mode = async
+ }
+
+ ## database store
+ db {
+   ## the implement of javax.sql.DataSource, such as DruidDataSource(druid)/BasicDataSource(dbcp) etc.
+   datasource = "dbcp"
+   ## mysql/oracle/h2/oceanbase etc.
+   db-type = "mysql"
+   driver-class-name = "com.mysql.jdbc.Driver"
+   url = "jdbc:mysql://127.0.0.1:3306/seata"
+   user = "root"
+   password = "root"
+   min-conn = 1
+   max-conn = 3
+   global.table = "global_table"
+   branch.table = "branch_table"
+   lock-table = "lock_table"
+   query-limit = 100
+ }
+}
+lock {
+ ## the lock store mode: local、remote
+ mode = "remote"
+
+ local {
+   ## store locks in user's database
+ }
+
+ remote {
+   ## store locks in the seata's server
+ }
+}
+recovery {
+ #schedule committing retry period in milliseconds
+ committing-retry-period = 1000
+ #schedule asyn committing retry period in milliseconds
+ asyn-committing-retry-period = 1000
+ #schedule rollbacking retry period in milliseconds
+ rollbacking-retry-period = 1000
+ #schedule timeout retry period in milliseconds
+ timeout-retry-period = 1000
+}
+
+transaction {
+ undo.data.validation = true
+ undo.log.serialization = "jackson"
+ undo.log.save.days = 7
+ #schedule delete expired undo_log in milliseconds
+ undo.log.delete.period = 86400000
+ undo.log.table = "undo_log"
+}
+
+## metrics settings
+metrics {
+ enabled = false
+ registry-type = "compact"
+ # multi exporters use comma divided
+ exporter-list = "prometheus"
+ exporter-prometheus-port = 9898
+}
+
+support {
+ ## spring
+ spring {
+   # auto proxy the DataSource bean
+   datasource.autoproxy = false
+ }
+}
+
+```
+
+创建 registry.conf:
+
+```conf
+registry {
+  # file 、nacos 、eureka、redis、zk、consul、etcd3、sofa
+  type = "nacos"
+
+  nacos {
+    #serverAddr = "localhost"
+    serverAddr = "localhost:8848"
+    namespace = ""
+    cluster = "default"
   }
-  @Bean
-  public DataSourceProxy dataSourceProxy(DataSource druidDataSource) {
-  return new DataSourceProxy(druidDataSource);
+  eureka {
+    serviceUrl = "http://localhost:8761/eureka"
+    application = "default"
+    weight = "1"
   }
-  @Bean
-  public SqlSessionFactory sqlSessionFactoryBean(DataSourceProxy dataSourceProxy) throws Exception {
-  SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
-  bean.setDataSource(dataSourceProxy);
-  ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-  bean.setMapperLocations(resolver.getResources(mapperLocations));
-  return bean.getObject();
+  redis {
+    serverAddr = "localhost:6379"
+    db = "0"
   }
+  zk {
+    cluster = "default"
+    serverAddr = "127.0.0.1:2181"
+    session.timeout = 6000
+    connect.timeout = 2000
   }
+  consul {
+    cluster = "default"
+    serverAddr = "127.0.0.1:8500"
+  }
+  etcd3 {
+    cluster = "default"
+    serverAddr = "http://localhost:2379"
+  }
+  sofa {
+    serverAddr = "127.0.0.1:9603"
+    application = "default"
+    region = "DEFAULT_ZONE"
+    datacenter = "DefaultDataCenter"
+    cluster = "default"
+    group = "SEATA_GROUP"
+    addressWaitTime = "3000"
+  }
+  file {
+    name = "file.conf"
+  }
+}
 
-  ```
-  
-  ```
+config {
+  # file、nacos 、apollo、zk、consul、etcd3
+  type = "file"
 
-![](media/seala%E7%9A%8414.png)
+  nacos {
+    serverAddr = "localhost"
+    namespace = ""
+  }
+  consul {
+    serverAddr = "127.0.0.1:8500"
+  }
+  apollo {
+    app.id = "seata-server"
+    apollo.meta = "http://192.168.1.204:8801"
+  }
+  zk {
+    serverAddr = "127.0.0.1:2181"
+    session.timeout = 6000
+    connect.timeout = 2000
+  }
+  etcd3 {
+    serverAddr = "http://localhost:2379"
+  }
+  file {
+    name = "file.conf"
+  }
+}
+
+```
+
+==实际上,就是要将 seata 中的我们之前修改的两个配置文件复制到这个项目下==
+
+1. **主启动类**
+
+   ```java
+   @SpringBootApplication(exclude = DataSourceAutoConfiguration.class) //取消数据源的自动创建
+   @EnableDiscoveryClient
+   @EnableFeignClients
+   public class SeataOrderMain2001 {
+   
+       public static void main(String[] args) {
+           SpringApplication.run(SeataOrderMain2001.class,args);
+       }
+   }
+   ```
+
+2. **service 层**
+
+   ```xml
+   public interface OrderService {
+   
+       /**
+        * 创建订单
+        * @param order
+        */
+       void create(Order order);
+   }
+   ```
+
+   ```xml
+   @FeignClient(value = "seata-storage-service")
+   public interface StorageService {
+   
+       /**
+        * 减库存
+        * @param productId
+        * @param count
+        * @return
+        */
+       @PostMapping(value = "/storage/decrease")
+       CommonResult decrease(@RequestParam("productId") Long productId, @RequestParam("count") Integer count);
+   }
+   ```
+
+   ```java
+   @FeignClient(value = "seata-account-service")
+   public interface AccountService {
+   
+       /**
+        * 减余额
+        * @param userId
+        * @param money
+        * @return
+        */
+       @PostMapping(value = "/account/decrease")
+       CommonResult decrease(@RequestParam("userId") Long userId, @RequestParam("money") BigDecimal money);
+   }
+   ```
+
+   ````
+   @Service
+   @Slf4j
+   public class OrderServiceImpl implements OrderService {
+   
+       @Resource
+       private OrderDao orderDao;
+       @Resource
+       private AccountService accountService;
+       @Resource
+       private StorageService storageService;
+   
+       /**
+        * 创建订单->调用库存服务扣减库存->调用账户服务扣减账户余额->修改订单状态
+        * 简单说:
+        * 下订单->减库存->减余额->改状态
+        * GlobalTransactional seata开启分布式事务,异常时回滚,name保证唯一即可
+        * @param order 订单对象
+        */
+       @Override
+       ///@GlobalTransactional(name = "fsp-create-order", rollbackFor = Exception.class)
+       public void create(Order order) {
+           // 1 新建订单
+           log.info("----->开始新建订单");
+           orderDao.create(order);
+   
+           // 2 扣减库存
+           log.info("----->订单微服务开始调用库存,做扣减Count");
+           storageService.decrease(order.getProductId(), order.getCount());
+           log.info("----->订单微服务开始调用库存,做扣减End");
+   
+           // 3 扣减账户
+           log.info("----->订单微服务开始调用账户,做扣减Money");
+           accountService.decrease(order.getUserId(), order.getMoney());
+           log.info("----->订单微服务开始调用账户,做扣减End");
+   
+           // 4 修改订单状态,从0到1,1代表已完成
+           log.info("----->修改订单状态开始");
+           orderDao.update(order.getUserId(), 0);
+   
+           log.info("----->下订单结束了,O(∩_∩)O哈哈~");
+       }
+   }
+   ````
+
+3. **dao 层,也就是接口**
+
+   ```java
+   @Mapper
+   public interface OrderDao {
+       /**
+        * 1 新建订单
+        * @param order
+        * @return
+        */
+       int create(Order order);
+   
+       /**
+        * 2 修改订单状态,从0改为1
+        * @param userId
+        * @param status
+        * @return
+        */
+       int update(@Param("userId") Long userId, @Param("status") Integer status);
+   }
+   ```
+
+   ==在 resource 下创建 mapper 文件夹,编写 mapper.xml==
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8" ?>
+   <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+           "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   <mapper namespace="com.eiletxie.springcloud.alibaba.dao.OrderDao">
+   
+       <resultMap id="BaseResultMap" type="com.eiletxie.springcloud.alibaba.domain.Order">
+           <id column="id" property="id" jdbcType="BIGINT"></id>
+           <result column="user_id" property="userId" jdbcType="BIGINT"></result>
+           <result column="product_id" property="productId" jdbcType="BIGINT"></result>
+           <result column="count" property="count" jdbcType="INTEGER"></result>
+           <result column="money" property="money" jdbcType="DECIMAL"></result>
+           <result column="status" property="status" jdbcType="INTEGER"></result>
+       </resultMap>
+   
+       <insert id="create" parameterType="com.eiletxie.springcloud.alibaba.domain.Order" useGeneratedKeys="true"
+               keyProperty="id">
+           insert into t_order(user_id,product_id,count,money,status) values (#{userId},#{productId},#{count},#{money},0);
+       </insert>
+   
+       <update id="update">
+           update t_order set status =1 where user_id =#{userId} and status=#{status};
+      </update>
+   </mapper>
+   
+   ```
+
+4. **controller 层**
+
+   ```java
+   @RestController
+   public class OrderController {
+       @Resource
+       private OrderService orderService;
+   ```
+
+       /**
+        * 创建订单
+        *
+        * @param order
+        * @return
+        */
+       @GetMapping("/order/create")
+       public CommonResult create(Order order) {
+           orderService.create(order);
+           return new CommonResult(200, "订单创建成功");
+       }
+
+   }
+
+5. **entity 类(也叫 domain 类)**
+
+   ```java
+   @Data
+   @AllArgsConstructor
+   @NoArgsConstructor
+   public class CommonResult<T> {
+       private Integer code;
+       private String message;
+       private T data;
+   
+       public CommonResult(Integer code, String message) {
+           this(code, message, null);
+       }
+   }
+   
+   ```
+
+6. config 配置类
+
+   ```java
+   @Configuration
+   @MapperScan({"com.eiletxie.springcloud.alibaba.dao"})		指定我们的接口的位置
+   public class MyBatisConfig {
+      
+   @Configuration
+   public class DataSourceProxyConfig {
+   @Value("${mybatis.mapperLocations}")
+   private String mapperLocations;
+   @Bean
+   @ConfigurationProperties(prefix = "spring.datasource")
+   public DataSource druidDataSource() {
+   return new DruidDataSource();
+   }
+   @Bean
+   public DataSourceProxy dataSourceProxy(DataSource druidDataSource) {
+   return new DataSourceProxy(druidDataSource);
+   }
+   @Bean
+   public SqlSessionFactory sqlSessionFactoryBean(DataSourceProxy dataSourceProxy) throws Exception {
+   SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
+   bean.setDataSource(dataSourceProxy);
+   ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+   bean.setMapperLocations(resolver.getResources(mapperLocations));
+   return bean.getObject();
+   }
+   }
+   ```
 
 8. 使用 seata:
 
