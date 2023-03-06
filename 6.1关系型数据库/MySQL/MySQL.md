@@ -1340,7 +1340,7 @@ key 太长会导致一个页当中能够存放的 key 的数目变少，间接�
 
 B+树叶子节点中只有关键字和指向下一个节点的索引，记录只放在叶子节点中。(一次查询可能进行两次 i/o 操作)
 
-Innodb 每张表都会有一个聚簇索引：每次进来都会有一个如果有主键就会根据主键生成索引，只会有一个聚簇索引，使用 B+数，
+Innodb 每张表都会有一个聚簇索引：每次进来都会有一个如果有主键就会根据主键生成索引，只会有一个聚簇索引，使用 B+树，
 
 叶子节点之间使用单链表，可以支持顺序链式查询
 
@@ -1672,21 +1672,15 @@ id 不同，id 越大越优先查询，2>1
 
 查询的类型，主要是用于区分普通查询（simple）、联合查询、子查询等复杂的查询
 
-simple：简单的 select 查询 ;
+simple：表示不需要 union 操作或者不包含子查询的简单 select 查询。有连接查询时，外层的查询为 simple，且只有一个。
 
-primary：查询中包含任何复杂的子部分，最外层查询则被标记为 primary=》复杂查询中最外层的 select
+primary：一个需要 union 操作或者含有子查询的 select，位于最外层的单位查询的 select_type 即为 primary。且只有一个。
 
 例
 
 ```sql
 explain select * from (select * from t3 where id=3952602) a ;
 ```
-
-subquery：在 select 或 where 列表中包含了子查询=》含在 select 中的子查询（不在 from 子句中） ;
-
-simple：表示不需要 union 操作或者不包含子查询的简单 select 查询。有连接查询时，外层的查询为 simple，且只有一个。
-
-primary：一个需要 union 操作或者含有子查询的 select，位于最外层的单位查询的 select_type 即为 primary。且只有一个。
 
 subquery：除了 from 字句中包含的子查询外，其他地方出现的子查询都可能是 subquery
 
@@ -1700,9 +1694,9 @@ explain select cr.name from (select * from course where tid in (1,2)) cr;
 
 union：union 连接的两个 select 查询，第一个查询是 dervied 派生表，除了第一个表外，第二个以后的表 select_type 都是 union
 
-dependentunion：与 union\*\*一样，出现在 union 或 union all 语句中，但是这个查询要受到外部查询的影
+dependen tunion：与 union一样，出现在 union 或 union all 语句中，但是这个查询要受到外部查询的影
 
-unionresult\*：包含 union\*\*的结果集，在 union 和 union all 语句中,因为它不需要参与查询，所以 id 字段为 null。
+unionresult：包含 union的结果集，在 union 和 union all 语句中,因为它不需要参与查询，所以 id 字段为 null。
 
 **table**
 
@@ -1718,7 +1712,7 @@ unionresult\*：包含 union\*\*的结果集，在 union 和 union all 语句中
 
 从最好到最差的连接类型为 const、eq_reg、ref、range、indexhe 和 ALL
 
-**一般来说，好的 sql 查询至少达到 range 级别，最好能达到 ref**,system 和 const 基本达不到。
+一般来说，好的 sql 查询至少达到 range 级别，最好能达到 ref,system 和 const 基本达不到。
 
 system：只有一条数据的系统表，或：衍生表只有一条数据的主查询。新版的也查不到了
 
@@ -1799,10 +1793,6 @@ order by多个字段没有按照最左匹配；
 
 
 
-
-
-
-
 （2）：using temporary ：性能耗损大，用到了临时表，一般出现在 group by 语句中
 
 ```sql
@@ -1813,7 +1803,7 @@ explain select a1 from test02 where a1 in ('1','2','3') group by a2;
 
 解析过程：
 
-from on join where groupby having select distinct order by limit；
+from on join where group by having select distinct order by limit；
 
 出现情况：
 
@@ -2884,21 +2874,10 @@ show status like 'table%'
 参数：Table_waited:需要等待的表锁数，该值越大锁竞争越大
 ```
 
-## mysql 是如何实现悲观锁与乐观锁的？
+## 悲观锁/乐观锁
 
-一锁二查三更新”即指的是使用悲观锁。通常来讲在数据库上的悲观锁需要数据库本身提供支持，即通过常用的 select … for update 操作来实现悲观锁。
 
-当数据库执行 select for update 时会获取被 select 中的数据行的行锁，因此其他并发执行的 select for update 如果试图选中同一行则会发生排斥（需要等待行锁被释放），因此达到锁的效果。select for update 获取的行锁会在当前事务结束时自动释放，因此必须在事务中使用。
 
-**mysql 还有个问题是 select... for update 语句执行中，如果数据表没有添加索引或主键，所有扫描过的行都会被锁上，这一点很容易造成问题。因此如果在 mysql 中用悲观锁务必要确定走了索引，而不是全表扫描。**
-
-**要使用悲观锁，我们必须关闭 mysql 数据库的自动提交属性，因为 MySQL 默认使用 autocommit 模式，也就是说，当你执行一个更新操作后，MySQL 会立刻将结果进行提交。**
-
-乐观锁的三种实现方式：
-
-1：使用数据版本（Version）记录机制实现，这是乐观锁最常用的一种实现方式。何谓数据版本？即为数据增加一个版本标识，一般是通过为数据库表增加一个数字类型的 “version” 字段来实现。当读取数据时，将 version 字段的值一同读出，数据每更新一次，对此 version 值加一。当我们提交更新的时候，判断数据库表对应记录的当前版本信息与第一次取出来的 version 值进行比对，如果数据库表当前版本号与第一次取出来的 version 值相等，则予以更新，否则认为是过期数据，
-
-2：使用时间戳（timestamp）, 和上面的 version 类似，也是在更新提交的时候检查当前数据库中数据的时间戳和自己更新前取到的时间戳进行对比，如果一致则 OK，否则就是版本冲突。
 
 |               | **悲观锁**                                             | **乐观锁**                               |
 | ------------- | ------------------------------------------------------ | ---------------------------------------- |
@@ -2908,7 +2887,23 @@ show status like 'table%'
 | **适用场景**  | **并发量大**                                           | **并发量小**                             |
 | **类比 Java** | **Synchronized 关键字**                                | **CAS 算法**                             |
 
-实这种版本号的方法并不是适用于所有的乐观锁场景。举个例子，当电商抢购活动时，大量并发进入，如果仅仅使用版本号或者时间戳，就会出现大量的用户查询出库存存在，但是却在扣减库存时失败了，而这个时候库存是确实存在的。想象一下，版本号每次只会有一个用户扣减成功，不可避免的人为造成失败。这种时候就需要我们的第二种场景的乐观锁方法。
+悲观锁：
+
+一锁二查三更新”即指的是使用悲观锁。通常来讲在数据库上的悲观锁需要数据库本身提供支持，即通过常用的 select … for update 操作来实现悲观锁。
+
+当数据库执行 select for update 时会获取被 select 中的数据行的行锁，因此其他并发执行的 select for update 如果试图选中同一行则会发生排斥（需要等待行锁被释放），因此达到锁的效果。select for update 获取的行锁会在当前事务结束时自动释放，因此必须在事务中使用。
+
+mysql 还有个问题是 select... for update 语句执行中，如果数据表没有添加索引或主键，所有扫描过的行都会被锁上，这一点很容易造成问题。因此如果在 mysql 中用悲观锁务必要确定走了索引，而不是全表扫描。
+
+要使用悲观锁，我们必须关闭 mysql 数据库的自动提交属性，因为 MySQL 默认使用 autocommit 模式，也就是说，当你执行一个更新操作后，MySQL 会立刻将结果进行提交。
+
+乐观锁的三种实现方式：
+
+1：使用数据版本（Version）记录机制实现，这是乐观锁最常用的一种实现方式。何谓数据版本？即为数据增加一个版本标识，一般是通过为数据库表增加一个数字类型的 “version” 字段来实现。当读取数据时，将 version 字段的值一同读出，数据每更新一次，对此 version 值加一。当我们提交更新的时候，判断数据库表对应记录的当前版本信息与第一次取出来的 version 值进行比对，如果数据库表当前版本号与第一次取出来的 version 值相等，则予以更新，否则认为是过期数据，
+
+2：使用时间戳（timestamp）, 和上面的 version 类似，也是在更新提交的时候检查当前数据库中数据的时间戳和自己更新前取到的时间戳进行对比，如果一致则 OK，否则就是版本冲突。
+
+3：这种版本号的方法并不是适用于所有的乐观锁场景。举个例子，当电商抢购活动时，大量并发进入，如果仅仅使用版本号或者时间戳，就会出现大量的用户查询出库存存在，但是却在扣减库存时失败了，而这个时候库存是确实存在的。想象一下，版本号每次只会有一个用户扣减成功，不可避免的人为造成失败。这种时候就需要我们的第二种场景的乐观锁方法。
 
 ```sql
 UPDATE t_goods
