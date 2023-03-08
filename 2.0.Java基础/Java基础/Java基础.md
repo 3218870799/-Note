@@ -3407,14 +3407,46 @@ java.util.concurrent.BlockingQueue 接口有以下阻塞队列的实现：
 
 ### LockSupport
 
-提供阻塞源语
+提供阻塞源语，线程等待唤醒机制
 
 ```java
 LockSupport.park();
 LockSupport.unpark(t1);
 ```
 
+传统synchronized和Lock实现等待唤醒的约束：
 
+Object类wait和notify：不能脱离synchronized代码块，如果一个线程先唤醒，后阻塞，将会一直阻塞下去；
+
+```java
+public static void main(string[] args)//main方法，主线程一切程序入口
+{
+    new Thread(() ->{
+        //暂停几秒钟线程
+        try {TimeUnit.SECONDs.sleep( timeout: 3);} catch (InterruptedException e) {e.printstackTrace();}
+        synchronized (objectLock){
+            System.out.println( Thread.currentThread( ) .getName()+"\t"+"-----come in");
+            try {
+                objectLock.wait();
+            } catch ( InterruptedException e) {
+                e.printstackTrace();
+            }
+            System.out.println(Thread.currentThread( ).getName()+"\t"+"------被唤醒");
+        }
+    }, name: "A").start();
+    new Thread(() -> {
+        synchronized (objectLock){
+            objectLock.notify();
+            System.out.println(Thread.currentThread().getName()+"\t"+"-----通知");
+    },name: "B").start();
+}
+```
+
+Condition中await和signal ：同上，不能脱离lock和unlock，线程必须要获得并持有锁，同理也会一直阻塞
+
+LockSupport.park()与LockSupport.unpark(t1)：不需要锁，先唤醒，阻塞将无效，不会出现一直阻塞的情况；
+
+线程阻塞需要消耗凭证，这个凭证最多只有一个，当调用park方法是，如果有凭证，则会直接消耗掉这个凭证；如果没有凭证，就必须阻塞等待凭证可用；
 
 
 

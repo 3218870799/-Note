@@ -226,6 +226,8 @@ C**、** 使用 spring 容器创建的 java 对象
 
 容器的底层其实是一个Map集合，Spring容器加载到Bean类时 , 会把这个类的描述信息, 以包名加类名的方式存到beanDefinitionMap 中,Map<String,BeanDefinition>
 
+refresh初始化：先准备环境对象Environment，利用BeanFactory创建核心内容，然后再实现扩展功能；
+
 ### 实例化方式
 
 三种 bean 实例化的方式：默认构造，静态工厂，实例工厂
