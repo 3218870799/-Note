@@ -1552,7 +1552,7 @@ spring.rabbitmq.password=root
 
 一个 queue 对应一个 consumer，但是 consumer 里面进行了**多线程**消费，这样也会造成消息消费顺序错误。
 
-kafka同一个partition中能保证顺讯，但是不同的partition无法保证顺序。
+kafka同一个partition中能保证顺序，但是不同的partition无法保证顺序。
 
 rabbitmq的同一个queue能够保证顺序，但是如果多个消费者同一个queue也会有顺序问题。
 

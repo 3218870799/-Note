@@ -2,61 +2,13 @@
 
 ﻿﻿# 一、基础知识
 
-## 1、分布式基础理论
+## 1、RPC
 
-### 1.1）、什么是分布式系统？
-
-“分布式系统是若干独立计算机的集合，这些计算机对于用户来说就像单个相关系统”
-
-分布式系统（distributed system）是建立在网络之上的软件系统，将整个应用拆分成多个服务部署到响应的服务器上，当服务越多越多，亟需**一个治理系统**确保架构有条不紊的演进。
-
-### 1.2）、发展演变
-
-![](media/23791576e8f92918933e5ec1909d4538.jpeg)
-
-**单一应用架构**
-
-当网站流量很小时，只需一个应用，将所有功能都部署在一起，以减少部署节点和成本。此时，用于简化增删改查工作量的数据访问框架(ORM)是关键。
-
-适用于小型网站，小型管理系统，将所有功能都部署到一个功能里，简单易用。
-
-缺点： 1、性能扩展比较难
-
-2、协同开发问题
-
-3、不利于升级维护
-
-**垂直应用架构**
-
-当访问量逐渐增大，单一应用增加机器带来的加速度越来越小，将应用拆成互不相干的几个应用，以提升效率。此时，用于加速前端页面开发的 Web 框架(MVC)是关键。
-
-通过切分业务来实现各个模块独立部署，降低了维护和部署的难度，团队各司其职更易管理，性能扩展也更方便，更有针对性。
-
-缺点： 公用模块无法重复利用，开发性的浪费，应用直接无法交互。前后端耦合在一起。
-
-![](media/b341607239ddfeddf417cfac7cf9a728.png)
-
-**分布式服务架构**
-
-当垂直应用越来越多，应用之间交互不可避免，将核心业务抽取出来，作为独立的服务，逐渐形成稳定的服务中心，使前端应用能更快速的响应多变的市场需求。此时，用于提高业务复用及整合的**分布式服务框架(RPC)**是关键。
-
-![](media/09cd2969f6e793e7bbbb4410e6aa726e.png)
-
-**流动计算架构**
-
-当服务越来越多，容量的评估，小服务资源的浪费等问题逐渐显现，此时需增加一个调度中心基于访问压力实时管理集群容量，提高集群利用率。此时，用于**提高机器利用率的资源调度和治理中心(SOA)[Service Oriented Architecture]是关键**。
-
-当某个服务压力大了，就少些请求，可以动态处理。
-
-![](media/fb81e8b2bb6b2e101b9aeb713916b0fa.png)
-
-### 1.3）、RPC
-
-**什么叫 RPC**？
+什么叫 RPC？
 
 RPC【Remote Procedure Call】是指远程过程调用，是一种进程间通信方式，他是一种技术的思想，而不是规范。它允许程序调用另一个地址空间（通常是共享网络的另一台机器上）的过程或函数，而不用程序员显式编码这个远程调用的细节。即程序员无论是调用本地的还是远程的函数，本质上编写的调用代码基本相同。
 
-**RPC 基本原理**
+RPC 基本原理
 
 ![](media/010bc810f9b972be2ff506fe7b1032c2.png)
 
@@ -64,7 +16,7 @@ RPC【Remote Procedure Call】是指远程过程调用，是一种进程间通�
 
 一次完整的 RPC 调用流程（同步调用，异步另说）如下：
 
-**1）服务消费方（client）调用以本地调用方式调用服务；**
+1）服务消费方（client）调用以本地调用方式调用服务；
 
 2）client stub 接收到调用后负责将方法、参数等组装成能够进行网络传输的消息体；
 
@@ -80,7 +32,7 @@ RPC【Remote Procedure Call】是指远程过程调用，是一种进程间通�
 
 8）client stub 接收到消息，并进行解码；
 
-**9）服务消费方得到最终结果。**
+9）服务消费方得到最终结果。
 
 RPC 框架的目标就是要 2\~8 这些步骤都封装起来，这些细节对用户来说是透明的，不可见的。
 
@@ -96,7 +48,7 @@ RPC 的核心功能主要由 5 个模块组成，如果想要自己实现一个 
 - 数据流的序列化和反序列化
 - 网络传输
 
-**服务寻址：**
+服务寻址：
 
 服务寻址可以使用 Call ID 映射。在本地调用中，函数体是直接通过函数指针来指定的，但是在远程调用中，函数指针是不行的，因为两个进程的地址空间是完全不一样的。
 
@@ -106,7 +58,7 @@ RPC 的核心功能主要由 5 个模块组成，如果想要自己实现一个 
 
 当客户端需要进行远程调用时，它就查一下这个表，找出相应的 Call ID，然后把它传给服务端，服务端也通过查表，来确定客户端需要调用的函数，然后执行相应函数的代码。
 
-**序列化与反序列化：**
+序列化与反序列化：
 
 客户端怎么把参数值传给远程的函数呢?在本地调用中，我们只需要把参数压到栈里，然后让函数自己去栈里读就行。
 
@@ -121,7 +73,7 @@ RPC 的核心功能主要由 5 个模块组成，如果想要自己实现一个 
 
 这个过程叫序列化和反序列化。同理，从服务端返回的值也需要序列化反序列化的过程。
 
-**网络传输**
+网络传输
 
 远程调用往往用在网络上，客户端和服务端是通过网络连接的。
 
@@ -131,7 +83,7 @@ RPC 的核心功能主要由 5 个模块组成，如果想要自己实现一个 
 
 尽管大部分 RPC 框架都使用 TCP 协议，但其实 UDP 也可以，而 gRPC 干脆就用了 HTTP2。
 
-**RPC 与 Http 的区别：**
+RPC 与 Http 的区别：
 
 相同：底层通讯都是基于 Socket，都可以远程调用
 
@@ -175,16 +127,16 @@ Apache Dubbo (incubating) \|ˈdʌbəʊ\| 是一款高性能、轻量级的开源
 
 <img src="media/97b6cce28142186f6d53171aec9fe785.png" alt="http://dubbo.apache.org/img/architecture.png" style="zoom: 50%;" />
 
-**服务提供者（Provider）**：暴露服务的服务提供方，服务提供者在启动时，向注册中心注册自己提供的服务。
+服务提供者（Provider）：暴露服务的服务提供方，服务提供者在启动时，向注册中心注册自己提供的服务。
 
-**服务消费者（Consumer）**:
+服务消费者（Consumer）:
 调用远程服务的服务消费方，服务消费者在启动时，向注册中心订阅自己所需的服务，服务消费者，从提供者地址列表中，基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用。
 
-**注册中心（Registry）**：注册中心返回服务提供者地址列表给消费者，如果有变更，注册中心将基于长连接推送变更数据给消费者
+注册中心（Registry）：注册中心返回服务提供者地址列表给消费者，如果有变更，注册中心将基于长连接推送变更数据给消费者
 
-**监控中心（Monitor）**：服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心
+监控中心（Monitor）：服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心
 
-**调用关系说明**
+调用关系说明
 
 - 服务容器负责启动，加载，运行服务提供者。
 
@@ -250,7 +202,7 @@ dubbo 本身并不是一个服务软件。它其实就是一个 jar 包能够帮
 
 3、打包 dubbo-admin mvn clean package -Dmaven.test.skip=true
 
-4、运行 dubbo-admin java -jar dubbo-admin-0.0.1-SNAPSHOT.jar **注意：【有可能控制台看着启动了，但是网页打不开，需要在控制台按下 ctrl+c 即可】** 默认使用 root/root 登陆 
+4、运行 dubbo-admin java -jar dubbo-admin-0.0.1-SNAPSHOT.jar 注意：【有可能控制台看着启动了，但是网页打不开，需要在控制台按下 ctrl+c 即可】 默认使用 root/root 登陆 
 
 配置好后，将 Dubbo-admin的 war 包解压放到你给Dubbo配置的服务器的根目录下【D:\Tomact\apache-tomcat-8.0.53-dubbo\webapps\ROOT】war包可以自己导入下载的Dubbo的maven文件生成。这是我生成的2.6.0版本的war包。链接：https://pan.baidu.com/s/1WHJKemdyLb8Sveq7a1PCuw 密码：1w2w
 
@@ -538,10 +490,10 @@ pom.xml
 
 ```java
 service
-public class** UserServiceImpl **implements** UserService {
-    @Override  **public** List\<UserAddress\> getUserAddressList(String userId) {
-        // **TODO** Auto-generated method stub
-        **return** userAddressDao.getUserAddressById(userId);
+public class UserServiceImpl implements UserService {
+    @Override  public List\<UserAddress\> getUserAddressList(String userId) {
+        // TODO Auto-generated method stub
+        return userAddressDao.getUserAddressById(userId);
     }
 }
 ```
@@ -562,11 +514,9 @@ pom.xml
 测试
 
 ```java
- **public class** OrderService {
+ public class OrderService {
      UserService userService;
-      /* 初始化订单，查询用户的所有地址并返回
-      @param  userId
-      @return  */
+      /* 初始化订单，查询用户的所有地址并返回 */
      public List<UserAddress> initOrder(String userId){
          return userService.getUserAddressList(userId);
      }
@@ -577,7 +527,7 @@ pom.xml
 
 ### 4.4）、使用 dubbo 改造
 
-**1、改造 gmall-user 作为服务提供者**
+1、改造 gmall-user 作为服务提供者
 
 ```xml
 1、引入dubbo
@@ -626,13 +576,11 @@ dubbo 2.6及以后的版本引入curator操作zookeeper
 	public static void main(String[] args) throws IOException {
 		ClassPathXmlApplicationContext context =
 				new ClassPathXmlApplicationContext("classpath:spring-beans.xml");
-
 		System.in.read();
 	}
-
 ```
 
-**2、改造 gmall-order-web 作为服务消费者**
+2、改造 gmall-order-web 作为服务消费者
 
 ```xml
 1、引入dubbo
@@ -659,23 +607,21 @@ dubbo 2.6及以后的版本引入curator操作zookeeper
 2：配置消费者信息
 
 ```xml
-<!-- 应用名 -->
+	<!-- 应用名 -->
 	<dubbo:application name="gmall-order-web"></dubbo:application>
 	<!-- 指定注册中心地址 -->
 	<dubbo:registry address="zookeeper://118.24.44.169:2181" />
 	<!-- 生成远程服务代理，可以和本地bean一样使用demoService -->
 	<dubbo:reference id="userService" interface="com.xqc.gmall.service.UserService"></dubbo:reference>
-
-
 ```
 
-**3、测试调用**
+3、测试调用
 
 访问 gmall-order-web 的 initOrder 请求，会调用 UserService 获取用户地址；
 
 调用成功。说明我们 order 已经可以调用远程的 UserService 了；
 
-**4、注解版**
+4、注解版
 
 1：服务提供方
 
@@ -931,13 +877,13 @@ dubbo 推荐在 Provider 上尽量多配置 Consumer 端属性：
 
 注册中心对等集群，任意一台宕掉后，将自动切换到另一台
 
-**注册中心全部宕掉后，服务提供者和服务消费者仍能通过本地缓存通讯**
+注册中心全部宕掉后，服务提供者和服务消费者仍能通过本地缓存通讯
 
 服务提供者无状态，任意一台宕掉后，不影响使用
 
 服务提供者全部宕掉后，服务消费者应用将无法使用，并无限次重连等待服务提供者恢复系统不能提供服务的时间；
 
-**Dubbo直连：**
+Dubbo直连：
 
 不使用注册中心，直接调用
 
@@ -947,13 +893,15 @@ dubbo 推荐在 Provider 上尽量多配置 Consumer 端属性：
 
 负载均衡策略
 
-**Random LoadBalance** ：随机，按权重设置随机概率。 在一个截面上碰撞的概率高，但调用量越大分布越均匀，而且按概率使用权重后也比较均匀，有利于动态调整提供者权重。
+Random LoadBalance ：加权随机，按权重设置随机概率。 在一个截面上碰撞的概率高，但调用量越大分布越均匀，而且按概率使用权重后也比较均匀，有利于动态调整提供者权重。
 
-**RoundRobin LoadBalance** ：轮循，按公约后的权重设置轮循比率。 存在慢的提供者累积请求的问题，比如：第二台机器很慢，但没挂，当请求调到第二台时就卡在那，久而久之，所有请求都卡在调到第二台上。
+RoundRobin LoadBalance ：轮循，按公约后的权重设置轮循比率。 存在慢的提供者累积请求的问题，比如：第二台机器很慢，但没挂，当请求调到第二台时就卡在那，久而久之，所有请求都卡在调到第二台上。
 
-**LeastActive LoadBalance**： 最少活跃调用数，相同活跃数的随机，活跃数指调用前后计数差。 使慢的提供者收到更少请求，因为越慢的提供者的调用前后计数差会越大。
+LeastActive LoadBalance： 最少活跃调用数，相同活跃数的随机，活跃数指调用前后计数差。 使慢的提供者收到更少请求，因为越慢的提供者的调用前后计数差会越大。
 
-**ConsistentHash LoadBalance** ：一致性 Hash，相同参数的请求总是发到同一提供者。 当某一台提供者挂时，原本发往该提供者的请求，基于虚拟节点，平摊到其它提供者，不会引起剧烈变动。
+ConsistentHash LoadBalance ：一致性 Hash，相同参数的请求总是发到同一提供者。 当某一台提供者挂时，原本发往该提供者的请求，基于虚拟节点，平摊到其它提供者，不会引起剧烈变动。
+
+
 
 算法参见：http://en.wikipedia.org/wiki/Consistent_hashing 缺省只对第一个参数 Hash，如果要修改，请配置
 
@@ -967,7 +915,7 @@ dubbo 推荐在 Provider 上尽量多配置 Consumer 端属性：
 
 ### 1、服务降级
 
-**当服务器压力剧增的情况下，根据实际业务情况及流量，对一些服务和页面有策略的不处理或换种简单的方式处理，从而释放服务器资源以保证核心交易正常运作或高效运作。**
+当服务器压力剧增的情况下，根据实际业务情况及流量，对一些服务和页面有策略的不处理或换种简单的方式处理，从而释放服务器资源以保证核心交易正常运作或高效运作。
 
 可以通过服务降级功能临时屏蔽某个出错的非关键服务，并定义降级后的返回策略。
 
@@ -990,9 +938,9 @@ registry.register(URL.valueOf("override://0.0.0.0/com.foo.BarService?category=co
 
 在集群调用失败时，Dubbo 提供了多种容错方案，缺省为 failover 重试。
 
-**集群容错模式**
+集群容错模式
 
-**Failover Cluster** 失败自动切换，当出现失败，重试其它服务器。通常用于读操作，但重试会带来更长延迟。可通过 retries="2" 来设置重试次数(不含第一次)。 重试次数配置如下：
+Failover Cluster 失败自动切换，当出现失败，重试其它服务器。通常用于读操作，但重试会带来更长延迟。可通过 retries="2" 来设置重试次数(不含第一次)。 重试次数配置如下：
 
 ```xml
 <dubbo:service retries="2" />
@@ -1006,17 +954,17 @@ registry.register(URL.valueOf("override://0.0.0.0/com.foo.BarService?category=co
 
 Failover Cluster：失败自动切换，自动重试其他服务器（默认）
 
-**Failfast Cluster** 快速失败，只发起一次调用，失败立即报错。通常用于非幂等性的写操作，比如新增记录。
+Failfast Cluster 快速失败，只发起一次调用，失败立即报错。通常用于非幂等性的写操作，比如新增记录。
 
-**Failsafe Cluster** 失败安全，出现异常时，直接忽略。通常用于写入审计日志等操作。
+Failsafe Cluster 失败安全，出现异常时，直接忽略。通常用于写入审计日志等操作。
 
-**Failback Cluster** 失败自动恢复，后台记录失败请求，定时重发。通常用于消息通知操作。
+Failback Cluster 失败自动恢复，后台记录失败请求，定时重发。通常用于消息通知操作。
 
-**Forking Cluster** 并行调用多个服务器，只要一个成功即返回。通常用于实时性要求较高的读操作，但需要浪费更多服务资源。可通过 forks="2" 来设置最大并行数。
+Forking Cluster 并行调用多个服务器，只要一个成功即返回。通常用于实时性要求较高的读操作，但需要浪费更多服务资源。可通过 forks="2" 来设置最大并行数。
 
-**Broadcast Cluster** 广播调用所有提供者，逐个调用，任意一台报错则报错 [2]。通常用于通知所有提供者更新缓存或日志等本地资源信息。
+Broadcast Cluster 广播调用所有提供者，逐个调用，任意一台报错则报错 [2]。通常用于通知所有提供者更新缓存或日志等本地资源信息。
 
-**集群模式配置** 按照以下示例在服务提供方和消费方配置集群模式
+集群模式配置 按照以下示例在服务提供方和消费方配置集群模式
 
 \<dubbo:service cluster="failsafe" /\> 或
 
@@ -1102,7 +1050,7 @@ NIO (Non-Blocking IO)
 
 ![http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/345fa2b327ec8a119ece0502286197d0](media/0af4a03ff711dc94546a7ca0d690d997.png)
 
-Selector 一般称 为**选择器** ，也可以翻译为 **多路复用器，**
+Selector 一般称 为选择器 ，也可以翻译为 多路复用器，
 
 Connect（连接就绪）、Accept（接受就绪）、Read（读就绪）、Write（写就绪）
 
@@ -1118,27 +1066,57 @@ Netty 基本原理：
 
 蓝色消费者，绿色生产者，绿色框是接口，蓝色框是实现，紫色继承关系，红色调用链路，虚线初始化顺序。
 
-蓝色分三部分，business，RPC和Remoting
+蓝色分三部分，business业务逻辑层，RPC和Remoting
 
-- Service层：用户能够使用的到的。
+1：business业务逻辑层：由我们自己提供实现和配置信息
 
-- config 配置层：对外配置接口，以 ServiceConfig, ReferenceConfig为中心，可以直接初始化配置类，也可以通过 spring 解析配置生成配置类。
-  
-- proxy 服务代理层：服务接口透明代理，生成服务的客户端 Stub 和服务器端Skeleton, 以 ServiceProxy 为中心，扩展接口为 ProxyFactory
-  
-- registry 注册中心层：封装服务地址的注册与发现，以服务 URL 为中心，扩展接口为RegistryFactory, Registry, RegistryService
-  
-- cluster 路由层：封装多个提供者的路由及负载均衡，并桥接注册中心，以 Invoker为中心，扩展接口为 Cluster, Directory, Router, LoadBalance
-  
-- monitor 监控层：RPC 调用次数和调用时间监控，以 Statistics 为中心，扩展接口为MonitorFactory, Monitor, MonitorService
-  
-- protocol 远程调用层：封装 RPC 调用，以 Invocation, Result 为中心，扩展接口为Protocol, Invoker, Exporter
-  
-- exchange 信息交换层：封装请求响应模式，同步转异步，以 Request, Response为中心，扩展接口为 Exchanger, ExchangeChannel, ExchangeClient,ExchangeServer
-  
-- transport 网络传输层：抽象 mina 和 netty 为统一接口，以 Message为中心，扩展接口为 Channel, Transporter, Client, Server, Codec
-  
-- serialize 数据序列化层：可复用的一些工具，扩展接口为 Serialization,ObjectInput, ObjectOutput, ThreadPool
+```txt
+Service层：用户能够使用的到的。
+
+config 配置层：对外配置接口，以 ServiceConfig, ReferenceConfig为中心，可以直接初始化配置类，也可以通过 spring 解析配置生成配置类。
+```
+
+2：RPC调用：负责封装和实现整个RPC调用过程，负载均衡，容错，代理等核心功能
+
+```txt
+ proxy 服务代理层：服务接口透明代理，生成服务的客户端 Stub 和服务器端Skeleton, 以 ServiceProxy 为中心，扩展接口为 ProxyFactory
+
+registry 注册中心层：封装服务地址的注册与发现，以服务 URL 为中心，扩展接口为RegistryFactory, Registry, RegistryService
+
+ cluster 路由层：封装多个提供者的路由及负载均衡，并桥接注册中心，以 Invoker为中心，扩展接口为 Cluster, Directory, Router, LoadBalance
+
+ monitor 监控层：RPC 调用次数和调用时间监控，以 Statistics 为中心，扩展接口为MonitorFactory, Monitor, MonitorService
+
+ protocol 远程调用层：封装 RPC 调用，以 Invocation, Result 为中心，扩展接口为Protocol, Invoker, Exporter
+```
+
+3：Remoting :对网络传输协议和数据转换的封装
+
+```txt
+ exchange 信息交换层：封装请求响应模式，同步转异步，以 Request, Response为中心，扩展接口为 Exchanger, ExchangeChannel, ExchangeClient,ExchangeServer
+
+ transport 网络传输层：抽象 mina 和 netty 为统一接口，以 Message为中心，扩展接口为 Channel, Transporter, Client, Server, Codec
+
+serialize 数据序列化层：可复用的一些工具，扩展接口为 Serialization,ObjectInput, ObjectOutput, ThreadPool
+```
+
+
+
+### 工作原理
+
+服务启动时，生产者和消费者根据配置分别向注册中心去订阅和注册服务；
+
+注册中心返回生产者的信息
+
+消费者会将请求的生产者信息缓存到本地；
+
+如果信息发生变更，消费者收到注册中心推送，更新本地缓存
+
+消费者生成代理对象，根据负责均衡策略，取选择目标生产者机器取调用，记录接口调用信息
+
+生产者收到信息进行反序列化，通过代理进行具体的实现。
+
+
 
 ### 2、启动解析、加载配置信息
 
@@ -1208,7 +1186,7 @@ Socket 通信是一个全双工的方式，如果有多个线程同时进行远�
 
 5：服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心。
 
-**调用流程：**
+调用流程：
 
 1：客户端线程调用远程接口，生成唯一 ID，Dubbo 是使用 AtomicLong 从 0 开始累计数字的，将打包的方法信息（接口名称，方法名称，参数值列表）和处理结果的回调对象 callback 全部封装在一起，组成一个对象 Object
 
@@ -1238,7 +1216,7 @@ Socket 通信是一个全双工的方式，如果有多个线程同时进行远�
 
 1：新建 JavaProject
 
-**ink-orderservice-provider**
+ink-orderservice-provider
 
 2：引入 Maven 所需依赖
 
@@ -1293,7 +1271,7 @@ Orderservce-provider.xml
 
 1：新建 javaProject
 
-项目名称：**link-main-web**
+项目名称：link-main-web
 
 2：添加依赖
 

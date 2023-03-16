@@ -3393,8 +3393,6 @@ java.util.concurrent.BlockingQueue 接口有以下阻塞队列的实现：
 
 提供了阻塞的 take() 和 put() 方法：如果队列为空 take() 将阻塞，直到队列中有内容；如果队列为满 put() 将阻塞，直到队列有空闲位置
 
-![image-20200316154442756](images/image-20200316154442756.png)
-
 如果提交任务是，线程池队列已满，这时会发生什么？
 
 1、如果使用的是无界队列 LinkedBlockingQueue，也就是无界队列的话，没关系，继续添加任务到阻塞队列中等待执行，因为 LinkedBlockingQueue 可以近乎认为是一个无穷大的队列，可以无限存放任务

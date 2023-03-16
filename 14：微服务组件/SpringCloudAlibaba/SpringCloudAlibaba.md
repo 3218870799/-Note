@@ -84,6 +84,50 @@ Nacos内部集成了Ribbon做负载均衡和远程调用，直接加上` @LoadBa
 
 Nacos服务端会启动一个定时任务，每3秒执行一次，查看所有连接是否超过20s没有通信，如果超过20秒没有通信，服务端就会给客户端发送一个请求，进行探活，如果能正常返回就表示这个服务为正常服务，如果不能正常返回就将其连接删除。
 
+
+
+临时实例和持久实例：
+
+在服务注册时有一个属性`ephemeral`用于描述当前实例在注册时是否以临时实例出现。默认为true，为临时实例；false则为持久实例。
+
+临时实例和持久实例的存储位置与健康监测机制是不同的：
+
+临时实例：服务实例仅会注册到Nacos内存，不会持久化到Nacos磁盘，其健康监测机制为Client模式，即Client主动向Server上报其健康状态（类似于推模式）。默认心跳间隔为5 秒。在15秒内Server未收到Client心跳，则会将其标记为“不健康”状态；在30秒内若收到了Client 心跳，则重新恢复“健康”状态，否则该实例将从Server端内存清除。即对于不健康的实例， Server会自动清除。
+
+持久实例：服务实例不仅会注册到Nacos内存，同时也会被持久化到Nacos磁盘。其健康检测机制为Server模式，即Server会主动去检测Client的健康状态（类似于拉模式），默认每20秒检测一 次。健康检测失败后服务实例会被标记为“不健康”状态，但不会被清除，因为其是持久化在磁盘的。其对不健康持久实例的清除，需要专门进行。
+
+### 集群
+
+Nacos内嵌了数据库Derby，集群化部署会有一致性问题，所以采用集中式存储来支持，将数据存储在MYSQL中；
+
+一致性服务：
+
+consistencyService 会根据实例是临时节点（默认就是这个临时节点）还是永久节点选择对应的consistencyService ，其实对于临时节点对应的就是DistroConsistencyServiceImpl，它节点之间数据同步是peer to peer 的，对于永久节点对应的是PersistentConsistencyServiceDelegateImpl，这个里面有2个实现一个是RaftConsistencyServiceImpl的，一个是PersistentServiceProcessor，RaftConsistencyServiceImpl 是1.4之前版本使用的，这个PersistentServiceProcessor 是1.4包括以上的版本使用的。
+
+
+Raft协议实现最终一致性：leader在发送心跳的时候会将这个数据的key与timestamp（可以理解成版本号，我们上面也介绍过） 带给follower节点，然后follower节点收到leader 发过来的心跳，会将本地的key ，timestamp 与leader带过来的key，timestamp 进行比较，如果本地少了这个key ，或者是key对应的timestamp 低于leader的话，就会发送请求去leader那拉取不一致的数据:
+
+Raft选举算法：先到先得，少数服从多数；
+
+```txt
+1：集群启动时，每个节点都会随机生成一个选举开始倒计时
+2：当一个节点中倒计时结束，会进入候选状态，候选节点会首先发起Leader投票，其他节点收到投票消息，会返回信息给候选节点；
+3：当某个候选节点，收到选举票数大于当前集群总节点的 1/2 时，它会变成 Leader 节点
+4：Leader节点需要每隔一段时间，向 Follower 发送一个心跳包，维持心跳。Follower 节点会开启一个心跳倒计时，在倒计时时间内，如果收到心跳，返回给Leader，并重新开始倒计时；如果倒计时时间内，没有收到心跳，会主动向 Leade r节点发送请求，判断当前 Leader 是否宕机，如果宕机，开始新的 Leader 选举。
+```
+
+数据一致性，Leader 节点处理事务请求，Follower 只处理非事务请求，如果接受到事务请求，将当前请求转发给Leader，由Leader处理后，同步给Follower节点。
+
+Nacos选举过程中Nacos不会提供服务，但是各服务本地有缓存的服务列表，不会影响服务的调用；
+
+
+
+
+
+
+
+
+
 ## 配置中心
 
 客户端会轮询向服务端发出一个长连接请求，这个长连接最多30s就会超时，服务端收到客户端的请求会先判断当前是否有配置更新，有则立即返回，如果没有服务端会将这个请求拿住“hold”29.5s加入队列，最后0.5s再检测配置文件无论有没有更新都进行正常返回，但等待的29.5s期间有配置更新可以提前结束并返回。

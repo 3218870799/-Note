@@ -580,17 +580,13 @@ public class UserController {
 }
 ```
 
-
-
-
-
-
-
-
-
-
-
 ## 组件
+
+网络通信层：Bootstrap(负责客户端启动），ServerBootStrape（服务端负责监听端口），Channel（网络通信的载体）
+
+事件调度层：EventLoop
+
+服务编排层：ChannelPipeline（将Handler形成一个链），ChannelHandler（数据处理），ChannelHandlerContext（保存Handler的上下文信息）
 
 ### EventLoop
 
@@ -1024,9 +1020,9 @@ Netty 线程模式(Netty主要基于**主从Reactor 多线程模型**做了一�
 
 当并发数很大，就会创建大量的线程，占用很大系统资源连接创建后，如果当前线程暂时没有数据可读，该线程会阻塞在read操作，造成线程资源浪费。
 
-### Reactor模型
+### 反应堆模型
 
-Reactor是反应堆的意思，Reactor模型，是指通过一个或多个输入同时传递给服务处理器的服务请求的**事件驱动处理模式**。 服务端程序处理传入多路请求，并将它们同步分派给请求对应的处理线程，Reactor模式也叫Dispatcher模式，即I/O多了复用统一监听事件，收到事件后分发(Dispatch给某进程)，是编写高性能网络服务器的必备技术之一。
+Reactor是反应堆的意思，Reactor模型，是指通过一个或多个输入同时传递给服务处理器的服务请求的**事件驱动处理模式**。 服务端程序处理传入多路请求，并将它们同步分派给请求对应的处理线程，Reactor模式也叫Dispatcher模式，即I/O多路复用统一监听事件，收到事件后分发(Dispatch给某进程)，是编写高性能网络服务器的必备技术之一。
 
 Reactor模型中有2个关键组成：
 
@@ -1045,11 +1041,15 @@ IO复用结合线程池，就是Reactor模式基本设计思想
 
 ![image-20210127214425086](media/image-20210127214425086.png)
 
-- Select是前面IO 复用模型介绍的标准网络编程API,可以实现应用程序通过一个阻塞对象监听多路连接请求
-- Reactor对象通过Select 监控客户端请求事件，收到事件后通过Dispatch进行分发
-- 如果是建立连接请求事件，则由Acceptor通过Accept处理连接请求，然后创建一个Handler对象处理连接完成后的后续业务处理
-- 如果不是建立连接事件，则 Reactor会分发调用连接对应的 Handler 来响应
-- Handler会完成Read→业务处理→Send 的完整业务流程
+Select是前面IO 复用模型介绍的标准网络编程API,可以实现应用程序通过一个阻塞对象监听多路连接请求
+
+Reactor对象通过Select 监控客户端请求事件，收到事件后通过Dispatch进行分发
+
+如果是建立连接请求事件，则由Acceptor通过Accept处理连接请求，然后创建一个Handler对象处理连接完成后的后续业务处理
+
+如果不是建立连接事件，则 Reactor会分发调用连接对应的 Handler 来响应
+
+Handler会完成Read→业务处理→Send 的完整业务流程
 
 
 
@@ -1059,13 +1059,13 @@ IO复用结合线程池，就是Reactor模式基本设计思想
 
 1)Reactor对象通过select监控客户端请求事件,收到事件后，通过dispatch进行分发
 
-2)如果建立连接请求,则右Acceptor通过accept处理连接请求，然后创建一个Handler对象处理完成连接后的各种事件
+2)如果建立连接请求,则由Acceptor通过accept处理连接请求，然后创建一个Handler对象处理完成连接后的各种事件
 
 3)如果不是连接请求，则由reactor分发调用连接对应的 handler来处理
 
-4) handler 只负责响应事件，不做具体的业务处理,通过read 读取数据后，会分发给后面的worker线程池的某个线程处理业务
+4)handler 只负责响应事件，不做具体的业务处理,通过read 读取数据后，会分发给后面的worker线程池的某个线程处理业务
 
-5) worker线程池会分配独立线程完成真正的业务，并将结果返回给handler
+5)worker线程池会分配独立线程完成真正的业务，并将结果返回给handler
 
 6)handler 收到响应后，通过send 将结果返回给client
 
@@ -1073,21 +1073,21 @@ IO复用结合线程池，就是Reactor模式基本设计思想
 
 ![image-20210127214943915](media/image-20210127214943915.png)
 
-1) Reactor主线程MainReactor对象通过select 监听连接事件,收到事件后，通过Acceptor 处理连接事件
+1)Reactor主线程MainReactor对象通过select 监听连接事件,收到事件后，通过Acceptor 处理连接事件
 
 2)当Acceptor处理连接事件后，MainReactor 将连接分配给SubReactor
 
-3) subreactor 将连接加入到连接队列进行监听,并创建handler进行各种事件处理
+3)subreactor 将连接加入到连接队列进行监听,并创建handler进行各种事件处理
 
 4)当有新事件发生时，subreactor就会调用对应的 handler 处理
 
-5) handler通过read 读取数据，分发给后面的worker线程处理
+5)handler通过read 读取数据，分发给后面的worker线程处理
 
 6)worker 线程池分配独立的worker线程进行业务处理，并返回结果
 
-7) handler 收到响应的结果后，再通过send将结果返回给client
+7)handler 收到响应的结果后，再通过send将结果返回给client
 
-8) Reactor主线程可以对应多个Reactor子线程，即 MainRecator可以关联多个SubReactor
+8)Reactor主线程可以对应多个Reactor子线程，即 MainRecator可以关联多个SubReactor
 
 优点：
 
@@ -1109,7 +1109,7 @@ Netty主要基于主从Reactors多线程模型多的一定的改进。
 
 2)当接收到Accept事件，获取到对应的SocketChannel,封装成NIOScoketChannel并注册到Worker线程(事件循环)，并进行维护
 
-3) 当Worker线程监听到selector 中通道发生自己感兴趣的事件后，就进行处理(就由 handler)，注意handler已经加入到通道
+3)当Worker线程监听到selector 中通道发生自己感兴趣的事件后，就进行处理(就由 handler)，注意handler已经加入到通道
 
 详细原理：
 
@@ -1123,19 +1123,17 @@ Netty主要基于主从Reactors多线程模型多的一定的改进。
 
 4) NioEventLoop表示一个不断循环的执行处理任务的线程，每个NioEventLoop 都有一个selector ，用于监听绑定在其上的socket的网络通讯
 
-5)NioEventLoopGroup可以有多个线程，即可以含有多个NioEventLoop
+5) NioEventLoopGroup可以有多个线程，即可以含有多个NioEventLoop
 
-6)每个 Boss NioEventLoop 循环执行的步骤有3步
+6) 每个 Boss NioEventLoop 循环执行的步骤有3步
 
 - 轮询accept事件
 - 处理accept事件 ,与client建立连接﹐生成NioScocketChannel，并将其注册到某个worker NIOEventLoop 上的selector
-- 处理任务队列的任务，即runAllTasks
+ 处理任务队列的任务，即runAllTasks
 
-  
+ 7）每个Worker NIOEventLoop循环执行的步骤轮询read, write事件处理i/o事件，即 read , write事件，在对应 NioScocketChannel处理处理任务队列的任务，即runAllTasks
 
-7)每个Worker NIOEventLoop循环执行的步骤轮询read, write事件处理i/o事件，即 read , write事件，在对应 NioScocketChannel处理处理任务队列的任务，即runAllTasks
-
-8)每个Worker NIOEventLoop处理业务时,会使用pipeline(管道), pipeline中包含了channel，即通过pipeline以获取到对应通道，管道中维护了很多的处理器
+ 8）每个Worker NIOEventLoop处理业务时,会使用pipeline(管道), pipeline中包含了channel，即通过pipeline以获取到对应通道，管道中维护了很多的处理器
 
 
 
@@ -1189,7 +1187,12 @@ server.group(bossGroup, workerGroup)
 
 - 高性能，基于队列暂存事件，能方便并行异步处理事件
 
-  
+
+### 零拷贝机制
+
+### 高性能无锁队列
+
+
 
 # 第七章：应用
 
@@ -1240,13 +1243,13 @@ server.group(bossGroup, workerGroup)
 
 本质：发生粘包与半包现象的本质是**因为 TCP 是流式协议，消息无边界**
 
-### 解决方案
+### Netty解决方案
 
 1：短链接
 
 每次发送一定长度就断开连接，然后下一个重新建立连接发送，可以解决粘包，但无法解决半包问题；
 
-2：定长解码器
+2：定长解码器FixedLengthFrameDecoder
 
 每次发送固定长度的消息，不足的用其他填充，接受解析时每次满固定长度解析为一条消息；
 
@@ -1276,7 +1279,10 @@ server.group(bossGroup, workerGroup)
 
 5：使用自定义协议＋编解码器
 
+对于粘包与拆包问题，其实前面三种基本上已经能够满足大多数情形了，但是对于一些更加复杂的协议，可能有一些定制化的需求。对于这些场景，其实本质上，我们也不需要手动从头开始写一份粘包与拆包处理器，而是通过继承
+LengthFieldBasedFrameDecoder和LengthFieldPrepender来实现粘包和拆包的处理。
 
+如果用户确实需要不通过继承的方式实现自己的粘包和拆包处理器，这里可以通过实现MessageToByteEncoder和ByteToMessageDecoder来实现。这里MessageToByteEncoder的作用是将响应数据编码为一个ByteBuf对象，而ByteToMessageDecoder则是将接收到的ByteBuf数据转换为某个对象数据。通过实现这两个抽象类，用户就可以达到实现自定义粘包和拆包处理的目的
 
 ## 协议设计与解析
 
@@ -1489,6 +1495,26 @@ ctx.channel().eventLoop().schedule(new Runnable() {
 }, 60, TimeUnit.SECONDS);
 ```
 
+## 源码
+
+init():
+
+初始化ServerSocketChannel
+
+
+
+register()：
+
+将ServerSocketChannel注册到select 中
+
+线程切换，让执行线程切换到NIO线程，
+
+
+
+bind();
+
+将
+
 
 
 # 问题
@@ -1512,4 +1538,4 @@ Netty 默认是 CPU 处理器数的两倍，bind 完之后启动。
 
 
 
-https://nyimac.gitee.io/2021/04/25/Netty%E5%9F%BA%E7%A1%80/#Netty
+https://nyimac.gitee.io/2021/04/25/Netty%E5%9F%BA%E7%A1%80/#Netty	
