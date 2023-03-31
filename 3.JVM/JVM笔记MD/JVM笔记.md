@@ -45,7 +45,7 @@ Java 虚拟机在运行时，会把内存空间分为若干个区域。Java 虚�
 
 
 
-HotSpot中，使用永久代来实现方法区，相当于说方法区时规范，永久代是HotSpot针对规范进行的实现
+HotSpot中，使用永久代来实现方法区，
 
 前面方法区时也说了，在 jdk1.8 中，方法区已经不存在，原方法区中存储的类信息、编译后的代码数据等已经移动到了元空间（MetaSpace）中，元空间并没有处于堆内存上，而是直接占用的本地内存（NativeMemory）。
 
@@ -53,7 +53,9 @@ HotSpot中，使用永久代来实现方法区，相当于说方法区时规范�
 
 如果元空间内存不够用，就会报`OOM`，默认情况下，对应一个`64`位的服务端`JVM`来说，其默认的`-XX:MetaspaceSize`值为`21MB`，这就是初始的高水位线，一旦元空间的大小触及这个高水位线，就会触发`Full GC`并会卸载没有用的类，同时GC会对该值进行调整，如果释放了大量的空间，就适当的降低该值；如果释放了很少的空间，那么在不超过MaxMetaspaceSize（如果设置了的话），适当的提高该值。建议将`-XX:MetaspaceSize`设置为较高的值，而`-XX:MaxMetaspaceSize`不进行设置。即-1 无限制。
 
-比如 8/16G 的，设置 256M，最大设置 512M
+比如 8/16G 的，设置 256M，最大设置 512M。
+
+
 
 ## 3：堆内存
 
@@ -354,7 +356,7 @@ CMS 是基于“标记-清除”算法实现的，整个过程分为 4 个步骤
 
 3、重新标记（CMS remark）：由于前面是并发标记的，这时候年轻代的对象对老年代的引用已经发生了改变，修正错标，CMS 和 G1 都采用的三色标记，CMS 采用增量更新，G1 使用快照的方式。ZGC 采用颜色指针。
 
-4、并发清除（CMS concurrent sweep）。
+4、并发清除（CMS concurrent sweep）：标记清除算法
 
 ![89af7bbc-5331-4c62-ab7e-18e93350f826](https://nulleringnotepic.oss-cn-hangzhou.aliyuncs.com/notepic/641601-20150915141621148-1908245224.png)
 
@@ -401,13 +403,19 @@ G1 的内存布局不再是新生代老年代等等的了，变成了
 
 每个 Region 的大小可以通过-XX:G1HeapRegionSize 参数设置。大小只能是 2 的幂次方。在 HotSpot 的实现中，整个堆被划分为 2048 左右各 Region。
 
+如果对象的大小大于0.5个Region小于1个Region区时直接存到Old区，Old区被标记为H区，>1个Region时会申请连续的两个H区，
+
+
+
 **跨代引用：**
 
 Card Table 和 Remebered Set（记住谁引用了我）
 
-RS(Remember Set)是一种抽象概念，在 G1 回收器里面，RS 被用来记录从其他 Region 指向一个 Region 的指针情况。因此，一个 Region 就会有一个 RS。
+RS(Remember Set)：记录其他Region引用当前Region的的指针情况，是一种抽象概念，。因此，一个 Region 就会有一个 RS。
 
 这种记录可以带来一个极大的好处：在回收一个 Region 的时候不需要执行全堆扫描，只需要检查它的 RS 就可以找到外部引用。如果一个线程修改了 Region 内部的引用，就必须要去通知 RS。
+
+CSet:本次GC需要清理的集合
 
 Writer Barrier（写屏障）
 
@@ -415,7 +423,7 @@ Writer Barrier（写屏障）
 
 G1 中提供了三种模式垃圾回收模式，young GC ，Mixed GC 和 Full GC，在不同的条件下触发。
 
-1：Fully young GC 完全的年轻代 GC，产生一个 STW，构建 CS（Eden + Surivor），扫描 GC Rooot，排空 Dirty Card Queue，处理 Remebered Set （找到被老年代所引用的对象）使用卡表（Card Table）进行卡标记（card Marking）来解决老年代与新生代直接的引用问题，复制对象到 Survivor 区，处理软，虚等引用
+1： young GC 完全的年轻代 GC，产生一个 STW，构建 CS（Eden + Surivor），扫描 GC Rooot，排空 Dirty Card Queue，处理 Remebered Set （找到被老年代所引用的对象）使用卡表（Card Table）进行卡标记（card Marking）来解决老年代与新生代直接的引用问题，复制对象到 Survivor 区，处理软，虚等引用
 
 具体是，使用卡表（Card Table）和写屏障（Write Barrier）来进行标记并加快对 GC Roots 的扫描。卡表的设计师将堆内存平均分成 2 的 N 次方大小（默认 512 字节）个卡，并且维护一个卡表，用来储存每个卡的标识位。当对一个对象引用进行写操作时（对象引用改变），写屏障逻辑将会标记对象所在的卡页为脏页。在 YGC 只需要扫描卡表中的脏卡，将脏中的对象加入到 YGC 的 GC Roots 里面。当完成所有脏卡扫描时候，虚拟机会将卡表的脏卡标志位清空。
 
@@ -425,9 +433,11 @@ G1 中提供了三种模式垃圾回收模式，young GC ，Mixed GC 和 Full GC
 
 当越来越多的对象晋升到老年代 old region 时,为了避免堆内存被耗尽,虚拟机会触发一个混合的垃圾收集器,即 Mixed GC,该算法并不是一个 Old GC,除了回收整个 Young Region,还会回收一部分的 Old Region。
 
-- 全局并发标记：在 MixGC 之前，会先进行全局并发标记。其中会分为五个步骤：初始标记（STW，从 GC Root 触发标记全部直接子节点），根区域扫描（在初始标记的存活区，扫描老年代的引用），并发标记（整个堆中查找存活对象），再标记（STW，，清除垃圾
+全局并发标记：在 MixGC 之前，会先进行全局并发标记。其中会分为五个步骤：
 
-- 拷贝存活对象
+初始标记（STW，从 GC Root 触发标记全部直接子节点），根区域扫描（在初始标记的存活区，扫描老年代的引用），并发标记（整个堆中查找存活对象），再标记SATB算法（STW），清除垃圾
+
+拷贝存活对象；
 
 G1 垃圾回收周期如下图所示
 

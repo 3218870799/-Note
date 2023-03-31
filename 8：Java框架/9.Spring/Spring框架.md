@@ -70,9 +70,7 @@ classA 类中含有 classB 的实例，在 classA 中调用 classB 的方法完�
 
 
 
-容器：存储对象，使用map结构存储对象，在spring中存储对象的时候一般有三级缓存，singletonObject存放完整的对象，earlySingleObject存放半成品对象，singletonFactory用来存放lambda表达式和对象名称的映射，bean的声明周期从创建到销毁，各个环节都有容器控制； 
 
-ApplicationContext 容器，会在容器对象初始化时，将其中的所有对象一次性全部装配好。以后代码中若要使用到这些对象，只需从内存中直接获取即可。执行效率较高。但占用内存。
 
 
 
@@ -219,6 +217,10 @@ C**、** 使用 spring 容器创建的 java 对象
 ## 二：Bean
 
 ### 容器
+
+存储对象，使用map结构存储对象，在spring中存储对象的时候一般有三级缓存，singletonObject存放完整的对象，earlySingleObject存放半成品对象，singletonFactory用来存放lambda表达式和对象名称的映射，bean的声明周期从创建到销毁，各个环节都有容器控制； 
+
+ApplicationContext 容器，会在容器对象初始化时，将其中的所有对象一次性全部装配好。以后代码中若要使用到这些对象，只需从内存中直接获取即可。执行效率较高。但占用内存。
 
 1：BeanFactory 接口，典型功能getbean()，它是spring的核心容器，bean的控制反转，依赖注入，生命周期都由它的实现类实现；
 
