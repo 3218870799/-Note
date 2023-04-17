@@ -1932,7 +1932,7 @@ outter join 由于左右表都是保留表，这都不能下推；
 
 
 
-## 6：索引的应用
+## 五：索引的应用
 
 1、创建索引
 
@@ -2717,9 +2717,81 @@ binlog_row_image=full
 
 https://www.cnblogs.com/ryanzheng/p/15371199.html
 
+## 修改密码
 
+方法 1： 用 SET PASSWORD 命令
 
+首先登录 MySQL。
 
+```shell
+## 格式：
+mysql\> set password for 用户名@localhost = password('新密码');
+## 例子：
+mysql\> set password for root@localhost = password('123');
+```
+
+方法 2：用 mysqladmin
+
+```shell
+## 格式：
+mysqladmin -u 用户名 -p 旧密码 password 新密码
+## 例子：
+mysqladmin -uroot -p123456 password 123
+```
+
+方法 3：用 UPDATE 直接编辑 user 表
+
+首先登录 MySQL。
+
+```shell
+mysql\> use mysql;
+
+mysql\> update user set password=password('123') where user='root' and host='localhost';
+
+mysql\> flush privileges;
+```
+
+方法 4：在忘记 root 密码的时候，可以这样
+
+以 windows 为例：
+
+```txt
+1. 关闭正在运行的 MySQL 服务。
+2. 打开 DOS 窗口，转到 mysql\\bin 目录。
+3. 输入 mysqld --skip-grant-tables 回车。--skip-grant-tables的意思是启动 MySQL 服务的时候跳过权限表认证。
+4. 再开一个 DOS 窗口（因为刚才那个 DOS 窗口已经不能动了），转到 mysql\\bin 目录。
+5. 输入 mysql 回车，如果成功，将出现 MySQL 提示符 \>。
+6. 连接权限数据库： use mysql; 。
+7. 改密码：update user set password=password("123") where user="root";
+8. 刷新权限（必须步骤）：flush privileges; 。
+9. 退出 quit。
+10. 注销系统，再进入，使用用户名 root 和刚才设置的新密码 123 登录
+```
+
+## 服务器级常用 sql 语句
+
+```sql
+--查看表空间
+select concat(round(sum(index_length)/(1024*1024),2),'MB') AS 'MB' ,'Index Data Size' as TABLESPACE from information_schema.TABLE where table_schema='alp'
+
+select
+	a.tablespace_name "表空间名"，
+	total "表空间大小",
+	free "表空间剩余大小",
+	(total - free) "表空间使用大小",
+	total/(1024*1024*1024) "表空间大小(G)",
+	free/(1024*1024*1024) "表空间剩余大小(G)",
+	(total - free)/(1024*1024*1024) "表空间使用大小(G)",
+	round((total - free)/total,4) * 100 "使用率%",
+	from (select tablespace_name,sum(bytes) free
+         from dba_free_space
+         group by tablespace_name) a,
+         (select tablespace_name,sum(bytes) total
+         from dba_data_files
+          group by tablespace_name) b
+```
+
+# 
 
 # 第十章：MySQL 锁机制
 
@@ -2727,29 +2799,53 @@ https://www.cnblogs.com/ryanzheng/p/15371199.html
 
 行锁是为了最大并发化所提供的一种锁，封锁某一行数据。我知道的 mysql 行锁有三种，就间隙锁使用场景，我分成了`唯一索引`和`非唯一索引`两种情况。`记住所有的for update都是当前读并且加上行锁，跟快照读不一样，`
 
-（1）按对数据操作：
+**（1）按对数据操作：**
 
 读锁（共享锁）：多个读操作可以同时进行，互不干扰
 
 写锁（互斥锁）：如果当前写操作没有完毕，则无法进行其他读操作和写操作。
 
-（2）按粒度分：表锁和行锁
+**（2）按粒度分：表锁和行锁**
 
-表锁：
+表锁：意向锁(IS 锁、IX 锁)、自增锁；
 
 偏小 myisam 存储引擎，开销小，无死锁，容易发生锁冲突，并发度低。
 
 lock table 表名字 1 read(write)，表名字 2 read(write)，其它
 
-行锁
+行锁：记录锁、间隙锁、临键锁、插入意向锁；
 
 偏向 innodb,开销大，支持事务
 
 总的来说，Innodb 共有其中类型的锁
 
-## 1：共享/排它锁（Shared and Exclusive Locks）
+**（3）按锁的互斥程度来划分，可以分为共享、排他锁；**
 
-## 2：意向锁（Intention Locks）
+- 共享锁(S 锁、IS 锁)，可以提高读读并发；
+
+- 为了保证数据强一致，InnoDB 使用强互斥锁(X 锁、IX 锁)，保证同一行记录修改与删除的串行性；
+
+其中
+
+1. InnoDB 的细粒度锁(即行锁)，是实现在索引记录上的；
+2. 记录锁锁定索引记录；间隙锁锁定间隔，防止间隔中被其他事务插入；临键锁锁定索引记录+间隔，防止幻读；
+3. InnoDB 使用插入意向锁，可以提高插入并发；
+4. 间隙锁(gap lock)与临键锁(next-key lock)**只在 RR 以上的级别生效，RC 下会失效**；
+
+```sql
+--查看哪些表加了锁
+show open tables;--1代表被加了锁
+--分析表锁定的严重程度
+show status like 'table%'
+参数：Table_locks_immediate:即可能获取到的锁数
+参数：Table_waited:需要等待的表锁数，该值越大锁竞争越大
+```
+
+## 1：共享/排它锁
+
+（Shared and Exclusive Locks）
+
+## 2：意向锁
 
 InnoDB 为了支持多粒度锁机制(multiple granularity locking)，即允许行级锁与表级锁共存，而引入了意向锁(intention locks)。意向锁是指，未来的某个时刻，事务可能要加共享/排它锁了，先提前声明一个意向。
 
@@ -2779,13 +2875,17 @@ select ... for update;　　　　　　 要设置IX锁；
 | IS  | 兼 容 | 互 斥 |
 | IX  | 互 斥 | 互 斥 |
 
-## 记录锁（Record Locks）
+## 记录锁
 
-记录锁，它封锁索引记录
+记录锁（Record Locks），它封锁索引记录
 
-## 间隙锁（Gap Locks）
+## 间隙锁
 
-间隙锁，它封锁索引记录中的间隔，或者第一条索引记录之前的范围，又或者最后一条索引记录之后的范围。
+当我们用范围条件而不是相等条件检索数据，并请求共享或排他锁时，InnoDB 会给符合条件的已有数据记录的索引项加锁；对于键值在条件范围内但并不存在的记录，叫做“间隙（GAP)”，InnoDB 也会对这个“间隙”加锁，这种锁机制就是所谓的间隙锁（GAP Lock）。
+
+因为 Query 执行过程中通过过范围查找的话，他会锁定整个范围内所有的索引键值，即使这个键值并不存在。间隙锁有一个比较致命的弱点，就是当锁定一个范围键值之后，即使某些不存在的键值也会被无辜的锁定，而造成在锁定的时候无法插入锁定键值范围内的任何数据。在某些场景下这可能会对性能造成很大的危害
+
+间隙锁（Gap Locks），它封锁索引记录中的间隔，或者第一条索引记录之前的范围，又或者最后一条索引记录之后的范围。
 
 间隙锁一般都是针对非唯一索引而言的，它会对相邻的区间进行封锁，被锁上的区间内的值是无法再被使用的。当那个条件不存在的时候会找表中存在的相邻数据，然后再进行加锁。
 
@@ -2811,9 +2911,13 @@ select ... for update;　　　　　　 要设置IX锁；
 
 ![image-20210309101841660](media/image-20210309101841660.png)
 
-## 临键锁（Next-key Locks）
 
-临键锁，是记录锁与间隙锁的组合，它的封锁范围，既包含索引记录，又包含索引区间。
+
+
+
+## 临键锁
+
+临键锁（Next-key Locks），是记录锁与间隙锁的组合，它的封锁范围，既包含索引记录，又包含索引区间。
 
 默认情况下，innodb 使用 next-key locks 来锁定记录。但当查询的索引含有唯一属性的时候，Next-Key Lock 会进行优化，将其降级为 Record Lock，即仅锁住索引本身，不是范围。
 
@@ -2829,9 +2933,9 @@ insert into lock_example values('zhang',15);
 
 如上的例子，事务 A 执行查询语句之后，默认给 id=20 这条记录加上了 next-key lock，所以事务 B 插入 10(包括)到 30(不包括)之间的记录都会阻塞。临键锁的主要目的，也是为了避免幻读(Phantom Read)。如果把事务的隔离级别**降级为 RC，临键锁则也会失效**。
 
-## 插入意向锁（Insert Intention Locks）
+## 插入意向锁
 
-对已有数据行的修改与删除，必须加强互斥锁(X 锁)，那么对于数据的插入，是否还需要加这么强的锁，来实施互斥呢？插入意向锁，孕育而生。
+（Insert Intention Locks）对已有数据行的修改与删除，必须加强互斥锁(X 锁)，那么对于数据的插入，是否还需要加这么强的锁，来实施互斥呢？插入意向锁，孕育而生。
 
 插入意向锁，是间隙锁(Gap Locks)的一种（所以，也是实施在索引上的），它是专门针对 insert 操作的。多个事务，在同一个索引，同一个范围区间插入记录时，如果插入的位置不冲突，不会阻塞彼此。
 
@@ -2860,44 +2964,6 @@ insert into t values(12, ooo);
 事务 B 后执行： insert into t(name) values(ooo);
 
 此时事务 B 插入操作会阻塞，直到事务 A 提交。
-
-总结：
-
-**1. 按锁的互斥程度来划分，可以分为共享、排他锁；**
-
-- 共享锁(S 锁、IS 锁)，可以提高读读并发；
-
-- 为了保证数据强一致，InnoDB 使用强互斥锁(X 锁、IX 锁)，保证同一行记录修改与删除的串行性；
-
-**2. 按锁的粒度来划分，可以分为：**
-
-- 表锁：意向锁(IS 锁、IX 锁)、自增锁；
-
-- 行锁：记录锁、间隙锁、临键锁、插入意向锁；
-
-其中
-
-1. InnoDB 的细粒度锁(即行锁)，是实现在索引记录上的(我的理解是如果未命中索引则会失效)；
-2. 记录锁锁定索引记录；间隙锁锁定间隔，防止间隔中被其他事务插入；临键锁锁定索引记录+间隔，防止幻读；
-3. InnoDB 使用插入意向锁，可以提高插入并发；
-4. 间隙锁(gap lock)与临键锁(next-key lock)**只在 RR 以上的级别生效，RC 下会失效**；
-
-4：间隙锁：
-
-当我们用范围条件而不是相等条件检索数据，并请求共享或排他锁时，InnoDB 会给符合条件的已有数据记录的索引项加锁；对于键值在条件范围内但并不存在的记录，叫做“间隙（GAP)”，
-InnoDB 也会对这个“间隙”加锁，这种锁机制就是所谓的间隙锁（GAP Lock）。
-
-因为 Query 执行过程中通过过范围查找的话，他会锁定整个范围内所有的索引键值，即使这个键值并不存在。
-间隙锁有一个比较致命的弱点，就是当锁定一个范围键值之后，即使某些不存在的键值也会被无辜的锁定，而造成在锁定的时候无法插入锁定键值范围内的任何数据。在某些场景下这可能会对性能造成很大的危害
-
-```sql
---查看哪些表加了锁
-show open tables;--1代表被加了锁
---分析表锁定的严重程度
-show status like 'table%'
-参数：Table_locks_immediate:即可能获取到的锁数
-参数：Table_waited:需要等待的表锁数，该值越大锁竞争越大
-```
 
 ## 悲观锁/乐观锁
 
@@ -3008,29 +3074,6 @@ innodb_print_all_deadlocks = 1  #死锁都保存到错误日志
 
 SQL语句不要使用太复杂的关联多表查询；explain对于有全表扫描的SQL语句建立索引；
 
-# 19：服务器级常用 sql 语句
-
-```sql
---查看表空间
-select concat(round(sum(index_length)/(1024*1024),2),'MB') AS 'MB' ,'Index Data Size' as TABLESPACE from information_schema.TABLE where table_schema='alp'
-
-select
-	a.tablespace_name "表空间名"，
-	total "表空间大小",
-	free "表空间剩余大小",
-	(total - free) "表空间使用大小",
-	total/(1024*1024*1024) "表空间大小(G)",
-	free/(1024*1024*1024) "表空间剩余大小(G)",
-	(total - free)/(1024*1024*1024) "表空间使用大小(G)",
-	round((total - free)/total,4) * 100 "使用率%",
-	from (select tablespace_name,sum(bytes) free
-         from dba_free_space
-         group by tablespace_name) a,
-         (select tablespace_name,sum(bytes) total
-         from dba_data_files
-          group by tablespace_name) b
-```
-
 # 第十一章：配置参数
 
 **基本配置：**
@@ -3134,78 +3177,6 @@ select
 **max_length_for_sort**：mysql 有两种排序算法，两次传输排序和单次传输排序。当查询需要所有列的总长度不超过 max_length_for_sort 时，mysql 使用 单次传输排序，否则使用两次传输排序。
 
 **optimizer_search_depth**：在关联查询中，当需要关联的表数量超过 optimizer_search_depth 的时候，优化器会使用“贪婪”搜索的方式查找“最优”的关联顺序。
-
-## 21：问题
-
-### 1：修改 mysql 的 root 密码
-
-方法 1： 用 SET PASSWORD 命令
-
-首先登录 MySQL。
-
-格式：mysql\> set password for 用户名\@localhost = password('新密码');
-
-例子：mysql\> set password for root\@localhost = password('123');
-
-方法 2：用 mysqladmin
-
-格式：mysqladmin -u 用户名 -p 旧密码 password 新密码
-
-例子：mysqladmin -uroot -p123456 password 123
-
-方法 3：用 UPDATE 直接编辑 user 表
-
-首先登录 MySQL。
-
-mysql\> use mysql;
-
-mysql\> update user set password=password('123') where user='root' and
-host='localhost';
-
-mysql\> flush privileges;
-
-方法 4：在忘记 root 密码的时候，可以这样
-
-以 windows 为例：
-
-1. 关闭正在运行的 MySQL 服务。
-2. 打开 DOS 窗口，转到 mysql\\bin 目录。
-3. 输入 mysqld --skip-grant-tables 回车。--skip-grant-tables
-   的意思是启动 MySQL 服务的时候跳过权限表认证。
-4. 再开一个 DOS 窗口（因为刚才那个 DOS 窗口已经不能动了），转到 mysql\\bin 目录。
-5. 输入 mysql 回车，如果成功，将出现 MySQL 提示符 \>。
-6. 连接权限数据库： use mysql; 。
-7. 改密码：update user set password=password("123") where
-   user="root";（别忘了最后加分号） 。
-8. 刷新权限（必须步骤）：flush privileges; 。
-9. 退出 quit。
-10. 注销系统，再进入，使用用户名 root 和刚才设置的新密码 123 登录
-
-### 2：Mysql 占用 CPU100%，如何处理？
-
-mysql CPU 使用已达到接近 400%（因为是四核，所以会有超过 100%的情况）
-
-在服务器上执行 mysql -u root -p 之后，输入 show full processlist; 可以看到正在执行的语句。
-
-但是从数据库设计方面来说，该做的索引都已经做了，SQL 语句似乎没有优化的空间。
-
-直接执行此条 SQL，发现速度很慢，需要 1-6 秒的时间（跟 mysql 正在并发执行的查询有关，如果没有并发的，需要 1 秒多）。如果把排序依据改为一个，则查询时间可以缩短至 0.01 秒（most_top）或者 0.001 秒（posttime）。
-
-优化：
-
-首先是缩减查询范围
-
-### 怎么防止 sql 注入？
-
-sql 注入：某些 sql 语句的参数没有进行合理校检，参数中可能有危害数据库的一些语句，导致语句出错。
-
-使用预编译语句的支持
-
-一条语句可能会反复执行，或许每次执行只有个别语句不同。
-
-使用占位符替代，一次编译，多次运行。
-
-mysql 使用 PrepareStatement
 
 # 第十二章：MySQL 集群
 
