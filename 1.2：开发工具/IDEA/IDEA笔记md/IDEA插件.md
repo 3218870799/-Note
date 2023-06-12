@@ -21,6 +21,8 @@ File——Setting——Plugins——MarketPlace搜索 ` JRebel and XRebel `
 ```txt
 https://jrebel.qekang.com/+生成的guid
 7edb2e7c-0b83-4b0f-b81a-6c053ba240c4
+https://jrebel.qekang.com/9f47cc6c-4f3f-4b91-b96f-3a971b3759d7
+http://idea.javatiku.cn/9f47cc6c-4f3f-4b91-b96f-3a971b3759d7
 ```
 
 第二个选项则填写你自己的邮箱即可
