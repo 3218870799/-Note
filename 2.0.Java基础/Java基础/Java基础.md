@@ -3235,7 +3235,11 @@ JUC 包下的容器类分为两部分，一部分是**并发集合类**，一部
 
 ### Unsafe 类
 
-AQS 等也是用来 CAS 算法，unsafe 类是 CAS 的核心类，原子等无锁操作，自旋操作都是 unsafe 类，Java 无法直接访问底层操作系统，而是通过本地 native 方法来访问，尽管如此，JVM 还是开了一个后门：Unsafe 它提供了硬件级别的原子操作。在底层调用汇编指令`cmpxchg`指令，这是一条汇编指令，所以 CPU 一次通过，是原子操作。
+Java 无法直接访问底层操作系统，而是通过本地 native 方法来访问，尽管如此，JVM 还是开了一个后门：Unsafe 它提供了硬件级别的原子操作。在底层调用汇编指令`cmpxchg`指令，这是一条汇编指令，所以 CPU 一次通过，是原子操作。
+
+Unsafe包含很多基础操作，比如CAS，线程Park，栅栏（Fence），JUC等；
+
+AQS 等也是用来 CAS 算法，unsafe 类是 CAS 的核心类，原子等无锁操作，自旋操作都是 unsafe 类，
 
 但是它设置了限制，不让上层开发者使用，可以通过反射进行获取，
 
@@ -3255,6 +3259,12 @@ AQS 等也是用来 CAS 算法，unsafe 类是 CAS 的核心类，原子等无�
 
 申请内存：All
 
+
+
+
+
+
+
 ### CopyOnWrite
 
 写时复制：当修改 JAVA 中 Contains 的元素时，不直接修改该容器，而是先复制一份副本，在副本上进行修改，修改完成之后，净指向原本容器的引用指向新的容器副本；
@@ -3267,7 +3277,7 @@ copyOnWrite 适用于读多写少的场景；
 
 内部继承AQS，内部类实现Sync实现公平锁与非公平锁；
 
-ReenTrantLock 的实现是一种自旋锁，通过循环调用 CAS 操作来实现加锁。它的性能比较好也是因为避免了使线程进入内核态的阻塞状态。**想尽办法避免线程进入内核的阻塞状态是我们去分析和理解锁设计的关键钥匙。**
+ReentrantLock 的实现是一种自旋锁，通过循环调用 CAS 操作来实现加锁。它的性能比较好也是因为避免了使线程进入内核态的阻塞状态。**想尽办法避免线程进入内核的阻塞状态是我们去分析和理解锁设计的关键钥匙。**
 
 **与 synchronized 的区别？**
 
@@ -3368,17 +3378,40 @@ ConditionObject 实现了 Condition 接口，给 AQS 提供条件变量的支持
 - 一个是用于共享资源的互斥使用
 - 另一个用于并发线程数或者任务数量控制
 
-·
+```java
+//模拟5辆车停3个车位
+public class SemaphoreTest {
+    public static void main(String[] args) {
+        Semaphore semaphore = new Semaphore(3);
+        for (int i = 0; i < 5; i++) {
+            new Thread(() -> {
+                try {
+                    semaphore.acquire();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    System.out.println(Thread.currentThread().getName() + " start...");
+                    TimeUnit.SECONDS.sleep(1);
+                    System.out.println(Thread.currentThread().getName() + " end...");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } finally {
+                    semaphore.release();
+                }
+            }).start();
+        }
+    }
+}
+```
 
+源码：https://www.jianshu.com/p/838ca465bbb2
 
-
-
-
-### 4，Exchanger
+### Exchanger
 
 这个类是为了帮助猿友们方便的实现两个线程交换数据的场景，
 
-### 5：FutureTask
+### Future与FutureTask
 
 在介绍 Callable 时我们知道它可以有返回值，返回值通过 Future\<V\> 进行封装。FutureTask 实现了 RunnableFuture 接口，该接口继承自 Runnable 和 Future\<V\> 接口，这使得 FutureTask 既可以当做一个任务执行，也可以有返回值。
 
@@ -3407,7 +3440,26 @@ public static void main(String[args) throws InterruptedException, ExecutionExcep
 }
 ```
 
+批量提交Future任务
 
+```java
+ThreadPoolExecutor cachedThreadPollExecutor = new ThreadPoolExecutor(4,8,60L,TimeUnit.SECONDS,new SynchronousQueue<>());
+
+ExecutorCompletionService<String>  completionService = new ExecutorCompletionService<>(cachedThreadPollExecutor);
+
+List<CallableTask> tasks = Arrays.asList(task1,task2,task3);
+
+//等三个全执行完才返回
+List<Future<String>> futures = cachedThreadPollExecutor.invokeAll(tasks);
+futures.get(0).get(completionService.submit());
+
+//执行完就返回
+tasks.forEach(completionService::submit)
+Future<String> stringFuture = completionService.take();
+stringFuture.get();
+
+cachedThreadPollExecutor.shutdown();
+```
 
 ### 6：BlockingQueue 阻塞队列
 
